@@ -1,13 +1,4 @@
-# Requisitos Não Funcionais — Aplicação **Orélle**
-
-> **PAP — Curso Profissional de Informática de Gestão**  
-> **Áreas:** Programação · Gestão · Base de Dados  
-> **Ano letivo:** 2025/2026  
-> **Versão:** 1.0  
-> **Elaborado por:** [Nome do Grupo]  
-> **Professor Orientador:** Nuno Miguel Almeida Castro
-
----
+# Orélle — Requisitos Não Funcionais (RNF) e Stack Tecnológica
 
 ## Índice
 
@@ -18,6 +9,10 @@
 5. [Manutenção e Qualidade](#5-manutenção-e-qualidade)
 6. [Experiência de IA e Ética](#6-experiência-de-ia-e-ética)
 7. [Stack Tecnológica Recomendada](#7-stack-tecnológica-recomendada)
+8. [Licença](#licença)
+9. [Changelog](#changelog)
+
+-   [Voltar ao início](../README.md)
 
 ---
 
@@ -112,12 +107,14 @@
 -   Modelos treinados com datasets diversificados para evitar viés.
 -   APIs seguras para possível análise remota (OpenAI, Hugging Face).
 
-### DevOps
+---
 
-> DevOps é o conjunto de práticas que combina desenvolvimento de software (Dev) e operações de TI (Ops). O objetivo é encurtar o ciclo de vida do desenvolvimento de sistemas, proporcionando entrega contínua com alta qualidade de software.
+## Licença
 
--   Render ou Railway para deploy simplificado.
--   CDN (Cloudflare, AWS CloudFront) para servir imagens rapidamente.
--   Versionamento com GitHub Classroom para controlo de versões e colaboração.
+Projeto académico orientado ao contexto PAP.
 
 ---
+
+## Changelog
+
+-   **2024-06-15** — Versão inicial dos Requisitos Não Funcionais (RNF) e Stack Tecnológica Sugerida.

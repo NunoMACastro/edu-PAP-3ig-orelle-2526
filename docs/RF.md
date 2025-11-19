@@ -1,14 +1,5 @@
 # Requisitos Funcionais — Aplicação **Orélle**
 
-> **PAP — Curso Profissional de Informática de Gestão**  
-> **Áreas:** Programação · Gestão · Base de Dados  
-> **Ano letivo:** 2025/2026  
-> **Versão:** 1.0  
-> **Elaborado por:** [Nome do Grupo]  
-> **Professor Orientador:** Nuno Miguel Almeida Castro
-
----
-
 ## Índice
 
 1. [Utilizadores e Perfis](#1-utilizadores-e-perfis)
@@ -19,11 +10,20 @@
 6. [Carrinho, Pagamentos e Histórico](#6-carrinho-pagamentos-e-histórico)
 7. [Gestão Administrativa](#7-gestão-administrativa)
 8. [Notificações e Comunicação](#8-notificações-e-comunicação)
-9. [Critérios de Aceitação](#9-critérios-de-aceitação)
+9. [Campanhas, Preferências Avançadas e Privacidade Operacional](#9-campanhas-preferências-avançadas-e-privacidade-operacional)
+10. [Critérios de Aceitação](#critérios-de-aceitação)
+11. [Sugestão de MVP organizado por fases e RF](#sugestão-de-mvp-organizado-por-fases-e-rf)
+12. [Créditos do projeto](#créditos-do-projeto)
+13. [Licença](#licença)
+14. [Changelog](#changelog)
+
+-   [Voltar ao início](../README.md)
 
 ---
 
-## 1 Utilizadores e Perfis
+## Requisitos Funcionais
+
+### 1 Utilizadores e Perfis
 
 | Código | Requisito                                                                                                       | Atores  | Prioridade | Dependências |
 | :----- | :-------------------------------------------------------------------------------------------------------------- | :------ | :--------- | :----------- |
@@ -36,7 +36,7 @@
 
 ---
 
-## 2 Gestão de Produtos e Catálogo
+### 2 Gestão de Produtos e Catálogo
 
 | Código | Requisito                                                                                                | Atores       | Prioridade | Dependências |
 | :----- | :------------------------------------------------------------------------------------------------------- | :----------- | :--------- | :----------- |
@@ -49,7 +49,7 @@
 
 ---
 
-## 3 Análise e Consultoria com IA
+### 3 Análise e Consultoria com IA
 
 | Código | Requisito                                                                                                 | Atores           | Prioridade | Dependências |
 | :----- | :-------------------------------------------------------------------------------------------------------- | :--------------- | :--------- | :----------- |
@@ -61,7 +61,7 @@
 
 ---
 
-## 4 Sistema de Recomendação e Personalização
+### 4 Sistema de Recomendação e Personalização
 
 | Código | Requisito                                                                                           | Atores      | Prioridade | Dependências |
 | :----- | :-------------------------------------------------------------------------------------------------- | :---------- | :--------- | :----------- |
@@ -73,7 +73,7 @@
 
 ---
 
-## 5 Simulação Virtual e Fotografias
+### 5 Simulação Virtual e Fotografias
 
 | Código | Requisito                                                                             | Atores  | Prioridade | Dependências |
 | :----- | :------------------------------------------------------------------------------------ | :------ | :--------- | :----------- |
@@ -83,7 +83,7 @@
 
 ---
 
-## 6 Carrinho, Pagamentos e Histórico
+### 6 Carrinho, Pagamentos e Histórico
 
 | Código | Requisito                                                                              | Atores           | Prioridade | Dependências |
 | :----- | :------------------------------------------------------------------------------------- | :--------------- | :--------- | :----------- |
@@ -95,7 +95,7 @@
 
 ---
 
-## 7 Gestão Administrativa
+### 7 Gestão Administrativa
 
 | Código | Requisito                                                                            | Atores | Prioridade | Dependências |
 | :----- | :----------------------------------------------------------------------------------- | :----- | :--------- | :----------- |
@@ -107,7 +107,7 @@
 
 ---
 
-## 8 Notificações e Comunicação
+### 8 Notificações e Comunicação
 
 | Código | Requisito                                                                    | Atores             | Prioridade | Dependências |
 | :----- | :--------------------------------------------------------------------------- | :----------------- | :--------- | :----------- |
@@ -118,7 +118,19 @@
 
 ---
 
-## 9 Critérios de Aceitação
+### 9 Campanhas, Preferências Avançadas e Privacidade Operacional
+
+| Código | Requisito                                                                                                                   | Atores           | Prioridade | Dependências |
+| :----- | :-------------------------------------------------------------------------------------------------------------------------- | :--------------- | :--------- | :----------- |
+| RF40   | Guardar **alergias, ingredientes a evitar e restrições médicas leves** no perfil e impedir recomendações que violem regras. | Cliente, Sistema | Must       | RF03         |
+| RF41   | Painel para consultores/admins reverem e aprovarem **pedidos de eliminação/anonymização de fotografias e relatórios**.      | Admin, Consultor | Must       | RF13         |
+| RF42   | Gestão de **campanhas e storytelling** (banner, segmento, período, consultor responsável).                                  | Admin, Consultor | Should     | RF07         |
+| RF43   | Configurar e aplicar **códigos promocionais** com limites por cliente, canal e datas.                                       | Admin            | Should     | RF27         |
+| RF44   | Registo/auditoria de acessos a dados biométricos, com alertas para usos indevidos.                                          | Sistema, Admin   | Should     | RF13         |
+
+---
+
+## Critérios de Aceitação
 
 > Critérios de aceitção são descrições detalhadas que definem quando um requisito funcional está completo e funciona conforme esperado.
 
@@ -147,4 +159,21 @@
 -   **O administrador** pode aceder ao painel com número total de utilizadores, encomendas e produtos em stock.
 -   **Quando** um produto tem <5 unidades, **então** o sistema emite alerta de stock.
 
+## Sugestão de MVP organizado por fases e RF
+
+-   **Fase 1 — Diagnóstico e Catálogo:** RF01–RF22 (perfis, catálogo, análise IA, recomendações iniciais).
+-   **Fase 2 — Commerce e Atendimento:** RF23–RF39 (simulação virtual, compras, histórico, notificações).
+-   **Fase 3 — Operação e Privacidade:** RF40–RF44 (preferências avançadas, campanhas, privacidade operacional e auditoria).
+-   **Fase 4 — Otimização:** Critérios de aceitação e melhorias contínuas no motor de IA e reporting.
+
 ---
+
+## Licença
+
+Projeto académico destinado a fins educativos no âmbito da PAP.
+
+---
+
+## Changelog
+
+-   **2024-04-27** — Reorganização do RF.md para formato padrão com novas secções (MVP, créditos, licença e changelog).
