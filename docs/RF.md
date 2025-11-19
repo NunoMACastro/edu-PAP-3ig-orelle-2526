@@ -1,4 +1,4 @@
-# Requisitos Funcionais — Aplicação **Orélle**
+# Requisitos Funcionais - Aplicação **Orélle**
 
 ## Índice
 
@@ -27,8 +27,8 @@
 
 | Código | Requisito                                                                                                       | Atores  | Prioridade | Dependências |
 | :----- | :-------------------------------------------------------------------------------------------------------------- | :------ | :--------- | :----------- |
-| RF01   | Registo de utilizadores com email e password.                                                                   | Cliente | Must       | —            |
-| RF02   | Login e logout com sessão segura (cookie HttpOnly).                                                             | Cliente | Must       | —            |
+| RF01   | Registo de utilizadores com email e password.                                                                   | Cliente | Must       | -            |
+| RF02   | Login e logout com sessão segura (cookie HttpOnly).                                                             | Cliente | Must       | -            |
 | RF03   | Criação de **perfil personalizado** com nome, idade, tipo de pele, género e objetivos (ex: hidratar, antiacne). | Cliente | Must       | RF01         |
 | RF04   | Possibilidade de **editar o perfil e atualizar fotografias** periodicamente.                                    | Cliente | Should     | RF03         |
 | RF05   | Criação de **roles**: Cliente, Consultor, Administrador.                                                        | Admin   | Must       | RF01         |
@@ -40,7 +40,7 @@
 
 | Código | Requisito                                                                                                | Atores       | Prioridade | Dependências |
 | :----- | :------------------------------------------------------------------------------------------------------- | :----------- | :--------- | :----------- |
-| RF07   | Registar produtos com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock.       | Admin        | Must       | —            |
+| RF07   | Registar produtos com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock.       | Admin        | Must       | -            |
 | RF08   | Associar **categorias** (limpeza, maquilhagem, tratamento, protetor solar, etc.).                        | Admin        | Must       | RF07         |
 | RF09   | Permitir pesquisa e filtragem por categoria, preço, tipo de pele, marca.                                 | Cliente      | Must       | RF07         |
 | RF10   | Página de **detalhes do produto** com descrição completa, imagem, notas de utilizadores e recomendações. | Cliente      | Must       | RF07         |
@@ -161,10 +161,10 @@
 
 ## Sugestão de MVP organizado por fases e RF
 
--   **Fase 1 — Diagnóstico e Catálogo:** RF01–RF22 (perfis, catálogo, análise IA, recomendações iniciais).
--   **Fase 2 — Commerce e Atendimento:** RF23–RF39 (simulação virtual, compras, histórico, notificações).
--   **Fase 3 — Operação e Privacidade:** RF40–RF44 (preferências avançadas, campanhas, privacidade operacional e auditoria).
--   **Fase 4 — Otimização:** Critérios de aceitação e melhorias contínuas no motor de IA e reporting.
+-   **Fase 1 - Diagnóstico e Catálogo:** RF01–RF22 (perfis, catálogo, análise IA, recomendações iniciais).
+-   **Fase 2 - Commerce e Atendimento:** RF23–RF39 (simulação virtual, compras, histórico, notificações).
+-   **Fase 3 - Operação e Privacidade:** RF40–RF44 (preferências avançadas, campanhas, privacidade operacional e auditoria).
+-   **Fase 4 - Otimização:** Critérios de aceitação e melhorias contínuas no motor de IA e reporting.
 
 ---
 
@@ -176,4 +176,4 @@ Projeto académico destinado a fins educativos no âmbito da PAP.
 
 ## Changelog
 
--   **2024-04-27** — Reorganização do RF.md para formato padrão com novas secções (MVP, créditos, licença e changelog).
+-   **2024-04-27** - Reorganização do RF.md para formato padrão com novas secções (MVP, créditos, licença e changelog).

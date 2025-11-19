@@ -1,4 +1,4 @@
-# Orélle — Requisitos Não Funcionais (RNF) e Stack Tecnológica
+# Orélle - Requisitos Não Funcionais (RNF) e Stack Tecnológica
 
 ## Índice
 
@@ -117,4 +117,4 @@ Projeto académico orientado ao contexto PAP.
 
 ## Changelog
 
--   **2024-06-15** — Versão inicial dos Requisitos Não Funcionais (RNF) e Stack Tecnológica Sugerida.
+-   **2024-06-15** - Versão inicial dos Requisitos Não Funcionais (RNF) e Stack Tecnológica Sugerida.
