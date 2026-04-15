@@ -23,6 +23,17 @@ O projeto foi desenvolvido no âmbito da PAP de Informática de Gestão (2025/20
 
 ---
 
+
+## Fonte canónica por tema
+
+- Requisitos funcionais: `docs/RF.md`
+- Requisitos não funcionais: `docs/RNF.md`
+- Planeamento e execução: `docs/planificacao/README.md`
+
+## Hierarquia de verdade (obrigatória)
+
+`MATRIZ-CANONICA-BK` > `BACKLOG-MVP` > `PLANO-SPRINTS` > `MF-VIEWS` > `guias-bk/*` > relatórios derivados.
+
 ## Contexto do Projeto
 
 -   Consultoria digital para cuidados da pele orientada para clientes que procuram recomendações personalizadas.
@@ -147,3 +158,5 @@ Projeto académico. Uso restrito a fins educativos.
 ## Changelog
 
 -   **2024-04-27** – README atualizado com estrutura uniforme, funcionalidades detalhadas e roadmap.
+
+-   **2026-04-14** – Alinhamento editorial com contrato canónico de planificação (estrutura, governança e rastreabilidade).

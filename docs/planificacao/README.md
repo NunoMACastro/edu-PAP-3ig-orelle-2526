@@ -1,4 +1,4 @@
-# Planificação do Projeto Orélle
+# Planificacao PAP - Orelle
 
 ## Header
 - `doc_id`: `PLANIFICACAO-README`
@@ -6,45 +6,61 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-12`
+- `last_updated`: `2026-04-14`
 
-## Contexto de entrada
-- Projeto: `Orélle - Consultoria Cosmética Inteligente`
-- Repositório: `orelle`
-- Equipa de alunos: `Bruna, Izelicks, Aline, Daniel Bulica`
-- Orientador: `Nuno`
-- Idioma obrigatório: `PT-PT`
-- Fonte de requisitos funcionais: `docs/RF.md`
-- Fonte de requisitos não funcionais: `docs/RNF.md`
-- Data de atualização: `2026-04-12`
-- Escopo macrofases: `MF0..MF8`
-- Política de estados BK: `não alterar estado operacional sem pedido explícito`
+## Objetivo
+Centralizar a planificacao executavel da Orelle com contrato canónico alinhado com FaithFlix e OPSA, mantendo a identidade funcional do dominio cosmetico.
 
-## Objetivo geral
-Esta pasta contém o sistema documental completo de planeamento da PAP, com plano macro, backlog canónico BK, plano de sprints, distribuição de responsabilidades e guias pedagógicos 1:1 por BK.
+## Hierarquia de verdade (obrigatoria)
+`MATRIZ-CANONICA-BK` > `BACKLOG-MVP` > `PLANO-SPRINTS` > `MF-VIEWS` > `guias-bk/*`.
 
-## Baseline e inconsistências iniciais
-- Estado inicial: não existia `docs/planificacao` no repositório.
-- BK duplicados: não aplicável (backlog criado de raiz).
-- BK órfãos: não aplicável (mapeamento criado por macro com dependências).
-- Dependências inválidas: nenhuma após validação da matriz canónica.
+## Contrato canonico comum (Orelle + FaithFlix + OPSA)
+- Scorecard fixo: `Cobertura/rastreabilidade=25`, `Coerencia documental=20`, `Pedagogia/guidance/step-by-step=25`, `Adequacao ao 12o=20`, `Governanca/avaliacao=10`.
+- Header obrigatorio por guia BK:
+`doc_id`, `bk_id`, `macro`, `owner`, `apoio`, `prioridade`, `estado`, `esforco`, `dependencias`, `rf_rnf`, `fase_documental`, `sprint`, `core_or_reforco`, `proximo_bk`, `guia_path`, `last_updated`.
+- Regra de modo: `P0 => Reforco`; `P1/P2 => Core`.
+- Regra de rastreabilidade: cobertura `RF+RNF` sem orfaos em matriz e backlog.
 
-## Ordem de leitura
-1. [PLANO-IMPLEMENTACAO-TOTAL.md](PLANO-IMPLEMENTACAO-TOTAL.md)
-2. [DISTRIBUICAO-RESPONSABILIDADES.md](DISTRIBUICAO-RESPONSABILIDADES.md)
-3. [BACKLOG-MVP.md](backlogs/BACKLOG-MVP.md)
-4. [MF-VIEWS.md](backlogs/MF-VIEWS.md)
-5. [PLANO-SPRINTS.md](sprints/PLANO-SPRINTS.md)
-6. [guias-bk/README.md](guias-bk/README.md)
+## Regra de atualizacao em cadeia
+Qualquer alteracao de RF/RNF/BK exige atualizar no mesmo ciclo:
+1. `backlogs/MATRIZ-CANONICA-BK.md`
+2. `backlogs/BACKLOG-MVP.md`
+3. `backlogs/ANEXO-*.md`
+4. guia BK impactado
+5. `sprints/PLANO-SPRINTS.md` e scorecard, quando houver impacto temporal
+6. `sprints/SCORECARD-SPRINTS.md` e `sprints/GUIAO-DOCENTE-SEMANAL.md`
 
-## Índice de artefactos
-- [Plano macro executável](PLANO-IMPLEMENTACAO-TOTAL.md)
-- [Distribuição de responsabilidades](DISTRIBUICAO-RESPONSABILIDADES.md)
-- [Backlog atómico canónico](backlogs/BACKLOG-MVP.md)
-- [Vistas por macro](backlogs/MF-VIEWS.md)
-- [Plano de sprints](sprints/PLANO-SPRINTS.md)
-- [Guias BK 1:1](guias-bk/README.md)
-- [Roadmap de cobertura](guias-bk/ROADMAP-BKS-RESTANTES.md)
+## Estrutura
+- `PLANO-IMPLEMENTACAO-TOTAL.md`
+- `DISTRIBUICAO-RESPONSABILIDADES.md`
+- `backlogs/MATRIZ-CANONICA-BK.md`
+- `backlogs/BACKLOG-MVP.md`
+- `backlogs/MF-VIEWS.md`
+- `backlogs/CONTRATO-CAMPOS-BK.md`
+- `backlogs/ANEXO-RF-PARA-BKS.md`
+- `backlogs/ANEXO-RNF-PARA-BKS.md`
+- `backlogs/ANEXO-BK-SPRINT-OWNER.md`
+- `sprints/PLANO-SPRINTS.md`
+- `sprints/SCORECARD-SPRINTS.md`
+- `sprints/GUIAO-DOCENTE-SEMANAL.md`
+- `guias-bk/README.md`
+- `guias-bk/_TEMPLATE-BK.md`
+- `guias-bk/ROADMAP-BKS-RESTANTES.md`
+- `guias-bk/MAPA-MIGRACAO-LEGACY-PARA-CANONICO.md`
+- `scripts/auditar_planificacao.py`
+
+## Meta documental desta vaga
+- Alinhar estrutura/layout com as restantes PAPs sem alterar IDs BK nem total de BK.
+- Fechar gaps de governanca (scorecard, guiao docente, gates, anexos e contrato de campos).
+- Garantir auditoria automatica em `PASS` e score final `>=93/100`.
+
+## Resumo de cobertura
+- Total RF: **44**
+- Total RNF: **25**
+- Total BK: **69**
+- Total guias BK: **69**
+- Cobertura BK<->guia: **100% (1:1)**
 
 ## Changelog
-- **2026-04-12** - Estrutura de planificação criada e validada de forma integral.
+- `2026-04-12`: baseline inicial da normalizacao Orelle.
+- `2026-04-14`: alinhamento canónico com FaithFlix/OPSA (governanca, naming semantico, scorecard e auditoria automatica).

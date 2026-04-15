@@ -109,6 +109,12 @@
 
 ---
 
+## Ligacao com planificacao canonica
+
+- Mapeamento RNF -> BK: `docs/planificacao/backlogs/ANEXO-RNF-PARA-BKS.md`.
+- Matriz canónica de execucao: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
+- Planeamento temporal oficial: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
+
 ## Licença
 
 Projeto académico orientado ao contexto PAP.
@@ -118,3 +124,4 @@ Projeto académico orientado ao contexto PAP.
 ## Changelog
 
 -   **2024-06-15** - Versão inicial dos Requisitos Não Funcionais (RNF) e Stack Tecnológica Sugerida.
+-   **2026-04-14** - Normalizacao editorial para coerencia com planificacao canónica e contrato comum de avaliacao.

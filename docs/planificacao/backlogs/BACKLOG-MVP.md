@@ -1,188 +1,218 @@
-# Backlog MVP Canónico (BK)
+# BACKLOG-MVP
 
 ## Header
 - `doc_id`: `BACKLOG-MVP`
 - `path`: `docs/planificacao/backlogs/BACKLOG-MVP.md`
 - `area`: `project`
-- `owner`: `Aline`
+- `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-12`
+- `last_updated`: `2026-04-14`
 
 ## Legenda
-- Prioridade: `P0` (crítico), `P1` (importante), `P2` (melhoria).
+- Prioridade: `P0` (Must), `P1` (Should), `P2` (Could).
 - Estado: `TODO`, `IN_PROGRESS`, `BLOCKED`, `DONE`.
-- Esforço: `S` (1-2 dias), `M` (3-5 dias), `L` (6-8 dias).
-- Política de estados: não alterar estado operacional sem pedido explícito.
+- Esforco: `S`, `M`, `L`.
 
-## Matriz canónica única (fonte base)
-| bk_id | macro | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | slug_alvo | fase_documental | próximo_bk_recomendado |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF0-01 | MF0 | Governança documental e standards de execução | Aline | Bruna | P0 | TODO | M | - | RF01-RF44, RNF19, RNF22 | governanca-documental-e-standards | Fase 1 | BK-MF0-02 |
-| BK-MF0-02 | MF0 | Setup de repositório, ambientes e pipelines base | Izelicks | Bruna | P0 | TODO | M | BK-MF0-01 | RNF19-RNF22 | setup-repositorio-ambientes-pipelines | Fase 1 | BK-MF0-03 |
-| BK-MF0-03 | MF0 | Modelo de dados base e convenções de API | Bruna | Izelicks | P0 | TODO | M | BK-MF0-02 | RF03, RF07, RF13, RF27, RNF19 | modelo-dados-base-convencoes-api | Fase 1 | BK-MF0-04 |
-| BK-MF0-04 | MF0 | Baseline de segurança técnica (auth, sessão e HTTPS) | Bruna | Izelicks | P0 | TODO | M | BK-MF0-02 | RF01, RF02, RNF09, RNF10, RNF14 | baseline-seguranca-auth-sessao-https | Fase 1 | BK-MF1-01 |
-| BK-MF1-01 | MF1 | Registo, login, logout e roles iniciais | Bruna | Izelicks | P0 | TODO | M | BK-MF0-04 | RF01, RF02, RF05, RNF10, RNF14 | registo-login-logout-roles-iniciais | Fase 1 | BK-MF1-02 |
-| BK-MF1-02 | MF1 | Perfil personalizado com edição e preferências base | Izelicks | Aline | P0 | TODO | M | BK-MF1-01 | RF03, RF04, RF06, RNF01, RNF03 | perfil-personalizado-edicao-preferencias | Fase 1 | BK-MF1-03 |
-| BK-MF1-03 | MF1 | Alergias, restrições e regras de segurança de recomendação | Izelicks | Bruna | P0 | TODO | S | BK-MF1-02 | RF40, RNF24 | alergias-restricoes-regras-recomendacao | Fase 1 | BK-MF1-04 |
-| BK-MF1-04 | MF1 | Gestão administrativa de contas (ativar, suspender, eliminar) | Daniel Bulica | Bruna | P1 | TODO | M | BK-MF1-01 | RF33, RNF13 | gestao-admin-contas | Fase 1 | BK-MF2-01 |
-| BK-MF2-01 | MF2 | Catálogo: CRUD de produtos, categorias e stock inicial | Bruna | Daniel Bulica | P0 | TODO | M | BK-MF0-03, BK-MF1-04 | RF07, RF08, RNF19 | catalogo-crud-produtos-categorias-stock | Fase 1 | BK-MF2-02 |
-| BK-MF2-02 | MF2 | Pesquisa, filtros e página de detalhe de produto | Izelicks | Aline | P0 | TODO | M | BK-MF2-01 | RF09, RF10, RNF01, RNF06 | pesquisa-filtros-detalhe-produto | Fase 1 | BK-MF2-03 |
-| BK-MF2-03 | MF2 | Avaliações de produto e moderação de conteúdo | Daniel Bulica | Aline | P1 | TODO | S | BK-MF2-02, BK-MF1-04 | RF11, RF34, RNF03 | avaliacoes-produto-moderacao | Fase 1 | BK-MF2-04 |
-| BK-MF2-04 | MF2 | Produtos semelhantes e complementares no catálogo | Izelicks | Bruna | P1 | TODO | S | BK-MF2-02 | RF12, RNF23 | produtos-semelhantes-complementares | Fase 1 | BK-MF3-01 |
-| BK-MF3-01 | MF3 | Upload de fotografia com consentimento e armazenamento seguro | Izelicks | Bruna | P0 | TODO | M | BK-MF1-02 | RF13, RNF11, RNF12 | upload-fotografia-consentimento-seguro | Fase 1 | BK-MF3-02 |
-| BK-MF3-02 | MF3 | Pipeline de análise IA e integração com serviço externo | Bruna | Izelicks | P0 | TODO | L | BK-MF3-01, BK-MF0-02 | RF14, RNF05, RNF18 | pipeline-analise-ia-integracao-externa | Fase 1 | BK-MF3-03 |
-| BK-MF3-03 | MF3 | Relatório personalizado com explicabilidade de recomendações | Bruna | Aline | P0 | TODO | M | BK-MF3-02 | RF15, RNF23 | relatorio-personalizado-explicabilidade | Fase 1 | BK-MF3-04 |
-| BK-MF3-04 | MF3 | Histórico de análises e evolução temporal | Izelicks | Daniel Bulica | P1 | TODO | M | BK-MF3-03 | RF16, RF17, RF25 | historico-analises-evolucao-temporal | Fase 1 | BK-MF4-01 |
-| BK-MF4-01 | MF4 | Motor de recomendação personalizada com motivo de sugestão | Bruna | Izelicks | P0 | TODO | L | BK-MF3-03, BK-MF2-02 | RF18, RF19, RNF24 | motor-recomendacao-personalizada-motivo | Fase 2 | BK-MF4-02 |
-| BK-MF4-02 | MF4 | Feedback útil/não relevante para refinar recomendações | Daniel Bulica | Bruna | P2 | TODO | S | BK-MF4-01 | RF20, RNF23 | feedback-util-nao-relevante | Fase 2 | BK-MF4-03 |
-| BK-MF4-03 | MF4 | Rotinas diárias e alertas personalizados | Izelicks | Aline | P1 | TODO | M | BK-MF4-01 | RF21, RF37, RNF03 | rotinas-diarias-alertas-personalizados | Fase 2 | BK-MF4-04 |
-| BK-MF4-04 | MF4 | Revisão manual das recomendações por consultor | Aline | Bruna | P2 | TODO | S | BK-MF4-01, BK-MF1-01 | RF22, RNF23 | revisao-manual-recomendacoes-consultor | Fase 2 | BK-MF5-01 |
-| BK-MF5-01 | MF5 | Carrinho de compras e gestão de itens | Daniel Bulica | Izelicks | P0 | TODO | S | BK-MF2-02, BK-MF1-01 | RF26, RNF06 | carrinho-compras-gestao-itens | Fase 2 | BK-MF5-02 |
-| BK-MF5-02 | MF5 | Checkout, encomendas e integração de pagamentos | Bruna | Izelicks | P0 | TODO | L | BK-MF5-01 | RF27, RNF09, RNF17 | checkout-encomendas-integracao-pagamentos | Fase 2 | BK-MF5-03 |
-| BK-MF5-03 | MF5 | Histórico de compras e recompra rápida | Izelicks | Daniel Bulica | P1 | TODO | M | BK-MF5-02 | RF28, RF30, RNF01 | historico-compras-recompra-rapida | Fase 2 | BK-MF5-04 |
-| BK-MF5-04 | MF5 | Devoluções e trocas com rastreio do motivo | Daniel Bulica | Aline | P2 | TODO | S | BK-MF5-03 | RF29, RNF03 | devolucoes-trocas-rastreio-motivo | Fase 2 | BK-MF6-01 |
-| BK-MF6-01 | MF6 | Dashboard administrativo com métricas operacionais | Aline | Bruna | P1 | TODO | M | BK-MF5-02, BK-MF3-03 | RF31, RNF20 | dashboard-admin-metricas-operacionais | Fase 2 | BK-MF6-02 |
-| BK-MF6-02 | MF6 | Gestão de stock com alertas automáticos | Izelicks | Daniel Bulica | P0 | TODO | M | BK-MF2-01, BK-MF5-02 | RF32, RNF20 | gestao-stock-alertas-automaticos | Fase 2 | BK-MF6-03 |
-| BK-MF6-03 | MF6 | Exportação de dados e relatórios em PDF/Excel | Aline | Izelicks | P1 | TODO | S | BK-MF6-01 | RF35, RNF16 | exportacao-dados-relatorios-pdf-excel | Fase 2 | BK-MF6-04 |
-| BK-MF6-04 | MF6 | Campanhas e códigos promocionais | Aline | Izelicks | P1 | TODO | M | BK-MF2-01, BK-MF5-02 | RF42, RF43, RNF01 | campanhas-codigos-promocionais | Fase 2 | BK-MF7-01 |
-| BK-MF7-01 | MF7 | Notificações transacionais e preferências de comunicação | Izelicks | Aline | P0 | TODO | M | BK-MF5-02, BK-MF1-02 | RF36, RF39, RNF03 | notificacoes-transacionais-preferencias | Fase 3 | BK-MF7-02 |
-| BK-MF7-02 | MF7 | Chat interno cliente-consultor | Daniel Bulica | Aline | P2 | TODO | M | BK-MF1-01 | RF38, RNF06 | chat-interno-cliente-consultor | Fase 3 | BK-MF7-03 |
-| BK-MF7-03 | MF7 | Simulação virtual antes/depois | Bruna | Aline | P1 | TODO | M | BK-MF3-01, BK-MF2-02 | RF23, RF24, RNF05 | simulacao-virtual-antes-depois | Fase 3 | BK-MF7-04 |
-| BK-MF7-04 | MF7 | Privacidade operacional e auditoria biométrica | Bruna | Aline | P0 | TODO | M | BK-MF3-01, BK-MF1-04 | RF41, RF44, RNF13, RNF25 | privacidade-operacional-auditoria-biometrica | Fase 3 | BK-MF8-01 |
-| BK-MF8-01 | MF8 | Performance, otimização de imagens e testes de carga | Bruna | Izelicks | P0 | TODO | M | BK-MF3-02, BK-MF5-02 | RNF05, RNF06, RNF07, RNF08 | performance-otimizacao-imagens-carga | Fase 3 | BK-MF8-02 |
-| BK-MF8-02 | MF8 | Compatibilidade cross-browser e acessibilidade visual | Aline | Daniel Bulica | P1 | TODO | M | BK-MF2-02, BK-MF7-03 | RNF01, RNF02, RNF03, RNF04, RNF15 | compatibilidade-cross-browser-acessibilidade | Fase 3 | BK-MF8-03 |
-| BK-MF8-03 | MF8 | Observabilidade, backups e separação de ambientes | Daniel Bulica | Izelicks | P1 | TODO | M | BK-MF0-02 | RNF20, RNF21, RNF22 | observabilidade-backups-ambientes | Fase 3 | BK-MF8-04 |
-| BK-MF8-04 | MF8 | Hardening final, testes negativos e preparação da defesa | Aline | Bruna | P0 | TODO | M | BK-MF8-01, BK-MF8-02, BK-MF8-03, BK-MF7-04 | RF01-RF44, RNF09-RNF25 | hardening-final-testes-negativos-defesa | Fase 3 | - |
+## Meta documental comum (nivel semelhante entre PAPs)
+- Score final alvo: `>=93/100`.
+- Cobertura rastreavel sem orfaos: `RF + RNF` alinhados em matriz, backlog e guias.
+- 100% dos BK com metadados canónicos completos e handoff coerente.
+
+## Contrato de dados canónico por BK
+Campos obrigatorios em toda a cadeia documental:
+`bk_id`, `macro`, `owner`, `apoio`, `prioridade`, `estado`, `esforco`, `dependencias`, `rf_rnf`, `fase_documental`, `sprint`, `core_or_reforco`, `proximo_bk`, `guia_path`.
 
 ## Snapshot por macro
 | Macro | Total BK | P0 | P1 | P2 |
-| :-- | --: | --: | --: | --: |
-| MF0 | 4 | 4 | 0 | 0 |
-| MF1 | 4 | 3 | 1 | 0 |
-| MF2 | 4 | 2 | 2 | 0 |
-| MF3 | 4 | 3 | 1 | 0 |
-| MF4 | 4 | 1 | 1 | 2 |
-| MF5 | 4 | 2 | 1 | 1 |
-| MF6 | 4 | 1 | 3 | 0 |
-| MF7 | 4 | 2 | 1 | 1 |
-| MF8 | 4 | 2 | 2 | 0 |
+| --- | --- | --- | --- | --- |
+| MF0 | 8 | 6 | 2 | 0 |
+| MF1 | 8 | 5 | 3 | 0 |
+| MF2 | 8 | 1 | 3 | 4 |
+| MF3 | 8 | 4 | 2 | 2 |
+| MF4 | 8 | 3 | 4 | 1 |
+| MF5 | 8 | 3 | 4 | 1 |
+| MF6 | 7 | 5 | 2 | 0 |
+| MF7 | 7 | 5 | 2 | 0 |
+| MF8 | 7 | 4 | 3 | 0 |
 
-## Ligação BK -> guia -> estado documental
-| BK | Guia BK | Estado documental |
-| :-- | :-- | :-- |
-| BK-MF0-01 | [BK-MF0-01 - Governança documental e standards de execução](../guias-bk/MF0/BK-MF0-01-governanca-documental-e-standards.md) | `ativo` |
-| BK-MF0-02 | [BK-MF0-02 - Setup de repositório, ambientes e pipelines base](../guias-bk/MF0/BK-MF0-02-setup-repositorio-ambientes-pipelines.md) | `ativo` |
-| BK-MF0-03 | [BK-MF0-03 - Modelo de dados base e convenções de API](../guias-bk/MF0/BK-MF0-03-modelo-dados-base-convencoes-api.md) | `ativo` |
-| BK-MF0-04 | [BK-MF0-04 - Baseline de segurança técnica (auth, sessão e HTTPS)](../guias-bk/MF0/BK-MF0-04-baseline-seguranca-auth-sessao-https.md) | `ativo` |
-| BK-MF1-01 | [BK-MF1-01 - Registo, login, logout e roles iniciais](../guias-bk/MF1/BK-MF1-01-registo-login-logout-roles-iniciais.md) | `ativo` |
-| BK-MF1-02 | [BK-MF1-02 - Perfil personalizado com edição e preferências base](../guias-bk/MF1/BK-MF1-02-perfil-personalizado-edicao-preferencias.md) | `ativo` |
-| BK-MF1-03 | [BK-MF1-03 - Alergias, restrições e regras de segurança de recomendação](../guias-bk/MF1/BK-MF1-03-alergias-restricoes-regras-recomendacao.md) | `ativo` |
-| BK-MF1-04 | [BK-MF1-04 - Gestão administrativa de contas (ativar, suspender, eliminar)](../guias-bk/MF1/BK-MF1-04-gestao-admin-contas.md) | `ativo` |
-| BK-MF2-01 | [BK-MF2-01 - Catálogo: CRUD de produtos, categorias e stock inicial](../guias-bk/MF2/BK-MF2-01-catalogo-crud-produtos-categorias-stock.md) | `ativo` |
-| BK-MF2-02 | [BK-MF2-02 - Pesquisa, filtros e página de detalhe de produto](../guias-bk/MF2/BK-MF2-02-pesquisa-filtros-detalhe-produto.md) | `ativo` |
-| BK-MF2-03 | [BK-MF2-03 - Avaliações de produto e moderação de conteúdo](../guias-bk/MF2/BK-MF2-03-avaliacoes-produto-moderacao.md) | `ativo` |
-| BK-MF2-04 | [BK-MF2-04 - Produtos semelhantes e complementares no catálogo](../guias-bk/MF2/BK-MF2-04-produtos-semelhantes-complementares.md) | `ativo` |
-| BK-MF3-01 | [BK-MF3-01 - Upload de fotografia com consentimento e armazenamento seguro](../guias-bk/MF3/BK-MF3-01-upload-fotografia-consentimento-seguro.md) | `ativo` |
-| BK-MF3-02 | [BK-MF3-02 - Pipeline de análise IA e integração com serviço externo](../guias-bk/MF3/BK-MF3-02-pipeline-analise-ia-integracao-externa.md) | `ativo` |
-| BK-MF3-03 | [BK-MF3-03 - Relatório personalizado com explicabilidade de recomendações](../guias-bk/MF3/BK-MF3-03-relatorio-personalizado-explicabilidade.md) | `ativo` |
-| BK-MF3-04 | [BK-MF3-04 - Histórico de análises e evolução temporal](../guias-bk/MF3/BK-MF3-04-historico-analises-evolucao-temporal.md) | `ativo` |
-| BK-MF4-01 | [BK-MF4-01 - Motor de recomendação personalizada com motivo de sugestão](../guias-bk/MF4/BK-MF4-01-motor-recomendacao-personalizada-motivo.md) | `ativo` |
-| BK-MF4-02 | [BK-MF4-02 - Feedback útil/não relevante para refinar recomendações](../guias-bk/MF4/BK-MF4-02-feedback-util-nao-relevante.md) | `ativo` |
-| BK-MF4-03 | [BK-MF4-03 - Rotinas diárias e alertas personalizados](../guias-bk/MF4/BK-MF4-03-rotinas-diarias-alertas-personalizados.md) | `ativo` |
-| BK-MF4-04 | [BK-MF4-04 - Revisão manual das recomendações por consultor](../guias-bk/MF4/BK-MF4-04-revisao-manual-recomendacoes-consultor.md) | `ativo` |
-| BK-MF5-01 | [BK-MF5-01 - Carrinho de compras e gestão de itens](../guias-bk/MF5/BK-MF5-01-carrinho-compras-gestao-itens.md) | `ativo` |
-| BK-MF5-02 | [BK-MF5-02 - Checkout, encomendas e integração de pagamentos](../guias-bk/MF5/BK-MF5-02-checkout-encomendas-integracao-pagamentos.md) | `ativo` |
-| BK-MF5-03 | [BK-MF5-03 - Histórico de compras e recompra rápida](../guias-bk/MF5/BK-MF5-03-historico-compras-recompra-rapida.md) | `ativo` |
-| BK-MF5-04 | [BK-MF5-04 - Devoluções e trocas com rastreio do motivo](../guias-bk/MF5/BK-MF5-04-devolucoes-trocas-rastreio-motivo.md) | `ativo` |
-| BK-MF6-01 | [BK-MF6-01 - Dashboard administrativo com métricas operacionais](../guias-bk/MF6/BK-MF6-01-dashboard-admin-metricas-operacionais.md) | `ativo` |
-| BK-MF6-02 | [BK-MF6-02 - Gestão de stock com alertas automáticos](../guias-bk/MF6/BK-MF6-02-gestao-stock-alertas-automaticos.md) | `ativo` |
-| BK-MF6-03 | [BK-MF6-03 - Exportação de dados e relatórios em PDF/Excel](../guias-bk/MF6/BK-MF6-03-exportacao-dados-relatorios-pdf-excel.md) | `ativo` |
-| BK-MF6-04 | [BK-MF6-04 - Campanhas e códigos promocionais](../guias-bk/MF6/BK-MF6-04-campanhas-codigos-promocionais.md) | `ativo` |
-| BK-MF7-01 | [BK-MF7-01 - Notificações transacionais e preferências de comunicação](../guias-bk/MF7/BK-MF7-01-notificacoes-transacionais-preferencias.md) | `ativo` |
-| BK-MF7-02 | [BK-MF7-02 - Chat interno cliente-consultor](../guias-bk/MF7/BK-MF7-02-chat-interno-cliente-consultor.md) | `ativo` |
-| BK-MF7-03 | [BK-MF7-03 - Simulação virtual antes/depois](../guias-bk/MF7/BK-MF7-03-simulacao-virtual-antes-depois.md) | `ativo` |
-| BK-MF7-04 | [BK-MF7-04 - Privacidade operacional e auditoria biométrica](../guias-bk/MF7/BK-MF7-04-privacidade-operacional-auditoria-biometrica.md) | `ativo` |
-| BK-MF8-01 | [BK-MF8-01 - Performance, otimização de imagens e testes de carga](../guias-bk/MF8/BK-MF8-01-performance-otimizacao-imagens-carga.md) | `ativo` |
-| BK-MF8-02 | [BK-MF8-02 - Compatibilidade cross-browser e acessibilidade visual](../guias-bk/MF8/BK-MF8-02-compatibilidade-cross-browser-acessibilidade.md) | `ativo` |
-| BK-MF8-03 | [BK-MF8-03 - Observabilidade, backups e separação de ambientes](../guias-bk/MF8/BK-MF8-03-observabilidade-backups-ambientes.md) | `ativo` |
-| BK-MF8-04 | [BK-MF8-04 - Hardening final, testes negativos e preparação da defesa](../guias-bk/MF8/BK-MF8-04-hardening-final-testes-negativos-defesa.md) | `ativo` |
+## Tabela global de ligacao BK -> guia -> estado documental
+| bk_id | macro | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | fase_documental | sprint | core_or_reforco | proximo_bk | guia |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF0-01 | MF0 | Registo de utilizadores com email e password. | Bruna | Izelicks | P0 | TODO | M | - | RF01 | Fase 1 | S01-S02 | Reforco | BK-MF0-02 | [guia](../guias-bk/MF0/BK-MF0-01-registo-de-utilizadores-com-email-e-password.md) |
+| BK-MF0-02 | MF0 | Login e logout com sessão segura (cookie HttpOnly). | Bruna | Izelicks | P0 | TODO | M | - | RF02 | Fase 1 | S01-S02 | Reforco | BK-MF0-03 | [guia](../guias-bk/MF0/BK-MF0-02-login-e-logout-com-sessao-segura-cookie-httponly.md) |
+| BK-MF0-03 | MF0 | Criação de perfil personalizado com nome, idade, tipo de pele, género e objetivos (ex: hidratar, antiacne). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-01 | RF03 | Fase 1 | S01-S02 | Reforco | BK-MF0-04 | [guia](../guias-bk/MF0/BK-MF0-03-criacao-de-perfil-personalizado-com-nome-idade-tipo-de-pele-genero-e-objetivos-ex-hidratar-antiacne.md) |
+| BK-MF0-04 | MF0 | Possibilidade de editar o perfil e atualizar fotografias periodicamente. | Izelicks | Bruna | P1 | TODO | S | BK-MF0-03 | RF04 | Fase 1 | S01-S02 | Core | BK-MF0-05 | [guia](../guias-bk/MF0/BK-MF0-04-possibilidade-de-editar-o-perfil-e-atualizar-fotografias-periodicamente.md) |
+| BK-MF0-05 | MF0 | Criação de roles: Cliente, Consultor, Administrador. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-01 | RF05 | Fase 1 | S01-S02 | Reforco | BK-MF0-06 | [guia](../guias-bk/MF0/BK-MF0-05-criacao-de-roles-cliente-consultor-administrador.md) |
+| BK-MF0-06 | MF0 | Cada utilizador pode guardar preferências de produtos e marcas favoritas. | Bruna | Izelicks | P1 | TODO | S | BK-MF0-03 | RF06 | Fase 1 | S01-S02 | Core | BK-MF0-07 | [guia](../guias-bk/MF0/BK-MF0-06-cada-utilizador-pode-guardar-preferencias-de-produtos-e-marcas-favoritas.md) |
+| BK-MF0-07 | MF0 | Registar produtos com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock. | Bruna | Izelicks | P0 | TODO | M | - | RF07 | Fase 1 | S01-S02 | Reforco | BK-MF0-08 | [guia](../guias-bk/MF0/BK-MF0-07-registar-produtos-com-nome-descricao-ingredientes-tipo-de-pele-indicado-imagem-preco-e-stock.md) |
+| BK-MF0-08 | MF0 | Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-07 | RF08 | Fase 1 | S01-S02 | Reforco | BK-MF1-01 | [guia](../guias-bk/MF0/BK-MF0-08-associar-categorias-limpeza-maquilhagem-tratamento-protetor-solar-etc.md) |
+| BK-MF1-01 | MF1 | Permitir pesquisa e filtragem por categoria, preço, tipo de pele, marca. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-07 | RF09 | Fase 1 | S03-S04 | Reforco | BK-MF1-02 | [guia](../guias-bk/MF1/BK-MF1-01-permitir-pesquisa-e-filtragem-por-categoria-preco-tipo-de-pele-marca.md) |
+| BK-MF1-02 | MF1 | Página de detalhes do produto com descrição completa, imagem, notas de utilizadores e recomendações. | Izelicks | Bruna | P0 | TODO | M | BK-MF0-07 | RF10 | Fase 1 | S03-S04 | Reforco | BK-MF1-03 | [guia](../guias-bk/MF1/BK-MF1-02-pagina-de-detalhes-do-produto-com-descricao-completa-imagem-notas-de-utilizadores-e-recomendacoes.md) |
+| BK-MF1-03 | MF1 | Permitir ao cliente avaliar produtos (1–5 estrelas) e deixar comentários. | Aline | Izelicks | P1 | TODO | S | BK-MF1-02 | RF11 | Fase 1 | S03-S04 | Core | BK-MF1-04 | [guia](../guias-bk/MF1/BK-MF1-03-permitir-ao-cliente-avaliar-produtos-1-5-estrelas-e-deixar-comentarios.md) |
+| BK-MF1-04 | MF1 | Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”). | Izelicks | Bruna | P1 | TODO | S | BK-MF0-07 | RF12 | Fase 1 | S03-S04 | Core | BK-MF1-05 | [guia](../guias-bk/MF1/BK-MF1-04-mostrar-produtos-semelhantes-e-complementares-quem-comprou-isto-tambem-comprou.md) |
+| BK-MF1-05 | MF1 | Permitir upload de fotografias do rosto (frontal e perfil). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-03 | RF13 | Fase 1 | S03-S04 | Reforco | BK-MF1-06 | [guia](../guias-bk/MF1/BK-MF1-05-permitir-upload-de-fotografias-do-rosto-frontal-e-perfil.md) |
+| BK-MF1-06 | MF1 | O sistema deve analisar as fotos com IA para detetar tipo de pele, acne, manchas, rugas e oleosidade. | Izelicks | Bruna | P0 | TODO | M | BK-MF1-05 | RF14 | Fase 1 | S03-S04 | Reforco | BK-MF1-07 | [guia](../guias-bk/MF1/BK-MF1-06-o-sistema-deve-analisar-as-fotos-com-ia-para-detetar-tipo-de-pele-acne-manchas-rugas-e-oleosidade.md) |
+| BK-MF1-07 | MF1 | Gerar um relatório personalizado com diagnóstico e sugestões de rotina. | Bruna | Izelicks | P0 | TODO | M | BK-MF1-06 | RF15 | Fase 1 | S03-S04 | Reforco | BK-MF1-08 | [guia](../guias-bk/MF1/BK-MF1-07-gerar-um-relatorio-personalizado-com-diagnostico-e-sugestoes-de-rotina.md) |
+| BK-MF1-08 | MF1 | A análise deve ser guardada no histórico pessoal para futuras comparações. | Bruna | Izelicks | P1 | TODO | S | BK-MF1-07 | RF16 | Fase 1 | S03-S04 | Core | BK-MF2-01 | [guia](../guias-bk/MF1/BK-MF1-08-a-analise-deve-ser-guardada-no-historico-pessoal-para-futuras-comparacoes.md) |
+| BK-MF2-01 | MF2 | O utilizador pode consultar evolução da pele ao longo do tempo através de gráficos. | Aline | Izelicks | P2 | TODO | S | BK-MF1-08 | RF17 | Fase 1 | S05-S06 | Core | BK-MF2-02 | [guia](../guias-bk/MF2/BK-MF2-01-o-utilizador-pode-consultar-evolucao-da-pele-ao-longo-do-tempo-atraves-de-graficos.md) |
+| BK-MF2-02 | MF2 | Com base na análise e histórico, o sistema recomenda produtos personalizados para o utilizador. | Izelicks | Bruna | P0 | TODO | M | BK-MF1-06, BK-MF1-07 | RF18 | Fase 1 | S05-S06 | Reforco | BK-MF2-03 | [guia](../guias-bk/MF2/BK-MF2-02-com-base-na-analise-e-historico-o-sistema-recomenda-produtos-personalizados-para-o-utilizador.md) |
+| BK-MF2-03 | MF2 | As recomendações devem indicar motivo da sugestão (ex: “ajuda a reduzir oleosidade”). | Aline | Izelicks | P1 | TODO | S | BK-MF2-02 | RF19 | Fase 1 | S05-S06 | Core | BK-MF2-04 | [guia](../guias-bk/MF2/BK-MF2-03-as-recomendacoes-devem-indicar-motivo-da-sugestao-ex-ajuda-a-reduzir-oleosidade.md) |
+| BK-MF2-04 | MF2 | O utilizador pode marcar recomendações como “úteis” ou “não relevantes” para treinar o modelo. | Izelicks | Bruna | P2 | TODO | S | BK-MF2-02 | RF20 | Fase 1 | S05-S06 | Core | BK-MF2-05 | [guia](../guias-bk/MF2/BK-MF2-04-o-utilizador-pode-marcar-recomendacoes-como-uteis-ou-nao-relevantes-para-treinar-o-modelo.md) |
+| BK-MF2-05 | MF2 | O sistema deve sugerir rotinas diárias (manhã / noite) com base nos produtos adquiridos. | Izelicks | Bruna | P1 | TODO | S | BK-MF2-02 | RF21 | Fase 1 | S05-S06 | Core | BK-MF2-06 | [guia](../guias-bk/MF2/BK-MF2-05-o-sistema-deve-sugerir-rotinas-diarias-manha-noite-com-base-nos-produtos-adquiridos.md) |
+| BK-MF2-06 | MF2 | Consultores podem rever recomendações e sugerir ajustes manuais. | Aline | Izelicks | P2 | TODO | S | BK-MF2-02 | RF22 | Fase 1 | S05-S06 | Core | BK-MF2-07 | [guia](../guias-bk/MF2/BK-MF2-06-consultores-podem-rever-recomendacoes-e-sugerir-ajustes-manuais.md) |
+| BK-MF2-07 | MF2 | Permitir simular aplicação de maquilhagem virtual com base na fotografia enviada. | Daniel Bulica | Aline | P2 | TODO | S | BK-MF1-05 | RF23 | Fase 1 | S05-S06 | Core | BK-MF2-08 | [guia](../guias-bk/MF2/BK-MF2-07-permitir-simular-aplicacao-de-maquilhagem-virtual-com-base-na-fotografia-enviada.md) |
+| BK-MF2-08 | MF2 | A IA deve gerar uma visualização antes/depois com os produtos recomendados. | Bruna | Izelicks | P1 | TODO | S | BK-MF2-07 | RF24 | Fase 1 | S05-S06 | Core | BK-MF3-01 | [guia](../guias-bk/MF2/BK-MF2-08-a-ia-deve-gerar-uma-visualizacao-antes-depois-com-os-produtos-recomendados.md) |
+| BK-MF3-01 | MF3 | O sistema deve permitir comparar imagens (antes vs após 30 dias de uso). | Bruna | Izelicks | P2 | TODO | S | BK-MF1-08 | RF25 | Fase 2 | S07-S08 | Core | BK-MF3-02 | [guia](../guias-bk/MF3/BK-MF3-01-o-sistema-deve-permitir-comparar-imagens-antes-vs-apos-30-dias-de-uso.md) |
+| BK-MF3-02 | MF3 | Adicionar/remover produtos do carrinho de compras. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-07 | RF26 | Fase 2 | S07-S08 | Reforco | BK-MF3-03 | [guia](../guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md) |
+| BK-MF3-03 | MF3 | Registar encomendas e pagamentos (gateway Stripe/PayPal/MBWay). | Izelicks | Bruna | P0 | TODO | M | BK-MF3-02 | RF27 | Fase 2 | S07-S08 | Reforco | BK-MF3-04 | [guia](../guias-bk/MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md) |
+| BK-MF3-04 | MF3 | Histórico de compras com data, total, produtos e estado (pendente, enviado, entregue). | Bruna | Izelicks | P0 | TODO | M | BK-MF3-03 | RF28 | Fase 2 | S07-S08 | Reforco | BK-MF3-05 | [guia](../guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md) |
+| BK-MF3-05 | MF3 | Permitir devoluções ou trocas com registo do motivo. | Izelicks | Bruna | P2 | TODO | S | BK-MF3-04 | RF29 | Fase 2 | S07-S08 | Core | BK-MF3-06 | [guia](../guias-bk/MF3/BK-MF3-05-permitir-devolucoes-ou-trocas-com-registo-do-motivo.md) |
+| BK-MF3-06 | MF3 | O cliente pode recomprar produtos anteriores com um clique. | Aline | Izelicks | P1 | TODO | S | BK-MF3-04 | RF30 | Fase 2 | S07-S08 | Core | BK-MF3-07 | [guia](../guias-bk/MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md) |
+| BK-MF3-07 | MF3 | Dashboard de estatísticas (vendas, produtos mais vendidos, utilizadores ativos). | Izelicks | Bruna | P1 | TODO | S | BK-MF3-03 | RF31 | Fase 2 | S07-S08 | Core | BK-MF3-08 | [guia](../guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md) |
+| BK-MF3-08 | MF3 | Gestão de stock (alertas de baixo stock, atualização automática após compra). | Izelicks | Bruna | P0 | TODO | M | BK-MF3-03 | RF32 | Fase 2 | S07-S08 | Reforco | BK-MF4-01 | [guia](../guias-bk/MF3/BK-MF3-08-gestao-de-stock-alertas-de-baixo-stock-atualizacao-automatica-apos-compra.md) |
+| BK-MF4-01 | MF4 | Gestão de utilizadores (ativar, suspender, eliminar contas). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-01 | RF33 | Fase 2 | S08-S09 | Reforco | BK-MF4-02 | [guia](../guias-bk/MF4/BK-MF4-01-gestao-de-utilizadores-ativar-suspender-eliminar-contas.md) |
+| BK-MF4-02 | MF4 | Moderação de comentários e avaliações. | Bruna | Izelicks | P1 | TODO | S | BK-MF1-03 | RF34 | Fase 2 | S08-S09 | Core | BK-MF4-03 | [guia](../guias-bk/MF4/BK-MF4-02-moderacao-de-comentarios-e-avaliacoes.md) |
+| BK-MF4-03 | MF4 | Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores). | Aline | Izelicks | P1 | TODO | S | BK-MF3-07 | RF35 | Fase 2 | S08-S09 | Core | BK-MF4-04 | [guia](../guias-bk/MF4/BK-MF4-03-exportacao-de-dados-para-excel-pdf-vendas-relatorios-de-ia-utilizadores.md) |
+| BK-MF4-04 | MF4 | Enviar notificações sobre promoções, novos produtos e estado das encomendas. | Izelicks | Bruna | P0 | TODO | M | BK-MF3-03 | RF36 | Fase 2 | S08-S09 | Reforco | BK-MF4-05 | [guia](../guias-bk/MF4/BK-MF4-04-enviar-notificacoes-sobre-promocoes-novos-produtos-e-estado-das-encomendas.md) |
+| BK-MF4-05 | MF4 | Enviar alertas personalizados (“Está na hora da sua rotina noturna”). | Izelicks | Bruna | P1 | TODO | S | BK-MF2-05 | RF37 | Fase 2 | S08-S09 | Core | BK-MF4-06 | [guia](../guias-bk/MF4/BK-MF4-05-enviar-alertas-personalizados-esta-na-hora-da-sua-rotina-noturna.md) |
+| BK-MF4-06 | MF4 | Sistema de mensagens entre cliente e consultor (chat interno). | Aline | Izelicks | P2 | TODO | S | BK-MF0-05 | RF38 | Fase 2 | S08-S09 | Core | BK-MF4-07 | [guia](../guias-bk/MF4/BK-MF4-06-sistema-de-mensagens-entre-cliente-e-consultor-chat-interno.md) |
+| BK-MF4-07 | MF4 | Configuração de preferências de comunicação (email, app, push). | Bruna | Izelicks | P1 | TODO | S | BK-MF4-04 | RF39 | Fase 2 | S08-S09 | Core | BK-MF4-08 | [guia](../guias-bk/MF4/BK-MF4-07-configuracao-de-preferencias-de-comunicacao-email-app-push.md) |
+| BK-MF4-08 | MF4 | Guardar alergias, ingredientes a evitar e restrições médicas leves no perfil e impedir recomendações que violem regras. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-03 | RF40 | Fase 2 | S08-S09 | Reforco | BK-MF5-01 | [guia](../guias-bk/MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md) |
+| BK-MF5-01 | MF5 | Painel para consultores/admins reverem e aprovarem pedidos de eliminação/anonymização de fotografias e relatórios. | Izelicks | Bruna | P0 | TODO | M | BK-MF1-05 | RF41 | Fase 2 | S09-S10 | Reforco | BK-MF5-02 | [guia](../guias-bk/MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md) |
+| BK-MF5-02 | MF5 | Gestão de campanhas e storytelling (banner, segmento, período, consultor responsável). | Aline | Izelicks | P1 | TODO | S | BK-MF0-07 | RF42 | Fase 2 | S09-S10 | Core | BK-MF5-03 | [guia](../guias-bk/MF5/BK-MF5-02-gestao-de-campanhas-e-storytelling-banner-segmento-periodo-consultor-responsavel.md) |
+| BK-MF5-03 | MF5 | Configurar e aplicar códigos promocionais com limites por cliente, canal e datas. | Izelicks | Bruna | P1 | TODO | S | BK-MF3-03 | RF43 | Fase 2 | S09-S10 | Core | BK-MF5-04 | [guia](../guias-bk/MF5/BK-MF5-03-configurar-e-aplicar-codigos-promocionais-com-limites-por-cliente-canal-e-datas.md) |
+| BK-MF5-04 | MF5 | Registo/auditoria de acessos a dados biométricos, com alertas para usos indevidos. | Bruna | Izelicks | P1 | TODO | S | BK-MF1-05 | RF44 | Fase 2 | S09-S10 | Core | BK-MF5-05 | [guia](../guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md) |
+| BK-MF5-05 | MF5 | Interface moderna, intuitiva e _responsive_ (desktop e mobile). | Aline | Izelicks | P0 | TODO | M | - | RNF01 | Fase 2 | S09-S10 | Reforco | BK-MF5-06 | [guia](../guias-bk/MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md) |
+| BK-MF5-06 | MF5 | Design coerente com estética da marca (cores suaves, tipografia moderna). | Aline | Izelicks | P1 | TODO | S | - | RNF02 | Fase 2 | S09-S10 | Core | BK-MF5-07 | [guia](../guias-bk/MF5/BK-MF5-06-design-coerente-com-estetica-da-marca-cores-suaves-tipografia-moderna.md) |
+| BK-MF5-07 | MF5 | Mensagens claras, ícones acessíveis e feedback imediato em formulários. | Bruna | Izelicks | P0 | TODO | M | - | RNF03 | Fase 2 | S09-S10 | Reforco | BK-MF5-08 | [guia](../guias-bk/MF5/BK-MF5-07-mensagens-claras-icones-acessiveis-e-feedback-imediato-em-formularios.md) |
+| BK-MF5-08 | MF5 | Modo escuro e contraste ajustado. | Daniel Bulica | Aline | P2 | TODO | S | - | RNF04 | Fase 2 | S09-S10 | Core | BK-MF6-01 | [guia](../guias-bk/MF5/BK-MF5-08-modo-escuro-e-contraste-ajustado.md) |
+| BK-MF6-01 | MF6 | Processar análise de fotografia em menos de 10 segundos. | Izelicks | Bruna | P0 | TODO | M | - | RNF05 | Fase 3 | S10-S11 | Reforco | BK-MF6-02 | [guia](../guias-bk/MF6/BK-MF6-01-processar-analise-de-fotografia-em-menos-de-10-segundos.md) |
+| BK-MF6-02 | MF6 | Páginas principais devem carregar em ≤ 3 segundos. | Aline | Izelicks | P0 | TODO | M | - | RNF06 | Fase 3 | S10-S11 | Reforco | BK-MF6-03 | [guia](../guias-bk/MF6/BK-MF6-02-paginas-principais-devem-carregar-em-3-segundos.md) |
+| BK-MF6-03 | MF6 | Suportar mínimo 50 utilizadores simultâneos sem falhas. | Izelicks | Bruna | P1 | TODO | S | - | RNF07 | Fase 3 | S10-S11 | Core | BK-MF6-04 | [guia](../guias-bk/MF6/BK-MF6-03-suportar-minimo-50-utilizadores-simultaneos-sem-falhas.md) |
+| BK-MF6-04 | MF6 | Imagens otimizadas (lazy loading e compressão automática). | Daniel Bulica | Aline | P1 | TODO | S | - | RNF08 | Fase 3 | S10-S11 | Core | BK-MF6-05 | [guia](../guias-bk/MF6/BK-MF6-04-imagens-otimizadas-lazy-loading-e-compressao-automatica.md) |
+| BK-MF6-05 | MF6 | Todas as comunicações via HTTPS (TLS 1.2+). | Bruna | Izelicks | P0 | TODO | M | - | RNF09 | Fase 3 | S10-S11 | Reforco | BK-MF6-06 | [guia](../guias-bk/MF6/BK-MF6-05-todas-as-comunicacoes-via-https-tls-1-2.md) |
+| BK-MF6-06 | MF6 | Palavras-passe com hash seguro (bcrypt). | Izelicks | Bruna | P0 | TODO | M | - | RNF10 | Fase 3 | S10-S11 | Reforco | BK-MF6-07 | [guia](../guias-bk/MF6/BK-MF6-06-palavras-passe-com-hash-seguro-bcrypt.md) |
+| BK-MF6-07 | MF6 | Fotografias e relatórios de análise armazenados de forma encriptada. | Aline | Izelicks | P0 | TODO | M | - | RNF11 | Fase 3 | S10-S11 | Reforco | BK-MF7-01 | [guia](../guias-bk/MF6/BK-MF6-07-fotografias-e-relatorios-de-analise-armazenados-de-forma-encriptada.md) |
+| BK-MF7-01 | MF7 | Consentimento explícito para análise facial (RGPD). | Bruna | Izelicks | P0 | TODO | M | - | RNF12 | Fase 3 | S11-S12 | Reforco | BK-MF7-02 | [guia](../guias-bk/MF7/BK-MF7-01-consentimento-explicito-para-analise-facial-rgpd.md) |
+| BK-MF7-02 | MF7 | Direito a eliminar conta e dados (incluindo fotos). | Izelicks | Bruna | P0 | TODO | M | - | RNF13 | Fase 3 | S11-S12 | Reforco | BK-MF7-03 | [guia](../guias-bk/MF7/BK-MF7-02-direito-a-eliminar-conta-e-dados-incluindo-fotos.md) |
+| BK-MF7-03 | MF7 | Sessões autenticadas com cookies HttpOnly. | Aline | Izelicks | P0 | TODO | M | - | RNF14 | Fase 3 | S11-S12 | Reforco | BK-MF7-04 | [guia](../guias-bk/MF7/BK-MF7-03-sessoes-autenticadas-com-cookies-httponly.md) |
+| BK-MF7-04 | MF7 | Compatível com Chrome, Safari, Edge e Firefox. | Bruna | Izelicks | P0 | TODO | M | - | RNF15 | Fase 3 | S11-S12 | Reforco | BK-MF7-05 | [guia](../guias-bk/MF7/BK-MF7-04-compativel-com-chrome-safari-edge-e-firefox.md) |
+| BK-MF7-05 | MF7 | Exportação de relatórios em PDF. | Bruna | Izelicks | P1 | TODO | S | - | RNF16 | Fase 3 | S11-S12 | Core | BK-MF7-06 | [guia](../guias-bk/MF7/BK-MF7-05-exportacao-de-relatorios-em-pdf.md) |
+| BK-MF7-06 | MF7 | Integração com gateways de pagamento (Stripe, PayPal, MBWay). | Daniel Bulica | Aline | P0 | TODO | M | - | RNF17 | Fase 3 | S11-S12 | Reforco | BK-MF7-07 | [guia](../guias-bk/MF7/BK-MF7-06-integracao-com-gateways-de-pagamento-stripe-paypal-mbway.md) |
+| BK-MF7-07 | MF7 | Suporte para API de IA externa (ex: Azure Face API ou TensorFlow). | Aline | Izelicks | P1 | TODO | S | - | RNF18 | Fase 3 | S11-S12 | Core | BK-MF8-01 | [guia](../guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md) |
+| BK-MF8-01 | MF8 | Código modular (MVC) com documentação e _docstrings_. | Izelicks | Bruna | P0 | TODO | M | - | RNF19 | Fase 3 | S12 | Reforco | BK-MF8-02 | [guia](../guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md) |
+| BK-MF8-02 | MF8 | Logs de erros e métricas de desempenho. | Izelicks | Bruna | P1 | TODO | S | - | RNF20 | Fase 3 | S12 | Core | BK-MF8-03 | [guia](../guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md) |
+| BK-MF8-03 | MF8 | Base de dados com backups automáticos diários. | Daniel Bulica | Aline | P1 | TODO | S | - | RNF21 | Fase 3 | S12 | Core | BK-MF8-04 | [guia](../guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md) |
+| BK-MF8-04 | MF8 | Ambiente de testes separado do ambiente de produção. | Bruna | Izelicks | P1 | TODO | S | - | RNF22 | Fase 3 | S12 | Core | BK-MF8-05 | [guia](../guias-bk/MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md) |
+| BK-MF8-05 | MF8 | A IA deve indicar como chegou às recomendações (explicabilidade). | Aline | Izelicks | P0 | TODO | M | - | RNF23 | Fase 3 | S12 | Reforco | BK-MF8-06 | [guia](../guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md) |
+| BK-MF8-06 | MF8 | O sistema deve garantir não discriminação por género, idade ou tom de pele. | Bruna | Izelicks | P0 | TODO | M | - | RNF24 | Fase 3 | S12 | Reforco | BK-MF8-07 | [guia](../guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md) |
+| BK-MF8-07 | MF8 | As imagens processadas não devem ser usadas para treinar modelos externos sem consentimento. | Daniel Bulica | Aline | P0 | TODO | M | - | RNF25 | Fase 3 | S12 | Reforco | - | [guia](../guias-bk/MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md) |
 
-## MF0 - Governança e fundações técnicas
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF0-01 | Governança documental e standards de execução | Aline | Bruna | P0 | TODO | M | - | RF01-RF44, RNF19, RNF22 | BK-MF0-02 |
-| BK-MF0-02 | Setup de repositório, ambientes e pipelines base | Izelicks | Bruna | P0 | TODO | M | BK-MF0-01 | RNF19-RNF22 | BK-MF0-03 |
-| BK-MF0-03 | Modelo de dados base e convenções de API | Bruna | Izelicks | P0 | TODO | M | BK-MF0-02 | RF03, RF07, RF13, RF27, RNF19 | BK-MF0-04 |
-| BK-MF0-04 | Baseline de segurança técnica (auth, sessão e HTTPS) | Bruna | Izelicks | P0 | TODO | M | BK-MF0-02 | RF01, RF02, RNF09, RNF10, RNF14 | BK-MF1-01 |
+## MF0 - Fundamentos e governance
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF0-01 | Registo de utilizadores com email e password. | Bruna | Izelicks | P0 | TODO | M | - | RF01 | S01-S02 | Reforco | BK-MF0-02 |
+| BK-MF0-02 | Login e logout com sessão segura (cookie HttpOnly). | Bruna | Izelicks | P0 | TODO | M | - | RF02 | S01-S02 | Reforco | BK-MF0-03 |
+| BK-MF0-03 | Criação de perfil personalizado com nome, idade, tipo de pele, género e objetivos (ex: hidratar, antiacne). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-01 | RF03 | S01-S02 | Reforco | BK-MF0-04 |
+| BK-MF0-04 | Possibilidade de editar o perfil e atualizar fotografias periodicamente. | Izelicks | Bruna | P1 | TODO | S | BK-MF0-03 | RF04 | S01-S02 | Core | BK-MF0-05 |
+| BK-MF0-05 | Criação de roles: Cliente, Consultor, Administrador. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-01 | RF05 | S01-S02 | Reforco | BK-MF0-06 |
+| BK-MF0-06 | Cada utilizador pode guardar preferências de produtos e marcas favoritas. | Bruna | Izelicks | P1 | TODO | S | BK-MF0-03 | RF06 | S01-S02 | Core | BK-MF0-07 |
+| BK-MF0-07 | Registar produtos com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock. | Bruna | Izelicks | P0 | TODO | M | - | RF07 | S01-S02 | Reforco | BK-MF0-08 |
+| BK-MF0-08 | Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-07 | RF08 | S01-S02 | Reforco | BK-MF1-01 |
 
-## MF1 - Identidade, autenticação e perfis
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF1-01 | Registo, login, logout e roles iniciais | Bruna | Izelicks | P0 | TODO | M | BK-MF0-04 | RF01, RF02, RF05, RNF10, RNF14 | BK-MF1-02 |
-| BK-MF1-02 | Perfil personalizado com edição e preferências base | Izelicks | Aline | P0 | TODO | M | BK-MF1-01 | RF03, RF04, RF06, RNF01, RNF03 | BK-MF1-03 |
-| BK-MF1-03 | Alergias, restrições e regras de segurança de recomendação | Izelicks | Bruna | P0 | TODO | S | BK-MF1-02 | RF40, RNF24 | BK-MF1-04 |
-| BK-MF1-04 | Gestão administrativa de contas (ativar, suspender, eliminar) | Daniel Bulica | Bruna | P1 | TODO | M | BK-MF1-01 | RF33, RNF13 | BK-MF2-01 |
+## MF1 - Nucleo funcional I
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF1-01 | Permitir pesquisa e filtragem por categoria, preço, tipo de pele, marca. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-07 | RF09 | S03-S04 | Reforco | BK-MF1-02 |
+| BK-MF1-02 | Página de detalhes do produto com descrição completa, imagem, notas de utilizadores e recomendações. | Izelicks | Bruna | P0 | TODO | M | BK-MF0-07 | RF10 | S03-S04 | Reforco | BK-MF1-03 |
+| BK-MF1-03 | Permitir ao cliente avaliar produtos (1–5 estrelas) e deixar comentários. | Aline | Izelicks | P1 | TODO | S | BK-MF1-02 | RF11 | S03-S04 | Core | BK-MF1-04 |
+| BK-MF1-04 | Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”). | Izelicks | Bruna | P1 | TODO | S | BK-MF0-07 | RF12 | S03-S04 | Core | BK-MF1-05 |
+| BK-MF1-05 | Permitir upload de fotografias do rosto (frontal e perfil). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-03 | RF13 | S03-S04 | Reforco | BK-MF1-06 |
+| BK-MF1-06 | O sistema deve analisar as fotos com IA para detetar tipo de pele, acne, manchas, rugas e oleosidade. | Izelicks | Bruna | P0 | TODO | M | BK-MF1-05 | RF14 | S03-S04 | Reforco | BK-MF1-07 |
+| BK-MF1-07 | Gerar um relatório personalizado com diagnóstico e sugestões de rotina. | Bruna | Izelicks | P0 | TODO | M | BK-MF1-06 | RF15 | S03-S04 | Reforco | BK-MF1-08 |
+| BK-MF1-08 | A análise deve ser guardada no histórico pessoal para futuras comparações. | Bruna | Izelicks | P1 | TODO | S | BK-MF1-07 | RF16 | S03-S04 | Core | BK-MF2-01 |
 
-## MF2 - Catálogo e experiência de produto
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF2-01 | Catálogo: CRUD de produtos, categorias e stock inicial | Bruna | Daniel Bulica | P0 | TODO | M | BK-MF0-03, BK-MF1-04 | RF07, RF08, RNF19 | BK-MF2-02 |
-| BK-MF2-02 | Pesquisa, filtros e página de detalhe de produto | Izelicks | Aline | P0 | TODO | M | BK-MF2-01 | RF09, RF10, RNF01, RNF06 | BK-MF2-03 |
-| BK-MF2-03 | Avaliações de produto e moderação de conteúdo | Daniel Bulica | Aline | P1 | TODO | S | BK-MF2-02, BK-MF1-04 | RF11, RF34, RNF03 | BK-MF2-04 |
-| BK-MF2-04 | Produtos semelhantes e complementares no catálogo | Izelicks | Bruna | P1 | TODO | S | BK-MF2-02 | RF12, RNF23 | BK-MF3-01 |
+## MF2 - Nucleo funcional II
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF2-01 | O utilizador pode consultar evolução da pele ao longo do tempo através de gráficos. | Aline | Izelicks | P2 | TODO | S | BK-MF1-08 | RF17 | S05-S06 | Core | BK-MF2-02 |
+| BK-MF2-02 | Com base na análise e histórico, o sistema recomenda produtos personalizados para o utilizador. | Izelicks | Bruna | P0 | TODO | M | BK-MF1-06, BK-MF1-07 | RF18 | S05-S06 | Reforco | BK-MF2-03 |
+| BK-MF2-03 | As recomendações devem indicar motivo da sugestão (ex: “ajuda a reduzir oleosidade”). | Aline | Izelicks | P1 | TODO | S | BK-MF2-02 | RF19 | S05-S06 | Core | BK-MF2-04 |
+| BK-MF2-04 | O utilizador pode marcar recomendações como “úteis” ou “não relevantes” para treinar o modelo. | Izelicks | Bruna | P2 | TODO | S | BK-MF2-02 | RF20 | S05-S06 | Core | BK-MF2-05 |
+| BK-MF2-05 | O sistema deve sugerir rotinas diárias (manhã / noite) com base nos produtos adquiridos. | Izelicks | Bruna | P1 | TODO | S | BK-MF2-02 | RF21 | S05-S06 | Core | BK-MF2-06 |
+| BK-MF2-06 | Consultores podem rever recomendações e sugerir ajustes manuais. | Aline | Izelicks | P2 | TODO | S | BK-MF2-02 | RF22 | S05-S06 | Core | BK-MF2-07 |
+| BK-MF2-07 | Permitir simular aplicação de maquilhagem virtual com base na fotografia enviada. | Daniel Bulica | Aline | P2 | TODO | S | BK-MF1-05 | RF23 | S05-S06 | Core | BK-MF2-08 |
+| BK-MF2-08 | A IA deve gerar uma visualização antes/depois com os produtos recomendados. | Bruna | Izelicks | P1 | TODO | S | BK-MF2-07 | RF24 | S05-S06 | Core | BK-MF3-01 |
 
-## MF3 - Análise facial e relatório com IA
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF3-01 | Upload de fotografia com consentimento e armazenamento seguro | Izelicks | Bruna | P0 | TODO | M | BK-MF1-02 | RF13, RNF11, RNF12 | BK-MF3-02 |
-| BK-MF3-02 | Pipeline de análise IA e integração com serviço externo | Bruna | Izelicks | P0 | TODO | L | BK-MF3-01, BK-MF0-02 | RF14, RNF05, RNF18 | BK-MF3-03 |
-| BK-MF3-03 | Relatório personalizado com explicabilidade de recomendações | Bruna | Aline | P0 | TODO | M | BK-MF3-02 | RF15, RNF23 | BK-MF3-04 |
-| BK-MF3-04 | Histórico de análises e evolução temporal | Izelicks | Daniel Bulica | P1 | TODO | M | BK-MF3-03 | RF16, RF17, RF25 | BK-MF4-01 |
+## MF3 - Capacidades de produto I
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF3-01 | O sistema deve permitir comparar imagens (antes vs após 30 dias de uso). | Bruna | Izelicks | P2 | TODO | S | BK-MF1-08 | RF25 | S07-S08 | Core | BK-MF3-02 |
+| BK-MF3-02 | Adicionar/remover produtos do carrinho de compras. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-07 | RF26 | S07-S08 | Reforco | BK-MF3-03 |
+| BK-MF3-03 | Registar encomendas e pagamentos (gateway Stripe/PayPal/MBWay). | Izelicks | Bruna | P0 | TODO | M | BK-MF3-02 | RF27 | S07-S08 | Reforco | BK-MF3-04 |
+| BK-MF3-04 | Histórico de compras com data, total, produtos e estado (pendente, enviado, entregue). | Bruna | Izelicks | P0 | TODO | M | BK-MF3-03 | RF28 | S07-S08 | Reforco | BK-MF3-05 |
+| BK-MF3-05 | Permitir devoluções ou trocas com registo do motivo. | Izelicks | Bruna | P2 | TODO | S | BK-MF3-04 | RF29 | S07-S08 | Core | BK-MF3-06 |
+| BK-MF3-06 | O cliente pode recomprar produtos anteriores com um clique. | Aline | Izelicks | P1 | TODO | S | BK-MF3-04 | RF30 | S07-S08 | Core | BK-MF3-07 |
+| BK-MF3-07 | Dashboard de estatísticas (vendas, produtos mais vendidos, utilizadores ativos). | Izelicks | Bruna | P1 | TODO | S | BK-MF3-03 | RF31 | S07-S08 | Core | BK-MF3-08 |
+| BK-MF3-08 | Gestão de stock (alertas de baixo stock, atualização automática após compra). | Izelicks | Bruna | P0 | TODO | M | BK-MF3-03 | RF32 | S07-S08 | Reforco | BK-MF4-01 |
 
-## MF4 - Recomendação personalizada e consultoria
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF4-01 | Motor de recomendação personalizada com motivo de sugestão | Bruna | Izelicks | P0 | TODO | L | BK-MF3-03, BK-MF2-02 | RF18, RF19, RNF24 | BK-MF4-02 |
-| BK-MF4-02 | Feedback útil/não relevante para refinar recomendações | Daniel Bulica | Bruna | P2 | TODO | S | BK-MF4-01 | RF20, RNF23 | BK-MF4-03 |
-| BK-MF4-03 | Rotinas diárias e alertas personalizados | Izelicks | Aline | P1 | TODO | M | BK-MF4-01 | RF21, RF37, RNF03 | BK-MF4-04 |
-| BK-MF4-04 | Revisão manual das recomendações por consultor | Aline | Bruna | P2 | TODO | S | BK-MF4-01, BK-MF1-01 | RF22, RNF23 | BK-MF5-01 |
+## MF4 - Capacidades de produto II
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF4-01 | Gestão de utilizadores (ativar, suspender, eliminar contas). | Bruna | Izelicks | P0 | TODO | M | BK-MF0-01 | RF33 | S08-S09 | Reforco | BK-MF4-02 |
+| BK-MF4-02 | Moderação de comentários e avaliações. | Bruna | Izelicks | P1 | TODO | S | BK-MF1-03 | RF34 | S08-S09 | Core | BK-MF4-03 |
+| BK-MF4-03 | Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores). | Aline | Izelicks | P1 | TODO | S | BK-MF3-07 | RF35 | S08-S09 | Core | BK-MF4-04 |
+| BK-MF4-04 | Enviar notificações sobre promoções, novos produtos e estado das encomendas. | Izelicks | Bruna | P0 | TODO | M | BK-MF3-03 | RF36 | S08-S09 | Reforco | BK-MF4-05 |
+| BK-MF4-05 | Enviar alertas personalizados (“Está na hora da sua rotina noturna”). | Izelicks | Bruna | P1 | TODO | S | BK-MF2-05 | RF37 | S08-S09 | Core | BK-MF4-06 |
+| BK-MF4-06 | Sistema de mensagens entre cliente e consultor (chat interno). | Aline | Izelicks | P2 | TODO | S | BK-MF0-05 | RF38 | S08-S09 | Core | BK-MF4-07 |
+| BK-MF4-07 | Configuração de preferências de comunicação (email, app, push). | Bruna | Izelicks | P1 | TODO | S | BK-MF4-04 | RF39 | S08-S09 | Core | BK-MF4-08 |
+| BK-MF4-08 | Guardar alergias, ingredientes a evitar e restrições médicas leves no perfil e impedir recomendações que violem regras. | Bruna | Izelicks | P0 | TODO | M | BK-MF0-03 | RF40 | S08-S09 | Reforco | BK-MF5-01 |
 
-## MF5 - Commerce, checkout e pós-compra
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF5-01 | Carrinho de compras e gestão de itens | Daniel Bulica | Izelicks | P0 | TODO | S | BK-MF2-02, BK-MF1-01 | RF26, RNF06 | BK-MF5-02 |
-| BK-MF5-02 | Checkout, encomendas e integração de pagamentos | Bruna | Izelicks | P0 | TODO | L | BK-MF5-01 | RF27, RNF09, RNF17 | BK-MF5-03 |
-| BK-MF5-03 | Histórico de compras e recompra rápida | Izelicks | Daniel Bulica | P1 | TODO | M | BK-MF5-02 | RF28, RF30, RNF01 | BK-MF5-04 |
-| BK-MF5-04 | Devoluções e trocas com rastreio do motivo | Daniel Bulica | Aline | P2 | TODO | S | BK-MF5-03 | RF29, RNF03 | BK-MF6-01 |
+## MF5 - Operacao e fluxos transversais
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF5-01 | Painel para consultores/admins reverem e aprovarem pedidos de eliminação/anonymização de fotografias e relatórios. | Izelicks | Bruna | P0 | TODO | M | BK-MF1-05 | RF41 | S09-S10 | Reforco | BK-MF5-02 |
+| BK-MF5-02 | Gestão de campanhas e storytelling (banner, segmento, período, consultor responsável). | Aline | Izelicks | P1 | TODO | S | BK-MF0-07 | RF42 | S09-S10 | Core | BK-MF5-03 |
+| BK-MF5-03 | Configurar e aplicar códigos promocionais com limites por cliente, canal e datas. | Izelicks | Bruna | P1 | TODO | S | BK-MF3-03 | RF43 | S09-S10 | Core | BK-MF5-04 |
+| BK-MF5-04 | Registo/auditoria de acessos a dados biométricos, com alertas para usos indevidos. | Bruna | Izelicks | P1 | TODO | S | BK-MF1-05 | RF44 | S09-S10 | Core | BK-MF5-05 |
+| BK-MF5-05 | Interface moderna, intuitiva e _responsive_ (desktop e mobile). | Aline | Izelicks | P0 | TODO | M | - | RNF01 | S09-S10 | Reforco | BK-MF5-06 |
+| BK-MF5-06 | Design coerente com estética da marca (cores suaves, tipografia moderna). | Aline | Izelicks | P1 | TODO | S | - | RNF02 | S09-S10 | Core | BK-MF5-07 |
+| BK-MF5-07 | Mensagens claras, ícones acessíveis e feedback imediato em formulários. | Bruna | Izelicks | P0 | TODO | M | - | RNF03 | S09-S10 | Reforco | BK-MF5-08 |
+| BK-MF5-08 | Modo escuro e contraste ajustado. | Daniel Bulica | Aline | P2 | TODO | S | - | RNF04 | S09-S10 | Core | BK-MF6-01 |
 
-## MF6 - Operação administrativa e campanhas
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF6-01 | Dashboard administrativo com métricas operacionais | Aline | Bruna | P1 | TODO | M | BK-MF5-02, BK-MF3-03 | RF31, RNF20 | BK-MF6-02 |
-| BK-MF6-02 | Gestão de stock com alertas automáticos | Izelicks | Daniel Bulica | P0 | TODO | M | BK-MF2-01, BK-MF5-02 | RF32, RNF20 | BK-MF6-03 |
-| BK-MF6-03 | Exportação de dados e relatórios em PDF/Excel | Aline | Izelicks | P1 | TODO | S | BK-MF6-01 | RF35, RNF16 | BK-MF6-04 |
-| BK-MF6-04 | Campanhas e códigos promocionais | Aline | Izelicks | P1 | TODO | M | BK-MF2-01, BK-MF5-02 | RF42, RF43, RNF01 | BK-MF7-01 |
+## MF6 - Qualidade e robustez
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF6-01 | Processar análise de fotografia em menos de 10 segundos. | Izelicks | Bruna | P0 | TODO | M | - | RNF05 | S10-S11 | Reforco | BK-MF6-02 |
+| BK-MF6-02 | Páginas principais devem carregar em ≤ 3 segundos. | Aline | Izelicks | P0 | TODO | M | - | RNF06 | S10-S11 | Reforco | BK-MF6-03 |
+| BK-MF6-03 | Suportar mínimo 50 utilizadores simultâneos sem falhas. | Izelicks | Bruna | P1 | TODO | S | - | RNF07 | S10-S11 | Core | BK-MF6-04 |
+| BK-MF6-04 | Imagens otimizadas (lazy loading e compressão automática). | Daniel Bulica | Aline | P1 | TODO | S | - | RNF08 | S10-S11 | Core | BK-MF6-05 |
+| BK-MF6-05 | Todas as comunicações via HTTPS (TLS 1.2+). | Bruna | Izelicks | P0 | TODO | M | - | RNF09 | S10-S11 | Reforco | BK-MF6-06 |
+| BK-MF6-06 | Palavras-passe com hash seguro (bcrypt). | Izelicks | Bruna | P0 | TODO | M | - | RNF10 | S10-S11 | Reforco | BK-MF6-07 |
+| BK-MF6-07 | Fotografias e relatórios de análise armazenados de forma encriptada. | Aline | Izelicks | P0 | TODO | M | - | RNF11 | S10-S11 | Reforco | BK-MF7-01 |
 
-## MF7 - Comunicação, privacidade e simulação
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF7-01 | Notificações transacionais e preferências de comunicação | Izelicks | Aline | P0 | TODO | M | BK-MF5-02, BK-MF1-02 | RF36, RF39, RNF03 | BK-MF7-02 |
-| BK-MF7-02 | Chat interno cliente-consultor | Daniel Bulica | Aline | P2 | TODO | M | BK-MF1-01 | RF38, RNF06 | BK-MF7-03 |
-| BK-MF7-03 | Simulação virtual antes/depois | Bruna | Aline | P1 | TODO | M | BK-MF3-01, BK-MF2-02 | RF23, RF24, RNF05 | BK-MF7-04 |
-| BK-MF7-04 | Privacidade operacional e auditoria biométrica | Bruna | Aline | P0 | TODO | M | BK-MF3-01, BK-MF1-04 | RF41, RF44, RNF13, RNF25 | BK-MF8-01 |
+## MF7 - Privacidade, seguranca e controlo
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF7-01 | Consentimento explícito para análise facial (RGPD). | Bruna | Izelicks | P0 | TODO | M | - | RNF12 | S11-S12 | Reforco | BK-MF7-02 |
+| BK-MF7-02 | Direito a eliminar conta e dados (incluindo fotos). | Izelicks | Bruna | P0 | TODO | M | - | RNF13 | S11-S12 | Reforco | BK-MF7-03 |
+| BK-MF7-03 | Sessões autenticadas com cookies HttpOnly. | Aline | Izelicks | P0 | TODO | M | - | RNF14 | S11-S12 | Reforco | BK-MF7-04 |
+| BK-MF7-04 | Compatível com Chrome, Safari, Edge e Firefox. | Bruna | Izelicks | P0 | TODO | M | - | RNF15 | S11-S12 | Reforco | BK-MF7-05 |
+| BK-MF7-05 | Exportação de relatórios em PDF. | Bruna | Izelicks | P1 | TODO | S | - | RNF16 | S11-S12 | Core | BK-MF7-06 |
+| BK-MF7-06 | Integração com gateways de pagamento (Stripe, PayPal, MBWay). | Daniel Bulica | Aline | P0 | TODO | M | - | RNF17 | S11-S12 | Reforco | BK-MF7-07 |
+| BK-MF7-07 | Suporte para API de IA externa (ex: Azure Face API ou TensorFlow). | Aline | Izelicks | P1 | TODO | S | - | RNF18 | S11-S12 | Core | BK-MF8-01 |
 
-## MF8 - Qualidade final, performance e defesa
-| bk_id | título | owner | apoio | prioridade | estado | esforço | dependências | rf_rnf | próximo BK |
-| :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- | :-- |
-| BK-MF8-01 | Performance, otimização de imagens e testes de carga | Bruna | Izelicks | P0 | TODO | M | BK-MF3-02, BK-MF5-02 | RNF05, RNF06, RNF07, RNF08 | BK-MF8-02 |
-| BK-MF8-02 | Compatibilidade cross-browser e acessibilidade visual | Aline | Daniel Bulica | P1 | TODO | M | BK-MF2-02, BK-MF7-03 | RNF01, RNF02, RNF03, RNF04, RNF15 | BK-MF8-03 |
-| BK-MF8-03 | Observabilidade, backups e separação de ambientes | Daniel Bulica | Izelicks | P1 | TODO | M | BK-MF0-02 | RNF20, RNF21, RNF22 | BK-MF8-04 |
-| BK-MF8-04 | Hardening final, testes negativos e preparação da defesa | Aline | Bruna | P0 | TODO | M | BK-MF8-01, BK-MF8-02, BK-MF8-03, BK-MF7-04 | RF01-RF44, RNF09-RNF25 | - |
-
-## Integridade do backlog (pass/fail)
-- `PASS`: cada `bk_id` aparece uma única vez.
-- `PASS`: cada `bk_id` tem owner único.
-- `PASS`: todas as dependências apontam para BK existente.
+## MF8 - Integracoes, compatibilidade e fecho
+| bk_id | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | sprint | core_or_reforco | proximo_bk |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BK-MF8-01 | Código modular (MVC) com documentação e _docstrings_. | Izelicks | Bruna | P0 | TODO | M | - | RNF19 | S12 | Reforco | BK-MF8-02 |
+| BK-MF8-02 | Logs de erros e métricas de desempenho. | Izelicks | Bruna | P1 | TODO | S | - | RNF20 | S12 | Core | BK-MF8-03 |
+| BK-MF8-03 | Base de dados com backups automáticos diários. | Daniel Bulica | Aline | P1 | TODO | S | - | RNF21 | S12 | Core | BK-MF8-04 |
+| BK-MF8-04 | Ambiente de testes separado do ambiente de produção. | Bruna | Izelicks | P1 | TODO | S | - | RNF22 | S12 | Core | BK-MF8-05 |
+| BK-MF8-05 | A IA deve indicar como chegou às recomendações (explicabilidade). | Aline | Izelicks | P0 | TODO | M | - | RNF23 | S12 | Reforco | BK-MF8-06 |
+| BK-MF8-06 | O sistema deve garantir não discriminação por género, idade ou tom de pele. | Bruna | Izelicks | P0 | TODO | M | - | RNF24 | S12 | Reforco | BK-MF8-07 |
+| BK-MF8-07 | As imagens processadas não devem ser usadas para treinar modelos externos sem consentimento. | Daniel Bulica | Aline | P0 | TODO | M | - | RNF25 | S12 | Reforco | - |
 
 ## Changelog
-- **2026-04-12** - Backlog canónico criado com 36 BK e links 1:1 para guias.
+- `2026-04-12`: backlog canónico base da Orelle.
+- `2026-04-14`: backlog normalizado com metadados completos, sprint em 12 semanas e naming semantico de guias.

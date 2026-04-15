@@ -168,6 +168,12 @@
 
 ---
 
+## Ligacao com planificacao canonica
+
+- Mapeamento RF -> BK: `docs/planificacao/backlogs/ANEXO-RF-PARA-BKS.md`.
+- Backlog operativo: `docs/planificacao/backlogs/BACKLOG-MVP.md`.
+- Matriz canónica: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
+
 ## Licença
 
 Projeto académico destinado a fins educativos no âmbito da PAP.
@@ -177,3 +183,4 @@ Projeto académico destinado a fins educativos no âmbito da PAP.
 ## Changelog
 
 -   **2024-04-27** - Reorganização do RF.md para formato padrão com novas secções (MVP, créditos, licença e changelog).
+-   **2026-04-14** - Alinhamento editorial com planificacao canónica, scorecard comum e rastreabilidade BK.
