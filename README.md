@@ -1,162 +1,119 @@
-# Orélle - Consultoria Cosmética Inteligente
+# Orélle
 
-A Orélle é uma plataforma de consultoria cosmética inteligente que combina análise facial por IA, rotinas de skincare personalizadas e comércio eletrónico especializado. O sistema permite que clientes recebam diagnósticos de pele rápidos e rigorosos, baseados em fotografias e modelos avançados de deteção de imperfeições e obtenham recomendações de produtos alinhadas com os seus objetivos, preferências e histórico evolutivo.
+## Metadados
+- Nome da app: Orélle
+- Ano letivo: 2025/2026
+- Turma: 12º IG
+- Nome dos alunos: Bruna, Aline, Daniel Bulica, Aline
+- Orientador: Nuno Castro e Cláudia Marques
 
-Além do diagnóstico automático, a Orélle integra consultores reais que podem validar relatórios, ajustar rotinas, acompanhar clientes e gerir campanhas. A aplicação inclui catálogo detalhado de produtos, recomendação inteligente, rotinas personalizadas, simulação virtual antes/depois, carrinho e checkout completos, e um painel administrativo para gestão de stock, campanhas e privacidade.
+## 1. Visão Geral Extensa da Aplicação
+A Orélle é uma plataforma de consultoria cosmética inteligente que integra análise facial por IA, recomendação personalizada e experiência de compra orientada por dados. O sistema foi pensado para transformar aconselhamento de skincare e maquilhagem em processos consistentes, rastreáveis e pedagogicamente explicáveis, evitando respostas genéricas e promovendo acompanhamento evolutivo do utilizador.
 
-O projeto foi desenvolvido no âmbito da PAP de Informática de Gestão (2025/2026), com foco em experiência premium, privacidade rigorosa de dados biométricos e integração ética de IA aplicada à cosmética.
+No âmbito da PAP, a Orélle representa um caso de produto digital com uso aplicado de IA em contexto sensível (dados biométricos). Por isso, além da componente funcional, o projeto enfatiza consentimento, proteção de dados, transparência de recomendações e limites claros entre MVP e funcionalidades de experiência premium.
 
----
+## 2. Problema que Resolve e Proposta de Valor
+A maioria das experiências de cosmética digital apresenta duas limitações: pouca personalização clínica e fraca continuidade de acompanhamento. A Orélle resolve isto ao combinar:
 
-**Índice**
+- diagnóstico inicial com apoio de IA a partir de imagens do rosto;
+- recomendação de rotina e produtos com racional explícito;
+- evolução temporal do estado de pele para acompanhamento;
+- simulação visual de maquilhagem/antes-depois para apoio à decisão.
 
-1. [Contexto do Projeto](#contexto-do-projeto)
-2. [Visão e Objetivos](#visão-e-objetivos)
-3. [Público-Alvo e Stakeholders](#público-alvo-e-stakeholders)
-4. [Funcionalidades Principais](#funcionalidades-principais)
-5. [Requisitos Não Funcionais Essenciais](#requisitos-não-funcionais-essenciais)
-6. [Stack e Arquitetura Recomendada](#stack-e-arquitetura-recomendada)
-7. [Roadmap para o MVP (inclui todos os RF)](#roadmap-para-o-mvp-inclui-todos-os-rf)
-8. [Identificação e Créditos](#identificação-e-créditos)
-9. [Licença](#licença)
-10. [Changelog](#changelog)
+A proposta de valor da Orélle é unir aconselhamento técnico, visualização prática e privacidade biométrica num único fluxo de produto.
 
----
+## 3. Público-Alvo e Stakeholders
+- clientes finais que procuram orientação personalizada de skincare e maquilhagem;
+- consultores/especialistas que validam e ajustam recomendações;
+- equipa administrativa que gere catálogo, stock, métricas e conformidade;
+- equipa técnica responsável pela integração de IA, segurança e operação.
 
+## 4. Funcionalidades Principais por Domínio Funcional
+### 4.1 Identidade e perfil do utilizador
+- registo, autenticação e gestão de perfil;
+- recolha de objetivos, preferências e restrições relevantes;
+- histórico de avaliações para continuidade de aconselhamento.
 
-## Fonte canónica por tema
+### 4.2 Análise facial por IA (núcleo obrigatório)
+- upload multi-ângulo em modo MVP controlado (frontal e perfil);
+- deteção assistida de sinais relevantes (ex.: oleosidade, acne, textura);
+- geração de relatório com pontos de atenção e recomendações iniciais;
+- armazenamento histórico para comparações futuras.
 
-- Requisitos funcionais: `docs/RF.md`
-- Requisitos não funcionais: `docs/RNF.md`
-- Planeamento e execução: `docs/planificacao/README.md`
+### 4.3 Evolução temporal e acompanhamento
+- visualização da evolução ao longo do tempo;
+- comparação entre avaliações passadas e atuais;
+- apoio a decisões de ajuste de rotina com base em progressão observada.
 
-## Hierarquia de verdade (obrigatória)
+### 4.4 Simulação de maquilhagem e antes/depois (núcleo obrigatório)
+- simulação virtual sobre fotografia do utilizador;
+- vista comparativa antes/depois orientada a suporte de decisão;
+- integração com recomendação de produtos no mesmo fluxo de consulta.
 
-`MATRIZ-CANONICA-BK` > `BACKLOG-MVP` > `PLANO-SPRINTS` > `MF-VIEWS` > `guias-bk/*` > relatórios derivados.
+### 4.5 Recomendação e rotina personalizada
+- recomendações por perfil, histórico e preferências;
+- explicação da lógica de recomendação em linguagem clara;
+- recolha de feedback do utilizador para afinação progressiva de relevância.
 
-## Contexto do Projeto
+### 4.6 Comércio e operação
+- catálogo, carrinho e checkout em escopo controlado;
+- gestão de encomendas e histórico de compra;
+- painel operacional mínimo para administração.
 
--   Consultoria digital para cuidados da pele orientada para clientes que procuram recomendações personalizadas.
--   Junta diagnóstico automático, acompanhamento de consultores e experiências de compra com storytelling da marca.
--   Diferencia-se pela componente ética/privacidade nos dados biométricos e por experiências de simulação virtual.
+### 4.7 Privacidade biométrica e conformidade
+- consentimento explícito antes de processamento de imagem;
+- políticas de eliminação/retirada de dados;
+- trilho de auditoria para operações sensíveis.
 
----
+Fontes funcionais canónicas: [docs/RF.md](docs/RF.md), [docs/planificacao/backlogs/BACKLOG-MVP.md](docs/planificacao/backlogs/BACKLOG-MVP.md).
 
-## Visão e Objetivos
+## 5. Arquitetura/Stack Recomendada (Alto Nível)
+- frontend focado em fluxo assistido de diagnóstico e visualização;
+- backend modular (identidade, análise, recomendação, comércio, privacidade);
+- camada de IA desacoplada da lógica de negócio central;
+- armazenamento seguro para imagens e relatórios;
+- monitorização de tempos de análise e fiabilidade operacional.
 
-1. Oferecer diagnósticos de pele rápidos, precisos e compreensíveis, suportados por IA.
-2. Criar rotinas e kits personalizadas com base em objetivos e evolução do cliente.
-3. Reforçar a relação cliente-consultor com ferramentas digitais (chat, alertas e relatórios).
-4. Garantir segurança e consentimento explícito em todos os processos envolvendo imagens faciais.
+## 6. Escopo MVP vs Pós-PAP
+### MVP (incluído)
+- análise facial IA com frontal + perfil;
+- relatório e histórico de avaliações;
+- evolução temporal funcional;
+- simulação de maquilhagem com antes/depois em nível baseline;
+- recomendação personalizada e operação de comércio em modo controlado;
+- privacidade biométrica e consentimentos como requisito obrigatório.
 
----
+### Pós-PAP (adiado)
+- realismo avançado de simulação;
+- integrações de pagamento e campanhas em modo enterprise;
+- automações comerciais complexas e comunicações avançadas;
+- otimizações de IA de maior custo computacional.
 
-## Público-Alvo e Stakeholders
+## 7. Requisitos Não Funcionais Críticos
+- segurança e proteção de dados biométricos;
+- consentimento, transparência e direito ao apagamento;
+- desempenho aceitável na análise e na visualização;
+- estabilidade da experiência em desktop e mobile;
+- documentação e rastreabilidade alinhadas com backlog canónico.
 
--   **Clientes finais** – procuram recomendações personalizadas e acompanhamento contínuo.
--   **Consultores/dermoconselheiros** – validam relatórios, ajustam rotinas e gerem contactos.
--   **Administradores da marca** – gerem catálogo, campanhas, stock e políticas de privacidade.
--   **Equipa técnica** – responsável pela IA, integração de pagamentos e conformidade legal.
+Fonte canónica RNF: [docs/RNF.md](docs/RNF.md).
 
----
+## 8. Roadmap Resumido por Fases
+1. onboarding, perfil e catálogo base;
+2. análise facial, relatório e histórico;
+3. evolução temporal e simulação antes/depois;
+4. consolidação operacional, privacidade e qualidade documental.
 
-## Funcionalidades Principais
+## 9. Créditos, Licença e Changelog
+### Créditos
+- Projeto: Orélle
+- Tipo: PAP - Curso Profissional de Informática de Gestão
+- Ano letivo: 2025/2026
+- Equipa: Bruna, Aline, Daniel Bulica, Aline
+- Orientador: Nuno Castro e Cláudia Marques
 
-### Utilizadores, Perfis e Preferências
+### Licença
+Projeto académico para fins educativos.
 
--   Registo/login seguro, perfis detalhados (nome, idade, género, objetivos, histórico médico simplificado) e atualização periódica de fotografias (RF01–RF06).
--   Preferências de marcas, alergias, ingredientes a evitar e preferências de comunicação.
-
-### Catálogo e Conteúdo
-
--   Produtos com ingredientes, etiquetas (tipo de pele, rotina, estação), relações entre artigos complementares e avaliações de clientes (RF07–RF12).
--   Pesquisa e filtros avançados, páginas detalhadas com notas de consultores e recomendações cruzadas.
-
-### IA de Análise e Relatórios
-
--   Upload de fotografias frontal/perfil, deteção de acne, manchas, rugas, oleosidade e tipo de pele (RF13–RF17).
--   Relatórios personalizados com diagnóstico, justificações, nível de prioridade e histórico evolutivo.
--   Comparação temporal via gráficos e alertas para repetir avaliação após X semanas.
-
-### Recomendação e Personalização
-
--   Motor que cruza diagnóstico, objetivos, feedback e preferências para sugerir rotinas completas (RF18–RF22).
--   Possibilidade de marcar “não relevante” para refinar recomendações e criar planos semanais.
--   Kits automáticos agrupados por manhã/noite, com instruções passo a passo.
-
-### Simulação Virtual e Experiências
-
--   Ferramenta de antes/depois para maquilhagem ou aplicação de determinados produtos (RF23–RF25).
--   Partilha opcional nas redes sociais e armazenamento para comparação futura.
-
-### Commerce e Atendimento
-
--   Carrinho, check-out, métodos de pagamento (Stripe, PayPal, MBWay), gestão de encomendas e histórico (RF26–RF30).
--   Painel administrativo para stock, alertas de ruturas, campanhas e códigos promocionais (RF31–RF35).
--   Chat opcional cliente ↔ consultor, notificações e acompanhamento pós-venda (RF36–RF39).
-
-> Detalhes completos em [`docs/RF.md`](docs/RF.md#índice).
-
----
-
-## Requisitos Não Funcionais Essenciais
-
--   **Usabilidade/Design** – UI responsiva, alinhada com estética da marca, feedback imediato e modo escuro (RNF01–RNF04).
--   **Performance** – Páginas ≤3s, análise fotográfica ≤10s, otimização de imagens via compressão e lazy loading (RNF05–RNF08).
--   **Segurança/Privacidade** – HTTPS, hashing seguro, encriptação de fotos/relatórios, consentimento explícito e direito ao esquecimento (RNF09–RNF14).
--   **Compatibilidade/Integração** – Browsers modernos, exportação PDF de relatórios, gateways de pagamento e APIs de IA (RNF15–RNF18).
--   **Manutenção/Operação** – Código modular documentado, logs de erros, backups diários e ambientes separados (RNF19–RNF22).
--   **Ética IA** – Explicabilidade das recomendações, não discriminação por género/idade/tom de pele e restrição no uso de imagens para treino (RNF23–RNF25).
-
-> Detalhes completos em [`docs/RNF.md`](docs/RNF.md#índice).
-
----
-
-## Stack e Arquitetura Recomendada
-
-```
-frontend/   # React + Vite, TypeScript, Tailwind, componentes reutilizáveis com modo claro/escuro
-backend/    # Node.js (Express) com Multer para upload e módulos para utilizadores, análises e encomendas
-docs/       # RF, RNF, arquitetura, decisões e guidelines de privacidade
-scripts/    # Automação de ingestão de catálogo, seeds, tarefas DevOps
-```
-
--   **Base de dados:** MongoDB para perfis, análises e histórico; CDN/cloud storage para imagens encriptadas.
--   **IA:** Azure Face API ou microserviço FastAPI + TensorFlow treinado para detetar problemas de pele.
--   **Pagamentos:** Stripe/PayPal/MBWay com webhooks de encomendas.
--   **DevOps:** Render/Railway, CDN (Cloudflare/AWS) para imagens, monitorização e backups automáticos.
-
----
-
-## Roadmap para o MVP (inclui todos os RF)
-
-1. **Fase 1 - Diagnóstico e Catálogo:** onboarding, upload/análise básica, catálogo navegável e relatórios iniciais.
-2. **Fase 2 - Personalização e Commerce:** motor de recomendações, carrinho/pagamentos, histórico e painel administrativo.
-3. **Fase 3 - Experiência Premium:** simulação virtual, chat com consultor, alertas, evolução visual e campanhas.
-4. **Fase 4 - Operação e Escala:** otimizações de desempenho, integrações avançadas de IA e reforço de privacidade.
-
----
-
-## Identificação e Créditos
-
-> **Projeto:** Orélle - Consultoria Cosmética Inteligente  
-> **Tipo:** PAP - Curso Profissional de Informática de Gestão  
-> **Áreas:** Programação · Gestão · Base de Dados  
-> **Ano letivo:** 2025/2026  
-> **Versão:** 1.0  
-> **Equipa:** [Bruna, Izelicks, Aline, Daniel Bulica]  
-> **Professor Orientador:** Nuno Castro e Cláudia Marques
-
----
-
-## Licença
-
-Projeto académico. Uso restrito a fins educativos.
-
----
-
-## Changelog
-
--   **2024-04-27** – README atualizado com estrutura uniforme, funcionalidades detalhadas e roadmap.
-
--   **2026-04-14** – Alinhamento editorial com contrato canónico de planificação (estrutura, governança e rastreabilidade).
+### Changelog
+- 2026-04-17: README reescrito integralmente com estrutura canónica e reforço dos núcleos obrigatórios (análise facial, multi-ângulo, evolução temporal e simulação).

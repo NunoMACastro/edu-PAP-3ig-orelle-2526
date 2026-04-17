@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Objetivo
 Fornecer guiao pratico de intervencao docente por sprint, com foco em risco, carga realista e consistencia documental.
@@ -47,3 +47,4 @@ Fornecer guiao pratico de intervencao docente por sprint, com foco em risco, car
 
 ## Changelog
 - `2026-04-14`: guiao docente criado para alinhamento de governanca semanal.
+- `2026-04-17`: guião alinhado com a nova distribuição de carga após corte de escopo.

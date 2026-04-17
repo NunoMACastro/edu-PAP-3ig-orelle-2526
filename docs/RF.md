@@ -10,7 +10,7 @@
 6. [Carrinho, Pagamentos e Histórico](#6-carrinho-pagamentos-e-histórico)
 7. [Gestão Administrativa](#7-gestão-administrativa)
 8. [Notificações e Comunicação](#8-notificações-e-comunicação)
-9. [Campanhas, Preferências Avançadas e Privacidade Operacional](#9-campanhas-preferências-avançadas-e-privacidade-operacional)
+9. [Privacidade Operacional e Conformidade](#9-privacidade-operacional-e-conformidade)
 10. [Critérios de Aceitação](#critérios-de-aceitação)
 11. [Sugestão de MVP organizado por fases e RF](#sugestão-de-mvp-organizado-por-fases-e-rf)
 12. [Créditos do projeto](#créditos-do-projeto)
@@ -90,7 +90,6 @@
 | RF26   | Adicionar/remover produtos do **carrinho de compras**.                                 | Cliente          | Must       | RF07         |
 | RF27   | Registar **encomendas e pagamentos** (gateway Stripe/PayPal/MBWay).                    | Cliente, Sistema | Must       | RF26         |
 | RF28   | Histórico de compras com data, total, produtos e estado (pendente, enviado, entregue). | Cliente          | Must       | RF27         |
-| RF29   | Permitir **devoluções ou trocas** com registo do motivo.                               | Cliente          | Could      | RF28         |
 | RF30   | O cliente pode **recomprar produtos anteriores** com um clique.                        | Cliente          | Should     | RF28         |
 
 ---
@@ -113,26 +112,22 @@
 | :----- | :--------------------------------------------------------------------------- | :----------------- | :--------- | :----------- |
 | RF36   | Enviar notificações sobre promoções, novos produtos e estado das encomendas. | Sistema            | Must       | RF27         |
 | RF37   | Enviar alertas personalizados (“Está na hora da sua rotina noturna”).        | Sistema (IA)       | Should     | RF21         |
-| RF38   | Sistema de mensagens entre cliente e consultor (chat interno).               | Cliente, Consultor | Could      | RF05         |
-| RF39   | Configuração de preferências de comunicação (email, app, push).              | Cliente            | Should     | RF36         |
 
 ---
 
-### 9 Campanhas, Preferências Avançadas e Privacidade Operacional
+### 9 Privacidade Operacional e Conformidade
 
 | Código | Requisito                                                                                                                   | Atores           | Prioridade | Dependências |
 | :----- | :-------------------------------------------------------------------------------------------------------------------------- | :--------------- | :--------- | :----------- |
 | RF40   | Guardar **alergias, ingredientes a evitar e restrições médicas leves** no perfil e impedir recomendações que violem regras. | Cliente, Sistema | Must       | RF03         |
 | RF41   | Painel para consultores/admins reverem e aprovarem **pedidos de eliminação/anonymização de fotografias e relatórios**.      | Admin, Consultor | Must       | RF13         |
-| RF42   | Gestão de **campanhas e storytelling** (banner, segmento, período, consultor responsável).                                  | Admin, Consultor | Should     | RF07         |
-| RF43   | Configurar e aplicar **códigos promocionais** com limites por cliente, canal e datas.                                       | Admin            | Should     | RF27         |
 | RF44   | Registo/auditoria de acessos a dados biométricos, com alertas para usos indevidos.                                          | Sistema, Admin   | Should     | RF13         |
 
 ---
 
 ## Critérios de Aceitação
 
-> Critérios de aceitção são descrições detalhadas que definem quando um requisito funcional está completo e funciona conforme esperado.
+> Critérios de aceitação são descrições detalhadas que definem quando um requisito funcional está completo e funciona conforme esperado.
 
 ### Análise IA (RF13–RF17)
 
@@ -149,7 +144,7 @@
 -   **Ao enviar uma fotografia**, o utilizador pode escolher produtos de maquilhagem e ver a simulação antes/depois.
 -   O sistema guarda a comparação e permite visualização futura.
 
-### Compras e Histórico (RF26–RF30)
+### Compras e Histórico (RF26–RF28, RF30)
 
 -   **Quando** o utilizador finaliza o pagamento, **então** é criada uma encomenda com estado “Pendente”.
 -   O estado muda para “Entregue” apenas após confirmação do envio.
@@ -162,8 +157,8 @@
 ## Sugestão de MVP organizado por fases e RF
 
 -   **Fase 1 - Diagnóstico e Catálogo:** RF01–RF22 (perfis, catálogo, análise IA, recomendações iniciais).
--   **Fase 2 - Commerce e Atendimento:** RF23–RF39 (simulação virtual, compras, histórico, notificações).
--   **Fase 3 - Operação e Privacidade:** RF40–RF44 (preferências avançadas, campanhas, privacidade operacional e auditoria).
+-   **Fase 2 - Commerce e Atendimento:** RF23–RF37 (simulação virtual, compras, histórico e notificações essenciais).
+-   **Fase 3 - Operação e Privacidade:** RF40, RF41, RF44 (privacidade operacional, governação e auditoria biométrica).
 -   **Fase 4 - Otimização:** Critérios de aceitação e melhorias contínuas no motor de IA e reporting.
 
 ---
@@ -173,6 +168,11 @@
 - Mapeamento RF -> BK: `docs/planificacao/backlogs/ANEXO-RF-PARA-BKS.md`.
 - Backlog operativo: `docs/planificacao/backlogs/BACKLOG-MVP.md`.
 - Matriz canónica: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
+
+## Créditos do projeto
+
+- Projeto académico desenvolvido no âmbito da PAP.
+- Estrutura documental canónica mantida pela equipa do projeto para suporte a implementação e avaliação.
 
 ## Licença
 
@@ -184,3 +184,4 @@ Projeto académico destinado a fins educativos no âmbito da PAP.
 
 -   **2024-04-27** - Reorganização do RF.md para formato padrão com novas secções (MVP, créditos, licença e changelog).
 -   **2026-04-14** - Alinhamento editorial com planificacao canónica, scorecard comum e rastreabilidade BK.
+-   **2026-04-17** - Removidos requisitos fora do escopo PAP para manter RF e planificação sem referências residuais.

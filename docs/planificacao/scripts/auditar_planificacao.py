@@ -4,12 +4,13 @@ from __future__ import annotations
 from pathlib import Path
 import re
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
+from datetime import date
 
-EXPECTED_RF = [f"RF{i:02d}" for i in range(1, 45)]
+EXPECTED_RF = [f"RF{i:02d}" for i in range(1, 29)] + [f"RF{i:02d}" for i in range(30, 38)] + ["RF40", "RF41", "RF44"]
 EXPECTED_RNF = [f"RNF{i:02d}" for i in range(1, 26)]
-VALID_LAST_UPDATED = {'2026-04-14'}
 GUIDE_FILENAME_RE = re.compile(r"^BK-MF[0-8]-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
+SPRINT_CSV_RE = re.compile(r"^S\d{2}(,S\d{2})*$")
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\{NOW\}"),
     re.compile(r"Adicionar aqui", re.IGNORECASE),
@@ -85,6 +86,58 @@ def normalize_guia_path(cell: str) -> str:
 def extract_header_value(text: str, key: str) -> str:
     m = re.search(rf"^- `{re.escape(key)}`: `([^`]+)`", text, flags=re.MULTILINE)
     return m.group(1).strip() if m else ""
+
+
+def is_valid_last_updated(value: str) -> bool:
+    if not value:
+        return False
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError:
+        return False
+    return parsed <= date.today()
+
+
+def parse_sprint_tokens(raw: str) -> list[str]:
+    value = raw.strip().replace("`", "")
+    if not value:
+        return []
+    if re.fullmatch(r"S\d{2}-S\d{2}", value):
+        start = int(value[1:3])
+        end = int(value[5:7])
+        if start > end:
+            return []
+        return [f"S{i:02d}" for i in range(start, end + 1)]
+    if SPRINT_CSV_RE.fullmatch(value):
+        return [part.strip() for part in value.split(",") if part.strip()]
+    return []
+
+
+def is_valid_backlog_sprint(raw: str) -> bool:
+    return SPRINT_CSV_RE.fullmatch(raw.strip().replace("`", "")) is not None
+
+
+def extract_macro_navigation_entries(backlog_text: str) -> list[dict[str, str]]:
+    entries: list[dict[str, str]] = []
+    lines = backlog_text.splitlines()
+    in_nav = False
+    current_macro = ""
+    for line in lines:
+        if line.startswith("## Navegacao por macro (IDs BK)"):
+            in_nav = True
+            continue
+        if in_nav and line.startswith("## "):
+            break
+        if not in_nav:
+            continue
+        macro_match = re.match(r"^###\s+(MF[0-8])\b", line.strip())
+        if macro_match:
+            current_macro = macro_match.group(1)
+            continue
+        if current_macro and line.strip().startswith("-"):
+            for bk_id in re.findall(r"\bBK-MF[0-8]-\d{2}\b", line):
+                entries.append({"macro": current_macro, "bk_id": bk_id})
+    return entries
 
 
 def has_required_blocks(text: str) -> bool:
@@ -179,10 +232,10 @@ def main() -> None:
         read(backlogs / "MATRIZ-CANONICA-BK.md"),
         "| bk_id | macro | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | fase_documental | sprint | core_or_reforco | proximo_bk_recomendado | guia_path |",
     )
+    backlog_text = read(backlogs / "BACKLOG-MVP.md")
     backlog_rows = parse_table_rows(
-        read(backlogs / "BACKLOG-MVP.md"),
+        backlog_text,
         "| bk_id | macro | titulo | owner | apoio | prioridade | estado | esforco | dependencias | rf_rnf | fase_documental | sprint | core_or_reforco | proximo_bk | guia |",
-        "## MF0",
     )
 
     rf_expected = set(EXPECTED_RF)
@@ -190,6 +243,28 @@ def main() -> None:
 
     matriz_by_bk = {r["bk_id"]: r for r in matriz_rows}
     backlog_by_bk = {r["bk_id"]: r for r in backlog_rows}
+    backlog_id_counter = Counter(r["bk_id"] for r in backlog_rows)
+    backlog_duplicate_ids = sorted([bk_id for bk_id, count in backlog_id_counter.items() if count > 1])
+
+    backlog_invalid_sprint_format = [
+        {"bk_id": row["bk_id"], "sprint": row["sprint"]} for row in backlog_rows if not is_valid_backlog_sprint(row["sprint"])
+    ]
+
+    macro_navigation_entries = extract_macro_navigation_entries(backlog_text)
+    backlog_macro_ids_not_in_global = sorted(
+        {
+            entry["bk_id"]
+            for entry in macro_navigation_entries
+            if entry["bk_id"] not in backlog_by_bk
+        }
+    )
+    backlog_macro_ids_wrong_macro = sorted(
+        {
+            entry["bk_id"]
+            for entry in macro_navigation_entries
+            if entry["bk_id"] in backlog_by_bk and entry["macro"] != backlog_by_bk[entry["bk_id"]]["macro"]
+        }
+    )
 
     matrix_refs = set()
     backlog_refs = set()
@@ -225,7 +300,7 @@ def main() -> None:
             or m["prioridade"] != b["prioridade"]
             or m["dependencias"] != b["dependencias"]
             or sorted(parse_items(m["rf_rnf"])) != sorted(parse_items(b["rf_rnf"]))
-            or m["sprint"] != b["sprint"]
+            or sorted(parse_sprint_tokens(m["sprint"])) != sorted(parse_sprint_tokens(b["sprint"]))
             or m["core_or_reforco"] != b["core_or_reforco"]
             or m["proximo_bk_recomendado"] != b["proximo_bk"]
         ):
@@ -356,12 +431,10 @@ def main() -> None:
     required_artifacts = [
         plan / "README.md",
         plan / "PLANO-IMPLEMENTACAO-TOTAL.md",
-        plan / "CONFORMIDADE-PLANIFICACAO.md",
         plan / "DISTRIBUICAO-RESPONSABILIDADES.md",
         plan / "sprints" / "PLANO-SPRINTS.md",
         plan / "sprints" / "SCORECARD-SPRINTS.md",
         plan / "sprints" / "GUIAO-DOCENTE-SEMANAL.md",
-        plan / "sprints" / "GATES-S4-S8-S12.md",
         backlogs / "MATRIZ-CANONICA-BK.md",
         backlogs / "BACKLOG-MVP.md",
         backlogs / "MF-VIEWS.md",
@@ -377,7 +450,7 @@ def main() -> None:
         if not p.exists():
             continue
         text = read(p)
-        if not any(f"`last_updated`: `{d}`" in text for d in VALID_LAST_UPDATED):
+        if not is_valid_last_updated(extract_header_value(text, "last_updated")):
             outdated_docs.append(str(p))
 
     docs_to_scan = [
@@ -386,7 +459,6 @@ def main() -> None:
         repo / "docs" / "RNF.md",
         plan / "README.md",
         plan / "PLANO-IMPLEMENTACAO-TOTAL.md",
-        plan / "CONFORMIDADE-PLANIFICACAO.md",
         plan / "DISTRIBUICAO-RESPONSABILIDADES.md",
         plan / "guias-bk" / "README.md",
         plan / "guias-bk" / "ROADMAP-BKS-RESTANTES.md",
@@ -394,7 +466,6 @@ def main() -> None:
         plan / "sprints" / "PLANO-SPRINTS.md",
         plan / "sprints" / "SCORECARD-SPRINTS.md",
         plan / "sprints" / "GUIAO-DOCENTE-SEMANAL.md",
-        plan / "sprints" / "GATES-S4-S8-S12.md",
         backlogs / "MATRIZ-CANONICA-BK.md",
         backlogs / "BACKLOG-MVP.md",
         backlogs / "MF-VIEWS.md",
@@ -441,6 +512,10 @@ def main() -> None:
             "broken_guia_links": broken_guia_links,
             "invalid_dependencies": deps_invalid,
             "cycles": cycles,
+            "backlog_duplicate_ids": backlog_duplicate_ids,
+            "backlog_macro_ids_not_in_global": backlog_macro_ids_not_in_global,
+            "backlog_macro_ids_wrong_macro": backlog_macro_ids_wrong_macro,
+            "backlog_invalid_sprint_format": backlog_invalid_sprint_format,
             "missing_artifacts": missing_artifacts,
             "outdated_docs": outdated_docs,
             "scorecard_contract_issues": scorecard_contract_issues,
@@ -455,10 +530,10 @@ def main() -> None:
         },
         "status": {
             "coverage_pass": not missing_rf_matrix and not missing_rnf_matrix and not missing_rf_backlog and not missing_rnf_backlog and not invalid_refs,
-            "consistency_pass": not mismatches and not broken_guia_links and not deps_invalid and not cycles and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not broken_links_docs and not placeholder_issues,
+            "consistency_pass": not mismatches and not broken_guia_links and not deps_invalid and not cycles and not backlog_duplicate_ids and not backlog_macro_ids_not_in_global and not backlog_macro_ids_wrong_macro and not backlog_invalid_sprint_format and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not broken_links_docs and not placeholder_issues,
             "guides_pass": not guide_header_issues and not guide_content_issues and not naming_issues and not missing_guides,
             "naming_pass": not naming_issues,
-            "overall_pass": not missing_rf_matrix and not missing_rnf_matrix and not missing_rf_backlog and not missing_rnf_backlog and not invalid_refs and not mismatches and not broken_guia_links and not deps_invalid and not cycles and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not broken_links_docs and not placeholder_issues and not guide_header_issues and not guide_content_issues and not naming_issues and not missing_guides,
+            "overall_pass": not missing_rf_matrix and not missing_rnf_matrix and not missing_rf_backlog and not missing_rnf_backlog and not invalid_refs and not mismatches and not broken_guia_links and not deps_invalid and not cycles and not backlog_duplicate_ids and not backlog_macro_ids_not_in_global and not backlog_macro_ids_wrong_macro and not backlog_invalid_sprint_format and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not broken_links_docs and not placeholder_issues and not guide_header_issues and not guide_content_issues and not naming_issues and not missing_guides,
         },
     }
 

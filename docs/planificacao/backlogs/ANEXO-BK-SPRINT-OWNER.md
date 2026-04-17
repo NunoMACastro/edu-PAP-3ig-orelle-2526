@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Objetivo
 Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para auditoria e controlo docente.
@@ -42,7 +42,6 @@ Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para audito
 | BK-MF3-02 | MF3 | Bruna | Izelicks | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md |
 | BK-MF3-03 | MF3 | Izelicks | Bruna | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md |
 | BK-MF3-04 | MF3 | Bruna | Izelicks | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md |
-| BK-MF3-05 | MF3 | Izelicks | Bruna | S07-S08 | P2 | Core | docs/planificacao/guias-bk/MF3/BK-MF3-05-permitir-devolucoes-ou-trocas-com-registo-do-motivo.md |
 | BK-MF3-06 | MF3 | Aline | Izelicks | S07-S08 | P1 | Core | docs/planificacao/guias-bk/MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md |
 | BK-MF3-07 | MF3 | Izelicks | Bruna | S07-S08 | P1 | Core | docs/planificacao/guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md |
 | BK-MF3-08 | MF3 | Izelicks | Bruna | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-08-gestao-de-stock-alertas-de-baixo-stock-atualizacao-automatica-apos-compra.md |
@@ -51,12 +50,8 @@ Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para audito
 | BK-MF4-03 | MF4 | Aline | Izelicks | S08-S09 | P1 | Core | docs/planificacao/guias-bk/MF4/BK-MF4-03-exportacao-de-dados-para-excel-pdf-vendas-relatorios-de-ia-utilizadores.md |
 | BK-MF4-04 | MF4 | Izelicks | Bruna | S08-S09 | P0 | Reforco | docs/planificacao/guias-bk/MF4/BK-MF4-04-enviar-notificacoes-sobre-promocoes-novos-produtos-e-estado-das-encomendas.md |
 | BK-MF4-05 | MF4 | Izelicks | Bruna | S08-S09 | P1 | Core | docs/planificacao/guias-bk/MF4/BK-MF4-05-enviar-alertas-personalizados-esta-na-hora-da-sua-rotina-noturna.md |
-| BK-MF4-06 | MF4 | Aline | Izelicks | S08-S09 | P2 | Core | docs/planificacao/guias-bk/MF4/BK-MF4-06-sistema-de-mensagens-entre-cliente-e-consultor-chat-interno.md |
-| BK-MF4-07 | MF4 | Bruna | Izelicks | S08-S09 | P1 | Core | docs/planificacao/guias-bk/MF4/BK-MF4-07-configuracao-de-preferencias-de-comunicacao-email-app-push.md |
 | BK-MF4-08 | MF4 | Bruna | Izelicks | S08-S09 | P0 | Reforco | docs/planificacao/guias-bk/MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md |
 | BK-MF5-01 | MF5 | Izelicks | Bruna | S09-S10 | P0 | Reforco | docs/planificacao/guias-bk/MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md |
-| BK-MF5-02 | MF5 | Aline | Izelicks | S09-S10 | P1 | Core | docs/planificacao/guias-bk/MF5/BK-MF5-02-gestao-de-campanhas-e-storytelling-banner-segmento-periodo-consultor-responsavel.md |
-| BK-MF5-03 | MF5 | Izelicks | Bruna | S09-S10 | P1 | Core | docs/planificacao/guias-bk/MF5/BK-MF5-03-configurar-e-aplicar-codigos-promocionais-com-limites-por-cliente-canal-e-datas.md |
 | BK-MF5-04 | MF5 | Bruna | Izelicks | S09-S10 | P1 | Core | docs/planificacao/guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md |
 | BK-MF5-05 | MF5 | Aline | Izelicks | S09-S10 | P0 | Reforco | docs/planificacao/guias-bk/MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md |
 | BK-MF5-06 | MF5 | Aline | Izelicks | S09-S10 | P1 | Core | docs/planificacao/guias-bk/MF5/BK-MF5-06-design-coerente-com-estetica-da-marca-cores-suaves-tipografia-moderna.md |
@@ -86,3 +81,4 @@ Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para audito
 
 ## Changelog
 - `2026-04-14`: anexo criado para consistencia temporal e ownership da planificacao.
+- `2026-04-17`: removidos BK fora de escopo PAP e consolidado mapeamento final.

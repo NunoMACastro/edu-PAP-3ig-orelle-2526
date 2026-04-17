@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Criterio de pronto pedagogico por macro
 - Macro fecha apenas com 100% dos BK com guia valido, checklist completa e evidence verificavel.
@@ -92,14 +92,13 @@ BK-MF2-01, BK-MF2-02, BK-MF2-03, BK-MF2-04, BK-MF2-05, BK-MF2-06, BK-MF2-07, BK-
 
 ## MF3 - Capacidades de produto I
 ### Sequencia por macro
-BK-MF3-01, BK-MF3-02, BK-MF3-03, BK-MF3-04, BK-MF3-05, BK-MF3-06, BK-MF3-07, BK-MF3-08
+BK-MF3-01, BK-MF3-02, BK-MF3-03, BK-MF3-04, BK-MF3-06, BK-MF3-07, BK-MF3-08
 
 ### Guias disponiveis
 - [BK-MF3-01 - O sistema deve permitir comparar imagens (antes vs após 30 dias de uso).](../guias-bk/MF3/BK-MF3-01-o-sistema-deve-permitir-comparar-imagens-antes-vs-apos-30-dias-de-uso.md)
 - [BK-MF3-02 - Adicionar/remover produtos do carrinho de compras.](../guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md)
 - [BK-MF3-03 - Registar encomendas e pagamentos (gateway Stripe/PayPal/MBWay).](../guias-bk/MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md)
 - [BK-MF3-04 - Histórico de compras com data, total, produtos e estado (pendente, enviado, entregue).](../guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md)
-- [BK-MF3-05 - Permitir devoluções ou trocas com registo do motivo.](../guias-bk/MF3/BK-MF3-05-permitir-devolucoes-ou-trocas-com-registo-do-motivo.md)
 - [BK-MF3-06 - O cliente pode recomprar produtos anteriores com um clique.](../guias-bk/MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md)
 - [BK-MF3-07 - Dashboard de estatísticas (vendas, produtos mais vendidos, utilizadores ativos).](../guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md)
 - [BK-MF3-08 - Gestão de stock (alertas de baixo stock, atualização automática após compra).](../guias-bk/MF3/BK-MF3-08-gestao-de-stock-alertas-de-baixo-stock-atualizacao-automatica-apos-compra.md)
@@ -117,7 +116,7 @@ BK-MF3-01, BK-MF3-02, BK-MF3-03, BK-MF3-04, BK-MF3-05, BK-MF3-06, BK-MF3-07, BK-
 
 ## MF4 - Capacidades de produto II
 ### Sequencia por macro
-BK-MF4-01, BK-MF4-02, BK-MF4-03, BK-MF4-04, BK-MF4-05, BK-MF4-06, BK-MF4-07, BK-MF4-08
+BK-MF4-01, BK-MF4-02, BK-MF4-03, BK-MF4-04, BK-MF4-05, BK-MF4-08
 
 ### Guias disponiveis
 - [BK-MF4-01 - Gestão de utilizadores (ativar, suspender, eliminar contas).](../guias-bk/MF4/BK-MF4-01-gestao-de-utilizadores-ativar-suspender-eliminar-contas.md)
@@ -125,8 +124,6 @@ BK-MF4-01, BK-MF4-02, BK-MF4-03, BK-MF4-04, BK-MF4-05, BK-MF4-06, BK-MF4-07, BK-
 - [BK-MF4-03 - Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores).](../guias-bk/MF4/BK-MF4-03-exportacao-de-dados-para-excel-pdf-vendas-relatorios-de-ia-utilizadores.md)
 - [BK-MF4-04 - Enviar notificações sobre promoções, novos produtos e estado das encomendas.](../guias-bk/MF4/BK-MF4-04-enviar-notificacoes-sobre-promocoes-novos-produtos-e-estado-das-encomendas.md)
 - [BK-MF4-05 - Enviar alertas personalizados (“Está na hora da sua rotina noturna”).](../guias-bk/MF4/BK-MF4-05-enviar-alertas-personalizados-esta-na-hora-da-sua-rotina-noturna.md)
-- [BK-MF4-06 - Sistema de mensagens entre cliente e consultor (chat interno).](../guias-bk/MF4/BK-MF4-06-sistema-de-mensagens-entre-cliente-e-consultor-chat-interno.md)
-- [BK-MF4-07 - Configuração de preferências de comunicação (email, app, push).](../guias-bk/MF4/BK-MF4-07-configuracao-de-preferencias-de-comunicacao-email-app-push.md)
 - [BK-MF4-08 - Guardar alergias, ingredientes a evitar e restrições médicas leves no perfil e impedir recomendações que violem regras.](../guias-bk/MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md)
 
 ### Step-by-step macro
@@ -142,12 +139,10 @@ BK-MF4-01, BK-MF4-02, BK-MF4-03, BK-MF4-04, BK-MF4-05, BK-MF4-06, BK-MF4-07, BK-
 
 ## MF5 - Operacao e fluxos transversais
 ### Sequencia por macro
-BK-MF5-01, BK-MF5-02, BK-MF5-03, BK-MF5-04, BK-MF5-05, BK-MF5-06, BK-MF5-07, BK-MF5-08
+BK-MF5-01, BK-MF5-04, BK-MF5-05, BK-MF5-06, BK-MF5-07, BK-MF5-08
 
 ### Guias disponiveis
 - [BK-MF5-01 - Painel para consultores/admins reverem e aprovarem pedidos de eliminação/anonymização de fotografias e relatórios.](../guias-bk/MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md)
-- [BK-MF5-02 - Gestão de campanhas e storytelling (banner, segmento, período, consultor responsável).](../guias-bk/MF5/BK-MF5-02-gestao-de-campanhas-e-storytelling-banner-segmento-periodo-consultor-responsavel.md)
-- [BK-MF5-03 - Configurar e aplicar códigos promocionais com limites por cliente, canal e datas.](../guias-bk/MF5/BK-MF5-03-configurar-e-aplicar-codigos-promocionais-com-limites-por-cliente-canal-e-datas.md)
 - [BK-MF5-04 - Registo/auditoria de acessos a dados biométricos, com alertas para usos indevidos.](../guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md)
 - [BK-MF5-05 - Interface moderna, intuitiva e _responsive_ (desktop e mobile).](../guias-bk/MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md)
 - [BK-MF5-06 - Design coerente com estética da marca (cores suaves, tipografia moderna).](../guias-bk/MF5/BK-MF5-06-design-coerente-com-estetica-da-marca-cores-suaves-tipografia-moderna.md)
@@ -241,3 +236,4 @@ BK-MF8-01, BK-MF8-02, BK-MF8-03, BK-MF8-04, BK-MF8-05, BK-MF8-06, BK-MF8-07
 ## Changelog
 - `2026-04-12`: MF-VIEWS inicial da Orelle.
 - `2026-04-14`: MF-VIEWS alinhado ao naming semantico e contrato canónico comum.
+- `2026-04-17`: removidos BK fora do escopo PAP e atualizado encadeamento por macro.

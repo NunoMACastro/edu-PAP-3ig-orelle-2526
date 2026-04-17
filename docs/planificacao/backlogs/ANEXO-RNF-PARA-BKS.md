@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Objetivo
 Mapear requisitos nao funcionais (`RNF`) para BKs, sprint e guia correspondente.
@@ -42,3 +42,4 @@ Mapear requisitos nao funcionais (`RNF`) para BKs, sprint e guia correspondente.
 
 ## Changelog
 - `2026-04-14`: anexo criado para rastreabilidade nao funcional canónica.
+- `2026-04-17`: atualizado `last_updated` para refletir revisao documental.

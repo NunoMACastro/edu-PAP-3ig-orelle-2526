@@ -6,14 +6,14 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Equipa e carga alvo
 | Pessoa | Papel principal | Total BK | P0 | P1 | P2 |
 | --- | --- | --- | --- | --- | --- |
-| Bruna | Execucao tecnica e handoff | 27 | 18 | 8 | 1 |
-| Izelicks | Execucao tecnica e handoff | 21 | 11 | 8 | 2 |
-| Aline | Execucao tecnica e handoff | 15 | 5 | 7 | 3 |
+| Bruna | Execucao tecnica e handoff | 26 | 18 | 7 | 1 |
+| Izelicks | Execucao tecnica e handoff | 19 | 11 | 7 | 1 |
+| Aline | Execucao tecnica e handoff | 13 | 5 | 6 | 2 |
 | Daniel Bulica | Execucao tecnica e handoff | 6 | 2 | 2 | 2 |
 
 ## Regras principais
@@ -44,3 +44,4 @@
 ## Changelog
 - `2026-04-12`: Redistribuicao de ownership alinhada com perfil da equipa.
 - `2026-04-14`: atualizado `last_updated` para alinhamento com vaga de normalizacao canónica.
+- `2026-04-17`: redistribuição atualizada após corte de BK fora do escopo PAP.

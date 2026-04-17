@@ -14,7 +14,7 @@
 - `fase_documental`: `Fase 2`
 - `sprint`: `S07-S08`
 - `core_or_reforco`: `Reforco`
-- `proximo_bk`: `BK-MF3-05`
+- `proximo_bk`: `BK-MF3-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md`
 - `last_updated`: `2026-04-14`
 
@@ -70,7 +70,7 @@ Executar `Histórico de compras com data, total, produtos e estado (pendente, en
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
 
 ### Handoff
-- Proximo BK recomendado: `BK-MF3-05`
+- Proximo BK recomendado: `BK-MF3-06`
 - Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
@@ -105,7 +105,7 @@ export function validarNegativos(negativosExecutados: number) {
 - `neg`: cenarios negativos executados e resultados observados.
 
 ## Proximo BK recomendado
-`BK-MF3-05`
+`BK-MF3-06`
 
 ## Changelog
 - `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).

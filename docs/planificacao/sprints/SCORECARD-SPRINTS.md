@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Objetivo
 Padronizar avaliacao por sprint com criterios fixos de qualidade e controlo de carga real, alinhado ao contrato canónico comum.
@@ -34,12 +34,12 @@ Campos obrigatorios por sprint:
 | S04 | - | - | - | - | - | 9 | - | - | Verde | - |
 | S05 | - | - | - | - | - | 8 | - | - | Verde | - |
 | S06 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S07 | - | - | - | - | - | 9 | - | - | Verde | - |
-| S08 | - | - | - | - | - | 9 | - | - | Verde | - |
-| S09 | - | - | - | - | - | 9 | - | - | Verde | - |
-| S10 | - | - | - | - | - | 9 | - | - | Verde | - |
+| S07 | - | - | - | - | - | 8 | - | - | Verde | - |
+| S08 | - | - | - | - | - | 8 | - | - | Verde | - |
+| S09 | - | - | - | - | - | 8 | - | - | Verde | - |
+| S10 | - | - | - | - | - | 8 | - | - | Verde | - |
 | S11 | - | - | - | - | - | 10 | - | - | Verde | - |
-| S12 | - | - | - | - | - | 9 | - | - | Verde | - |
+| S12 | - | - | - | - | - | 8 | - | - | Verde | - |
 
 ## Regras de semaforo
 - `Verde`: desvio absoluto <= 2 unidades e sem bloqueio critico.
@@ -53,3 +53,4 @@ Campos obrigatorios por sprint:
 
 ## Changelog
 - `2026-04-14`: scorecard criado e alinhado ao contrato comum de avaliacao (25/20/25/20/10).
+- `2026-04-17`: cargas planeadas por sprint recalibradas para o novo escopo de 64 BK.

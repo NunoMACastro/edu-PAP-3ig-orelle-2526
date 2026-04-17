@@ -6,13 +6,13 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Estado de cobertura por fase
 | Fase | Macros | BK totais | Guias existentes | Cobertura |
 | --- | --- | --- | --- | --- |
 | Fase 1 | MF0, MF1, MF2 | 24 | 24 | 100% |
-| Fase 2 | MF3, MF4, MF5 | 24 | 24 | 100% |
+| Fase 2 | MF3, MF4, MF5 | 19 | 19 | 100% |
 | Fase 3 | MF6, MF7, MF8 | 21 | 21 | 100% |
 
 ## Contrato editorial
@@ -65,7 +65,6 @@ Todos os guias seguem `_TEMPLATE-BK.md` com:
 - [BK-MF3-02 - Adicionar/remover produtos do carrinho de compras.](MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md)
 - [BK-MF3-03 - Registar encomendas e pagamentos (gateway Stripe/PayPal/MBWay).](MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md)
 - [BK-MF3-04 - Histórico de compras com data, total, produtos e estado (pendente, enviado, entregue).](MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md)
-- [BK-MF3-05 - Permitir devoluções ou trocas com registo do motivo.](MF3/BK-MF3-05-permitir-devolucoes-ou-trocas-com-registo-do-motivo.md)
 - [BK-MF3-06 - O cliente pode recomprar produtos anteriores com um clique.](MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md)
 - [BK-MF3-07 - Dashboard de estatísticas (vendas, produtos mais vendidos, utilizadores ativos).](MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md)
 - [BK-MF3-08 - Gestão de stock (alertas de baixo stock, atualização automática após compra).](MF3/BK-MF3-08-gestao-de-stock-alertas-de-baixo-stock-atualizacao-automatica-apos-compra.md)
@@ -76,14 +75,10 @@ Todos os guias seguem `_TEMPLATE-BK.md` com:
 - [BK-MF4-03 - Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores).](MF4/BK-MF4-03-exportacao-de-dados-para-excel-pdf-vendas-relatorios-de-ia-utilizadores.md)
 - [BK-MF4-04 - Enviar notificações sobre promoções, novos produtos e estado das encomendas.](MF4/BK-MF4-04-enviar-notificacoes-sobre-promocoes-novos-produtos-e-estado-das-encomendas.md)
 - [BK-MF4-05 - Enviar alertas personalizados (“Está na hora da sua rotina noturna”).](MF4/BK-MF4-05-enviar-alertas-personalizados-esta-na-hora-da-sua-rotina-noturna.md)
-- [BK-MF4-06 - Sistema de mensagens entre cliente e consultor (chat interno).](MF4/BK-MF4-06-sistema-de-mensagens-entre-cliente-e-consultor-chat-interno.md)
-- [BK-MF4-07 - Configuração de preferências de comunicação (email, app, push).](MF4/BK-MF4-07-configuracao-de-preferencias-de-comunicacao-email-app-push.md)
 - [BK-MF4-08 - Guardar alergias, ingredientes a evitar e restrições médicas leves no perfil e impedir recomendações que violem regras.](MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md)
 
 ### MF5
 - [BK-MF5-01 - Painel para consultores/admins reverem e aprovarem pedidos de eliminação/anonymização de fotografias e relatórios.](MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md)
-- [BK-MF5-02 - Gestão de campanhas e storytelling (banner, segmento, período, consultor responsável).](MF5/BK-MF5-02-gestao-de-campanhas-e-storytelling-banner-segmento-periodo-consultor-responsavel.md)
-- [BK-MF5-03 - Configurar e aplicar códigos promocionais com limites por cliente, canal e datas.](MF5/BK-MF5-03-configurar-e-aplicar-codigos-promocionais-com-limites-por-cliente-canal-e-datas.md)
 - [BK-MF5-04 - Registo/auditoria de acessos a dados biométricos, com alertas para usos indevidos.](MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md)
 - [BK-MF5-05 - Interface moderna, intuitiva e _responsive_ (desktop e mobile).](MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md)
 - [BK-MF5-06 - Design coerente com estética da marca (cores suaves, tipografia moderna).](MF5/BK-MF5-06-design-coerente-com-estetica-da-marca-cores-suaves-tipografia-moderna.md)
@@ -120,3 +115,4 @@ Todos os guias seguem `_TEMPLATE-BK.md` com:
 ## Changelog
 - `2026-04-12`: indice inicial dos guias BK Orelle.
 - `2026-04-14`: indice atualizado para naming semantico e contrato canónico comum.
+- `2026-04-17`: removidos guias BK fora do escopo PAP e recalculada cobertura por fase.

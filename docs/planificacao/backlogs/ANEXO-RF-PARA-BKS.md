@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Objetivo
 Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
@@ -42,7 +42,6 @@ Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
 | RF26 | BK-MF3-02 | MF3 | Bruna | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md |
 | RF27 | BK-MF3-03 | MF3 | Izelicks | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md |
 | RF28 | BK-MF3-04 | MF3 | Bruna | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md |
-| RF29 | BK-MF3-05 | MF3 | Izelicks | S07-S08 | P2 | docs/planificacao/guias-bk/MF3/BK-MF3-05-permitir-devolucoes-ou-trocas-com-registo-do-motivo.md |
 | RF30 | BK-MF3-06 | MF3 | Aline | S07-S08 | P1 | docs/planificacao/guias-bk/MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md |
 | RF31 | BK-MF3-07 | MF3 | Izelicks | S07-S08 | P1 | docs/planificacao/guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md |
 | RF32 | BK-MF3-08 | MF3 | Izelicks | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-08-gestao-de-stock-alertas-de-baixo-stock-atualizacao-automatica-apos-compra.md |
@@ -51,13 +50,10 @@ Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
 | RF35 | BK-MF4-03 | MF4 | Aline | S08-S09 | P1 | docs/planificacao/guias-bk/MF4/BK-MF4-03-exportacao-de-dados-para-excel-pdf-vendas-relatorios-de-ia-utilizadores.md |
 | RF36 | BK-MF4-04 | MF4 | Izelicks | S08-S09 | P0 | docs/planificacao/guias-bk/MF4/BK-MF4-04-enviar-notificacoes-sobre-promocoes-novos-produtos-e-estado-das-encomendas.md |
 | RF37 | BK-MF4-05 | MF4 | Izelicks | S08-S09 | P1 | docs/planificacao/guias-bk/MF4/BK-MF4-05-enviar-alertas-personalizados-esta-na-hora-da-sua-rotina-noturna.md |
-| RF38 | BK-MF4-06 | MF4 | Aline | S08-S09 | P2 | docs/planificacao/guias-bk/MF4/BK-MF4-06-sistema-de-mensagens-entre-cliente-e-consultor-chat-interno.md |
-| RF39 | BK-MF4-07 | MF4 | Bruna | S08-S09 | P1 | docs/planificacao/guias-bk/MF4/BK-MF4-07-configuracao-de-preferencias-de-comunicacao-email-app-push.md |
 | RF40 | BK-MF4-08 | MF4 | Bruna | S08-S09 | P0 | docs/planificacao/guias-bk/MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md |
 | RF41 | BK-MF5-01 | MF5 | Izelicks | S09-S10 | P0 | docs/planificacao/guias-bk/MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md |
-| RF42 | BK-MF5-02 | MF5 | Aline | S09-S10 | P1 | docs/planificacao/guias-bk/MF5/BK-MF5-02-gestao-de-campanhas-e-storytelling-banner-segmento-periodo-consultor-responsavel.md |
-| RF43 | BK-MF5-03 | MF5 | Izelicks | S09-S10 | P1 | docs/planificacao/guias-bk/MF5/BK-MF5-03-configurar-e-aplicar-codigos-promocionais-com-limites-por-cliente-canal-e-datas.md |
 | RF44 | BK-MF5-04 | MF5 | Bruna | S09-S10 | P1 | docs/planificacao/guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md |
 
 ## Changelog
 - `2026-04-14`: anexo criado para rastreabilidade funcional canónica.
+- `2026-04-17`: removidos mapeamentos RF/BK fora de escopo PAP.

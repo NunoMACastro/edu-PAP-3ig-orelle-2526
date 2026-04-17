@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Objetivo
 Centralizar a planificacao executavel da Orelle com contrato canónico alinhado com FaithFlix e OPSA, mantendo a identidade funcional do dominio cosmetico.
@@ -50,17 +50,18 @@ Qualquer alteracao de RF/RNF/BK exige atualizar no mesmo ciclo:
 - `scripts/auditar_planificacao.py`
 
 ## Meta documental desta vaga
-- Alinhar estrutura/layout com as restantes PAPs sem alterar IDs BK nem total de BK.
-- Fechar gaps de governanca (scorecard, guiao docente, gates, anexos e contrato de campos).
-- Garantir auditoria automatica em `PASS` e score final `>=93/100`.
+- Aplicar cortes de escopo aprovados no plano mestre, removendo BK/RF fora do MVP.
+- Atualizar cadeia documental completa (RF, backlog, matriz, anexos, guias e sprints) sem referências residuais.
+- Garantir consistência final entre requisitos, planificação e guias ativos.
 
 ## Resumo de cobertura
-- Total RF: **44**
+- Total RF: **39**
 - Total RNF: **25**
-- Total BK: **69**
-- Total guias BK: **69**
+- Total BK: **64**
+- Total guias BK: **64**
 - Cobertura BK<->guia: **100% (1:1)**
 
 ## Changelog
 - `2026-04-12`: baseline inicial da normalizacao Orelle.
 - `2026-04-14`: alinhamento canónico com FaithFlix/OPSA (governanca, naming semantico, scorecard e auditoria automatica).
+- `2026-04-17`: aplicado corte de escopo PAP com remoção física de BK/RF e recalibração de contagens.

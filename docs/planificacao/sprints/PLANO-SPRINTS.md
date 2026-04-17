@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-04-17`
 
 ## Conversao S/M/L
 - `S`: 1 unidade de esforco.
@@ -23,11 +23,11 @@
 | Total equipa | 14 |
 
 ## Carga global planeada
-- BK totais: `69`
-- Esforco total: `105` unidades
+- BK totais: `64`
+- Esforco total: `100` unidades
 - Janela de execucao: `12` sprints (`2026-04-13` a `2026-07-05`)
 - Capacidade total da janela: `168` unidades
-- Margem operacional global: `63` unidades (~`37.5%`) para bloqueios, revisoes e defesa
+- Margem operacional global: `68` unidades (~`40.5%`) para bloqueios, revisoes e defesa
 
 ## Rebalanceamento de carga por sprint (12 sprints)
 | Sprint | Periodo | Foco macro | Carga planeada (u) | Buffer semanal (u) | KPI alvo |
@@ -38,12 +38,12 @@
 | S04 | 2026-05-04 a 2026-05-10 | MF1 (fecho) | 9 | 5 | >=90% BK planeados com Core + evidence minima |
 | S05 | 2026-05-11 a 2026-05-17 | MF2 (base) | 8 | 6 | >=90% BK planeados com Core + evidence minima |
 | S06 | 2026-05-18 a 2026-05-24 | MF2 (fecho) + arranque MF3 | 8 | 6 | >=90% BK planeados com Core + evidence minima |
-| S07 | 2026-05-25 a 2026-05-31 | MF3 (base) | 9 | 5 | >=90% BK planeados com Core + evidence minima |
-| S08 | 2026-06-01 a 2026-06-07 | MF3 (fecho) + arranque MF4 | 9 | 5 | >=90% BK planeados com Core + evidence minima |
-| S09 | 2026-06-08 a 2026-06-14 | MF4 + MF5 | 9 | 5 | >=90% BK planeados com Core + evidence minima |
-| S10 | 2026-06-15 a 2026-06-21 | MF5 + MF6 | 9 | 5 | >=90% BK planeados com Core + evidence minima |
+| S07 | 2026-05-25 a 2026-05-31 | MF3 (base) | 8 | 6 | >=90% BK planeados com Core + evidence minima |
+| S08 | 2026-06-01 a 2026-06-07 | MF3 (fecho) + arranque MF4 | 8 | 6 | >=90% BK planeados com Core + evidence minima |
+| S09 | 2026-06-08 a 2026-06-14 | MF4 + MF5 | 8 | 6 | >=90% BK planeados com Core + evidence minima |
+| S10 | 2026-06-15 a 2026-06-21 | MF5 + MF6 | 8 | 6 | >=90% BK planeados com Core + evidence minima |
 | S11 | 2026-06-22 a 2026-06-28 | MF6 + MF7 | 10 | 4 | >=90% BK planeados com Core + evidence minima |
-| S12 | 2026-06-29 a 2026-07-05 | MF7 + MF8 + fecho | 9 | 5 | >=90% BK planeados com Core + evidence minima |
+| S12 | 2026-06-29 a 2026-07-05 | MF7 + MF8 + fecho | 8 | 6 | >=90% BK planeados com Core + evidence minima |
 
 ## Janela oficial por macro
 - `MF0`: `S01-S02`
@@ -82,3 +82,4 @@
 ## Changelog
 - `2026-04-12`: plano de sprints inicial da Orelle.
 - `2026-04-14`: alinhamento para 12 sprints com gates S4/S8/S12 e contrato comum de avaliacao.
+- `2026-04-17`: capacidade recalibrada para 64 BK e esforço total de 100 unidades.
