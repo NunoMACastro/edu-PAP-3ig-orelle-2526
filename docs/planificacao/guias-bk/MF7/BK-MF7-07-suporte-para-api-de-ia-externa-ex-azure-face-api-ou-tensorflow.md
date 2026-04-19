@@ -61,11 +61,20 @@ Executar `Suporte para API de IA externa (ex: Azure Face API ou TensorFlow)` com
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
 6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
 
+### Cenarios negativos recomendados
+- entrada obrigatoria em falta com erro validado
+- tentativa em estado de negocio invalido com resposta controlada
+
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
 - [ ] Negativos: minimo `2` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF8-01`
@@ -73,31 +82,36 @@ Executar `Suporte para API de IA externa (ex: Azure Face API ou TensorFlow)` com
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet orientado ao BK `BK-MF7-07`**
+**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF7-07` / `RNF18`)**
 
 ```ts
 const BK_ID = 'BK-MF7-07';
-const requisito = 'RNF18';
+const REQ_ID = 'RNF18';
 
-export function validarEntregaNaoFuncional(medicoes: { smoke: boolean; negativos: number; evidencias: number }) {
-  if (!medicoes.smoke) throw new Error(`${BK_ID}: smoke falhou`);
-  if (medicoes.negativos < 2) throw new Error(`${BK_ID}: negativos insuficientes`);
-  if (medicoes.evidencias < 2) throw new Error(`${BK_ID}: evidence insuficiente`);
-  return { bk: BK_ID, requisito, status: 'OK' };
+type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
+
+export function executar_bk_mf7_07(input: AnaliseInput) {
+  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
+  const startedAt = Date.now();
+  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
+  const duracaoMs = Date.now() - startedAt;
+  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
+  return resultado;
 }
 ```
 
-
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `Suporte para API de IA externa (ex: Azure Face API ou TensorFlow)` validada contra `RNF18`.
+- Cenarios negativos concluidos: minimo `2` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P1`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo da alteracao.
-- `proof`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `neg`: cenarios negativos executados e resultados observados.
+- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
+- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_negocio`: indicador de utilidade/qualidade da recomendacao ou analise IA.
 
 ## Proximo BK recomendado
 `BK-MF8-01`

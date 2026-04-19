@@ -6,17 +6,10 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-04-19`
 
-## Objetivo
-Padronizar avaliacao por sprint com criterios fixos de qualidade e controlo de carga real, alinhado ao contrato canónico comum.
-
-## Contrato do scorecard
-Campos obrigatorios por sprint:
-`cobertura`, `coerencia`, `pedagogia_guidance_step_by_step`, `adequacao_12o`, `governanca`, `carga_planeada_u`, `carga_real_u`, `desvio_u`, `risco_semaforo`, `acao_corretiva`.
-
-## Pesos oficiais (0-100)
-| Criterio | Peso |
+## Contrato de avaliacao (pesos oficiais)
+| criterio | peso |
 | --- | --- |
 | Cobertura/rastreabilidade | 25 |
 | Coerencia documental | 20 |
@@ -26,31 +19,33 @@ Campos obrigatorios por sprint:
 | Total | 100 |
 
 ## Scorecard por sprint
-| sprint | cobertura | coerencia | pedagogia_guidance_step_by_step | adequacao_12o | governanca | carga_planeada_u | carga_real_u | desvio_u | risco_semaforo | acao_corretiva |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| S01 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S02 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S03 | - | - | - | - | - | 9 | - | - | Verde | - |
-| S04 | - | - | - | - | - | 9 | - | - | Verde | - |
-| S05 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S06 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S07 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S08 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S09 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S10 | - | - | - | - | - | 8 | - | - | Verde | - |
-| S11 | - | - | - | - | - | 10 | - | - | Verde | - |
-| S12 | - | - | - | - | - | 8 | - | - | Verde | - |
+| sprint | estado_sprint | cobertura | coerencia | pedagogia_guidance_step_by_step | adequacao_12o | governanca | modelo_carga | carga_planeada_u | core_dual_percent | core_dual_ok | carga_real_u | desvio_u | risco_semaforo | acao_corretiva |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| S01 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 7 | 100.0 | SIM | - | - | N/A | - |
+| S02 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 7 | 100.0 | SIM | - | - | N/A | - |
+| S03 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 6.5 | 100.0 | SIM | - | - | N/A | - |
+| S04 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 6.5 | 100.0 | SIM | - | - | N/A | - |
+| S05 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 4.5 | 100.0 | SIM | - | - | N/A | - |
+| S06 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 4.5 | 100.0 | SIM | - | - | N/A | - |
+| S07 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 5.5 | 100.0 | SIM | - | - | N/A | - |
+| S08 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 10 | 100.0 | SIM | - | - | N/A | - |
+| S09 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 9 | 100.0 | SIM | - | - | N/A | - |
+| S10 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 10.5 | 71.4 | SIM | - | - | N/A | - |
+| S11 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 13 | 72.0 | SIM | - | - | N/A | - |
+| S12 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 16 | 72.7 | SIM | - | - | N/A | - |
+
+## Regra de preenchimento
+1. `estado_sprint` so pode ser `PLANEADA`, `EM_CURSO` ou `FECHADA`.
+2. Quando `carga_real_u` estiver vazia (`-`), `desvio_u` deve ficar `-` e `risco_semaforo` deve ficar `N/A`.
+3. Sprint com total < 93 exige plano corretivo na sprint seguinte.
+4. Gates `S4/S8/S12` exigem evidencias anexas de cobertura e coerencia.
+5. `acao_corretiva` deve registar mitigacao quando `core_dual_percent < 70%`.
 
 ## Regras de semaforo
 - `Verde`: desvio absoluto <= 2 unidades e sem bloqueio critico.
 - `Amarelo`: desvio entre 3 e 4 unidades ou bloqueio >48h em BK `P1/P2`.
 - `Vermelho`: desvio >= 5 unidades, bloqueio em BK `P0` ou quebra de rastreabilidade.
 
-## Acao automatica
-- `Verde`: manter plano.
-- `Amarelo`: replanear dentro da sprint e reforcar checkpoint docente.
-- `Vermelho`: congelar `Reforco`, priorizar `Core` e abrir decisao do orientador.
-
 ## Changelog
-- `2026-04-14`: scorecard criado e alinhado ao contrato comum de avaliacao (25/20/25/20/10).
-- `2026-04-17`: cargas planeadas por sprint recalibradas para o novo escopo de 64 BK.
+- `2026-04-18`: scorecard migrado para schema canónico único entre as PAPs.
+- `2026-04-19`: tabela atualizada com `modelo_carga`, `core_dual_percent` e `core_dual_ok`, alinhada com `PLANO-SPRINTS`.

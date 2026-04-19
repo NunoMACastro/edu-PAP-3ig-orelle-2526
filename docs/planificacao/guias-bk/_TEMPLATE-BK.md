@@ -33,15 +33,28 @@
 ## Bloco operacional
 ### Entrada
 ### Passos
+### Cenarios negativos recomendados
 ### Validacao
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos
+- `P1`: unit/integration + 2 negativos
+- `P2`: teste focal + 1 negativo
 ### Handoff
 
 ## Snippet tecnico aplicavel
 ```ts
-// snippet real e aplicavel ao BK
+// snippet obrigatoriamente ligado a `bk_id` e `rf_rnf`
+// deve refletir o dominio (CORE-IA, CORE-COM, CORE-HIBRIDO ou SUPORTE)
 ```
 
 ## Criterios de aceite
+- incluir thresholds mensuraveis (latencia, consistencia de estado, cobertura de negativos, etc.)
+- `P0`: minimo 3 cenarios negativos concretos
+- `P1`: minimo 2 cenarios negativos concretos
+- `P2`: minimo 1 cenario negativo concreto
 ## Evidence para PR/defesa
+- `proof_tecnico`: evidencias tecnicas verificaveis
+- `proof_negativos`: resultado dos cenarios negativos
+- `proof_negocio`: evidencia de impacto no eixo core dual quando `classe_core_dual != SUPORTE`; para `SUPORTE`, usar evidencia operacional.
 ## Proximo BK recomendado
 ## Changelog

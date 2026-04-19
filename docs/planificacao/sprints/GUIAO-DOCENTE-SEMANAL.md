@@ -6,10 +6,15 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-04-19`
 
 ## Objetivo
 Fornecer guiao pratico de intervencao docente por sprint, com foco em risco, carga realista e consistencia documental.
+
+## Regra de conceito (core dual)
+- Em toda sprint: `core_dual_percent >= 70%`.
+- `core_dual_percent = esforco(CORE-IA + CORE-COM + CORE-HIBRIDO) / esforco_total_sprint`.
+- Fonte de classificacao: `docs/planificacao/backlogs/ANEXO-CORE-DUAL-BK.md`.
 
 ## Ritual semanal obrigatorio
 1. Segunda-feira (planeamento): validar BKs da semana, carga real e riscos iniciais.
@@ -41,10 +46,11 @@ Fornecer guiao pratico de intervencao docente por sprint, com foco em risco, car
 
 ## Script de revisao rapida (15 min)
 1. Confirmar `carga_real_u` vs `carga_planeada_u` no scorecard.
-2. Auditar 1 BK `P0` e 1 BK `P1/P2` (bloco pedagogico + operacional).
-3. Verificar snippet tecnico concreto e aplicavel.
-4. Registar decisao docente e proxima acao.
+2. Confirmar `core_dual_percent >= 70%` na sprint.
+3. Auditar 1 BK `P0` e 1 BK `P1/P2` (bloco pedagogico + operacional).
+4. Verificar snippet tecnico concreto e aplicavel.
+5. Registar decisao docente e proxima acao.
 
 ## Changelog
-- `2026-04-14`: guiao docente criado para alinhamento de governanca semanal.
-- `2026-04-17`: guião alinhado com a nova distribuição de carga após corte de escopo.
+- `2026-04-18`: guiao docente normalizado para contrato canónico v2 cross-PAP.
+- `2026-04-19`: incluida regra core dual >=70% no ritual semanal.

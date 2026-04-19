@@ -6,41 +6,54 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-04-19`
 
 ## Objetivo
-Traduzir os requisitos funcionais e não funcionais ativos da Orelle num plano executavel para a equipa com rastreabilidade 1:1 e governanca documental alinhada ao contrato comum.
+Definir o plano macro executavel da Orelle com rastreabilidade RF/RNF -> BK -> Guia e governanca alinhada ao contrato canónico v2.
 
 ## Assuncoes
-- IDs BK mantidos preservam a semântica original; itens fora de escopo são removidos fisicamente.
-- Ajustes permitidos: metadados (`sprint`, `core_or_reforco`, `guia_path`, `proximo_bk`, `dependencias`) e alinhamentos de RF ativos após corte.
-- Fecho documental requer score `>=93/100` e auditoria automatica em `PASS`.
+- IDs RF/RNF/BK sao imutaveis nesta vaga.
+- Escopo funcional aprovado mantem-se sem cortes adicionais.
+- MVP de pagamentos: `Stripe` real controlado + `PayPal/MBWay` em stub funcional.
+- Normalizacao desta vaga e estrutural/governanca/pedagogia documental.
+- Fecho documental exige score consolidado `>=97/100`.
+- Core dual por sprint deve manter `>=70%` de esforco em `CORE-*`.
 
 ## Tabela MF0..MF8
-| Macro | Nome | Total BK | Owner stream P0 | Gate de saida |
-| --- | --- | --- | --- | --- |
-| MF0 | Fundamentos e governance | 8 | Bruna | Cobertura integral da macro MF0 com evidence valida. |
-| MF1 | Nucleo funcional I | 8 | Bruna | Cobertura integral da macro MF1 com evidence valida. |
-| MF2 | Nucleo funcional II | 8 | Izelicks | Cobertura integral da macro MF2 com evidence valida. |
-| MF3 | Capacidades de produto I | 7 | Bruna | Cobertura integral da macro MF3 com evidence valida. |
-| MF4 | Capacidades de produto II | 6 | Bruna | Cobertura integral da macro MF4 com evidence valida. |
-| MF5 | Operacao e fluxos transversais | 6 | Izelicks | Cobertura integral da macro MF5 com evidence valida. |
-| MF6 | Qualidade e robustez | 7 | Izelicks | Cobertura integral da macro MF6 com evidence valida. |
-| MF7 | Privacidade, seguranca e controlo | 7 | Bruna | Cobertura integral da macro MF7 com evidence valida. |
-| MF8 | Integracoes, compatibilidade e fecho | 7 | Izelicks | Cobertura integral da macro MF8 com evidence valida. |
+| Macro | Janela | Total BK | Owner stream P0 |
+| --- | --- | --- | --- |
+| MF0 | Janela canónica S01-S12 | 8 | Bruna |
+| MF1 | Janela canónica S01-S12 | 8 | Bruna |
+| MF2 | Janela canónica S01-S12 | 8 | Izelicks |
+| MF3 | Janela canónica S01-S12 | 7 | Bruna/Izelicks |
+| MF4 | Janela canónica S01-S12 | 6 | Izelicks |
+| MF5 | Janela canónica S01-S12 | 6 | Aline |
+| MF6 | Janela canónica S01-S12 | 7 | Izelicks |
+| MF7 | Janela canónica S01-S12 | 7 | Bruna |
+| MF8 | Janela canónica S01-S12 | 7 | Partilhado (Bruna/Aline/Izelicks) |
+
+## Fases
+1. Fase 1 (`S01-S04`): fundacoes + consolidacao do nucleo inicial.
+2. Fase 2 (`S05-S08`): capacidades de produto + coerencia cross-artefactos.
+3. Fase 3 (`S09-S12`): qualidade final, evidencias e defesa.
 
 ## Regras transversais por macro
-1. Cada BK fecha com `Smoke`, `Negativos`, `Tecnico` e `Evidence` completos.
-2. Regra de negativos: `P0 >= 3`; `P1/P2 >= 2`.
-3. Handoff obrigatorio para BK nao-terminal.
-4. Qualquer drift de metadados entre matriz/backlog/guia bloqueia o fecho da sprint.
+1. Owner unico por BK com apoio explicito.
+2. BK fecha apenas com `Smoke`, `Negativos`, `Tecnico` e `Evidence` completos.
+3. BK `P0` em modo `Reforco`; BK `P1/P2` em modo `Core`.
+4. Qualquer drift entre matriz/backlog/guias/sprints bloqueia fecho da sprint.
 
 ## Gates S4/S8/S12
-- `S4`: cobertura inicial, consistencia de metadados e qualidade minima dos guias da janela.
-- `S8`: reauditoria de coerencia backlog/matriz/guias/sprints e acao corretiva fechada.
-- `S12`: fecho integral e emissao de parecer final GO/NO-GO documental.
+- Fonte oficial: `docs/planificacao/sprints/GATES-S4-S8-S12.md`.
+- `S4`: cobertura inicial + consistencia estrutural.
+- `S8`: coerencia documental + score parcial `>=97/100`.
+- `S12`: fecho integral com validacao automatica em `PASS` + core dual `>=70%`.
+
+## Criterios de saida
+- `bash scripts/validate-planificacao.sh` com `overall_pass: true`.
+- Score consolidado no scorecard `>=97/100`.
+- Evidencias de gate publicadas (`S4`, `S8`, `S12`).
 
 ## Changelog
-- `2026-04-12`: versao inicial da planificacao macro.
-- `2026-04-14`: plano consolidado para 12 sprints e contrato canónico comum.
-- `2026-04-17`: plano recalibrado para 64 BK após remoção de escopo fora do MVP PAP.
+- `2026-04-18`: plano macro normalizado para contrato canónico v2 cross-PAP.
+- `2026-04-19`: incorporado contrato de core dual, rebalanceamento e politica de pagamentos MVP.

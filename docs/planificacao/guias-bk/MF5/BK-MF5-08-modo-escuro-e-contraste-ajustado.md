@@ -59,13 +59,21 @@ Executar `Modo escuro e contraste ajustado` com evidência tecnica objetiva e fe
 3. Definir contrato de entrada/saida para `Modo escuro e contraste ajustado`.
 4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
+6. Executar cenarios negativos obrigatorios (minimo 1) e registar o resultado.
+
+### Cenarios negativos recomendados
+- entrada obrigatoria em falta
 
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `2` cenarios com resultado controlado.
+- [ ] Negativos: minimo `1` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF6-01`
@@ -81,7 +89,7 @@ const requisito = 'RNF04';
 
 export function validarEntregaNaoFuncional(medicoes: { smoke: boolean; negativos: number; evidencias: number }) {
   if (!medicoes.smoke) throw new Error(`${BK_ID}: smoke falhou`);
-  if (medicoes.negativos < 2) throw new Error(`${BK_ID}: negativos insuficientes`);
+  if (medicoes.negativos < 1) throw new Error(`${BK_ID}: negativos insuficientes`);
   if (medicoes.evidencias < 2) throw new Error(`${BK_ID}: evidence insuficiente`);
   return { bk: BK_ID, requisito, status: 'OK' };
 }
@@ -89,8 +97,9 @@ export function validarEntregaNaoFuncional(medicoes: { smoke: boolean; negativos
 
 
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `Modo escuro e contraste ajustado` validada contra `RNF04`.
+- Cenarios negativos concluidos: minimo `1` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P2`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 

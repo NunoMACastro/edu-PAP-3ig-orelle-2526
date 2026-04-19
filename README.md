@@ -4,7 +4,7 @@
 - Nome da app: Orélle
 - Ano letivo: 2025/2026
 - Turma: 12º IG
-- Nome dos alunos: Bruna, Aline, Daniel Bulica, Aline
+- Nome dos alunos: Bruna, Aline, Daniel Bulica, Izelicks
 - Orientador: Nuno Castro e Cláudia Marques
 
 ## 1. Visão Geral Extensa da Aplicação
@@ -81,11 +81,12 @@ Fontes funcionais canónicas: [docs/RF.md](docs/RF.md), [docs/planificacao/backl
 - evolução temporal funcional;
 - simulação de maquilhagem com antes/depois em nível baseline;
 - recomendação personalizada e operação de comércio em modo controlado;
+- pagamentos com `Stripe` em modo real controlado (sandbox/produção controlada) e `PayPal/MBWay` em stub funcional;
 - privacidade biométrica e consentimentos como requisito obrigatório.
 
 ### Pós-PAP (adiado)
 - realismo avançado de simulação;
-- integrações de pagamento e campanhas em modo enterprise;
+- multi-gateway completo de pagamentos e campanhas em modo enterprise;
 - automações comerciais complexas e comunicações avançadas;
 - otimizações de IA de maior custo computacional.
 
@@ -109,7 +110,7 @@ Fonte canónica RNF: [docs/RNF.md](docs/RNF.md).
 - Projeto: Orélle
 - Tipo: PAP - Curso Profissional de Informática de Gestão
 - Ano letivo: 2025/2026
-- Equipa: Bruna, Aline, Daniel Bulica, Aline
+- Equipa: Bruna, Aline, Daniel Bulica, Izelicks
 - Orientador: Nuno Castro e Cláudia Marques
 
 ### Licença

@@ -61,11 +61,20 @@ Executar `Mostrar produtos semelhantes e complementares (“quem comprou isto ta
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
 6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
 
+### Cenarios negativos recomendados
+- entrada obrigatoria em falta com erro validado
+- tentativa em estado de negocio invalido com resposta controlada
+
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
 - [ ] Negativos: minimo `2` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF1-05`
@@ -73,34 +82,33 @@ Executar `Mostrar produtos semelhantes e complementares (“quem comprou isto ta
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet orientado ao BK `BK-MF1-04`**
+**Snippet tecnico orientado ao dominio de monetizacao (`BK-MF1-04` / `RF12`)**
 
 ```ts
 const BK_ID = 'BK-MF1-04';
-const requisito = 'RF12';
+const REQ_ID = 'RF12';
 
-export function executarFluxoBK(entrada: object) {
-  if (!entrada) throw new Error(`${BK_ID}: entrada obrigatoria`);
-  const resultado = { bk: BK_ID, requisito, concluido: true };
-  return resultado;
-}
+type CheckoutInput = { userId: string; carrinhoId: string; valorTotal: number };
 
-export function validarNegativos(negativosExecutados: number) {
-  return negativosExecutados >= 2;
+export function executar_bk_mf1_04(input: CheckoutInput) {
+  if (!input.userId || !input.carrinhoId) throw new Error(`${BK_ID}: contexto de checkout invalido`);
+  if (input.valorTotal <= 0) throw new Error(`${BK_ID}: total invalido`);
+  return { bkId: BK_ID, reqId: REQ_ID, pagamento: 'PENDENTE', contabilizado: true };
 }
 ```
 
-
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”)` validada contra `RF12`.
+- Cenarios negativos concluidos: minimo `2` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P1`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo da alteracao.
-- `proof`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `neg`: cenarios negativos executados e resultados observados.
+- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
+- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_negocio`: indicador de conversao comercial (checkout/recompra/carrinho).
 
 ## Proximo BK recomendado
 `BK-MF1-05`

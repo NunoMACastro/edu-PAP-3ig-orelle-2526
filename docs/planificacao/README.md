@@ -1,58 +1,47 @@
-# Planificacao PAP - Orelle
+# PLANIFICACAO-ORELLE
 
 ## Header
-- `doc_id`: `PLANIFICACAO-README`
+- `doc_id`: `PLANIFICACAO-ORELLE`
 - `path`: `docs/planificacao/README.md`
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-04-18`
 
 ## Objetivo
-Centralizar a planificacao executavel da Orelle com contrato canónico alinhado com FaithFlix e OPSA, mantendo a identidade funcional do dominio cosmetico.
+Centralizar a planificacao executavel da Orelle com contrato canónico comum entre as 4 PAPs, sem drift estrutural, de governanca ou pedagogico.
 
 ## Hierarquia de verdade (obrigatoria)
-`MATRIZ-CANONICA-BK` > `BACKLOG-MVP` > `PLANO-SPRINTS` > `MF-VIEWS` > `guias-bk/*`.
+`MATRIZ-CANONICA-BK` > `BACKLOG-MVP` > `PLANO-SPRINTS` > `SCORECARD-SPRINTS` > `GUIAO-DOCENTE-SEMANAL` > `GATES-S4-S8-S12` > `guias-bk/*`.
 
-## Contrato canonico comum (Orelle + FaithFlix + OPSA)
-- Scorecard fixo: `Cobertura/rastreabilidade=25`, `Coerencia documental=20`, `Pedagogia/guidance/step-by-step=25`, `Adequacao ao 12o=20`, `Governanca/avaliacao=10`.
-- Header obrigatorio por guia BK:
-`doc_id`, `bk_id`, `macro`, `owner`, `apoio`, `prioridade`, `estado`, `esforco`, `dependencias`, `rf_rnf`, `fase_documental`, `sprint`, `core_or_reforco`, `proximo_bk`, `guia_path`, `last_updated`.
-- Regra de modo: `P0 => Reforco`; `P1/P2 => Core`.
-- Regra de rastreabilidade: cobertura `RF+RNF` sem orfaos em matriz e backlog.
+## Contrato canonico comum
+- Scorecard fixo: `25/20/25/20/10`.
+- Sprint IDs obrigatorios: `S01..S12`.
+- Meta documental oficial: `>=97/100`.
+- Regra de semaforo: com `carga_real_u = -`, obrigatorio `desvio_u = -` e `risco_semaforo = N/A`.
+- Politica pedagogica BK: `P0 >= 8 passos e >=3 negativos`, `P1/P2 >= 6 passos e >=2/1 negativos`.
+- Snippet tecnico deve estar ligado a `bk_id` e `rf_rnf`.
+
+## Estrutura obrigatoria
+1. `PLANO-IMPLEMENTACAO-TOTAL.md`
+2. `DISTRIBUICAO-RESPONSABILIDADES.md`
+3. `CORE-DUAL-CONTRATO.md`
+4. `backlogs/BACKLOG-MVP.md`
+5. `backlogs/MATRIZ-CANONICA-BK.md`
+6. `backlogs/ANEXO-CORE-DUAL-BK.md`
+7. `sprints/PLANO-SPRINTS.md`
+8. `sprints/SCORECARD-SPRINTS.md`
+9. `sprints/GUIAO-DOCENTE-SEMANAL.md`
+10. `sprints/GATES-S4-S8-S12.md`
+11. `sprints/OPERACAO-DEPLOY-ROLLBACK.md`
+12. `guias-bk/README.md`
 
 ## Regra de atualizacao em cadeia
-Qualquer alteracao de RF/RNF/BK exige atualizar no mesmo ciclo:
-1. `backlogs/MATRIZ-CANONICA-BK.md`
-2. `backlogs/BACKLOG-MVP.md`
-3. `backlogs/ANEXO-*.md`
-4. guia BK impactado
-5. `sprints/PLANO-SPRINTS.md` e scorecard, quando houver impacto temporal
-6. `sprints/SCORECARD-SPRINTS.md` e `sprints/GUIAO-DOCENTE-SEMANAL.md`
-
-## Estrutura
-- `PLANO-IMPLEMENTACAO-TOTAL.md`
-- `DISTRIBUICAO-RESPONSABILIDADES.md`
-- `backlogs/MATRIZ-CANONICA-BK.md`
-- `backlogs/BACKLOG-MVP.md`
-- `backlogs/MF-VIEWS.md`
-- `backlogs/CONTRATO-CAMPOS-BK.md`
-- `backlogs/ANEXO-RF-PARA-BKS.md`
-- `backlogs/ANEXO-RNF-PARA-BKS.md`
-- `backlogs/ANEXO-BK-SPRINT-OWNER.md`
-- `sprints/PLANO-SPRINTS.md`
-- `sprints/SCORECARD-SPRINTS.md`
-- `sprints/GUIAO-DOCENTE-SEMANAL.md`
-- `guias-bk/README.md`
-- `guias-bk/_TEMPLATE-BK.md`
-- `guias-bk/ROADMAP-BKS-RESTANTES.md`
-- `guias-bk/MAPA-MIGRACAO-LEGACY-PARA-CANONICO.md`
-- `scripts/auditar_planificacao.py`
-
-## Meta documental desta vaga
-- Aplicar cortes de escopo aprovados no plano mestre, removendo BK/RF fora do MVP.
-- Atualizar cadeia documental completa (RF, backlog, matriz, anexos, guias e sprints) sem referências residuais.
-- Garantir consistência final entre requisitos, planificação e guias ativos.
+1. Atualizar matriz.
+2. Atualizar backlog e anexos de rastreabilidade.
+3. Atualizar guias BK impactados.
+4. Atualizar plano/scorecard/guiao/gates.
+5. Executar `bash scripts/validate-planificacao.sh`.
 
 ## Resumo de cobertura
 - Total RF: **39**
@@ -61,7 +50,10 @@ Qualquer alteracao de RF/RNF/BK exige atualizar no mesmo ciclo:
 - Total guias BK: **64**
 - Cobertura BK<->guia: **100% (1:1)**
 
+## Validacao
+- Comando oficial: `bash scripts/validate-planificacao.sh`.
+- Gate de fecho (`S4/S8/S12`): exige `overall_pass: true` + evidencias.
+
 ## Changelog
-- `2026-04-12`: baseline inicial da normalizacao Orelle.
-- `2026-04-14`: alinhamento canónico com FaithFlix/OPSA (governanca, naming semantico, scorecard e auditoria automatica).
-- `2026-04-17`: aplicado corte de escopo PAP com remoção física de BK/RF e recalibração de contagens.
+- `2026-04-18`: README de planificacao normalizado para contrato canónico v2 cross-PAP.
+- `2026-04-19`: incorporado contrato core dual e corrigidos totais RF/RNF.

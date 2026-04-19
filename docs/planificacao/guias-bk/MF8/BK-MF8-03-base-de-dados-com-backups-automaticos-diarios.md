@@ -12,7 +12,7 @@
 - `dependencias`: `-`
 - `rf_rnf`: `RNF21`
 - `fase_documental`: `Fase 3`
-- `sprint`: `S12`
+- `sprint`: `S11-S12`
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF8-04`
 - `guia_path`: `docs/planificacao/guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md`
@@ -61,11 +61,20 @@ Executar `Base de dados com backups automáticos diários` com evidência tecnic
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
 6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
 
+### Cenarios negativos recomendados
+- entrada obrigatoria em falta com erro validado
+- tentativa em estado de negocio invalido com resposta controlada
+
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
 - [ ] Negativos: minimo `2` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF8-04`
@@ -73,31 +82,32 @@ Executar `Base de dados com backups automáticos diários` com evidência tecnic
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet orientado ao BK `BK-MF8-03`**
+**Snippet tecnico orientado a robustez/operacao (`BK-MF8-03` / `RNF21`)**
 
 ```ts
 const BK_ID = 'BK-MF8-03';
-const requisito = 'RNF21';
+const REQ_ID = 'RNF21';
 
-export function validarEntregaNaoFuncional(medicoes: { smoke: boolean; negativos: number; evidencias: number }) {
-  if (!medicoes.smoke) throw new Error(`${BK_ID}: smoke falhou`);
-  if (medicoes.negativos < 2) throw new Error(`${BK_ID}: negativos insuficientes`);
-  if (medicoes.evidencias < 2) throw new Error(`${BK_ID}: evidence insuficiente`);
-  return { bk: BK_ID, requisito, status: 'OK' };
+export function validar_bk_mf8_03(okSmoke: boolean, negativos: number, evidencias: number) {
+  if (!okSmoke) throw new Error(`${BK_ID}: smoke falhou`);
+  if (negativos < 2) throw new Error(`${BK_ID}: negativos insuficientes`);
+  if (evidencias < 2) throw new Error(`${BK_ID}: evidencias insuficientes`);
+  return { bkId: BK_ID, reqId: REQ_ID, status: 'OK' };
 }
 ```
 
-
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `Base de dados com backups automáticos diários` validada contra `RNF21`.
+- Cenarios negativos concluidos: minimo `2` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P1`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo da alteracao.
-- `proof`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `neg`: cenarios negativos executados e resultados observados.
+- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
+- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_negocio`: indicador operacional (incidentes, disponibilidade, conformidade de gate).
 
 ## Proximo BK recomendado
 `BK-MF8-04`

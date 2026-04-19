@@ -59,13 +59,21 @@ Executar `O utilizador pode consultar evolução da pele ao longo do tempo atrav
 3. Definir contrato de entrada/saida para `O utilizador pode consultar evolução da pele ao longo do tempo através de gráficos`.
 4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
+6. Executar cenarios negativos obrigatorios (minimo 1) e registar o resultado.
+
+### Cenarios negativos recomendados
+- entrada obrigatoria em falta
 
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `2` cenarios com resultado controlado.
+- [ ] Negativos: minimo `1` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF2-02`
@@ -92,8 +100,9 @@ export function validarNegativos(negativosExecutados: number) {
 
 
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `O utilizador pode consultar evolução da pele ao longo do tempo através de gráficos` validada contra `RF17`.
+- Cenarios negativos concluidos: minimo `1` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P2`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 

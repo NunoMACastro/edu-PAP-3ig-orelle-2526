@@ -16,6 +16,8 @@
 
 ---
 
+<a id="1-usabilidade-e-design"></a>
+
 ## 1 Usabilidade e Design
 
 | Código | Requisito                                                                 | Tipo           | Prioridade |
@@ -27,6 +29,8 @@
 
 ---
 
+<a id="2-performance-e-escalabilidade"></a>
+
 ## 2 Performance e Escalabilidade
 
 | Código | Requisito                                                    | Tipo           | Prioridade |
@@ -37,6 +41,8 @@
 | RNF08  | Imagens otimizadas (lazy loading e compressão automática).   | Performance    | Should     |
 
 ---
+
+<a id="3-segurança-e-privacidade"></a>
 
 ## 3 Segurança e Privacidade
 
@@ -51,16 +57,20 @@
 
 ---
 
+<a id="4-integração-e-compatibilidade"></a>
+
 ## 4 Integração e Compatibilidade
 
 | Código | Requisito                                                              | Tipo            | Prioridade |
 | :----- | :--------------------------------------------------------------------- | :-------------- | :--------- |
 | RNF15  | Compatível com **Chrome, Safari, Edge e Firefox**.                     | Compatibilidade | Must       |
 | RNF16  | Exportação de relatórios em **PDF**.                                   | Compatibilidade | Should     |
-| RNF17  | Integração com **gateways de pagamento** (Stripe, PayPal, MBWay).      | Integração      | Must       |
+| RNF17  | MVP com **Stripe real** e fluxos **stub funcional** para PayPal/MBWay; multi-gateway completo pós-PAP. | Integração      | Must       |
 | RNF18  | Suporte para **API de IA externa** (ex: Azure Face API ou TensorFlow). | Integração      | Should     |
 
 ---
+
+<a id="5-manutenção-e-qualidade"></a>
 
 ## 5 Manutenção e Qualidade
 
@@ -73,6 +83,8 @@
 
 ---
 
+<a id="6-experiência-de-ia-e-ética"></a>
+
 ## 6 Experiência de IA e Ética
 
 | Código | Requisito                                                                                    | Tipo                  | Prioridade |
@@ -82,6 +94,8 @@
 | RNF25  | As imagens processadas não devem ser usadas para treinar modelos externos sem consentimento. | Privacidade           | Must       |
 
 ---
+
+<a id="7-stack-tecnológica-recomendada"></a>
 
 ## 7 Stack Tecnológica Recomendada
 
@@ -115,11 +129,15 @@
 - Matriz canónica de execucao: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
 - Planeamento temporal oficial: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
 
+<a id="licença"></a>
+
 ## Licença
 
 Projeto académico orientado ao contexto PAP.
 
 ---
+
+<a id="changelog"></a>
 
 ## Changelog
 

@@ -1,11 +1,11 @@
-# BK-MF7-06 - Integração com gateways de pagamento (Stripe, PayPal, MBWay)
+# BK-MF7-06 - Integracao de pagamentos MVP com Stripe real e PayPal/MBWay em stub funcional
 
 ## Header
 - `doc_id`: `GUIA-BK-MF7-06`
 - `bk_id`: `BK-MF7-06`
 - `macro`: `MF7`
-- `owner`: `Daniel Bulica`
-- `apoio`: `Aline`
+- `owner`: `Bruna`
+- `apoio`: `Daniel Bulica`
 - `prioridade`: `P0`
 - `estado`: `TODO`
 - `esforco`: `M`
@@ -19,13 +19,13 @@
 - `last_updated`: `2026-04-14`
 
 ## Contexto do BK
-- Entrega alvo: implementar `Integração com gateways de pagamento (Stripe, PayPal, MBWay)` com rastreabilidade direta ao requisito `RNF17`.
+- Entrega alvo: implementar `Integracao de pagamentos MVP com Stripe real e PayPal/MBWay em stub funcional` com rastreabilidade direta ao requisito `RNF17`.
 - Foco tecnico da macro: `Privacidade, seguranca e controlo`.
 - Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
 
 ## Bloco pedagogico
 ### Objetivo
-Executar `Integração com gateways de pagamento (Stripe, PayPal, MBWay)` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+Executar `Integracao de pagamentos MVP com Stripe real e PayPal/MBWay em stub funcional` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
 
 ### Pre-requisitos
 - Rever `RNF17` em `docs/RF.md` ou `docs/RNF.md`.
@@ -63,11 +63,21 @@ Executar `Integração com gateways de pagamento (Stripe, PayPal, MBWay)` com ev
 7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
 8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
 
+### Cenarios negativos recomendados
+- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
+- tentativa com estado de negocio invalido (transicao nao permitida)
+- falha de integracao externa (timeout/erro) com fallback controlado
+
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
 - [ ] Negativos: minimo `3` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF7-07`
@@ -75,31 +85,33 @@ Executar `Integração com gateways de pagamento (Stripe, PayPal, MBWay)` com ev
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet orientado ao BK `BK-MF7-06`**
+**Snippet tecnico orientado ao dominio hibrido (consultoria + monetizacao) (`BK-MF7-06` / `RNF17`)**
 
 ```ts
 const BK_ID = 'BK-MF7-06';
-const requisito = 'RNF17';
+const REQ_ID = 'RNF17';
 
-export function validarEntregaNaoFuncional(medicoes: { smoke: boolean; negativos: number; evidencias: number }) {
-  if (!medicoes.smoke) throw new Error(`${BK_ID}: smoke falhou`);
-  if (medicoes.negativos < 3) throw new Error(`${BK_ID}: negativos insuficientes`);
-  if (medicoes.evidencias < 2) throw new Error(`${BK_ID}: evidence insuficiente`);
-  return { bk: BK_ID, requisito, status: 'OK' };
+type EventoHibrido = { userId: string; recomendacaoId?: string; acao?: 'VIEW' | 'CART' | 'BUY' };
+
+export function executar_bk_mf7_06(evento: EventoHibrido) {
+  if (!evento.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
+  const payload = { bkId: BK_ID, reqId: REQ_ID, acao: evento.acao ?? 'VIEW', ligadoAoCoreDual: true };
+  return payload;
 }
 ```
 
-
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `Integracao de pagamentos MVP com Stripe real e PayPal/MBWay em stub funcional` validada contra `RNF17`.
+- Cenarios negativos concluidos: minimo `3` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P0`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo da alteracao.
-- `proof`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `neg`: cenarios negativos executados e resultados observados.
+- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
+- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_negocio`: indicador de conversao comercial (checkout/recompra/carrinho).
 
 ## Proximo BK recomendado
 `BK-MF7-07`

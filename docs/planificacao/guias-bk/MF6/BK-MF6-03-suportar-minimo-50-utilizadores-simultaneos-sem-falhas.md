@@ -4,8 +4,8 @@
 - `doc_id`: `GUIA-BK-MF6-03`
 - `bk_id`: `BK-MF6-03`
 - `macro`: `MF6`
-- `owner`: `Izelicks`
-- `apoio`: `Bruna`
+- `owner`: `Aline`
+- `apoio`: `Izelicks`
 - `prioridade`: `P1`
 - `estado`: `TODO`
 - `esforco`: `S`
@@ -61,11 +61,20 @@ Executar `Suportar mínimo 50 utilizadores simultâneos sem falhas` com evidênc
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
 6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
 
+### Cenarios negativos recomendados
+- entrada obrigatoria em falta com erro validado
+- tentativa em estado de negocio invalido com resposta controlada
+
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
 - [ ] Negativos: minimo `2` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF6-04`
@@ -73,31 +82,33 @@ Executar `Suportar mínimo 50 utilizadores simultâneos sem falhas` com evidênc
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet orientado ao BK `BK-MF6-03`**
+**Snippet tecnico orientado ao dominio hibrido (consultoria + monetizacao) (`BK-MF6-03` / `RNF07`)**
 
 ```ts
 const BK_ID = 'BK-MF6-03';
-const requisito = 'RNF07';
+const REQ_ID = 'RNF07';
 
-export function validarEntregaNaoFuncional(medicoes: { smoke: boolean; negativos: number; evidencias: number }) {
-  if (!medicoes.smoke) throw new Error(`${BK_ID}: smoke falhou`);
-  if (medicoes.negativos < 2) throw new Error(`${BK_ID}: negativos insuficientes`);
-  if (medicoes.evidencias < 2) throw new Error(`${BK_ID}: evidence insuficiente`);
-  return { bk: BK_ID, requisito, status: 'OK' };
+type EventoHibrido = { userId: string; recomendacaoId?: string; acao?: 'VIEW' | 'CART' | 'BUY' };
+
+export function executar_bk_mf6_03(evento: EventoHibrido) {
+  if (!evento.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
+  const payload = { bkId: BK_ID, reqId: REQ_ID, acao: evento.acao ?? 'VIEW', ligadoAoCoreDual: true };
+  return payload;
 }
 ```
 
-
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `Suportar mínimo 50 utilizadores simultâneos sem falhas` validada contra `RNF07`.
+- Cenarios negativos concluidos: minimo `2` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P1`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo da alteracao.
-- `proof`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `neg`: cenarios negativos executados e resultados observados.
+- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
+- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_negocio`: indicador combinado IA+negocio (uso de recomendacao e impacto comercial).
 
 ## Proximo BK recomendado
 `BK-MF6-04`

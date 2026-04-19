@@ -63,11 +63,21 @@ Executar `Gestão de utilizadores (ativar, suspender, eliminar contas)` com evid
 7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
 8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
 
+### Cenarios negativos recomendados
+- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
+- tentativa com estado de negocio invalido (transicao nao permitida)
+- falha de integracao externa (timeout/erro) com fallback controlado
+
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
 - [ ] Negativos: minimo `3` cenarios com resultado controlado.
 - [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF4-02`
@@ -75,34 +85,33 @@ Executar `Gestão de utilizadores (ativar, suspender, eliminar contas)` com evid
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet orientado ao BK `BK-MF4-01`**
+**Snippet tecnico orientado ao dominio hibrido (consultoria + monetizacao) (`BK-MF4-01` / `RF33`)**
 
 ```ts
 const BK_ID = 'BK-MF4-01';
-const requisito = 'RF33';
+const REQ_ID = 'RF33';
 
-export function executarFluxoBK(entrada: object) {
-  if (!entrada) throw new Error(`${BK_ID}: entrada obrigatoria`);
-  const resultado = { bk: BK_ID, requisito, concluido: true };
-  return resultado;
-}
+type EventoHibrido = { userId: string; recomendacaoId?: string; acao?: 'VIEW' | 'CART' | 'BUY' };
 
-export function validarNegativos(negativosExecutados: number) {
-  return negativosExecutados >= 3;
+export function executar_bk_mf4_01(evento: EventoHibrido) {
+  if (!evento.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
+  const payload = { bkId: BK_ID, reqId: REQ_ID, acao: evento.acao ?? 'VIEW', ligadoAoCoreDual: true };
+  return payload;
 }
 ```
 
-
 ## Criterios de aceite
-- BK entregue no scope definido, sem quebrar dependencias.
-- Validacao de smoke e negativos concluida com registo verificavel.
+- Entrega funcional especifica de `Gestão de utilizadores (ativar, suspender, eliminar contas)` validada contra `RF33`.
+- Cenarios negativos concluidos: minimo `3` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P0`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo da alteracao.
-- `proof`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `neg`: cenarios negativos executados e resultados observados.
+- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
+- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_negocio`: indicador combinado IA+negocio (uso de recomendacao e impacto comercial).
 
 ## Proximo BK recomendado
 `BK-MF4-02`

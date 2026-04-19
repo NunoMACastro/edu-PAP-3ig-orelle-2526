@@ -11,6 +11,7 @@ EXPECTED_RF = [f"RF{i:02d}" for i in range(1, 29)] + [f"RF{i:02d}" for i in rang
 EXPECTED_RNF = [f"RNF{i:02d}" for i in range(1, 26)]
 GUIDE_FILENAME_RE = re.compile(r"^BK-MF[0-8]-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 SPRINT_CSV_RE = re.compile(r"^S\d{2}(,S\d{2})*$")
+SPRINT_RANGE_RE = re.compile(r"^S\d{2}-S\d{2}$")
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\{NOW\}"),
     re.compile(r"Adicionar aqui", re.IGNORECASE),
@@ -19,6 +20,11 @@ PLACEHOLDER_PATTERNS = [
     re.compile(r"Snippets de codigo \(evolucao\)", re.IGNORECASE),
     re.compile(r"\bTBD\b", re.IGNORECASE),
 ]
+GENERIC_GUIDE_PATTERNS = [
+    re.compile(r"BK entregue no scope definido, sem quebrar dependencias\\.", re.IGNORECASE),
+    re.compile(r"ligacao entre recomendacao e evento comercial comprovada em evidencia\\.", re.IGNORECASE),
+]
+NEG_POLICY = {"P0": 3, "P1": 2, "P2": 1}
 
 
 def read(path: Path) -> str:
@@ -114,7 +120,8 @@ def parse_sprint_tokens(raw: str) -> list[str]:
 
 
 def is_valid_backlog_sprint(raw: str) -> bool:
-    return SPRINT_CSV_RE.fullmatch(raw.strip().replace("`", "")) is not None
+    value = raw.strip().replace("`", "")
+    return SPRINT_CSV_RE.fullmatch(value) is not None or SPRINT_RANGE_RE.fullmatch(value) is not None
 
 
 def extract_macro_navigation_entries(backlog_text: str) -> list[dict[str, str]]:
@@ -166,12 +173,29 @@ def has_non_placeholder_snippet(text: str) -> bool:
     return re.search(r"```[a-zA-Z0-9]*\n.+?```", text, flags=re.DOTALL) is not None
 
 
-def extract_min_negativos(text: str) -> int:
-    m = re.search(r"Negativos: minimo `?(\d+)`?", text)
-    if m:
-        return int(m.group(1))
-    m2 = re.search(r"minimo (\d+) cenarios", text)
-    return int(m2.group(1)) if m2 else 0
+def extract_negative_policy_blocks(text: str) -> dict[str, int | None]:
+    blocks: dict[str, int | None] = {
+        "step_min": None,
+        "validacao_min": None,
+        "criterio_min": None,
+        "snippet_guard_min": None,
+    }
+    m_step = re.search(r"Executar cenarios negativos obrigatorios \(minimo (\d+)\)", text)
+    if m_step:
+        blocks["step_min"] = int(m_step.group(1))
+
+    m_valid = re.search(r"^- \[ \] Negativos:\s*minimo `?(\d+)`?\s+cenarios", text, flags=re.MULTILINE)
+    if m_valid:
+        blocks["validacao_min"] = int(m_valid.group(1))
+
+    m_crit = re.search(r"Cenarios negativos concluidos:\s*minimo `?(\d+)`?", text)
+    if m_crit:
+        blocks["criterio_min"] = int(m_crit.group(1))
+
+    m_snippet = re.search(r"negativos\s*<\s*(\d+)", text)
+    if m_snippet:
+        blocks["snippet_guard_min"] = int(m_snippet.group(1))
+    return blocks
 
 
 def find_placeholders(path: Path, text: str) -> list[dict[str, str]]:
@@ -216,6 +240,92 @@ def scorecard_issues(score_text: str) -> list[str]:
     for name, weight in expected.items():
         if not re.search(rf"\|\s*{re.escape(name)}\s*\|\s*{weight}\s*\|", score_text):
             issues.append(f"missing_or_invalid_score_criterion:{name}")
+    rows = parse_table_rows(
+        score_text,
+        "| sprint | estado_sprint | cobertura | coerencia | pedagogia_guidance_step_by_step | adequacao_12o | governanca | modelo_carga | carga_planeada_u | core_dual_percent | core_dual_ok | carga_real_u | desvio_u | risco_semaforo | acao_corretiva |",
+    )
+    if not rows:
+        issues.append("missing_or_invalid_scorecard_table")
+        return issues
+    for row in rows:
+        sp = row.get("sprint", "")
+        modelo = row.get("modelo_carga", "")
+        carga_planeada = row.get("carga_planeada_u", "")
+        core_pct = row.get("core_dual_percent", "")
+        core_ok = row.get("core_dual_ok", "")
+        carga_real = row.get("carga_real_u", "")
+        desvio = row.get("desvio_u", "")
+        risco = row.get("risco_semaforo", "")
+        if "S=1" not in modelo or "split 50/50" not in modelo:
+            issues.append(f"invalid_modelo_carga:{sp}")
+        if not re.fullmatch(r"\d+(?:\.\d+)?", carga_planeada):
+            issues.append(f"invalid_carga_planeada_u:{sp}")
+        try:
+            pct = float(core_pct)
+            expected_ok = "SIM" if pct >= 70 else "NAO"
+            if core_ok != expected_ok:
+                issues.append(f"invalid_core_dual_ok:{sp}")
+        except ValueError:
+            issues.append(f"invalid_core_dual_percent:{sp}")
+        if carga_real == "-" and (desvio != "-" or risco != "N/A"):
+            issues.append(f"invalid_na_rule:{sp}")
+    return issues
+
+
+def plan_sprint_loads(plan_text: str) -> dict[str, str]:
+    rows = parse_table_rows(
+        plan_text,
+        "| sprint | periodo | foco_macro | objetivo_operacional | carga_planeada_u | gate |",
+    )
+    return {row.get("sprint", "").strip(): row.get("carga_planeada_u", "").strip() for row in rows if row.get("sprint")}
+
+
+def scorecard_plan_load_issues(score_text: str, sprint_plan_text: str) -> list[str]:
+    issues: list[str] = []
+    score_rows = parse_table_rows(
+        score_text,
+        "| sprint | estado_sprint | cobertura | coerencia | pedagogia_guidance_step_by_step | adequacao_12o | governanca | modelo_carga | carga_planeada_u | core_dual_percent | core_dual_ok | carga_real_u | desvio_u | risco_semaforo | acao_corretiva |",
+    )
+    plan_load = plan_sprint_loads(sprint_plan_text)
+    for row in score_rows:
+        sp = row.get("sprint", "").strip()
+        sc = row.get("carga_planeada_u", "").strip()
+        pl = plan_load.get(sp)
+        if pl is None:
+            issues.append(f"scorecard_sprint_not_in_plan:{sp}")
+        elif sc != pl:
+            issues.append(f"scorecard_plan_load_mismatch:{sp}(scorecard={sc},plan={pl})")
+    return issues
+
+
+def core_dual_contract_issues(core_dual_text: str, backlog_by_bk: dict[str, dict[str, str]]) -> list[str]:
+    issues: list[str] = []
+    if "justificacao_classe" not in core_dual_text:
+        issues.append("missing_core_dual_justificacao_column")
+        return issues
+    rows = parse_table_rows(
+        core_dual_text,
+        "| bk_id | classe_core_dual | eixo_primario | kpi_primario | kpi_secundario | justificacao_classe |",
+    )
+    if not rows:
+        issues.append("missing_core_dual_mapping_table")
+        return issues
+    allowed = {"CORE-IA", "CORE-COM", "CORE-HIBRIDO", "SUPORTE"}
+    seen = set()
+    for row in rows:
+        bk = row.get("bk_id", "").strip()
+        cls = row.get("classe_core_dual", "").strip()
+        just = row.get("justificacao_classe", "").strip()
+        if bk not in backlog_by_bk:
+            issues.append(f"core_dual_invalid_bk:{bk}")
+        if cls not in allowed:
+            issues.append(f"core_dual_invalid_class:{bk}")
+        if not just:
+            issues.append(f"core_dual_missing_justification:{bk}")
+        seen.add(bk)
+    missing = sorted(set(backlog_by_bk.keys()) - seen)
+    for bk in missing:
+        issues.append(f"core_dual_missing_bk:{bk}")
     return issues
 
 
@@ -381,12 +491,48 @@ def main() -> None:
 
         if not has_non_placeholder_snippet(text):
             guide_content_issues.append({"bk_id": bk_id, "issue": "missing_or_placeholder_snippet"})
+        for patt in GENERIC_GUIDE_PATTERNS:
+            if patt.search(text):
+                guide_content_issues.append({"bk_id": bk_id, "issue": f"generic_guide_pattern:{patt.pattern}"})
+        if "### Matriz minima de testes por prioridade" not in text:
+            guide_content_issues.append({"bk_id": bk_id, "issue": "missing_test_matrix_section"})
+        if "Evidencia de testes por camada" not in text:
+            guide_content_issues.append({"bk_id": bk_id, "issue": "missing_test_layer_acceptance"})
 
-        min_negativos = extract_min_negativos(text)
-        if row["prioridade"] == "P0" and min_negativos < 3:
-            guide_content_issues.append({"bk_id": bk_id, "issue": f"P0_min_neg({min_negativos})"})
-        if row["prioridade"] in {"P1", "P2"} and min_negativos < 2:
-            guide_content_issues.append({"bk_id": bk_id, "issue": f"P1P2_min_neg({min_negativos})"})
+        prioridade = row["prioridade"]
+        expected_neg = NEG_POLICY.get(prioridade)
+        if expected_neg is not None:
+            neg_blocks = extract_negative_policy_blocks(text)
+
+            for block_name, key in [
+                ("step", "step_min"),
+                ("validacao", "validacao_min"),
+                ("criterio", "criterio_min"),
+            ]:
+                actual = neg_blocks[key]
+                if actual is None:
+                    guide_content_issues.append(
+                        {
+                            "bk_id": bk_id,
+                            "issue": f"negative_policy_{block_name}_mismatch(expected={expected_neg},actual=missing)",
+                        }
+                    )
+                elif actual != expected_neg:
+                    guide_content_issues.append(
+                        {
+                            "bk_id": bk_id,
+                            "issue": f"negative_policy_{block_name}_mismatch(expected={expected_neg},actual={actual})",
+                        }
+                    )
+
+            snippet_actual = neg_blocks["snippet_guard_min"]
+            if snippet_actual is not None and snippet_actual != expected_neg:
+                guide_content_issues.append(
+                    {
+                        "bk_id": bk_id,
+                        "issue": f"negative_policy_snippet_mismatch(expected={expected_neg},actual={snippet_actual})",
+                    }
+                )
 
         if extract_header_value(text, "proximo_bk") == "-":
             if re.search(r"Proximo BK recomendado: `BK-", text):
@@ -427,16 +573,22 @@ def main() -> None:
 
     scorecard_text = read(plan / "sprints" / "SCORECARD-SPRINTS.md")
     scorecard_contract_issues = scorecard_issues(scorecard_text)
+    sprint_plan_text = read(plan / "sprints" / "PLANO-SPRINTS.md")
+    scorecard_plan_issues = scorecard_plan_load_issues(scorecard_text, sprint_plan_text)
+    core_dual_text = read(backlogs / "ANEXO-CORE-DUAL-BK.md") if (backlogs / "ANEXO-CORE-DUAL-BK.md").exists() else ""
+    core_dual_issues = core_dual_contract_issues(core_dual_text, backlog_by_bk)
 
     required_artifacts = [
         plan / "README.md",
         plan / "PLANO-IMPLEMENTACAO-TOTAL.md",
         plan / "DISTRIBUICAO-RESPONSABILIDADES.md",
+        plan / "CORE-DUAL-CONTRATO.md",
         plan / "sprints" / "PLANO-SPRINTS.md",
         plan / "sprints" / "SCORECARD-SPRINTS.md",
         plan / "sprints" / "GUIAO-DOCENTE-SEMANAL.md",
         backlogs / "MATRIZ-CANONICA-BK.md",
         backlogs / "BACKLOG-MVP.md",
+        backlogs / "ANEXO-CORE-DUAL-BK.md",
         backlogs / "MF-VIEWS.md",
         backlogs / "CONTRATO-CAMPOS-BK.md",
         backlogs / "ANEXO-RF-PARA-BKS.md",
@@ -460,6 +612,7 @@ def main() -> None:
         plan / "README.md",
         plan / "PLANO-IMPLEMENTACAO-TOTAL.md",
         plan / "DISTRIBUICAO-RESPONSABILIDADES.md",
+        plan / "CORE-DUAL-CONTRATO.md",
         plan / "guias-bk" / "README.md",
         plan / "guias-bk" / "ROADMAP-BKS-RESTANTES.md",
         plan / "guias-bk" / "MAPA-MIGRACAO-LEGACY-PARA-CANONICO.md",
@@ -468,6 +621,7 @@ def main() -> None:
         plan / "sprints" / "GUIAO-DOCENTE-SEMANAL.md",
         backlogs / "MATRIZ-CANONICA-BK.md",
         backlogs / "BACKLOG-MVP.md",
+        backlogs / "ANEXO-CORE-DUAL-BK.md",
         backlogs / "MF-VIEWS.md",
         backlogs / "CONTRATO-CAMPOS-BK.md",
         backlogs / "ANEXO-RF-PARA-BKS.md",
@@ -519,6 +673,8 @@ def main() -> None:
             "missing_artifacts": missing_artifacts,
             "outdated_docs": outdated_docs,
             "scorecard_contract_issues": scorecard_contract_issues,
+            "scorecard_plan_load_issues": scorecard_plan_issues,
+            "core_dual_contract_issues": core_dual_issues,
             "broken_links_docs": broken_links_docs,
             "placeholder_issues": placeholder_issues,
         },
@@ -530,10 +686,10 @@ def main() -> None:
         },
         "status": {
             "coverage_pass": not missing_rf_matrix and not missing_rnf_matrix and not missing_rf_backlog and not missing_rnf_backlog and not invalid_refs,
-            "consistency_pass": not mismatches and not broken_guia_links and not deps_invalid and not cycles and not backlog_duplicate_ids and not backlog_macro_ids_not_in_global and not backlog_macro_ids_wrong_macro and not backlog_invalid_sprint_format and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not broken_links_docs and not placeholder_issues,
+            "consistency_pass": not mismatches and not broken_guia_links and not deps_invalid and not cycles and not backlog_duplicate_ids and not backlog_macro_ids_not_in_global and not backlog_macro_ids_wrong_macro and not backlog_invalid_sprint_format and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not scorecard_plan_issues and not core_dual_issues and not broken_links_docs and not placeholder_issues,
             "guides_pass": not guide_header_issues and not guide_content_issues and not naming_issues and not missing_guides,
             "naming_pass": not naming_issues,
-            "overall_pass": not missing_rf_matrix and not missing_rnf_matrix and not missing_rf_backlog and not missing_rnf_backlog and not invalid_refs and not mismatches and not broken_guia_links and not deps_invalid and not cycles and not backlog_duplicate_ids and not backlog_macro_ids_not_in_global and not backlog_macro_ids_wrong_macro and not backlog_invalid_sprint_format and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not broken_links_docs and not placeholder_issues and not guide_header_issues and not guide_content_issues and not naming_issues and not missing_guides,
+            "overall_pass": not missing_rf_matrix and not missing_rnf_matrix and not missing_rf_backlog and not missing_rnf_backlog and not invalid_refs and not mismatches and not broken_guia_links and not deps_invalid and not cycles and not backlog_duplicate_ids and not backlog_macro_ids_not_in_global and not backlog_macro_ids_wrong_macro and not backlog_invalid_sprint_format and not missing_artifacts and not outdated_docs and not scorecard_contract_issues and not scorecard_plan_issues and not core_dual_issues and not broken_links_docs and not placeholder_issues and not guide_header_issues and not guide_content_issues and not naming_issues and not missing_guides,
         },
     }
 

@@ -88,7 +88,7 @@
 | Código | Requisito                                                                              | Atores           | Prioridade | Dependências |
 | :----- | :------------------------------------------------------------------------------------- | :--------------- | :--------- | :----------- |
 | RF26   | Adicionar/remover produtos do **carrinho de compras**.                                 | Cliente          | Must       | RF07         |
-| RF27   | Registar **encomendas e pagamentos** (gateway Stripe/PayPal/MBWay).                    | Cliente, Sistema | Must       | RF26         |
+| RF27   | Registar **encomendas e pagamentos** com `Stripe` real no MVP e `PayPal/MBWay` em stub funcional. | Cliente, Sistema | Must       | RF26         |
 | RF28   | Histórico de compras com data, total, produtos e estado (pendente, enviado, entregue). | Cliente          | Must       | RF27         |
 | RF30   | O cliente pode **recomprar produtos anteriores** com um clique.                        | Cliente          | Should     | RF28         |
 
@@ -156,10 +156,9 @@
 
 ## Sugestão de MVP organizado por fases e RF
 
--   **Fase 1 - Diagnóstico e Catálogo:** RF01–RF22 (perfis, catálogo, análise IA, recomendações iniciais).
--   **Fase 2 - Commerce e Atendimento:** RF23–RF37 (simulação virtual, compras, histórico e notificações essenciais).
--   **Fase 3 - Operação e Privacidade:** RF40, RF41, RF44 (privacidade operacional, governação e auditoria biométrica).
--   **Fase 4 - Otimização:** Critérios de aceitação e melhorias contínuas no motor de IA e reporting.
+-   **Fase 1 - Núcleo Funcional Inicial:** RF01–RF24 (identidade, catálogo, análise IA, recomendação e simulação baseline).
+-   **Fase 2 - Produto, Operação e Privacidade:** RF25, RF26, RF27, RF28, RF30, RF31, RF32, RF33, RF34, RF35, RF36, RF37, RF40, RF41, RF44.
+-   **Fase 3 - Hardening para defesa:** sem novos RF obrigatórios; foco em qualidade operacional, evidências e consolidação de critérios de aceitação.
 
 ---
 
