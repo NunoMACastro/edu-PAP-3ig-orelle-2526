@@ -24,6 +24,8 @@
 
 Neste BK vamos criar a base do catálogo comercial da Orélle. O Admin deve conseguir registar produtos com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock, exatamente como definido em `RF07`.
 
+Este BK só pode expor criação de produtos se a autenticação e `requireRole('administrador')` estiverem funcionais. Se `requireAuth`/`requireRole` ainda não existirem, a criação real deve ficar bloqueada como `TODO (BLOCKER)`; nesse caso pode ser preparado o modelo/validator, mas não se deve disponibilizar endpoint inseguro.
+
 Também vamos preparar campos que os BKs seguintes vão precisar. `brandName` é marcado como `DERIVADO` porque `RF06` fala de marcas favoritas e `RF09` fala de filtro por marca, apesar de `RF07` não listar marca diretamente. Esta decisão deve ficar explícita para não parecer requisito inventado.
 
 Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funcional, sem assumir design final.
@@ -32,13 +34,13 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funci
 
 - Cria o contrato de catálogo usado por categorias, pesquisa, detalhes, recomendações, carrinho e compras.
 - Ensina modelação de dados comerciais com validação de preço e stock.
-- Reutiliza roles de `BK-MF0-05` para proteger criação de produtos.
+- Reutiliza roles de `BK-MF0-05` para proteger criação de produtos; sem essas roles, o BK não deve abrir escrita administrativa.
 - Prepara `BK-MF0-08` e `MF1`.
 
 ##### O que entra (scope)
 
 - Modelo `Product`.
-- Endpoint `POST /api/admin/products` protegido por Admin.
+- Endpoint `POST /api/admin/products` protegido por `requireAuth` e `requireRole('administrador')`.
 - Validação de nome, descrição, ingredientes, tipos de pele indicados, imagem, preço e stock.
 - Campo `brandName` como assunção técnica derivada de `RF06`/`RF09`.
 - Página React simples de criação de produto para Admin.
@@ -53,7 +55,8 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funci
 
 ##### Como saber que isto ficou bem
 
-- Admin cria produto válido e recebe `201`.
+- Admin autenticado e autorizado cria produto válido e recebe `201`.
+- Se auth/role não estiver funcional, a criação fica bloqueada e não há endpoint público temporário.
 - Cliente autenticado não consegue criar produto e recebe `403`.
 - Preço negativo, stock negativo ou nome em falta devolvem `400`.
 - O produto guarda ingredientes e tipos de pele em listas normalizadas.
@@ -68,7 +71,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funci
 - Owner: `Bruna` (CANONICO)
 - Apoio: `Izelicks` (CANONICO)
 - Dependencias (BK IDs): `-` (CANONICO)
-- Pre-condicoes: autenticação e roles recomendadas para proteger admin; sem dependência canónica declarada (DERIVADO)
+- Pre-condicoes: autenticação e `requireRole('administrador')` funcionais para criação real; sem isso, endpoint de escrita fica em `TODO (BLOCKER)` apesar de a dependência canónica ser `-` (DERIVADO)
 - Ref. Plano: `RF07`, `Fase 1`, `S01-S02`, `Reforco` (CANONICO)
 - Flow ID: `FLOW-CATALOG-PRODUCTS` (DERIVADO)
 - Fonte de verdade: `docs/RF.md` -> `RF07` (CANONICO)
@@ -78,16 +81,16 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funci
 
 #### O que vamos fazer neste BK (DERIVADO):
 
-- Estado esperado antes do BK: app tem base de utilizadores; roles admin são recomendadas para proteção.
+- Estado esperado antes do BK: app tem base de utilizadores; roles admin são obrigatórias para expor criação real de produtos.
 - Estado esperado depois do BK: catálogo tem modelo e criação administrativa de produtos.
 - Ficheiros a criar: `server/src/models/product.model.js`, `server/src/routes/admin-products.routes.js`, `server/src/controllers/admin-products.controller.js`, `server/src/services/product.service.js`, `server/src/validators/product.validator.js`, `client/src/pages/AdminProductCreatePage.jsx`.
 - Ficheiros a editar: `server/src/app.js`, `client/src/App.jsx`, `client/src/services/apiClient.js`.
-- Dependencias de BK anteriores: canonicamente `-`; tecnicamente reutiliza `requireAuth`/`requireRole` se `BK-MF0-05` já foi executado.
+- Dependencias de BK anteriores: canonicamente `-`; tecnicamente a criação real fica bloqueada até existir `requireAuth`/`requireRole` de `BK-MF0-05`.
 - Impacto na arquitetura: adiciona módulo `catalog/products`.
 - Impacto em frontend: cria primeiro formulário administrativo de catálogo.
 - Impacto em backend: cria endpoint admin e service de produto.
 - Impacto em dados: cria coleção `products` com campos comerciais.
-- Impacto em segurança: criação de produto deve ser restrita a `administrador`.
+- Impacto em segurança: criação de produto deve ser restrita a `administrador`; sem middleware funcional, não criar fallback aberto.
 - Impacto em testes: P0 com unit/integration/e2e e 3 negativos.
 - Handoff para o próximo BK: `BK-MF0-08` acrescenta categorias e associa-as ao produto.
 
@@ -106,6 +109,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funci
 - `Ingredientes`: lista textual usada para informação e recomendações futuras.
 - `Tipo de pele indicado`: lista de perfis de pele compatíveis.
 - `Admin route`: rota que só administradores podem usar.
+- `BLOCKER de autorização`: situação em que a funcionalidade de escrita fica parada por faltar auth/role seguro.
 - `Catálogo`: conjunto de produtos consultáveis e compráveis.
 - `DERIVADO`: decisão técnica inferida de RF relacionados, não campo novo arbitrário.
 
@@ -115,7 +119,7 @@ Em comércio, valores monetários devem ser guardados de forma previsível. Uma 
 
 Stock nunca deve aceitar valores negativos. Mesmo que o frontend impeça, o backend tem de validar porque qualquer pessoa pode chamar a API diretamente.
 
-O produto pertence a uma área administrativa. Esconder o botão no frontend melhora UX, mas a proteção real é no backend com `requireRole('administrador')`.
+O produto pertence a uma área administrativa. Esconder o botão no frontend melhora UX, mas a proteção real é no backend com `requireRole('administrador')`. Se esse middleware ainda não existir, o endpoint `POST /api/admin/products` não deve ser exposto como rota temporária aberta.
 
 #### Guia de execucao (passo-a-passo) (DERIVADO):
 
@@ -162,12 +166,12 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
 4. **Objetivo (~30 min): criar rota admin de produto**
    - Descricao detalhada do objetivo: expor `POST /api/admin/products`.
    - Justificacao: criação de catálogo é operação administrativa.
-   - Como fazer (4.1): proteger com `requireAuth`.
-   - Como fazer (4.2): proteger com `requireRole(ROLES.ADMIN)`.
+   - Como fazer (4.1): proteger com `requireAuth`; se não existir, marcar `TODO (BLOCKER)` e não expor endpoint.
+   - Como fazer (4.2): proteger com `requireRole(ROLES.ADMIN)`; se não existir, implementar primeiro ou bloquear criação real.
    - Ficheiro a rever: `server/src/middlewares/role.middleware.js`.
    - Ficheiro alvo: `server/src/routes/admin-products.routes.js`.
    - Snippet de referencia: `router.post('/products', requireAuth, requireRole(ROLES.ADMIN), createProductController);`.
-   - O que verificar: cliente recebe `403`.
+   - O que verificar: cliente recebe `403` e não existe rota alternativa sem auth.
 
 5. **Objetivo (~40 min): criar UI admin de produto**
    - Descricao detalhada do objetivo: construir formulário para registar produto.
@@ -203,17 +207,18 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
 
 - Smoke: admin cria produto válido e recebe `201`.
 - Negativo 1: passo 4; cliente tenta criar produto; resultado esperado `403`; risco que cobre: alteração indevida do catálogo.
+- Negativo 1b: passo 4; `requireAuth`/`requireRole` ausente; resultado esperado BK marcado como `BLOCKER` e endpoint não exposto; risco que cobre: criação insegura temporária.
 - Negativo 2: passo 2; preço ou stock negativo; resultado esperado `400`; risco que cobre: dados comerciais inválidos.
 - Negativo 3: passo 2; nome/descrição em falta; resultado esperado `400`; risco que cobre: produto incompleto.
 - Tecnico: `Product` usa campos de `RF07` e `brandName` marcado como derivado.
 - Regressao das fases anteriores: roles e login continuam a funcionar.
 - UI/mockup: sem mockup; formulário admin baseline.
-- Seguranca: endpoint admin protegido no backend.
+- Seguranca: endpoint admin protegido no backend; sem auth/role funcional, criação real bloqueada.
 
 #### Criterios de aceite:
 
-- Outputs: modelo `Product`, endpoint admin, validator, service e UI admin.
-- Verificacoes: produto válido `201`, cliente `403`, inválidos `400`.
+- Outputs: modelo `Product`, validator, service e endpoint admin apenas quando auth/role estiver funcional.
+- Verificacoes: produto válido `201` só como admin autorizado; cliente `403`; inválidos `400`; falta de auth/role gera `BLOCKER`.
 - Qualidade: preço em cêntimos ou política equivalente documentada; stock não negativo.
 - Continuidade: `BK-MF0-08` consegue associar categorias; `MF1` consegue filtrar por preço/tipo/marca.
 - Evidencia: payload válido, negativos e ficheiros alterados registados.
@@ -228,13 +233,13 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
 - `files`: `server/src/models/product.model.js`, `server/src/routes/admin-products.routes.js`, `client/src/pages/AdminProductCreatePage.jsx`
 - `commands`: `curl -X POST /api/admin/products`, `npm test`
 - `screenshots`: formulário de produto com sucesso e erro
-- `notes`: `brandName` é derivado de RF06/RF09; categorias ficam para BK seguinte
+- `notes`: `brandName` é derivado de RF06/RF09; categorias ficam para BK seguinte; criação real depende de `requireAuth`/`requireRole`
 
 #### TODOs
 
 - TODO: confirmar se `brandName` deve ser obrigatório quando `RF09` for implementado.
 - TODO: confirmar política de armazenamento de imagens de produto.
-- TODO (BLOCKER): sem role admin funcional, criação de produto não deve ser considerada segura.
+- TODO (BLOCKER): sem `requireAuth` e `requireRole('administrador')` funcionais, não expor `POST /api/admin/products`.
 - FOLLOW-UP: `BK-MF0-08` associa categorias; `BK-MF1-01` cria pesquisa/filtros.
 
 ## Contexto do BK
@@ -248,13 +253,14 @@ Criar a base de catálogo de produtos da Orélle com validação e proteção ad
 
 ### Pre-requisitos
 - Rever `RF07`.
-- Ter roles/admin de `BK-MF0-05` para proteção real.
+- Ter roles/admin de `BK-MF0-05` para proteção real; sem isso, implementar apenas model/validator e bloquear endpoint de escrita.
 - Ter backend Express e MongoDB.
 
 ### Erros comuns
 - Guardar preço como string sem normalização.
 - Permitir stock negativo.
 - Proteger só no frontend e esquecer backend.
+- Criar rota temporária de produtos sem `requireAuth`/`requireRole`.
 - Implementar filtros de `MF1` antes do tempo.
 
 ### Check de compreensao
@@ -288,7 +294,7 @@ Criar a base de catálogo de produtos da Orélle com validação e proteção ad
 - Campos obrigatórios em falta recebem `400`.
 
 ### Validacao
-- [ ] Smoke: admin cria produto válido.
+- [ ] Smoke: admin autorizado cria produto válido.
 - [ ] Negativos: minimo `3` cenarios com resultado controlado.
 - [ ] Tecnico: produto guarda campos de `RF07`.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
@@ -300,7 +306,7 @@ Criar a base de catálogo de produtos da Orélle com validação e proteção ad
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF0-08`
-- O próximo BK deve associar categorias aos produtos criados aqui.
+- O próximo BK deve associar categorias aos produtos criados aqui; se este BK ficou bloqueado por auth/role, o bloqueio passa para `BK-MF0-08`.
 
 ## Snippet tecnico aplicavel
 ```js
@@ -308,9 +314,10 @@ const BK_ID = 'BK-MF0-07';
 const REQ_ID = 'RF07';
 const MIN_NEGATIVOS = 3;
 
-export function validarEvidenceBkMf007({ smokeOk, negativos, product }) {
+export function validarEvidenceBkMf007({ smokeOk, negativos, product, authzReady }) {
   if (!smokeOk) throw new Error(`${BK_ID}/${REQ_ID}: smoke de produto falhou`);
   if (negativos < 3) throw new Error(`${BK_ID}/${REQ_ID}: negativos insuficientes`);
+  if (!authzReady) throw new Error(`${BK_ID}/${REQ_ID}: criação bloqueada sem auth/role`);
   if (product?.stock < 0 || product?.priceCents < 0) {
     throw new Error(`${BK_ID}/${REQ_ID}: preço ou stock inválido`);
   }
@@ -329,7 +336,7 @@ export function validarEvidenceBkMf007({ smokeOk, negativos, product }) {
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
-- `proof_negocio`: produto desbloqueia categorias, pesquisa, recomendação e compra.
+- `proof_negocio`: produto prepara categorias, pesquisa e compra; recomendações avançadas ficam para fases posteriores.
 
 ## Proximo BK recomendado
 `BK-MF0-08`
@@ -337,3 +344,4 @@ export function validarEvidenceBkMf007({ smokeOk, negativos, product }) {
 ## Changelog
 - `2026-04-14`: guia normalizado para contrato canonico comum.
 - `2026-05-25`: guia refinado para catálogo base de produtos.
+- `2026-05-25`: reforçado blocker obrigatório quando `requireAuth`/`requireRole` não estiverem funcionais.

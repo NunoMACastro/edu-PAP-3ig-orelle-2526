@@ -327,7 +327,7 @@ export function validarEvidenceBkMf003({ smokeOk, negativos, profile }) {
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
-- `proof_negocio`: perfil desbloqueia personalização, análise e recomendação.
+- `proof_negocio`: perfil prepara contexto para personalização futura; análise IA e recomendações avançadas ficam fora da MF0.
 
 ## Proximo BK recomendado
 `BK-MF0-04`

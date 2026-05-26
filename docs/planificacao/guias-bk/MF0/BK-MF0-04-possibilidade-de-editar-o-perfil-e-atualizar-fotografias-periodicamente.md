@@ -24,6 +24,8 @@
 
 Neste BK vamos permitir que o cliente atualize dados do perfil criado em `BK-MF0-03` e associe uma fotografia de perfil simples. Esta fotografia não é ainda a fotografia facial para análise por IA; esse fluxo sensível pertence a `RF13` e fases seguintes.
 
+Como qualquer fotografia facial pode identificar uma pessoa e pode ser tratada como dado sensível/biométrico dependendo do uso, este BK não pode fingir upload real sem infraestrutura. Se ainda não existir consentimento explícito, armazenamento seguro e limitação de acesso, a implementação deve usar apenas `profilePhotoUrl` controlado ou stub documentado, sem receber ficheiros reais.
+
 O foco é editar com segurança: só o dono do perfil pode alterar os seus dados, o backend valida todos os campos e a UI mostra estados de loading, erro e sucesso.
 
 Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identidade visual final.
@@ -38,7 +40,8 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 ##### O que entra (scope)
 
 - Endpoint `PUT /api/profile/me` para editar campos do perfil.
-- Endpoint opcional `PATCH /api/profile/me/photo` para fotografia de perfil não analítica.
+- Endpoint opcional `PATCH /api/profile/me/photo` para fotografia de perfil não analítica, apenas se houver consentimento e armazenamento seguro.
+- Alternativa segura quando upload real não existir: guardar apenas `profilePhotoUrl` controlado/stub e documentar que não há ficheiro real nem processamento.
 - Validação de campos parciais.
 - Atualização da página de perfil no frontend.
 - Testes negativos de acesso, campos inválidos e ficheiro inválido.
@@ -46,8 +49,9 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 ##### O que nao entra (scope-out)
 
 - Upload de fotografias frontal/perfil para análise de pele.
-- Consentimento biométrico e relatórios de IA.
-- Compressão/encriptação avançada de imagens.
+- Processamento facial, IA, simulação, relatório ou diagnóstico.
+- Upload real sem consentimento explícito, armazenamento seguro, controlo de acesso e política de retenção.
+- Compressão/encriptação avançada de imagens, salvo se a equipa implementar upload real com segurança mínima aprovada.
 - Histórico de versões do perfil.
 
 ##### Como saber que isto ficou bem
@@ -55,7 +59,8 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - O utilizador autenticado edita o próprio perfil com resposta `200`.
 - Campos inválidos devolvem `400`.
 - Tentativas sem sessão devolvem `401`.
-- A fotografia de perfil aceita apenas formatos/tamanhos definidos.
+- A fotografia de perfil aceita apenas formatos/tamanhos definidos quando upload real estiver aprovado.
+- Se upload real não estiver aprovado, a app usa URL/stub controlado e declara isso na evidence.
 - O perfil editado continua compatível com `BK-MF0-03`.
 
 #### Metadados do BK (CANONICO/DERIVADO):
@@ -67,7 +72,7 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - Owner: `Izelicks` (CANONICO)
 - Apoio: `Bruna` (CANONICO)
 - Dependencias (BK IDs): `BK-MF0-03` (CANONICO)
-- Pre-condicoes: perfil criado e associado ao utilizador (DERIVADO)
+- Pre-condicoes: perfil criado e associado ao utilizador; upload real bloqueado até existir consentimento, armazenamento seguro e acesso limitado (DERIVADO)
 - Ref. Plano: `RF04`, `Fase 1`, `S01-S02`, `Core` (CANONICO)
 - Flow ID: `FLOW-PROFILE-EDIT` (DERIVADO)
 - Fonte de verdade: `docs/RF.md` -> `RF04` (CANONICO)
@@ -78,15 +83,15 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 #### O que vamos fazer neste BK (DERIVADO):
 
 - Estado esperado antes do BK: `Profile` existe e pertence ao utilizador.
-- Estado esperado depois do BK: o cliente pode editar dados e fotografia de perfil sem criar duplicados.
+- Estado esperado depois do BK: o cliente pode editar dados e, no máximo, associar fotografia por URL/stub controlado se o upload seguro ainda não existir.
 - Ficheiros a criar: `server/src/validators/profile-photo.validator.js`, `client/src/pages/EditProfilePage.jsx`.
 - Ficheiros a editar: `server/src/routes/profile.routes.js`, `server/src/controllers/profile.controller.js`, `server/src/services/profile.service.js`, `server/src/models/profile.model.js`, `client/src/App.jsx`.
 - Dependencias de BK anteriores: `BK-MF0-03` define campos e relação `userId`.
 - Impacto na arquitetura: adiciona update parcial ao módulo `profile`.
 - Impacto em frontend: formulário de edição com valores iniciais.
 - Impacto em backend: controller usa `req.user.id` e não aceita editar `userId`.
-- Impacto em dados: pode acrescentar `profilePhotoUrl` ou `profilePhotoMeta`.
-- Impacto em segurança: valida tipo/tamanho de ficheiro e bloqueia edição alheia.
+- Impacto em dados: pode acrescentar `profilePhotoUrl` e `profilePhotoMode`; `profilePhotoMeta` só entra se upload real estiver aprovado.
+- Impacto em segurança: valida tipo/tamanho de ficheiro, exige consentimento para upload real, limita acesso ao dono/admin autorizado e bloqueia edição alheia.
 - Impacto em testes: P1 exige unit/integration e 2 negativos.
 - Handoff para o próximo BK: `BK-MF0-05` pode usar perfil e conta para distinguir permissões.
 
@@ -94,7 +99,7 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 
 - `docs/RF.md`: `RF04`.
 - Guia `BK-MF0-03`: modelo `Profile`.
-- `docs/RNF.md`: `RNF03`, `RNF08`, `RNF11` como preocupações futuras.
+- `docs/RNF.md`: `RNF03`, `RNF08`, `RNF11`, `RNF12`, `RNF25`.
 - Mockup: não existe nesta execução.
 
 #### Glossario (rapido) (DERIVADO):
@@ -106,26 +111,28 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - `Multer`: middleware Express comum para receber uploads.
 - `MIME type`: tipo declarado do ficheiro, como `image/jpeg`.
 - `Avatar`: fotografia de perfil, diferente de imagem biométrica para análise.
+- `Consentimento explícito`: confirmação clara do utilizador antes de recolher/processar imagem sensível.
+- `Stub`: simulação controlada que prova o fluxo sem fazer upload real.
 
 #### Conceitos teoricos essenciais (DERIVADO):
 
 Atualizar dados é diferente de criar dados. Na criação, a app rejeita duplicados; na edição, a app procura o perfil existente e altera apenas campos permitidos. Campos como `userId`, `role` e identificadores internos nunca devem vir do frontend.
 
-Uma fotografia de perfil pode parecer simples, mas continua a exigir validação. O backend deve limitar formato e tamanho para evitar ficheiros perigosos ou demasiado grandes. Nesta fase, a fotografia não é usada para análise facial nem relatório, reduzindo risco de privacidade.
+Uma fotografia de perfil pode parecer simples, mas continua a exigir validação. Se a imagem permitir identificar o rosto, deve ser tratada com cuidado de privacidade: consentimento explícito, armazenamento seguro, acesso limitado e política clara de retenção. Sem estes elementos, o BK deve usar URL/stub controlado em vez de upload real.
 
-Usar `PATCH` para fotografia separa a atualização de imagem da atualização textual. Isso torna o fluxo mais claro e evita misturar erros de ficheiro com erros de campos de perfil.
+Usar `PATCH` para fotografia separa a atualização de imagem da atualização textual. Isso torna o fluxo mais claro e evita misturar erros de ficheiro com erros de campos de perfil. Se o modo for stub, o endpoint deve guardar apenas metadados seguros, por exemplo `{ profilePhotoMode: 'stub_url', profilePhotoUrl }`.
 
 #### Guia de execucao (passo-a-passo) (DERIVADO):
 
 0. **Objetivo (~15 min): separar fotografia de perfil de fotografia biométrica**
-   - Descricao detalhada do objetivo: documentar que este BK não processa imagens de análise facial.
-   - Justificacao: imagens biométricas exigem consentimento e regras próprias em fases futuras.
-   - Como fazer (0.1): nomear o campo como `profilePhotoUrl` ou `avatarUrl`.
-   - Como fazer (0.2): evitar nomes como `analysisPhoto` neste BK.
+   - Descricao detalhada do objetivo: documentar que este BK não processa imagens de análise facial e que upload real fica bloqueado sem consentimento/armazenamento seguro.
+   - Justificacao: imagens faciais podem ser dados sensíveis e não podem ser tratadas como simples ficheiros decorativos.
+   - Como fazer (0.1): nomear o campo como `profilePhotoUrl` ou `avatarUrl` e adicionar `profilePhotoMode`.
+   - Como fazer (0.2): usar `profilePhotoMode: 'stub_url'` quando não houver upload real aprovado; evitar nomes como `analysisPhoto`.
    - Ficheiro a rever: `docs/RF.md`.
    - Ficheiro alvo: `server/src/models/profile.model.js`.
-   - Snippet de referencia: `profilePhotoUrl: { type: String, default: null }`.
-   - O que verificar: `RF13` não foi implementado aqui.
+   - Snippet de referencia: `profilePhotoMode: { type: String, enum: ['stub_url', 'secure_upload'], default: 'stub_url' }`.
+   - O que verificar: `RF13` não foi implementado aqui e não há upload real sem consentimento.
 
 1. **Objetivo (~25 min): preparar atualização do Profile**
    - Descricao detalhada do objetivo: permitir alterar campos de `RF03`.
@@ -157,15 +164,15 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
    - Snippet de referencia: `router.put('/me', requireAuth, updateMyProfileController);`.
    - O que verificar: não há rota `PUT /api/profile/:userId` para clientes.
 
-4. **Objetivo (~30 min): criar atualização de fotografia**
-   - Descricao detalhada do objetivo: permitir trocar avatar/foto de perfil simples.
-   - Justificacao: cumpre `RF04` sem antecipar análise facial.
-   - Como fazer (4.1): validar MIME `image/jpeg`, `image/png` ou `image/webp`.
-   - Como fazer (4.2): definir limite de tamanho e guardar apenas path/URL controlado.
+4. **Objetivo (~30 min): criar atualização de fotografia em modo seguro**
+   - Descricao detalhada do objetivo: permitir trocar avatar/foto de perfil apenas no modo que a infraestrutura suporta.
+   - Justificacao: cumpre `RF04` sem antecipar análise facial nem recolher ficheiros sensíveis de forma insegura.
+   - Como fazer (4.1): se não existir consentimento + storage seguro + controlo de acesso, guardar só URL/stub controlado e bloquear ficheiro real.
+   - Como fazer (4.2): se upload real estiver aprovado, validar MIME `image/jpeg`, `image/png` ou `image/webp`, limite de tamanho, consentimento e acesso restrito.
    - Ficheiro a rever: `docs/RNF.md`.
    - Ficheiro alvo: `server/src/validators/profile-photo.validator.js`.
-   - Snippet de referencia: `if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) throw new AppError(400, 'Formato inválido');`.
-   - O que verificar: ficheiro `.exe` renomeado é rejeitado pelo tipo validado.
+   - Snippet de referencia: `if (!consentAccepted && mode === 'secure_upload') throw new AppError(403, 'Consentimento obrigatório');`.
+   - O que verificar: ficheiro real é bloqueado quando o modo seguro não está disponível.
 
 5. **Objetivo (~45 min): criar UI de edição e evidence**
    - Descricao detalhada do objetivo: permitir editar perfil e foto com feedback.
@@ -181,7 +188,8 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
 
 - Smoke: editar `nome` e `objetivos` de um perfil existente; esperar `200`.
 - Negativo 1: passo 3; pedido sem sessão; resultado esperado `401`; risco que cobre: edição anónima.
-- Negativo 2: passo 4; upload com tipo/tamanho inválido; resultado esperado `400`; risco que cobre: ficheiro perigoso ou pesado.
+- Negativo 2: passo 4; upload real sem consentimento ou sem storage seguro; resultado esperado `403` ou `BLOCKER`; risco que cobre: recolha insegura de imagem sensível.
+- Negativo 3: passo 4; ficheiro com tipo/tamanho inválido quando upload seguro estiver aprovado; resultado esperado `400`; risco que cobre: ficheiro perigoso ou pesado.
 - Tecnico: rota usa `/me` e `req.user.id`.
 - Regressao das fases anteriores: criação de perfil continua a impedir duplicados.
 - UI/mockup: sem mockup; manter formulário simples com feedback imediato.
@@ -189,9 +197,9 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
 
 #### Criterios de aceite:
 
-- Outputs: `PUT /api/profile/me`, validação parcial, UI de edição e atualização de fotografia simples.
-- Verificacoes: edição válida `200`, sem sessão `401`, ficheiro inválido `400`.
-- Qualidade: não implementa análise facial fora de fase.
+- Outputs: `PUT /api/profile/me`, validação parcial, UI de edição e fotografia em modo `stub_url` ou upload seguro aprovado.
+- Verificacoes: edição válida `200`, sem sessão `401`, upload real sem consentimento/storage seguro bloqueado, ficheiro inválido `400` quando aplicável.
+- Qualidade: não implementa análise facial fora de fase e não finge upload real quando só existe stub.
 - Continuidade: `BK-MF0-05` mantém roles fora do perfil e dentro de `User`.
 - Evidencia: prova de antes/depois do perfil e negativos documentados.
 - Cenarios negativos concluidos: minimo `2` com resultado controlado.
@@ -205,13 +213,13 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
 - `files`: `server/src/services/profile.service.js`, `server/src/routes/profile.routes.js`, `client/src/pages/EditProfilePage.jsx`
 - `commands`: `curl -X PUT /api/profile/me`, `npm test`
 - `screenshots`: perfil antes/depois da edição
-- `notes`: fotografia é avatar/perfil; análise facial fica fora
+- `notes`: fotografia é avatar/perfil; análise facial fica fora; indicar se foi usado `stub_url` ou `secure_upload`
 
 #### TODOs
 
 - TODO: confirmar limite final de tamanho para fotografia de perfil.
 - TODO: confirmar armazenamento local vs serviço externo em fase posterior.
-- TODO (BLOCKER): se upload real não estiver preparado, guardar apenas URL controlado e documentar.
+- TODO (BLOCKER): se consentimento, storage seguro e controlo de acesso não estiverem preparados, guardar apenas URL/stub controlado e documentar.
 - FOLLOW-UP: `MF1` deve tratar fotografias biométricas com consentimento explícito.
 
 ## Contexto do BK
@@ -232,6 +240,7 @@ Permitir edição segura do perfil existente, sem duplicar dados e sem implement
 - Criar novo perfil em vez de atualizar.
 - Permitir editar `userId` ou `role`.
 - Tratar avatar como fotografia biométrica de análise.
+- Aceitar upload real sem consentimento explícito e armazenamento seguro.
 
 ### Check de compreensao
 - [ ] Sei distinguir avatar de fotografia para análise facial.
@@ -258,7 +267,8 @@ Permitir edição segura do perfil existente, sem duplicar dados e sem implement
 
 ### Cenarios negativos recomendados
 - Pedido sem sessão deve devolver `401`.
-- Fotografia com tipo/tamanho inválido deve devolver `400`.
+- Upload real sem consentimento/storage seguro deve ficar bloqueado.
+- Fotografia com tipo/tamanho inválido deve devolver `400` quando upload seguro estiver ativo.
 
 ### Validacao
 - [ ] Smoke: edição válida devolve `200`.
@@ -300,7 +310,7 @@ export function validarEvidenceBkMf004({ smokeOk, negativos, attemptedRoleChange
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
-- `proof_negocio`: edição mantém perfil útil para personalização e análise futura.
+- `proof_negocio`: edição mantém perfil útil para personalização futura sem executar análise facial nesta fase.
 
 ## Proximo BK recomendado
 `BK-MF0-05`
@@ -308,3 +318,4 @@ export function validarEvidenceBkMf004({ smokeOk, negativos, attemptedRoleChange
 ## Changelog
 - `2026-04-14`: guia normalizado para contrato canonico comum.
 - `2026-05-25`: guia refinado para edição segura de perfil e foto não analítica.
+- `2026-05-25`: reforçada regra de consentimento, storage seguro e stub obrigatório quando upload real não existir.

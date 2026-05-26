@@ -37,7 +37,7 @@ Esta fase foi detalhada sem mockup de UI. Por isso, a interface deve ser simples
 
 ##### O que entra (scope)
 
-- Estrutura base `server/` e `client/` para uma app Node.js + Express + React.
+- Estrutura base `apps/api/` e `apps/web/` para uma app Node.js + Express + React.
 - Modelo MongoDB/Mongoose `User`.
 - Endpoint `POST /api/auth/register`.
 - Validação de email e password no backend.
@@ -81,7 +81,7 @@ Esta fase foi detalhada sem mockup de UI. Por isso, a interface deve ser simples
 
 - Estado esperado antes do BK: não existe código de app; existem apenas documentos de planificação.
 - Estado esperado depois do BK: backend e frontend mínimos existem, o utilizador consegue criar conta e a password fica protegida com hash.
-- Ficheiros a criar: `server/package.json`, `server/src/app.js`, `server/src/server.js`, `server/src/config/env.js`, `server/src/config/db.js`, `server/src/models/user.model.js`, `server/src/routes/auth.routes.js`, `server/src/controllers/auth.controller.js`, `server/src/services/auth.service.js`, `server/src/validators/auth.validator.js`, `server/src/middlewares/error.middleware.js`, `client/package.json`, `client/src/main.jsx`, `client/src/App.jsx`, `client/src/pages/RegisterPage.jsx`, `client/src/services/apiClient.js`.
+- Ficheiros a criar: `apps/api/package.json`, `apps/api/src/app.js`, `apps/api/src/server.js`, `apps/api/src/config/env.js`, `apps/api/src/config/db.js`, `apps/api/src/models/user.model.js`, `apps/api/src/routes/auth.routes.js`, `apps/api/src/controllers/auth.controller.js`, `apps/api/src/services/auth.service.js`, `apps/api/src/validators/auth.validator.js`, `apps/api/src/middlewares/error.middleware.js`, `apps/web/package.json`, `apps/web/src/main.jsx`, `apps/web/src/App.jsx`, `apps/web/src/pages/RegisterPage.jsx`, `apps/web/src/services/apiClient.js`.
 - Ficheiros a rever: `README.md`, `docs/RF.md`, `docs/RNF.md`, `docs/planificacao/backlogs/BACKLOG-MVP.md`, `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
 - Dependencias de BK anteriores: nenhuma dependência canónica; este BK cria contratos iniciais.
 - Impacto na arquitetura: introduz separação backend/frontend e padrão `routes -> controller -> service -> model`.
@@ -128,30 +128,31 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
 0. **Objetivo (~20 min): confirmar contrato e preparar estrutura**
    - Descricao detalhada do objetivo: confirmar que o BK implementa apenas `RF01` e criar a estrutura inicial da app.
    - Justificacao: como não há código, a estrutura criada aqui condiciona todos os BKs seguintes.
-   - Como fazer (0.1): criar pastas `server/src` e `client/src`.
+   - Como fazer (0.0): criar a estrutura inicial do projeto com duas áreas principais: `apps/api` para o backend/API e `apps/web` para o frontend. Esta separação ajuda a manter claro o que corre no servidor e o que pertence à interface do utilizador.
+   - Como fazer (0.1): criar pastas `apps/api/src` e `apps/web/src`.
    - Como fazer (0.2): criar `package.json` separados para backend e frontend, usando ES Modules.
    - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/package.json`, `client/package.json`.
+   - Ficheiro alvo: `apps/api/package.json`, `apps/web/package.json`.
    - Snippet de referencia: `"type": "module"`.
    - O que verificar: os comandos `npm run dev` estão definidos, mesmo que só sejam usados depois.
 
 1. **Objetivo (~25 min): criar a app Express base**
    - Descricao detalhada do objetivo: iniciar o backend com Express, JSON parser e middleware de erro.
    - Justificacao: todos os endpoints futuros precisam de uma entrada comum e previsível.
-   - Como fazer (1.1): criar `server/src/app.js` com `express.json()` e rota `/api/health`.
-   - Como fazer (1.2): criar `server/src/server.js` para arrancar a porta a partir do ambiente.
+   - Como fazer (1.1): criar `apps/api/src/app.js` com `express.json()` e rota `/api/health`.
+   - Como fazer (1.2): criar `apps/api/src/server.js` para arrancar a porta a partir do ambiente.
    - Ficheiro a rever: `docs/RNF.md`.
-   - Ficheiro alvo: `server/src/app.js`.
+   - Ficheiro alvo: `apps/api/src/app.js`.
    - Snippet de referencia: `app.use('/api/auth', authRoutes);`.
    - O que verificar: `GET /api/health` responde `200`.
 
 2. **Objetivo (~25 min): configurar MongoDB e variáveis de ambiente**
    - Descricao detalhada do objetivo: centralizar configuração de `PORT`, `MONGODB_URI` e ambiente.
    - Justificacao: strings de ligação e segredos não devem ficar espalhados no código.
-   - Como fazer (2.1): criar `server/src/config/env.js` com leitura de `process.env`.
-   - Como fazer (2.2): criar `server/src/config/db.js` com função `connectDB`.
+   - Como fazer (2.1): criar `apps/api/src/config/env.js` com leitura de `process.env`.
+   - Como fazer (2.2): criar `apps/api/src/config/db.js` com função `connectDB`.
    - Ficheiro a rever: `docs/RNF.md`.
-   - Ficheiro alvo: `server/src/config/db.js`.
+   - Ficheiro alvo: `apps/api/src/config/db.js`.
    - Snippet de referencia: `await mongoose.connect(env.mongodbUri);`.
    - O que verificar: o backend falha com mensagem clara se `MONGODB_URI` não existir.
 
@@ -161,7 +162,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
    - Como fazer (3.1): criar `email` único, normalizado e obrigatório.
    - Como fazer (3.2): criar `passwordHash`, `role: 'cliente'` e `isActive: true`.
    - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/models/user.model.js`.
+   - Ficheiro alvo: `apps/api/src/models/user.model.js`.
    - Snippet de referencia: `email: { type: String, required: true, unique: true, lowercase: true, trim: true }`.
    - O que verificar: o schema não tem campo `password` persistido.
 
@@ -171,7 +172,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
    - Como fazer (4.1): criar `validateRegisterInput`.
    - Como fazer (4.2): exigir email válido e password com mínimo definido pela equipa, recomendado `8` caracteres.
    - Ficheiro a rever: `docs/RNF.md`.
-   - Ficheiro alvo: `server/src/validators/auth.validator.js`.
+   - Ficheiro alvo: `apps/api/src/validators/auth.validator.js`.
    - Snippet de referencia: `if (!email.includes('@')) errors.email = 'Email inválido';`.
    - O que verificar: pedido sem email ou password não chega ao model.
 
@@ -181,7 +182,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
    - Como fazer (5.1): usar `bcrypt.hash(password, 12)`.
    - Como fazer (5.2): devolver apenas campos seguros.
    - Ficheiro a rever: `docs/RNF.md`.
-   - Ficheiro alvo: `server/src/services/auth.service.js`.
+   - Ficheiro alvo: `apps/api/src/services/auth.service.js`.
    - Snippet de referencia: `const passwordHash = await bcrypt.hash(password, 12);`.
    - O que verificar: `passwordHash` existe na BD, mas não aparece na resposta.
 
@@ -191,7 +192,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
    - Como fazer (6.1): criar `auth.routes.js` com `router.post('/register', registerController)`.
    - Como fazer (6.2): no controller, responder `201` no sucesso, `400` nos inválidos e `409` em email duplicado.
    - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/controllers/auth.controller.js`.
+   - Ficheiro alvo: `apps/api/src/controllers/auth.controller.js`.
    - Snippet de referencia: `return res.status(201).json({ user });`.
    - O que verificar: os códigos HTTP são consistentes e documentados no PR.
 
@@ -201,7 +202,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
    - Como fazer (7.1): criar `RegisterPage.jsx` com estados `idle`, `loading`, `success`, `error`.
    - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
    - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
-   - Ficheiro alvo: `client/src/pages/RegisterPage.jsx`.
+   - Ficheiro alvo: `apps/web/src/pages/RegisterPage.jsx`.
    - Snippet de referencia: `await apiClient.post('/auth/register', { email, password });`.
    - O que verificar: sucesso e erros aparecem no ecrã sem expor dados sensíveis.
 
@@ -231,7 +232,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
 - `pr`: `A preencher no fecho do BK`
 - `proof`: `A preencher apos validacao`
 - `neg`: `A preencher apos testes negativos`
-- `files`: `server/src/models/user.model.js`, `server/src/routes/auth.routes.js`, `server/src/services/auth.service.js`, `client/src/pages/RegisterPage.jsx`
+- `files`: `apps/api/src/models/user.model.js`, `apps/api/src/routes/auth.routes.js`, `apps/api/src/services/auth.service.js`, `apps/web/src/pages/RegisterPage.jsx`
 - `commands`: `npm run dev`, `npm test`, `curl -X POST /api/auth/register`
 - `screenshots`: formulário de registo com sucesso e erro
 - `notes`: confirmar que não há mockup e que a UI é baseline

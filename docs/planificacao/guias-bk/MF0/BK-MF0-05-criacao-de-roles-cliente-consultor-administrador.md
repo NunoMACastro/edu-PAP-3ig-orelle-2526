@@ -328,7 +328,7 @@ export function validarEvidenceBkMf005({ smokeOk, negativos, testedRole }) {
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
-- `proof_negocio`: roles desbloqueiam catálogo admin, consultoria e gestão operacional.
+- `proof_negocio`: roles desbloqueiam catálogo admin e gestão operacional; revisão de recomendações fica para fases posteriores.
 
 ## Proximo BK recomendado
 `BK-MF0-06`

@@ -22,9 +22,9 @@
 
 ##### O que vamos fazer neste BK
 
-Neste BK vamos criar a área de preferências do cliente: marcas favoritas e, quando o catálogo existir, produtos favoritos. Como `BK-MF0-07` ainda vem a seguir, este BK deve preparar o contrato sem exigir que os produtos já existam.
+Neste BK vamos criar a área de preferências do cliente: marcas favoritas e contrato preparado para produtos favoritos. Como `BK-MF0-07` ainda vem a seguir, `favoriteProductIds` não deve ser tratado como funcionalidade final completa nesta fase.
 
-O backend terá endpoints `GET /api/preferences/me` e `PUT /api/preferences/me`. O frontend terá uma página simples para editar marcas favoritas e, no futuro, ligar produtos favoritos vindos do catálogo.
+O backend terá endpoints `GET /api/preferences/me` e `PUT /api/preferences/me`. O frontend terá uma página simples para editar marcas favoritas. Produtos favoritos só devem ficar ativos depois de existir catálogo e validação contra `Product` em `BK-MF0-07`.
 
 Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem definir identidade visual final.
 
@@ -39,7 +39,7 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 
 - Modelo `Preference` associado ao `User`.
 - Guardar `favoriteBrandNames`.
-- Preparar `favoriteProductIds` para quando `Product` existir.
+- Preparar `favoriteProductIds` como contrato técnico futuro, sem o apresentar como fluxo final enquanto `Product` não existir.
 - Endpoints `GET` e `PUT` de preferências do próprio utilizador.
 - UI simples de preferências.
 - Validação de listas e IDs.
@@ -55,7 +55,7 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 
 - Utilizador autenticado guarda e consulta marcas favoritas.
 - Lista demasiado grande ou valores vazios são rejeitados.
-- Produtos favoritos aceitam apenas IDs válidos quando o catálogo existir.
+- Produtos favoritos aceitam apenas IDs válidos depois de `BK-MF0-07`; antes disso, IDs de produto devem ficar vazios, desativados na UI ou rejeitados de forma controlada.
 - Outro utilizador não lê nem altera preferências alheias.
 - `BK-MF0-07` consegue ligar produtos a estas preferências sem mudar contrato.
 
@@ -79,7 +79,7 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 #### O que vamos fazer neste BK (DERIVADO):
 
 - Estado esperado antes do BK: `User` e `Profile` existem; catálogo pode ainda não existir.
-- Estado esperado depois do BK: preferências ficam persistidas e ligadas ao utilizador.
+- Estado esperado depois do BK: preferências de marcas ficam funcionais; produtos favoritos ficam apenas preparados como contrato para ligar ao catálogo depois de `BK-MF0-07`.
 - Ficheiros a criar: `server/src/models/preference.model.js`, `server/src/routes/preferences.routes.js`, `server/src/controllers/preferences.controller.js`, `server/src/services/preferences.service.js`, `server/src/validators/preferences.validator.js`, `client/src/pages/PreferencesPage.jsx`.
 - Ficheiros a editar: `server/src/app.js`, `client/src/App.jsx`, `client/src/services/apiClient.js`.
 - Dependencias de BK anteriores: `BK-MF0-03` garante que o utilizador tem contexto de perfil; `BK-MF0-02` fornece sessão se já executado.
@@ -89,7 +89,7 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 - Impacto em dados: cria coleção `preferences` com `userId` único.
 - Impacto em segurança: preferências são privadas por utilizador.
 - Impacto em testes: P1 exige unit/integration e 2 negativos.
-- Handoff para o próximo BK: `BK-MF0-07` cria `Product`, que poderá ser referenciado por `favoriteProductIds`.
+- Handoff para o próximo BK: `BK-MF0-07` cria `Product`; só depois disso `favoriteProductIds` pode ser validado contra catálogo real.
 
 #### Pre-leitura minima (10-15 min) (DERIVADO):
 
@@ -103,7 +103,7 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 - `Preferência`: escolha guardada pelo utilizador para personalizar a experiência.
 - `Upsert`: criar se não existir, atualizar se já existir.
 - `favoriteBrandNames`: lista de marcas favoritas por nome.
-- `favoriteProductIds`: lista de IDs de produtos favoritos, ativada quando catálogo existir.
+- `favoriteProductIds`: lista de IDs de produtos favoritos; nesta fase é contrato preparado, não fluxo final ativo.
 - `ObjectId`: identificador MongoDB.
 - `Chip`: pequeno item visual removível numa lista.
 - `Lista privada`: dados acessíveis apenas ao dono.
@@ -112,7 +112,7 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 
 Preferências não são o mesmo que perfil. O perfil descreve a pessoa e a pele; preferências descrevem escolhas de consumo, como marcas ou produtos favoritos. Separar estes módulos evita modelos demasiado grandes e facilita recomendações futuras.
 
-Como produtos ainda não existem neste ponto da sequência, o campo `favoriteProductIds` deve ser preparado, mas a UI pode começar por marcas favoritas. Isto evita bloquear `RF06` e mantém continuidade com `BK-MF0-07`.
+Como produtos ainda não existem neste ponto da sequência, o campo `favoriteProductIds` deve ser preparado, mas a UI deve começar por marcas favoritas. Se o backend receber IDs de produto antes de o catálogo estar integrado, deve rejeitar ou ignorar de forma explícita e documentada, nunca fingir que validou produtos inexistentes.
 
 Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema cria; se já tem, atualiza. O endpoint mantém o mesmo contrato para o frontend.
 
@@ -122,11 +122,11 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
    - Descricao detalhada do objetivo: separar marcas favoritas de produtos favoritos.
    - Justificacao: marcas podem existir antes do catálogo; produtos dependem de `BK-MF0-07`.
    - Como fazer (0.1): documentar `favoriteBrandNames`.
-   - Como fazer (0.2): preparar `favoriteProductIds` como array opcional.
+   - Como fazer (0.2): preparar `favoriteProductIds` como array opcional, inicialmente vazio e sem UI ativa.
    - Ficheiro a rever: `docs/RF.md`.
    - Ficheiro alvo: `server/src/models/preference.model.js`.
    - Snippet de referencia: `favoriteBrandNames: [{ type: String, trim: true }]`.
-   - O que verificar: não há dependência obrigatória de `Product`.
+   - O que verificar: não há dependência obrigatória de `Product` nem seleção de produto final antes de `BK-MF0-07`.
 
 1. **Objetivo (~25 min): criar modelo Preference**
    - Descricao detalhada do objetivo: guardar preferências por utilizador.
@@ -152,11 +152,11 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
    - Descricao detalhada do objetivo: criar ou atualizar preferências do utilizador.
    - Justificacao: o frontend não precisa saber se é primeira gravação.
    - Como fazer (3.1): usar `findOneAndUpdate` com `upsert: true`.
-   - Como fazer (3.2): filtrar IDs de produto se ainda não existir `Product`.
+   - Como fazer (3.2): se ainda não existir `Product`, manter `favoriteProductIds` vazio ou devolver erro controlado para IDs não vazios.
    - Ficheiro a rever: `server/src/models/preference.model.js`.
    - Ficheiro alvo: `server/src/services/preferences.service.js`.
    - Snippet de referencia: `await Preference.findOneAndUpdate({ userId }, payload, { upsert: true, new: true });`.
-   - O que verificar: segunda gravação atualiza o mesmo documento.
+   - O que verificar: segunda gravação atualiza o mesmo documento e não aceita produto inexistente como se fosse válido.
 
 4. **Objetivo (~30 min): criar endpoints protegidos**
    - Descricao detalhada do objetivo: expor consulta e gravação de preferências próprias.
@@ -183,6 +183,7 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
 - Smoke: guardar duas marcas favoritas e consultá-las em `/api/preferences/me`.
 - Negativo 1: passo 4; pedido sem sessão; resultado esperado `401`; risco que cobre: exposição de preferências.
 - Negativo 2: passo 2; lista com strings vazias ou excesso de itens; resultado esperado `400`; risco que cobre: dados inúteis ou abusivos.
+- Negativo 3: passo 3; enviar `favoriteProductIds` antes de `Product` existir; resultado esperado erro controlado ou lista vazia documentada; risco que cobre: simular funcionalidade final sem catálogo.
 - Tecnico: `Preference.userId` é único.
 - Regressao das fases anteriores: perfil e login continuam a funcionar.
 - UI/mockup: sem mockup; usar lista/chips simples.
@@ -192,7 +193,7 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
 
 - Outputs: modelo `Preference`, endpoints `/api/preferences/me`, página `PreferencesPage`.
 - Verificacoes: gravação válida `200`, consulta `200`, inválidos `400`, sem sessão `401`.
-- Qualidade: contrato suporta marcas agora e produtos quando `BK-MF0-07` existir.
+- Qualidade: marcas ficam funcionais agora; produtos favoritos ficam explicitamente preparados e só são ligados depois de `BK-MF0-07`.
 - Continuidade: `BK-MF0-07` pode usar `favoriteProductIds` sem mudar endpoints.
 - Evidencia: screenshots ou curl com guardar/consultar preferências e negativos.
 - Cenarios negativos concluidos: minimo `2` com resultado controlado.
@@ -206,14 +207,14 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
 - `files`: `server/src/models/preference.model.js`, `server/src/routes/preferences.routes.js`, `client/src/pages/PreferencesPage.jsx`
 - `commands`: `curl -X PUT /api/preferences/me`, `npm test`
 - `screenshots`: marcas favoritas guardadas
-- `notes`: produtos favoritos ficam preparados para depois do catálogo
+- `notes`: produtos favoritos ficam preparados para depois do catálogo; não demonstrar seleção real antes de `BK-MF0-07`
 
 #### TODOs
 
 - TODO: confirmar limite máximo de marcas/produtos favoritos.
 - TODO: confirmar se marcas devem virar entidade própria no futuro.
 - TODO (BLOCKER): se auth não estiver disponível, testar com user controlado e documentar limitação.
-- FOLLOW-UP: ligar `favoriteProductIds` ao catálogo em `BK-MF0-07`/`MF1`.
+- FOLLOW-UP: ligar `favoriteProductIds` ao catálogo apenas depois de `BK-MF0-07`, com validação real de `Product`.
 
 ## Contexto do BK
 - Entrega alvo: implementar `Cada utilizador pode guardar preferências de produtos e marcas favoritas` com rastreabilidade direta ao requisito `RF06`.
@@ -233,6 +234,7 @@ Criar preferências privadas por utilizador, preparando personalização por mar
 - Guardar preferências dentro de `Profile` sem separação.
 - Obrigar a produtos antes do catálogo existir.
 - Aceitar `userId` vindo do cliente.
+- Apresentar produtos favoritos como funcionalidade final quando só existe contrato preparado.
 
 ### Check de compreensao
 - [ ] Sei explicar upsert.
@@ -274,7 +276,7 @@ Criar preferências privadas por utilizador, preparando personalização por mar
 
 ### Handoff
 - Proximo BK recomendado: `BK-MF0-07`
-- O próximo BK deve criar `Product` para permitir favoritos por produto.
+- O próximo BK deve criar `Product`; só depois se pode ativar favoritos por produto com validação real.
 
 ## Snippet tecnico aplicavel
 ```js
@@ -301,7 +303,7 @@ export function validarEvidenceBkMf006({ smokeOk, negativos, preference }) {
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
-- `proof_negocio`: preferências melhoram personalização e recomendações futuras.
+- `proof_negocio`: preferências de marcas melhoram personalização futura; favoritos por produto ficam pendentes do catálogo.
 
 ## Proximo BK recomendado
 `BK-MF0-07`
@@ -309,3 +311,4 @@ export function validarEvidenceBkMf006({ smokeOk, negativos, preference }) {
 ## Changelog
 - `2026-04-14`: guia normalizado para contrato canonico comum.
 - `2026-05-25`: guia refinado para preferências de marcas/produtos.
+- `2026-05-25`: reforçado que `favoriteProductIds` é contrato preparado até existir catálogo em `BK-MF0-07`.
