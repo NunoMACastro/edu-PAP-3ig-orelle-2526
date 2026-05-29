@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db.js');
 const authRoutes = require('./routes/auth.routes.js');
 const app = express();
-
+app.use(cors());
 
 connectDB();
 
