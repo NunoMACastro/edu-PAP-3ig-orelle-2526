@@ -1,6 +1,7 @@
 # BK-MF0-08 - Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.)
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF0-08`
 - `bk_id`: `BK-MF0-08`
 - `macro`: `MF0`
@@ -120,84 +121,84 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
 #### Guia de execucao (passo-a-passo) (DERIVADO):
 
 0. **Objetivo (~15 min): confirmar categorias iniciais canónicas**
-   - Descricao detalhada do objetivo: usar exemplos do `RF08` como seed inicial.
-   - Justificacao: evita inventar taxonomia completa sem fonte.
-   - Como fazer (0.1): listar `limpeza`, `maquilhagem`, `tratamento`, `protetor-solar`.
-   - Como fazer (0.2): marcar outras categorias como futuras e dependentes de confirmação.
-   - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
-   - Snippet de referencia: `const INITIAL_CATEGORIES = ['limpeza', 'maquilhagem', 'tratamento', 'protetor-solar'];`.
-   - O que verificar: não há subcategorias inventadas.
+    - Descricao detalhada do objetivo: usar exemplos do `RF08` como seed inicial.
+    - Justificacao: evita inventar taxonomia completa sem fonte.
+    - Como fazer (0.1): listar `limpeza`, `maquilhagem`, `tratamento`, `protetor-solar`.
+    - Como fazer (0.2): marcar outras categorias como futuras e dependentes de confirmação.
+    - Ficheiro a rever: `docs/RF.md`.
+    - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
+    - Snippet de referencia: `const INITIAL_CATEGORIES = ['limpeza', 'maquilhagem', 'tratamento', 'protetor-solar'];`.
+    - O que verificar: não há subcategorias inventadas.
 
 1. **Objetivo (~25 min): criar modelo Category**
-   - Descricao detalhada do objetivo: persistir categorias com nome e slug únicos.
-   - Justificacao: filtros futuros precisam de valores estáveis.
-   - Como fazer (1.1): criar `name`, `slug`, `isActive`.
-   - Como fazer (1.2): aplicar índice único em `slug`.
-   - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/models/category.model.js`.
-   - Snippet de referencia: `slug: { type: String, required: true, unique: true, index: true }`.
-   - O que verificar: seed repetido não duplica categorias.
+    - Descricao detalhada do objetivo: persistir categorias com nome e slug únicos.
+    - Justificacao: filtros futuros precisam de valores estáveis.
+    - Como fazer (1.1): criar `name`, `slug`, `isActive`.
+    - Como fazer (1.2): aplicar índice único em `slug`.
+    - Ficheiro a rever: `docs/RF.md`.
+    - Ficheiro alvo: `server/src/models/category.model.js`.
+    - Snippet de referencia: `slug: { type: String, required: true, unique: true, index: true }`.
+    - O que verificar: seed repetido não duplica categorias.
 
 2. **Objetivo (~30 min): ligar Product a Category**
-   - Descricao detalhada do objetivo: acrescentar `categoryIds` ao produto.
-   - Justificacao: produto pode pertencer a mais do que uma categoria.
-   - Como fazer (2.1): adicionar array de ObjectIds no schema `Product`.
-   - Como fazer (2.2): não tornar obrigatório se existirem produtos antigos sem categoria.
-   - Ficheiro a rever: `server/src/models/product.model.js`.
-   - Ficheiro alvo: `server/src/models/product.model.js`.
-   - Snippet de referencia: `categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }]`.
-   - O que verificar: produto de `BK-MF0-07` continua válido.
+    - Descricao detalhada do objetivo: acrescentar `categoryIds` ao produto.
+    - Justificacao: produto pode pertencer a mais do que uma categoria.
+    - Como fazer (2.1): adicionar array de ObjectIds no schema `Product`.
+    - Como fazer (2.2): não tornar obrigatório se existirem produtos antigos sem categoria.
+    - Ficheiro a rever: `server/src/models/product.model.js`.
+    - Ficheiro alvo: `server/src/models/product.model.js`.
+    - Snippet de referencia: `categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }]`.
+    - O que verificar: produto de `BK-MF0-07` continua válido.
 
 3. **Objetivo (~30 min): criar services de categoria**
-   - Descricao detalhada do objetivo: listar/criar categorias e validar associações.
-   - Justificacao: regra de existência da categoria fica fora do controller.
-   - Como fazer (3.1): criar `listCategories` e `createCategory`.
-   - Como fazer (3.2): criar `assignCategoriesToProduct(productId, categoryIds)`.
-   - Ficheiro a rever: `server/src/models/category.model.js`.
-   - Ficheiro alvo: `server/src/services/category.service.js`.
-   - Snippet de referencia: `const found = await Category.countDocuments({ _id: { $in: categoryIds } });`.
-   - O que verificar: todos os IDs enviados existem.
+    - Descricao detalhada do objetivo: listar/criar categorias e validar associações.
+    - Justificacao: regra de existência da categoria fica fora do controller.
+    - Como fazer (3.1): criar `listCategories` e `createCategory`.
+    - Como fazer (3.2): criar `assignCategoriesToProduct(productId, categoryIds)`.
+    - Ficheiro a rever: `server/src/models/category.model.js`.
+    - Ficheiro alvo: `server/src/services/category.service.js`.
+    - Snippet de referencia: `const found = await Category.countDocuments({ _id: { $in: categoryIds } });`.
+    - O que verificar: todos os IDs enviados existem.
 
 4. **Objetivo (~30 min): criar rotas admin**
-   - Descricao detalhada do objetivo: expor gestão mínima de categorias.
-   - Justificacao: categorias alteram catálogo e devem ser protegidas.
-   - Como fazer (4.1): criar `GET /api/admin/categories` e `POST /api/admin/categories`.
-   - Como fazer (4.2): criar `PATCH /api/admin/products/:id/categories`.
-   - Ficheiro a rever: `server/src/routes/admin-products.routes.js`.
-   - Ficheiro alvo: `server/src/routes/admin-categories.routes.js`.
-   - Snippet de referencia: `router.patch('/products/:id/categories', requireAuth, requireRole(ROLES.ADMIN), assignCategoriesController);`.
-   - O que verificar: cliente recebe `403`.
+    - Descricao detalhada do objetivo: expor gestão mínima de categorias.
+    - Justificacao: categorias alteram catálogo e devem ser protegidas.
+    - Como fazer (4.1): criar `GET /api/admin/categories` e `POST /api/admin/categories`.
+    - Como fazer (4.2): criar `PATCH /api/admin/products/:id/categories`.
+    - Ficheiro a rever: `server/src/routes/admin-products.routes.js`.
+    - Ficheiro alvo: `server/src/routes/admin-categories.routes.js`.
+    - Snippet de referencia: `router.patch('/products/:id/categories', requireAuth, requireRole(ROLES.ADMIN), assignCategoriesController);`.
+    - O que verificar: cliente recebe `403`.
 
 5. **Objetivo (~30 min): criar seed de categorias**
-   - Descricao detalhada do objetivo: garantir dados base para testar filtros futuros.
-   - Justificacao: sem categorias iniciais, `MF1` não consegue pesquisar por categoria.
-   - Como fazer (5.1): criar script idempotente.
-   - Como fazer (5.2): não apagar categorias existentes.
-   - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
-   - Snippet de referencia: `await Category.updateOne({ slug }, { $setOnInsert: data }, { upsert: true });`.
-   - O que verificar: correr seed duas vezes mantém 4 categorias iniciais, não 8.
+    - Descricao detalhada do objetivo: garantir dados base para testar filtros futuros.
+    - Justificacao: sem categorias iniciais, `MF1` não consegue pesquisar por categoria.
+    - Como fazer (5.1): criar script idempotente.
+    - Como fazer (5.2): não apagar categorias existentes.
+    - Ficheiro a rever: `docs/RF.md`.
+    - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
+    - Snippet de referencia: `await Category.updateOne({ slug }, { $setOnInsert: data }, { upsert: true });`.
+    - O que verificar: correr seed duas vezes mantém 4 categorias iniciais, não 8.
 
 6. **Objetivo (~35 min): criar UI admin de categorias**
-   - Descricao detalhada do objetivo: listar categorias e associar a produto.
-   - Justificacao: demonstra visualmente a organização do catálogo.
-   - Como fazer (6.1): criar ecrã simples com lista de categorias.
-   - Como fazer (6.2): em produto, usar checkboxes ou select múltiplo.
-   - Ficheiro a rever: `client/src/pages/AdminProductCreatePage.jsx`.
-   - Ficheiro alvo: `client/src/pages/AdminCategoriesPage.jsx`.
-   - Snippet de referencia: `await apiClient.patch(\`/admin/products/${productId}/categories\`, { categoryIds });`.
-   - O que verificar: UI mostra erro quando categoria inválida é rejeitada.
+    - Descricao detalhada do objetivo: listar categorias e associar a produto.
+    - Justificacao: demonstra visualmente a organização do catálogo.
+    - Como fazer (6.1): criar ecrã simples com lista de categorias.
+    - Como fazer (6.2): em produto, usar checkboxes ou select múltiplo.
+    - Ficheiro a rever: `client/src/pages/AdminProductCreatePage.jsx`.
+    - Ficheiro alvo: `client/src/pages/AdminCategoriesPage.jsx`.
+    - Snippet de referencia: `await apiClient.patch(\`/admin/products/${productId}/categories\`, { categoryIds });`.
+    - O que verificar: UI mostra erro quando categoria inválida é rejeitada.
 
 7. **Objetivo (~45 min): validar handoff para MF1**
-   - Descricao detalhada do objetivo: provar que produto categorizado está pronto para filtros.
-   - Justificacao: este é o último BK da `MF0` e entrega contrato para `BK-MF1-01`.
-   - Como fazer (7.1): criar produto e associar categoria.
-   - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
-   - Ficheiro a rever: `docs/planificacao/backlogs/MF-VIEWS.md`.
-   - Ficheiro alvo: `server/tests/categories.test.js`.
-   - Snippet de referencia: `expect(product.categoryIds).toHaveLength(1);`.
-   - O que verificar: evidence inclui produto categorizado e contrato para pesquisa.
+    - Descricao detalhada do objetivo: provar que produto categorizado está pronto para filtros.
+    - Justificacao: este é o último BK da `MF0` e entrega contrato para `BK-MF1-01`.
+    - Como fazer (7.1): criar produto e associar categoria.
+    - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
+    - Ficheiro a rever: `docs/planificacao/backlogs/MF-VIEWS.md`.
+    - Ficheiro alvo: `server/tests/categories.test.js`.
+    - Snippet de referencia: `expect(product.categoryIds).toHaveLength(1);`.
+    - O que verificar: evidence inclui produto categorizado e contrato para pesquisa.
 
 #### Checklist de validacao (DERIVADO):
 
@@ -238,40 +239,50 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
 - FOLLOW-UP: `BK-MF1-01` deve usar `categoryIds`, `priceCents`, `tipoDePeleIndicado` e `brandName` para filtros.
 
 ## Contexto do BK
+
 - Entrega alvo: implementar `Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.)` com rastreabilidade direta ao requisito `RF08`.
 - Foco tecnico da macro: `Fundamentos e governance`.
 - Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
 
 ## Bloco pedagogico
+
 ### Objetivo
+
 Criar categorias controladas e associá-las aos produtos para preparar filtros da fase seguinte.
 
 ### Pre-requisitos
+
 - Rever `RF08`.
 - Ter `Product` de `BK-MF0-07`.
 - Ter autorização admin para operações de catálogo.
 
 ### Erros comuns
+
 - Guardar categoria como texto livre no produto.
 - Criar taxonomia completa sem fonte nos RF.
 - Implementar pesquisa de `MF1` neste BK.
 
 ### Check de compreensao
+
 - [ ] Sei explicar por que usar `Category` com `slug`.
 - [ ] Sei provar que seed é idempotente.
 - [ ] Sei explicar o handoff para `BK-MF1-01`.
 
 ### Tempo estimado
+
 - `M`: 2 a 4 horas.
 
 ## Bloco operacional
+
 ### Entrada
+
 - BK: `BK-MF0-08`
 - Requisito: `RF08`
 - Dependencias: `BK-MF0-07`
 - Artefactos: `RF.md`, `BACKLOG-MVP.md`, `MATRIZ-CANONICA-BK.md`
 
 ### Passos
+
 1. Confirmar categorias iniciais do RF.
 2. Criar modelo `Category`.
 3. Ligar `Product` a `Category`.
@@ -282,22 +293,26 @@ Criar categorias controladas e associá-las aos produtos para preparar filtros d
 8. Executar cenarios negativos obrigatorios (minimo 3) e registar evidência.
 
 ### Cenarios negativos recomendados
+
 - Categoria inexistente deve devolver `400`.
 - Cliente em rota admin deve devolver `403`.
 - Produto inexistente deve devolver `404`.
 
 ### Validacao
+
 - [ ] Smoke: produto fica associado a categoria válida.
 - [ ] Negativos: minimo `3` cenarios com resultado controlado.
 - [ ] Tecnico: seed não duplica categorias.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
 
 ### Matriz minima de testes por prioridade
+
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
 
 ### Handoff
+
 - Proximo BK recomendado: `BK-MF1-01`
 - A próxima fase deve reutilizar `categoryIds` para pesquisa e filtragem.
 
@@ -308,6 +323,7 @@ O codigo aplicavel deste BK-MF0-08 ja nao fica como anexo isolado. Para cumprir 
 Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma funcao sem perceber ficheiro, imports, validacao, erro esperado e handoff. Por isso, o codigo foi integrado nos passos onde e usado.
 
 ## Criterios de aceite
+
 - Entrega funcional especifica de `Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.)` validada contra `RF08`.
 - Cenarios negativos concluidos: minimo `3` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P0`).
@@ -315,12 +331,14 @@ Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia cop
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
+
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
 - `proof_negocio`: categorias desbloqueiam pesquisa, filtros e navegação de catálogo.
 
 ## Proximo BK recomendado
+
 `BK-MF1-01`
 
 ## Tutorial linear de implementacao
@@ -329,10 +347,10 @@ Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia cop
 
 1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos nao podem ser quebrados.
 2. Ficheiros envolvidos:
-   - CRIAR: nenhum ficheiro de aplicacao neste passo.
-   - EDITAR: este guia BK, apenas para orientar a implementacao.
-   - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
-   - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
+    - CRIAR: nenhum ficheiro de aplicacao neste passo.
+    - EDITAR: este guia BK, apenas para orientar a implementacao.
+    - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
+    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
 3. O que fazer: ler e respeitar as decisoes abaixo antes de implementar.
 4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; o codigo aparece nos passos seguintes, junto do ficheiro onde e usado.
 5. Explicacao didatica e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; so depois se escreve codigo.
@@ -349,8 +367,8 @@ Categorias iniciais canonicas para seed:
 - `tratamento`
 - `protetor-solar`
 
-
 **Scope-in deste passo:**
+
 - Criar modelo `Category`.
 - Criar seed de categorias iniciais.
 - Criar endpoint admin para criar categoria.
@@ -358,8 +376,8 @@ Categorias iniciais canonicas para seed:
 - Validar que todas as categorias existem antes de associar.
 - Preparar contrato para filtros de `BK-MF1-01`.
 
-
 **Scope-out deste passo:**
+
 - Pesquisa por categoria fica para `BK-MF1-01`.
 - Detalhe publico de produto fica para `BK-MF1-02`.
 - Recomendacoes, simulacao, carrinho e pagamentos ficam fora deste BK.
@@ -368,27 +386,28 @@ Categorias iniciais canonicas para seed:
 
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever codigo, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
-   - CRIAR:
-     - `server/src/models/category.model.js`
-     - `server/src/validators/category.validator.js`
-     - `server/src/services/category.service.js`
-     - `server/src/controllers/admin-categories.controller.js`
-     - `server/src/routes/admin-categories.routes.js`
-     - `server/src/scripts/seed-categories.js`
-     - `server/tests/categories.test.js`
-     - `client/src/pages/AdminCategoriesPage.jsx`
+    - CRIAR:
+        - `server/src/models/category.model.js`
+        - `server/src/validators/category.validator.js`
+        - `server/src/services/category.service.js`
+        - `server/src/controllers/admin-categories.controller.js`
+        - `server/src/routes/admin-categories.routes.js`
+        - `server/src/scripts/seed-categories.js`
+        - `server/tests/categories.test.js`
+        - `client/src/pages/AdminCategoriesPage.jsx`
 
-   - EDITAR:
-     - `server/src/models/product.model.js`
-     - `server/src/app.js`
-     - `client/src/App.jsx`
+    - EDITAR:
+        - `server/src/models/product.model.js`
+        - `server/src/app.js`
+        - `client/src/App.jsx`
 
-   - REVER:
-     - `server/src/models/product.model.js`, criado no `BK-MF0-07`.
-     - `server/src/middlewares/role.middleware.js`.
-     - `docs/RF.md`, requisito `RF08`.
-     - `docs/planificacao/guias-bk/MF1/BK-MF1-01-permitir-pesquisa-e-filtragem-por-categoria-preco-tipo-de-pele-marca.md`.
-   - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+    - REVER:
+        - `server/src/models/product.model.js`, criado no `BK-MF0-07`.
+        - `server/src/middlewares/role.middleware.js`.
+        - `docs/RF.md`, requisito `RF08`.
+        - `docs/planificacao/guias-bk/MF1/BK-MF1-01-permitir-pesquisa-e-filtragem-por-categoria-preco-tipo-de-pele-marca.md`.
+    - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+
 3. O que fazer: criar ou editar estes ficheiros pela ordem dos passos seguintes.
 4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; ele prepara a lista para os passos de implementacao.
 5. Explicacao didatica e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
@@ -399,64 +418,62 @@ Categorias iniciais canonicas para seed:
 
 1. Objetivo simples do passo: escrever cada ficheiro no local certo, mantendo o contrato com os BKs anteriores e seguintes.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
-   - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
-   - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
+    - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
+    - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
+    - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
 3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de codigo deve ser colocado no ficheiro indicado.
 4. Codigo completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde sao usados.
 5. Explicacao didatica e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, sao validados, passam pelo service e chegam ao frontend.
 6. Como validar: apos cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
 7. Erro comum ou cenario negativo: copiar apenas parte do codigo deixa o tutorial incoerente e quebra os passos posteriores.
 
-
 ### Passo 4 - Criar ou editar `server/src/models/category.model.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/models/category.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/models/category.model.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/models/category.model.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/models/category.model.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/models/category.model.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/models/category.model.js`.
 
 ```js
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
 
 const categorySchema = new Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 80
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: 80,
+        },
+        slug: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true,
+            index: true,
+        },
+        description: {
+            type: String,
+            default: "",
+            trim: true,
+            maxlength: 300,
+        },
     },
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-      index: true
-    },
-    description: {
-      type: String,
-      default: '',
-      trim: true,
-      maxlength: 300
-    }
-  },
-  { timestamps: true }
+    { timestamps: true },
 );
 
-export const Category = model('Category', categorySchema);
+export const Category = model("Category", categorySchema);
 ```
 
-5. Explicacao didatica e detalhada do codigo: `slug` e o identificador estavel usado em URLs e filtros. Exemplo: "Protetor Solar" vira `protetor-solar`.
+5. Explicacao do codigo: `slug` e o identificador estavel usado em URLs e filtros. Exemplo: "Protetor Solar" vira `protetor-solar`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -464,72 +481,73 @@ export const Category = model('Category', categorySchema);
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/category.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/validators/category.validator.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/validators/category.validator.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/validators/category.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/validators/category.validator.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/validators/category.validator.js`.
 
 ```js
-import mongoose from 'mongoose';
-import { AppError } from '../middlewares/error.middleware.js';
+import mongoose from "mongoose";
+import { AppError } from "../middlewares/error.middleware.js";
 
 export function slugify(value) {
-  return String(value ?? '')
-    .trim()
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    return String(value ?? "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
 }
 
 export function validateCategoryInput(body) {
-  const name = String(body.name ?? '').trim();
-  const slug = slugify(body.slug ?? name);
-  const description = String(body.description ?? '').trim();
-  const errors = {};
+    const name = String(body.name ?? "").trim();
+    const slug = slugify(body.slug ?? name);
+    const description = String(body.description ?? "").trim();
+    const errors = {};
 
-  if (name.length < 2 || name.length > 80) {
-    errors.name = 'Nome da categoria deve ter entre 2 e 80 caracteres';
-  }
+    if (name.length < 2 || name.length > 80) {
+        errors.name = "Nome da categoria deve ter entre 2 e 80 caracteres";
+    }
 
-  if (slug.length < 2) {
-    errors.slug = 'Slug da categoria invalido';
-  }
+    if (slug.length < 2) {
+        errors.slug = "Slug da categoria invalido";
+    }
 
-  if (description.length > 300) {
-    errors.description = 'Descricao deve ter no maximo 300 caracteres';
-  }
+    if (description.length > 300) {
+        errors.description = "Descricao deve ter no maximo 300 caracteres";
+    }
 
-  if (Object.keys(errors).length > 0) {
-    throw new AppError(400, 'Categoria invalida', errors);
-  }
+    if (Object.keys(errors).length > 0) {
+        throw new AppError(400, "Categoria invalida", errors);
+    }
 
-  return { name, slug, description };
+    return { name, slug, description };
 }
 
 export function validateCategoryIds(body) {
-  const categoryIds = Array.isArray(body.categoryIds) ? body.categoryIds : [];
+    const categoryIds = Array.isArray(body.categoryIds) ? body.categoryIds : [];
 
-  if (categoryIds.length === 0) {
-    throw new AppError(400, 'Indica pelo menos uma categoria');
-  }
+    if (categoryIds.length === 0) {
+        throw new AppError(400, "Indica pelo menos uma categoria");
+    }
 
-  const invalid = categoryIds.filter((id) => !mongoose.isValidObjectId(id));
+    const invalid = categoryIds.filter((id) => !mongoose.isValidObjectId(id));
 
-  if (invalid.length > 0) {
-    throw new AppError(400, 'categoryIds contem IDs invalidos', { invalid });
-  }
+    if (invalid.length > 0) {
+        throw new AppError(400, "categoryIds contem IDs invalidos", {
+            invalid,
+        });
+    }
 
-  return [...new Set(categoryIds)];
+    return [...new Set(categoryIds)];
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: o validator cria slugs previsiveis e impede associar IDs que nem sequer parecem ObjectId de MongoDB.
+5. Explicacao do codigo: o validator cria slugs previsiveis e impede associar IDs que nem sequer parecem ObjectId de MongoDB.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -537,74 +555,73 @@ export function validateCategoryIds(body) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/services/category.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/services/category.service.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/services/category.service.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/services/category.service.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/services/category.service.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/services/category.service.js`.
 
 ```js
-import { AppError } from '../middlewares/error.middleware.js';
-import { Category } from '../models/category.model.js';
-import { Product } from '../models/product.model.js';
+import { AppError } from "../middlewares/error.middleware.js";
+import { Category } from "../models/category.model.js";
+import { Product } from "../models/product.model.js";
 
 function toCategoryResponse(category) {
-  return {
-    id: category._id.toString(),
-    name: category.name,
-    slug: category.slug,
-    description: category.description
-  };
+    return {
+        id: category._id.toString(),
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+    };
 }
 
 function toProductCategoryResponse(product) {
-  return {
-    id: product._id.toString(),
-    name: product.name,
-    categoryIds: product.categoryIds.map((id) => id.toString())
-  };
+    return {
+        id: product._id.toString(),
+        name: product.name,
+        categoryIds: product.categoryIds.map((id) => id.toString()),
+    };
 }
 
 export async function createCategory(input) {
-  const category = await Category.create(input);
-  return toCategoryResponse(category);
+    const category = await Category.create(input);
+    return toCategoryResponse(category);
 }
 
 export async function seedCategory(input) {
-  const category = await Category.findOneAndUpdate(
-    { slug: input.slug },
-    { $setOnInsert: input },
-    { upsert: true, new: true }
-  );
+    const category = await Category.findOneAndUpdate(
+        { slug: input.slug },
+        { $setOnInsert: input },
+        { upsert: true, new: true },
+    );
 
-  return toCategoryResponse(category);
+    return toCategoryResponse(category);
 }
 
 export async function assignCategoriesToProduct(productId, categoryIds) {
-  const found = await Category.countDocuments({ _id: { $in: categoryIds } });
+    const found = await Category.countDocuments({ _id: { $in: categoryIds } });
 
-  if (found !== categoryIds.length) {
-    throw new AppError(400, 'Uma ou mais categorias nao existem');
-  }
+    if (found !== categoryIds.length) {
+        throw new AppError(400, "Uma ou mais categorias nao existem");
+    }
 
-  const product = await Product.findByIdAndUpdate(
-    productId,
-    { $set: { categoryIds } },
-    { new: true, runValidators: true }
-  );
+    const product = await Product.findByIdAndUpdate(
+        productId,
+        { $set: { categoryIds } },
+        { new: true, runValidators: true },
+    );
 
-  if (!product) {
-    throw new AppError(404, 'Produto nao encontrado');
-  }
+    if (!product) {
+        throw new AppError(404, "Produto nao encontrado");
+    }
 
-  return toProductCategoryResponse(product);
+    return toProductCategoryResponse(product);
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: antes de associar, o service conta se todas as categorias existem. Assim o produto nao fica com referencias partidas.
+5. Explicacao do codigo: antes de associar, o service conta se todas as categorias existem. Assim o produto nao fica com referencias partidas.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -612,49 +629,51 @@ export async function assignCategoriesToProduct(productId, categoryIds) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/admin-categories.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/controllers/admin-categories.controller.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/controllers/admin-categories.controller.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/controllers/admin-categories.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/controllers/admin-categories.controller.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/controllers/admin-categories.controller.js`.
 
 ```js
 import {
-  assignCategoriesToProduct,
-  createCategory
-} from '../services/category.service.js';
+    assignCategoriesToProduct,
+    createCategory,
+} from "../services/category.service.js";
 import {
-  validateCategoryIds,
-  validateCategoryInput
-} from '../validators/category.validator.js';
+    validateCategoryIds,
+    validateCategoryInput,
+} from "../validators/category.validator.js";
 
 export async function createCategoryController(req, res, next) {
-  try {
-    const input = validateCategoryInput(req.body);
-    const category = await createCategory(input);
+    try {
+        const input = validateCategoryInput(req.body);
+        const category = await createCategory(input);
 
-    return res.status(201).json({ category });
-  } catch (err) {
-    return next(err);
-  }
+        return res.status(201).json({ category });
+    } catch (err) {
+        return next(err);
+    }
 }
 
 export async function assignProductCategoriesController(req, res, next) {
-  try {
-    const categoryIds = validateCategoryIds(req.body);
-    const product = await assignCategoriesToProduct(req.params.productId, categoryIds);
+    try {
+        const categoryIds = validateCategoryIds(req.body);
+        const product = await assignCategoriesToProduct(
+            req.params.productId,
+            categoryIds,
+        );
 
-    return res.status(200).json({ product });
-  } catch (err) {
-    return next(err);
-  }
+        return res.status(200).json({ product });
+    } catch (err) {
+        return next(err);
+    }
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: ha um controller para criar categorias e outro para associar categorias a produtos.
+5. Explicacao do codigo: ha um controller para criar categorias e outro para associar categorias a produtos.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -662,43 +681,42 @@ export async function assignProductCategoriesController(req, res, next) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/admin-categories.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/routes/admin-categories.routes.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/routes/admin-categories.routes.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/routes/admin-categories.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/routes/admin-categories.routes.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/routes/admin-categories.routes.js`.
 
 ```js
-import { Router } from 'express';
-import { ROLES } from '../constants/roles.js';
-import { requireAuth } from '../middlewares/auth.middleware.js';
-import { requireRole } from '../middlewares/role.middleware.js';
+import { Router } from "express";
+import { ROLES } from "../constants/roles.js";
+import { requireAuth } from "../middlewares/auth.middleware.js";
+import { requireRole } from "../middlewares/role.middleware.js";
 import {
-  assignProductCategoriesController,
-  createCategoryController
-} from '../controllers/admin-categories.controller.js';
+    assignProductCategoriesController,
+    createCategoryController,
+} from "../controllers/admin-categories.controller.js";
 
 export const adminCategoriesRoutes = Router();
 
 adminCategoriesRoutes.post(
-  '/categories',
-  requireAuth,
-  requireRole(ROLES.ADMIN),
-  createCategoryController
+    "/categories",
+    requireAuth,
+    requireRole(ROLES.ADMIN),
+    createCategoryController,
 );
 
 adminCategoriesRoutes.patch(
-  '/products/:productId/categories',
-  requireAuth,
-  requireRole(ROLES.ADMIN),
-  assignProductCategoriesController
+    "/products/:productId/categories",
+    requireAuth,
+    requireRole(ROLES.ADMIN),
+    assignProductCategoriesController,
 );
 ```
 
-5. Explicacao didatica e detalhada do codigo: a rota fica sob `/api/admin`, tal como produtos e utilizadores administrativos.
+5. Explicacao do codigo: a rota fica sob `/api/admin`, tal como produtos e utilizadores administrativos.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -706,42 +724,50 @@ adminCategoriesRoutes.patch(
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/scripts/seed-categories.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/scripts/seed-categories.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/scripts/seed-categories.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/scripts/seed-categories.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/scripts/seed-categories.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/scripts/seed-categories.js`.
 
 ```js
-import { connectDB, disconnectDB } from '../config/db.js';
-import { seedCategory } from '../services/category.service.js';
-import { slugify } from '../validators/category.validator.js';
+import { connectDB, disconnectDB } from "../config/db.js";
+import { seedCategory } from "../services/category.service.js";
+import { slugify } from "../validators/category.validator.js";
 
 const INITIAL_CATEGORIES = [
-  { name: 'Limpeza', description: 'Produtos de limpeza diaria da pele' },
-  { name: 'Maquilhagem', description: 'Produtos de maquilhagem e acabamento' },
-  { name: 'Tratamento', description: 'Produtos cosmeticos de cuidado da pele' },
-  { name: 'Protetor Solar', description: 'Produtos cosmeticos com protecao solar' }
+    { name: "Limpeza", description: "Produtos de limpeza diaria da pele" },
+    {
+        name: "Maquilhagem",
+        description: "Produtos de maquilhagem e acabamento",
+    },
+    {
+        name: "Tratamento",
+        description: "Produtos cosmeticos de cuidado da pele",
+    },
+    {
+        name: "Protetor Solar",
+        description: "Produtos cosmeticos com protecao solar",
+    },
 ];
 
 await connectDB();
 
 for (const category of INITIAL_CATEGORIES) {
-  await seedCategory({
-    ...category,
-    slug: slugify(category.name)
-  });
+    await seedCategory({
+        ...category,
+        slug: slugify(category.name),
+    });
 }
 
 await disconnectDB();
 
-console.log('Categorias iniciais preparadas');
+console.log("Categorias iniciais preparadas");
 ```
 
-5. Explicacao didatica e detalhada do codigo: o seed pode ser corrido varias vezes sem duplicar categorias porque usa `upsert`.
+5. Explicacao do codigo: o seed pode ser corrido varias vezes sem duplicar categorias porque usa `upsert`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -749,53 +775,52 @@ console.log('Categorias iniciais preparadas');
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/app.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/app.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `server/src/app.js` e substituir pelo ficheiro completo abaixo, preservando toda a API da `MF0` e acrescentando categorias admin.
 
 ```js
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import express from 'express';
-import { env } from './config/env.js';
-import { authRoutes } from './routes/auth.routes.js';
-import { adminUsersRoutes } from './routes/admin-users.routes.js';
-import { adminProductsRoutes } from './routes/admin-products.routes.js';
-import { adminCategoriesRoutes } from './routes/admin-categories.routes.js';
-import { preferencesRoutes } from './routes/preferences.routes.js';
-import { profileRoutes } from './routes/profile.routes.js';
-import { errorMiddleware } from './middlewares/error.middleware.js';
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import { env } from "./config/env.js";
+import { authRoutes } from "./routes/auth.routes.js";
+import { adminUsersRoutes } from "./routes/admin-users.routes.js";
+import { adminProductsRoutes } from "./routes/admin-products.routes.js";
+import { adminCategoriesRoutes } from "./routes/admin-categories.routes.js";
+import { preferencesRoutes } from "./routes/preferences.routes.js";
+import { profileRoutes } from "./routes/profile.routes.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 export function createApp() {
-  const app = express();
+    const app = express();
 
-  app.use(cors({ origin: env.clientOrigin, credentials: true }));
-  app.use(express.json());
-  app.use(cookieParser());
+    app.use(cors({ origin: env.clientOrigin, credentials: true }));
+    app.use(express.json());
+    app.use(cookieParser());
 
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', app: 'orelle' });
-  });
+    app.get("/api/health", (req, res) => {
+        res.json({ status: "ok", app: "orelle" });
+    });
 
-  app.use('/api/auth', authRoutes);
-  app.use('/api/profile', profileRoutes);
-  app.use('/api/preferences', preferencesRoutes);
-  app.use('/api/admin', adminUsersRoutes);
-  app.use('/api/admin', adminProductsRoutes);
-  app.use('/api/admin', adminCategoriesRoutes);
+    app.use("/api/auth", authRoutes);
+    app.use("/api/profile", profileRoutes);
+    app.use("/api/preferences", preferencesRoutes);
+    app.use("/api/admin", adminUsersRoutes);
+    app.use("/api/admin", adminProductsRoutes);
+    app.use("/api/admin", adminCategoriesRoutes);
 
-  app.use(errorMiddleware);
+    app.use(errorMiddleware);
 
-  return app;
+    return app;
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: este e o estado final de `server/src/app.js` no fim da `MF0`. A app tem identidade, perfil, preferências e administração de catálogo, mas ainda não promete análise facial, recomendações avançadas, carrinho ou pagamentos.
+5. Explicacao do codigo: este e o estado final de `server/src/app.js` no fim da `MF0`. A app tem identidade, perfil, preferências e administração de catálogo, mas ainda não promete análise facial, recomendações avançadas, carrinho ou pagamentos.
 6. Como validar: confirmar `GET /api/health`, `POST /api/auth/login`, `GET /api/profile/me`, `GET /api/preferences/me` e rotas `/api/admin/*` com admin.
 7. Erro comum ou cenario negativo: substituir este ficheiro por um snippet parcial apaga rotas criadas nos BKs anteriores e quebra a macrofase.
 
@@ -803,85 +828,100 @@ export function createApp() {
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/AdminCategoriesPage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `client/src/pages/AdminCategoriesPage.jsx` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `client/src/pages/AdminCategoriesPage.jsx`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `client/src/pages/AdminCategoriesPage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `client/src/pages/AdminCategoriesPage.jsx`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `client/src/pages/AdminCategoriesPage.jsx`.
 
 ```jsx
-import { useState } from 'react';
-import { apiRequest } from '../services/apiClient.js';
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
 
 export function AdminCategoriesPage() {
-  const [message, setMessage] = useState('');
-  const [categoryName, setCategoryName] = useState('Limpeza');
-  const [productId, setProductId] = useState('');
-  const [categoryIdsText, setCategoryIdsText] = useState('');
+    const [message, setMessage] = useState("");
+    const [categoryName, setCategoryName] = useState("Limpeza");
+    const [productId, setProductId] = useState("");
+    const [categoryIdsText, setCategoryIdsText] = useState("");
 
-  async function createCategory(event) {
-    event.preventDefault();
+    async function createCategory(event) {
+        event.preventDefault();
 
-    try {
-      await apiRequest('/admin/categories', {
-        method: 'POST',
-        body: JSON.stringify({ name: categoryName })
-      });
-      setMessage('Categoria criada');
-    } catch (err) {
-      setMessage(err.message);
+        try {
+            await apiRequest("/admin/categories", {
+                method: "POST",
+                body: JSON.stringify({ name: categoryName }),
+            });
+            setMessage("Categoria criada");
+        } catch (err) {
+            setMessage(err.message);
+        }
     }
-  }
 
-  async function assignCategories(event) {
-    event.preventDefault();
-    const categoryIds = categoryIdsText.split(',').map((item) => item.trim()).filter(Boolean);
+    async function assignCategories(event) {
+        event.preventDefault();
+        const categoryIds = categoryIdsText
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
 
-    try {
-      await apiRequest(`/admin/products/${productId}/categories`, {
-        method: 'PATCH',
-        body: JSON.stringify({ categoryIds })
-      });
-      setMessage('Categorias associadas');
-    } catch (err) {
-      setMessage(err.message);
+        try {
+            await apiRequest(`/admin/products/${productId}/categories`, {
+                method: "PATCH",
+                body: JSON.stringify({ categoryIds }),
+            });
+            setMessage("Categorias associadas");
+        } catch (err) {
+            setMessage(err.message);
+        }
     }
-  }
 
-  return (
-    <main>
-      <h1>Categorias</h1>
+    return (
+        <main>
+            <h1>Categorias</h1>
 
-      <form onSubmit={createCategory}>
-        <label>
-          Nome da categoria
-          <input value={categoryName} onChange={(event) => setCategoryName(event.target.value)} />
-        </label>
-        <button type="submit">Criar categoria</button>
-      </form>
+            <form onSubmit={createCategory}>
+                <label>
+                    Nome da categoria
+                    <input
+                        value={categoryName}
+                        onChange={(event) =>
+                            setCategoryName(event.target.value)
+                        }
+                    />
+                </label>
+                <button type="submit">Criar categoria</button>
+            </form>
 
-      <form onSubmit={assignCategories}>
-        <label>
-          ID do produto
-          <input value={productId} onChange={(event) => setProductId(event.target.value)} />
-        </label>
-        <label>
-          IDs de categorias separados por virgula
-          <input value={categoryIdsText} onChange={(event) => setCategoryIdsText(event.target.value)} />
-        </label>
-        <button type="submit">Associar categorias</button>
-      </form>
+            <form onSubmit={assignCategories}>
+                <label>
+                    ID do produto
+                    <input
+                        value={productId}
+                        onChange={(event) => setProductId(event.target.value)}
+                    />
+                </label>
+                <label>
+                    IDs de categorias separados por virgula
+                    <input
+                        value={categoryIdsText}
+                        onChange={(event) =>
+                            setCategoryIdsText(event.target.value)
+                        }
+                    />
+                </label>
+                <button type="submit">Associar categorias</button>
+            </form>
 
-      {message && <p role="status">{message}</p>}
-    </main>
-  );
+            {message && <p role="status">{message}</p>}
+        </main>
+    );
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: a UI e administrativa e simples. O backend continua a validar permissao e existencia das categorias.
+5. Explicacao do codigo: a UI e administrativa e simples. O backend continua a validar permissao e existencia das categorias.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -889,40 +929,40 @@ export function AdminCategoriesPage() {
 
 1. Objetivo simples do passo: ligar a pagina admin de categorias a app de demonstracao sem criar routing definitivo.
 2. Ficheiros envolvidos:
-   - EDITAR: `client/src/App.jsx`.
-   - LOCALIZACAO: substituir o ficheiro atual por esta versao completa.
-   - REVER: paginas importadas abaixo e `AuthContext.jsx`.
+    - EDITAR: `client/src/App.jsx`.
+    - LOCALIZACAO: substituir o ficheiro atual por esta versao completa.
+    - REVER: paginas importadas abaixo e `AuthContext.jsx`.
 3. O que fazer: manter as paginas anteriores e acrescentar a nova pagina deste BK.
 4. Codigo completo, correto e integrado:
 
 Editar `client/src/App.jsx` e substituir pelo ficheiro completo abaixo.
 
 ```jsx
-import { AuthProvider } from './context/AuthContext.jsx';
-import { AdminCategoriesPage } from './pages/AdminCategoriesPage.jsx';
-import { AdminProductCreatePage } from './pages/AdminProductCreatePage.jsx';
-import { EditProfilePage } from './pages/EditProfilePage.jsx';
-import { LoginPage } from './pages/LoginPage.jsx';
-import { PreferencesPage } from './pages/PreferencesPage.jsx';
-import { ProfileSetupPage } from './pages/ProfileSetupPage.jsx';
-import { RegisterPage } from './pages/RegisterPage.jsx';
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { AdminCategoriesPage } from "./pages/AdminCategoriesPage.jsx";
+import { AdminProductCreatePage } from "./pages/AdminProductCreatePage.jsx";
+import { EditProfilePage } from "./pages/EditProfilePage.jsx";
+import { LoginPage } from "./pages/LoginPage.jsx";
+import { PreferencesPage } from "./pages/PreferencesPage.jsx";
+import { ProfileSetupPage } from "./pages/ProfileSetupPage.jsx";
+import { RegisterPage } from "./pages/RegisterPage.jsx";
 
 export function App() {
-  return (
-    <AuthProvider>
-      <RegisterPage />
-      <LoginPage />
-      <ProfileSetupPage />
-      <EditProfilePage />
-      <PreferencesPage />
-      <AdminProductCreatePage />
-      <AdminCategoriesPage />
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <RegisterPage />
+            <LoginPage />
+            <ProfileSetupPage />
+            <EditProfilePage />
+            <PreferencesPage />
+            <AdminProductCreatePage />
+            <AdminCategoriesPage />
+        </AuthProvider>
+    );
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: este e o frontend de demonstracao no fim da MF0. Mostra identidade, perfil, preferencias e catalogo base, sem prometer IA facial, simulacao, recomendacoes avancadas ou pagamentos.
+5. Explicacao do codigo: este e o frontend de demonstracao no fim da MF0. Mostra identidade, perfil, preferencias e catalogo base, sem prometer IA facial, simulacao, recomendacoes avancadas ou pagamentos.
 6. Como validar: abrir o frontend e confirmar que a nova pagina consegue chamar a API com o mesmo `apiClient` e a mesma sessao segura.
 7. Erro comum ou cenario negativo: deixar a pagina criada mas nao importada em `App.jsx` faz o codigo existir no repositorio, mas ficar invisivel para demonstracao e defesa.
 
@@ -930,16 +970,15 @@ export function App() {
 
 1. Objetivo simples do passo: testar o contrato HTTP que a UI e os BKs seguintes vao usar.
 2. Ficheiros envolvidos:
-   - CRIAR: nenhum ficheiro novo.
-   - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
-   - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
-   - REVER: routes, controllers, validators e services deste BK.
+    - CRIAR: nenhum ficheiro novo.
+    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
+    - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
+    - REVER: routes, controllers, validators e services deste BK.
 3. O que fazer: usar os exemplos abaixo para confirmar pedidos validos, respostas de sucesso e erros esperados.
 4. Codigo completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o codigo implementado.
 5. Explicacao didatica e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
 6. Como validar: executar os pedidos com cliente HTTP ou teste automatizado e comparar status code e JSON.
 7. Erro comum ou cenario negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros dificeis de diagnosticar.
-
 
 Criar categoria:
 
@@ -958,11 +997,11 @@ Resposta `201`:
 
 ```json
 {
-  "category": {
-    "id": "66d000000000000000000001",
-    "name": "Limpeza",
-    "slug": "limpeza"
-  }
+    "category": {
+        "id": "66d000000000000000000001",
+        "name": "Limpeza",
+        "slug": "limpeza"
+    }
 }
 ```
 
@@ -982,11 +1021,11 @@ Resposta `200`:
 
 ```json
 {
-  "product": {
-    "id": "66c000000000000000000001",
-    "name": "Gel de Limpeza Suave",
-    "categoryIds": ["66d000000000000000000001"]
-  }
+    "product": {
+        "id": "66c000000000000000000001",
+        "name": "Gel de Limpeza Suave",
+        "categoryIds": ["66d000000000000000000001"]
+    }
 }
 ```
 
@@ -994,9 +1033,9 @@ Categoria inexistente `400`:
 
 ```json
 {
-  "error": {
-    "message": "Uma ou mais categorias nao existem"
-  }
+    "error": {
+        "message": "Uma ou mais categorias nao existem"
+    }
 }
 ```
 
@@ -1004,40 +1043,45 @@ Categoria inexistente `400`:
 
 1. Objetivo simples do passo: provar que o comportamento principal e os cenarios negativos funcionam antes de entregar o BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
-   - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
-   - REVER: validators, services, controllers e rotas usados pelo teste.
+    - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
+    - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
+    - REVER: validators, services, controllers e rotas usados pelo teste.
 3. O que fazer: criar o teste completo abaixo e correr a suite.
 4. Codigo completo, correto e integrado: o teste abaixo deve acompanhar o codigo real, nao ser apenas exemplo solto.
 5. Explicacao didatica e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: nao basta escrever codigo, e preciso provar o comportamento.
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenario negativo: testar apenas o caminho feliz deixa falhas de seguranca e validacao por descobrir.
 
-
 Criar este ficheiro em `server/tests/categories.test.js`.
 
 ```js
-import { describe, expect, it } from 'vitest';
-import { slugify, validateCategoryIds, validateCategoryInput } from '../src/validators/category.validator.js';
+import { describe, expect, it } from "vitest";
+import {
+    slugify,
+    validateCategoryIds,
+    validateCategoryInput,
+} from "../src/validators/category.validator.js";
 
-describe('BK-MF0-08 / RF08 - categorias', () => {
-  it('cria slug estavel', () => {
-    expect(slugify('Protetor Solar')).toBe('protetor-solar');
-  });
+describe("BK-MF0-08 / RF08 - categorias", () => {
+    it("cria slug estavel", () => {
+        expect(slugify("Protetor Solar")).toBe("protetor-solar");
+    });
 
-  it('valida categoria', () => {
-    const input = validateCategoryInput({ name: 'Limpeza' });
+    it("valida categoria", () => {
+        const input = validateCategoryInput({ name: "Limpeza" });
 
-    expect(input.slug).toBe('limpeza');
-  });
+        expect(input.slug).toBe("limpeza");
+    });
 
-  it('rejeita categoryIds invalidos', () => {
-    expect(() => validateCategoryIds({ categoryIds: ['abc'] })).toThrow('categoryIds contem IDs invalidos');
-  });
+    it("rejeita categoryIds invalidos", () => {
+        expect(() => validateCategoryIds({ categoryIds: ["abc"] })).toThrow(
+            "categoryIds contem IDs invalidos",
+        );
+    });
 });
 ```
 
-5. Explicacao didatica e detalhada do codigo: os testes garantem slugs previsiveis e impedem IDs invalidos antes de tocar na base de dados.
+5. Explicacao do codigo: os testes garantem slugs previsiveis e impedem IDs invalidos antes de tocar na base de dados.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -1045,20 +1089,20 @@ describe('BK-MF0-08 / RF08 - categorias', () => {
 
 1. Objetivo simples do passo: identificar decisoes que nao podem ser inventadas durante a implementacao.
 2. Ficheiros envolvidos:
-   - CRIAR: nenhum ficheiro de aplicacao.
-   - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
-   - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
-   - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
+    - CRIAR: nenhum ficheiro de aplicacao.
+    - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
+    - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
+    - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
 3. O que fazer: se algum bloqueio se aplicar, parar a implementacao real e atualizar primeiro a fonte documental correta.
 4. Codigo completo, correto e integrado: este passo nao adiciona codigo; protege a coerencia do codigo ja escrito.
 5. Explicacao didatica e detalhada: alunos nao devem preencher lacunas com suposicoes, sobretudo quando ha dados sensiveis, roles ou contratos usados por outros BKs.
 6. Como validar: confirmar que nao ficou nenhuma decisao implicita no codigo.
 7. Erro comum ou cenario negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, seguranca ou o handoff de fases seguintes.
 
-
 Se `Product.categoryIds` nao existir no modelo criado em `BK-MF0-07`, atualizar primeiro `server/src/models/product.model.js`. Sem esse campo, `BK-MF1-01` nao conseguira filtrar produtos por categoria.
 
 ### Evidence para PR/defesa
+
 - Seed de categorias executado com sucesso.
 - Admin cria categoria com `201`.
 - Cliente recebe `403` ao tentar criar categoria.
@@ -1067,9 +1111,11 @@ Se `Product.categoryIds` nao existir no modelo criado em `BK-MF0-07`, atualizar 
 - Handoff documentado para filtros de `BK-MF1-01`.
 
 ### Handoff para BK-MF1-01
+
 O proximo BK deve usar `Product.categoryIds`, `Product.priceCents`, `Product.skinTypes` e `Product.brandName` para pesquisa e filtragem. Nao deve criar outro contrato de categoria.
 
 ## Changelog
+
 - `2026-04-14`: guia normalizado para contrato canonico comum.
 - `2026-05-25`: guia refinado para categorias e handoff da MF0 para MF1.
 - `2026-05-29`: tutorial linear integrado com Category, seed, associacao produto-categoria, payloads, UI, testes e handoff para MF1.

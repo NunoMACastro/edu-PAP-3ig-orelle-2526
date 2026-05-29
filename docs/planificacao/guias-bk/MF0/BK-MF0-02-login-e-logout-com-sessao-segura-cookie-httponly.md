@@ -1,6 +1,7 @@
 # BK-MF0-02 - Login e logout com sessão segura (cookie HttpOnly)
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF0-02`
 - `bk_id`: `BK-MF0-02`
 - `macro`: `MF0`
@@ -126,84 +127,84 @@ Assunção técnica: para alunos de 12.º ano, pode usar-se JWT assinado em cook
 #### Guia de execucao (passo-a-passo) (DERIVADO):
 
 0. **Objetivo (~15 min): confirmar estratégia de sessão**
-   - Descricao detalhada do objetivo: decidir se a equipa usará JWT assinado em cookie ou sessão opaca.
-   - Justificacao: mudar estratégia a meio quebra login, guards e testes.
-   - Como fazer (0.1): registar a decisão no PR como `Assuncao tecnica`.
-   - Como fazer (0.2): guardar `SESSION_SECRET` ou `JWT_SECRET` em `.env`, nunca no código.
-   - Ficheiro a rever: `docs/RNF.md`.
-   - Ficheiro alvo: `server/src/config/env.js`.
-   - Snippet de referencia: `sessionSecret: process.env.SESSION_SECRET`.
-   - O que verificar: app falha com erro claro se faltar segredo em ambiente real.
+    - Descricao detalhada do objetivo: decidir se a equipa usará JWT assinado em cookie ou sessão opaca.
+    - Justificacao: mudar estratégia a meio quebra login, guards e testes.
+    - Como fazer (0.1): registar a decisão no PR como `Assuncao tecnica`.
+    - Como fazer (0.2): guardar `SESSION_SECRET` ou `JWT_SECRET` em `.env`, nunca no código.
+    - Ficheiro a rever: `docs/RNF.md`.
+    - Ficheiro alvo: `server/src/config/env.js`.
+    - Snippet de referencia: `sessionSecret: process.env.SESSION_SECRET`.
+    - O que verificar: app falha com erro claro se faltar segredo em ambiente real.
 
 1. **Objetivo (~25 min): criar validação de login**
-   - Descricao detalhada do objetivo: validar email e password antes do service.
-   - Justificacao: evita chamadas desnecessárias à BD e respostas inconsistentes.
-   - Como fazer (1.1): criar `validateLoginInput`.
-   - Como fazer (1.2): devolver erro genérico quando credenciais estiverem erradas.
-   - Ficheiro a rever: `server/src/validators/auth.validator.js`.
-   - Ficheiro alvo: `server/src/validators/auth.validator.js`.
-   - Snippet de referencia: `if (!email || !password) errors.credentials = 'Credenciais inválidas';`.
-   - O que verificar: dados vazios devolvem `400`.
+    - Descricao detalhada do objetivo: validar email e password antes do service.
+    - Justificacao: evita chamadas desnecessárias à BD e respostas inconsistentes.
+    - Como fazer (1.1): criar `validateLoginInput`.
+    - Como fazer (1.2): devolver erro genérico quando credenciais estiverem erradas.
+    - Ficheiro a rever: `server/src/validators/auth.validator.js`.
+    - Ficheiro alvo: `server/src/validators/auth.validator.js`.
+    - Snippet de referencia: `if (!email || !password) errors.credentials = 'Credenciais inválidas';`.
+    - O que verificar: dados vazios devolvem `400`.
 
 2. **Objetivo (~35 min): implementar service de login**
-   - Descricao detalhada do objetivo: procurar utilizador por email e comparar password com `bcrypt`.
-   - Justificacao: a regra de autenticação fica testável e separada do HTTP.
-   - Como fazer (2.1): procurar `User.findOne({ email })`.
-   - Como fazer (2.2): usar `await bcrypt.compare(password, user.passwordHash)`.
-   - Ficheiro a rever: `server/src/models/user.model.js`.
-   - Ficheiro alvo: `server/src/services/auth.service.js`.
-   - Snippet de referencia: `const ok = await bcrypt.compare(password, user.passwordHash);`.
-   - O que verificar: password errada não revela se o email existe.
+    - Descricao detalhada do objetivo: procurar utilizador por email e comparar password com `bcrypt`.
+    - Justificacao: a regra de autenticação fica testável e separada do HTTP.
+    - Como fazer (2.1): procurar `User.findOne({ email })`.
+    - Como fazer (2.2): usar `await bcrypt.compare(password, user.passwordHash)`.
+    - Ficheiro a rever: `server/src/models/user.model.js`.
+    - Ficheiro alvo: `server/src/services/auth.service.js`.
+    - Snippet de referencia: `const ok = await bcrypt.compare(password, user.passwordHash);`.
+    - O que verificar: password errada não revela se o email existe.
 
 3. **Objetivo (~30 min): criar emissão de cookie**
-   - Descricao detalhada do objetivo: criar função que define cookie seguro no controller.
-   - Justificacao: centralizar opções evita cookies diferentes entre endpoints.
-   - Como fazer (3.1): criar `setAuthCookie(res, token)`.
-   - Como fazer (3.2): usar `httpOnly: true`, `sameSite: 'lax'`, `secure: env.isProduction`.
-   - Ficheiro a rever: `docs/RNF.md`.
-   - Ficheiro alvo: `server/src/services/session.service.js`.
-   - Snippet de referencia: `res.cookie('orelle_session', token, cookieOptions);`.
-   - O que verificar: DevTools mostra cookie como `HttpOnly`.
+    - Descricao detalhada do objetivo: criar função que define cookie seguro no controller.
+    - Justificacao: centralizar opções evita cookies diferentes entre endpoints.
+    - Como fazer (3.1): criar `setAuthCookie(res, token)`.
+    - Como fazer (3.2): usar `httpOnly: true`, `sameSite: 'lax'`, `secure: env.isProduction`.
+    - Ficheiro a rever: `docs/RNF.md`.
+    - Ficheiro alvo: `server/src/services/session.service.js`.
+    - Snippet de referencia: `res.cookie('orelle_session', token, cookieOptions);`.
+    - O que verificar: DevTools mostra cookie como `HttpOnly`.
 
 4. **Objetivo (~30 min): criar login, logout e me**
-   - Descricao detalhada do objetivo: expor endpoints de sessão.
-   - Justificacao: frontend e BKs seguintes precisam de saber quem está autenticado.
-   - Como fazer (4.1): adicionar `POST /login`, `POST /logout`, `GET /me`.
-   - Como fazer (4.2): no logout, limpar cookie com as mesmas opções de path.
-   - Ficheiro a rever: `server/src/routes/auth.routes.js`.
-   - Ficheiro alvo: `server/src/controllers/auth.controller.js`.
-   - Snippet de referencia: `res.clearCookie('orelle_session', cookieOptions);`.
-   - O que verificar: logout remove acesso ao `/me`.
+    - Descricao detalhada do objetivo: expor endpoints de sessão.
+    - Justificacao: frontend e BKs seguintes precisam de saber quem está autenticado.
+    - Como fazer (4.1): adicionar `POST /login`, `POST /logout`, `GET /me`.
+    - Como fazer (4.2): no logout, limpar cookie com as mesmas opções de path.
+    - Ficheiro a rever: `server/src/routes/auth.routes.js`.
+    - Ficheiro alvo: `server/src/controllers/auth.controller.js`.
+    - Snippet de referencia: `res.clearCookie('orelle_session', cookieOptions);`.
+    - O que verificar: logout remove acesso ao `/me`.
 
 5. **Objetivo (~35 min): criar requireAuth**
-   - Descricao detalhada do objetivo: bloquear rotas sem sessão válida.
-   - Justificacao: perfil, preferências e admin dependem deste middleware.
-   - Como fazer (5.1): ler cookie do pedido.
-   - Como fazer (5.2): validar sessão e anexar `{ id, email, role }` a `req.user`.
-   - Ficheiro a rever: `server/src/services/session.service.js`.
-   - Ficheiro alvo: `server/src/middlewares/auth.middleware.js`.
-   - Snippet de referencia: `req.user = sessionUser; return next();`.
-   - O que verificar: sem cookie devolve `401`.
+    - Descricao detalhada do objetivo: bloquear rotas sem sessão válida.
+    - Justificacao: perfil, preferências e admin dependem deste middleware.
+    - Como fazer (5.1): ler cookie do pedido.
+    - Como fazer (5.2): validar sessão e anexar `{ id, email, role }` a `req.user`.
+    - Ficheiro a rever: `server/src/services/session.service.js`.
+    - Ficheiro alvo: `server/src/middlewares/auth.middleware.js`.
+    - Snippet de referencia: `req.user = sessionUser; return next();`.
+    - O que verificar: sem cookie devolve `401`.
 
 6. **Objetivo (~45 min): criar UI de login**
-   - Descricao detalhada do objetivo: permitir login sem guardar token no browser.
-   - Justificacao: cookies HttpOnly são enviados pelo browser automaticamente.
-   - Como fazer (6.1): configurar `apiClient` com `credentials: 'include'`.
-   - Como fazer (6.2): criar `LoginPage` com estados loading/error/success.
-   - Ficheiro a rever: `client/src/services/apiClient.js`.
-   - Ficheiro alvo: `client/src/pages/LoginPage.jsx`.
-   - Snippet de referencia: `fetch(url, { credentials: 'include', ...options })`.
-   - O que verificar: `localStorage` não contém tokens.
+    - Descricao detalhada do objetivo: permitir login sem guardar token no browser.
+    - Justificacao: cookies HttpOnly são enviados pelo browser automaticamente.
+    - Como fazer (6.1): configurar `apiClient` com `credentials: 'include'`.
+    - Como fazer (6.2): criar `LoginPage` com estados loading/error/success.
+    - Ficheiro a rever: `client/src/services/apiClient.js`.
+    - Ficheiro alvo: `client/src/pages/LoginPage.jsx`.
+    - Snippet de referencia: `fetch(url, { credentials: 'include', ...options })`.
+    - O que verificar: `localStorage` não contém tokens.
 
 7. **Objetivo (~45 min): validar sessão e preparar handoff**
-   - Descricao detalhada do objetivo: testar login, logout, `/me` e rota protegida.
-   - Justificacao: bugs de auth bloqueiam todos os BKs seguintes.
-   - Como fazer (7.1): criar smoke com utilizador válido.
-   - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
-   - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
-   - Ficheiro alvo: `server/tests/auth.session.test.js`.
-   - Snippet de referencia: `expect(response.headers['set-cookie']).toContain('HttpOnly');`.
-   - O que verificar: evidência mostra cookie `HttpOnly` e logout efetivo.
+    - Descricao detalhada do objetivo: testar login, logout, `/me` e rota protegida.
+    - Justificacao: bugs de auth bloqueiam todos os BKs seguintes.
+    - Como fazer (7.1): criar smoke com utilizador válido.
+    - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
+    - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
+    - Ficheiro alvo: `server/tests/auth.session.test.js`.
+    - Snippet de referencia: `expect(response.headers['set-cookie']).toContain('HttpOnly');`.
+    - O que verificar: evidência mostra cookie `HttpOnly` e logout efetivo.
 
 #### Checklist de validacao (DERIVADO):
 
@@ -244,41 +245,51 @@ Assunção técnica: para alunos de 12.º ano, pode usar-se JWT assinado em cook
 - Assuncao a validar: usar cookie `orelle_session` com `SameSite=Lax`.
 
 ## Contexto do BK
+
 - Entrega alvo: implementar `Login e logout com sessão segura (cookie HttpOnly)` com rastreabilidade direta ao requisito `RF02`.
 - Foco tecnico da macro: `Fundamentos e governance`.
 - Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
 
 ## Bloco pedagogico
+
 ### Objetivo
+
 Implementar sessão segura para que os próximos BKs consigam saber quem está autenticado.
 
 ### Pre-requisitos
+
 - Rever `RF02` e `RNF14`.
 - Ter `User` e `passwordHash` preparados ou criar um utilizador de teste local.
 - Ter segredo de sessão configurado fora do código.
 
 ### Erros comuns
+
 - Guardar token em `localStorage`.
 - Esquecer `credentials: 'include'` no frontend.
 - Responder com mensagens que confirmam se um email existe.
 - Limpar cookie com opções diferentes das usadas para criar.
 
 ### Check de compreensao
+
 - [ ] Sei explicar o que é um cookie `HttpOnly`.
 - [ ] Sei onde o middleware `requireAuth` entra no fluxo.
 - [ ] Sei demonstrar que logout remove a sessão.
 
 ### Tempo estimado
+
 - `M`: 2 a 4 horas, incluindo validação de cookie no browser.
 
 ## Bloco operacional
+
 ### Entrada
+
 - BK: `BK-MF0-02`
 - Requisito: `RF02`
 - Dependencias: `-`
 - Artefactos: `RF.md`, `RNF.md`, `BACKLOG-MVP.md`, `MATRIZ-CANONICA-BK.md`
 
 ### Passos
+
 1. Confirmar estratégia de sessão.
 2. Validar input de login.
 3. Comparar password com `bcrypt.compare`.
@@ -289,22 +300,26 @@ Implementar sessão segura para que os próximos BKs consigam saber quem está a
 8. Executar cenarios negativos obrigatorios (minimo 3) e registar evidência.
 
 ### Cenarios negativos recomendados
+
 - Credenciais erradas devem devolver `401`.
 - `/api/auth/me` sem cookie deve devolver `401`.
 - Logout deve invalidar acesso posterior a `/api/auth/me`.
 
 ### Validacao
+
 - [ ] Smoke: login válido cria cookie.
 - [ ] Negativos: minimo `3` cenarios com resultado controlado.
 - [ ] Tecnico: cookie é `HttpOnly`.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
 
 ### Matriz minima de testes por prioridade
+
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
 
 ### Handoff
+
 - Proximo BK recomendado: `BK-MF0-03`
 - O próximo BK deve proteger criação de perfil com `requireAuth`.
 
@@ -315,6 +330,7 @@ O codigo aplicavel deste BK-MF0-02 ja nao fica como anexo isolado. Para cumprir 
 Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma funcao sem perceber ficheiro, imports, validacao, erro esperado e handoff. Por isso, o codigo foi integrado nos passos onde e usado.
 
 ## Criterios de aceite
+
 - Entrega funcional especifica de `Login e logout com sessão segura (cookie HttpOnly)` validada contra `RF02`.
 - Cenarios negativos concluidos: minimo `3` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P0`).
@@ -322,12 +338,14 @@ Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia cop
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
+
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
 - `proof_negocio`: sessão desbloqueia perfil, preferências, admin e fluxos personalizados.
 
 ## Proximo BK recomendado
+
 `BK-MF0-03`
 
 ## Tutorial linear de implementacao
@@ -336,10 +354,10 @@ Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia cop
 
 1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos nao podem ser quebrados.
 2. Ficheiros envolvidos:
-   - CRIAR: nenhum ficheiro de aplicacao neste passo.
-   - EDITAR: este guia BK, apenas para orientar a implementacao.
-   - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
-   - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
+    - CRIAR: nenhum ficheiro de aplicacao neste passo.
+    - EDITAR: este guia BK, apenas para orientar a implementacao.
+    - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
+    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
 3. O que fazer: ler e respeitar as decisoes abaixo antes de implementar.
 4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; o codigo aparece nos passos seguintes, junto do ficheiro onde e usado.
 5. Explicacao didatica e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; so depois se escreve codigo.
@@ -349,8 +367,8 @@ Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia cop
 **Decisao tecnica confirmada:**
 Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`. Esta escolha e pedagogica e simples para o 12.º ano. Em producao real, a equipa pode trocar por sessoes opacas guardadas no servidor, mas essa mudanca deve ser documentada antes de implementar.
 
-
 **Scope-in deste passo:**
+
 - Acrescentar dependencias de sessao ao backend.
 - Implementar `POST /api/auth/login`.
 - Implementar `POST /api/auth/logout`.
@@ -359,8 +377,8 @@ Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`.
 - Configurar cookie `HttpOnly`, `SameSite=Lax` e `Secure` apenas fora de desenvolvimento.
 - Garantir que credenciais invalidas nao revelam se o email existe.
 
-
 **Scope-out deste passo:**
+
 - Recuperacao de password.
 - Refresh tokens.
 - OAuth/Google login.
@@ -371,28 +389,29 @@ Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`.
 
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever codigo, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
-   - EDITAR:
-     - `server/package.json`
-     - `server/src/config/env.js`
-     - `server/src/app.js`
-     - `server/src/services/auth.service.js`
-     - `server/src/controllers/auth.controller.js`
-     - `server/src/routes/auth.routes.js`
-     - `client/src/services/apiClient.js`
-     - `client/src/App.jsx`
+    - EDITAR:
+        - `server/package.json`
+        - `server/src/config/env.js`
+        - `server/src/app.js`
+        - `server/src/services/auth.service.js`
+        - `server/src/controllers/auth.controller.js`
+        - `server/src/routes/auth.routes.js`
+        - `client/src/services/apiClient.js`
+        - `client/src/App.jsx`
 
-   - CRIAR:
-     - `server/src/services/session.service.js`
-     - `server/src/middlewares/auth.middleware.js`
-     - `server/tests/auth.session.test.js`
-     - `client/src/context/AuthContext.jsx`
-     - `client/src/pages/LoginPage.jsx`
+    - CRIAR:
+        - `server/src/services/session.service.js`
+        - `server/src/middlewares/auth.middleware.js`
+        - `server/tests/auth.session.test.js`
+        - `client/src/context/AuthContext.jsx`
+        - `client/src/pages/LoginPage.jsx`
 
-   - REVER:
-     - `server/src/models/user.model.js`, criado no `BK-MF0-01`.
-     - `docs/RNF.md`, requisitos `RNF10` e `RNF14`.
-     - `docs/planificacao/guias-bk/MF0/BK-MF0-03-criacao-de-perfil-personalizado-com-nome-idade-tipo-de-pele-genero-e-objetivos-ex-hidratar-antiacne.md`, porque vai depender de `requireAuth`.
-   - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+    - REVER:
+        - `server/src/models/user.model.js`, criado no `BK-MF0-01`.
+        - `docs/RNF.md`, requisitos `RNF10` e `RNF14`.
+        - `docs/planificacao/guias-bk/MF0/BK-MF0-03-criacao-de-perfil-personalizado-com-nome-idade-tipo-de-pele-genero-e-objetivos-ex-hidratar-antiacne.md`, porque vai depender de `requireAuth`.
+    - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+
 3. O que fazer: criar ou editar estes ficheiros pela ordem dos passos seguintes.
 4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; ele prepara a lista para os passos de implementacao.
 5. Explicacao didatica e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
@@ -403,57 +422,55 @@ Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`.
 
 1. Objetivo simples do passo: escrever cada ficheiro no local certo, mantendo o contrato com os BKs anteriores e seguintes.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
-   - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
-   - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
+    - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
+    - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
+    - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
 3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de codigo deve ser colocado no ficheiro indicado.
 4. Codigo completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde sao usados.
 5. Explicacao didatica e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, sao validados, passam pelo service e chegam ao frontend.
 6. Como validar: apos cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
 7. Erro comum ou cenario negativo: copiar apenas parte do codigo deixa o tutorial incoerente e quebra os passos posteriores.
 
-
 ### Passo 4 - Criar ou editar `server/package.json`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/package.json` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/package.json` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/package.json`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/package.json` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/package.json`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `server/package.json` e substituir pelo ficheiro completo abaixo, mantendo scripts e dependencias do `BK-MF0-01` e acrescentando `cookie-parser` e `jsonwebtoken`.
 
 ```json
 {
-  "name": "orelle-server",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.5.1"
-  },
-  "devDependencies": {
-    "supertest": "^7.0.0",
-    "vitest": "^2.0.5"
-  }
+    "name": "orelle-server",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "node --watch src/server.js",
+        "start": "node src/server.js",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.19.2",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.5.1"
+    },
+    "devDependencies": {
+        "supertest": "^7.0.0",
+        "vitest": "^2.0.5"
+    }
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: este ficheiro continua a ser o manifesto completo do backend. `cookie-parser` deixa o Express ler cookies e `jsonwebtoken` cria/valida o token assinado que fica dentro do cookie, sem remover as dependencias necessarias para registo, MongoDB e testes.
+5. Explicacao do codigo: este ficheiro continua a ser o manifesto completo do backend. `cookie-parser` deixa o Express ler cookies e `jsonwebtoken` cria/valida o token assinado que fica dentro do cookie, sem remover as dependencias necessarias para registo, MongoDB e testes.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -461,33 +478,35 @@ Editar `server/package.json` e substituir pelo ficheiro completo abaixo, mantend
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/config/env.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/config/env.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/config/env.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/config/env.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/config/env.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `server/src/config/env.js` e acrescentar `sessionSecret` e `sessionTtl`.
 
 ```js
-import 'dotenv/config';
+import "dotenv/config";
 
 export const env = {
-  nodeEnv: process.env.NODE_ENV ?? 'development',
-  port: Number(process.env.PORT ?? 3001),
-  mongoUri: process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/orelle',
-  clientOrigin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
-  sessionSecret: process.env.SESSION_SECRET ?? 'dev-only-change-me',
-  sessionTtl: process.env.SESSION_TTL ?? '2h'
+    nodeEnv: process.env.NODE_ENV ?? "development",
+    port: Number(process.env.PORT ?? 3001),
+    mongoUri: process.env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/orelle",
+    clientOrigin: process.env.CLIENT_ORIGIN ?? "http://localhost:5173",
+    sessionSecret: process.env.SESSION_SECRET ?? "dev-only-change-me",
+    sessionTtl: process.env.SESSION_TTL ?? "2h",
 };
 
-if (env.nodeEnv === 'production' && env.sessionSecret === 'dev-only-change-me') {
-  throw new Error('SESSION_SECRET obrigatorio em producao');
+if (
+    env.nodeEnv === "production" &&
+    env.sessionSecret === "dev-only-change-me"
+) {
+    throw new Error("SESSION_SECRET obrigatorio em producao");
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: o segredo assina a sessao. Em desenvolvimento existe um valor temporario; em producao, a app deve falhar se o segredo nao estiver definido.
+5. Explicacao do codigo: o segredo assina a sessao. Em desenvolvimento existe um valor temporario; em producao, a app deve falhar se o segredo nao estiver definido.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -495,69 +514,71 @@ if (env.nodeEnv === 'production' && env.sessionSecret === 'dev-only-change-me') 
 
 1. Objetivo simples do passo: separar a validacao de registo da validacao de login, mantendo mensagens claras e sem revelar se a conta existe.
 2. Ficheiros envolvidos:
-   - EDITAR: `server/src/validators/auth.validator.js`.
-   - LOCALIZACAO: substituir o ficheiro criado no `BK-MF0-01` pela versao completa abaixo.
-   - REVER: `server/src/controllers/auth.controller.js` e `server/src/services/auth.service.js`, porque ambos usam estes validators.
+    - EDITAR: `server/src/validators/auth.validator.js`.
+    - LOCALIZACAO: substituir o ficheiro criado no `BK-MF0-01` pela versao completa abaixo.
+    - REVER: `server/src/controllers/auth.controller.js` e `server/src/services/auth.service.js`, porque ambos usam estes validators.
 3. O que fazer: manter `validateRegisterInput` para registo e acrescentar `validateLoginInput` para login.
 4. Codigo completo, correto e integrado:
 
 Editar `server/src/validators/auth.validator.js` e substituir pelo ficheiro completo abaixo.
 
 ```js
-import { AppError } from '../middlewares/error.middleware.js';
+import { AppError } from "../middlewares/error.middleware.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function normalizeEmail(value) {
-  return String(value ?? '').trim().toLowerCase();
+    return String(value ?? "")
+        .trim()
+        .toLowerCase();
 }
 
 export function validateRegisterInput(body) {
-  const email = normalizeEmail(body.email);
-  const password = String(body.password ?? '');
-  const errors = {};
+    const email = normalizeEmail(body.email);
+    const password = String(body.password ?? "");
+    const errors = {};
 
-  if (!EMAIL_RE.test(email)) {
-    errors.email = 'Email invalido';
-  }
+    if (!EMAIL_RE.test(email)) {
+        errors.email = "Email invalido";
+    }
 
-  if (password.length < 8) {
-    errors.password = 'A password deve ter pelo menos 8 caracteres';
-  }
+    if (password.length < 8) {
+        errors.password = "A password deve ter pelo menos 8 caracteres";
+    }
 
-  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-    errors.password = 'A password deve incluir letras e numeros';
-  }
+    if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+        errors.password = "A password deve incluir letras e numeros";
+    }
 
-  if (Object.keys(errors).length > 0) {
-    throw new AppError(400, 'Dados de registo invalidos', errors);
-  }
+    if (Object.keys(errors).length > 0) {
+        throw new AppError(400, "Dados de registo invalidos", errors);
+    }
 
-  return { email, password };
+    return { email, password };
 }
 
 export function validateLoginInput(body) {
-  const email = normalizeEmail(body.email);
-  const password = String(body.password ?? '');
-  const errors = {};
+    const email = normalizeEmail(body.email);
+    const password = String(body.password ?? "");
+    const errors = {};
 
-  if (!EMAIL_RE.test(email)) {
-    errors.email = 'Email invalido';
-  }
+    if (!EMAIL_RE.test(email)) {
+        errors.email = "Email invalido";
+    }
 
-  if (!password) {
-    errors.password = 'Password obrigatoria';
-  }
+    if (!password) {
+        errors.password = "Password obrigatoria";
+    }
 
-  if (Object.keys(errors).length > 0) {
-    throw new AppError(400, 'Dados de login invalidos', errors);
-  }
+    if (Object.keys(errors).length > 0) {
+        throw new AppError(400, "Dados de login invalidos", errors);
+    }
 
-  return { email, password };
+    return { email, password };
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: o registo exige password forte porque esta a criar uma conta nova; o login apenas confirma que email e password foram enviados, porque a seguranca principal acontece na comparacao com o hash guardado. Separar os validators evita misturar regras de criacao de conta com regras de autenticacao.
+5. Explicacao do codigo: o registo exige password forte porque esta a criar uma conta nova; o login apenas confirma que email e password foram enviados, porque a seguranca principal acontece na comparacao com o hash guardado. Separar os validators evita misturar regras de criacao de conta com regras de autenticacao.
 6. Como validar: pedir login sem password deve devolver `400`; pedir login com password errada mas formato valido deve chegar ao service e devolver `401 Credenciais invalidas`.
 7. Erro comum ou cenario negativo: usar `validateRegisterInput` no login pode bloquear passwords antigas se a politica de password mudar, criando uma regressao de autenticacao.
 
@@ -565,69 +586,68 @@ export function validateLoginInput(body) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/services/session.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/services/session.service.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/services/session.service.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/services/session.service.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/services/session.service.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/services/session.service.js`.
 
 ```js
-import jwt from 'jsonwebtoken';
-import { env } from '../config/env.js';
-import { AppError } from '../middlewares/error.middleware.js';
+import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
+import { AppError } from "../middlewares/error.middleware.js";
 
-export const SESSION_COOKIE_NAME = 'orelle_session';
+export const SESSION_COOKIE_NAME = "orelle_session";
 
 export function getSessionCookieOptions() {
-  return {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: env.nodeEnv === 'production',
-    path: '/',
-    maxAge: 1000 * 60 * 60 * 2
-  };
+    return {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: env.nodeEnv === "production",
+        path: "/",
+        maxAge: 1000 * 60 * 60 * 2,
+    };
 }
 
 export function createSessionToken(user) {
-  return jwt.sign(
-    {
-      sub: user.id,
-      email: user.email,
-      role: user.role
-    },
-    env.sessionSecret,
-    { expiresIn: env.sessionTtl }
-  );
+    return jwt.sign(
+        {
+            sub: user.id,
+            email: user.email,
+            role: user.role,
+        },
+        env.sessionSecret,
+        { expiresIn: env.sessionTtl },
+    );
 }
 
 export function verifySessionToken(token) {
-  try {
-    const payload = jwt.verify(token, env.sessionSecret);
+    try {
+        const payload = jwt.verify(token, env.sessionSecret);
 
-    return {
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role
-    };
-  } catch {
-    throw new AppError(401, 'Sessao invalida ou expirada');
-  }
+        return {
+            id: payload.sub,
+            email: payload.email,
+            role: payload.role,
+        };
+    } catch {
+        throw new AppError(401, "Sessao invalida ou expirada");
+    }
 }
 
 export function attachSessionCookie(res, user) {
-  const token = createSessionToken(user);
-  res.cookie(SESSION_COOKIE_NAME, token, getSessionCookieOptions());
+    const token = createSessionToken(user);
+    res.cookie(SESSION_COOKIE_NAME, token, getSessionCookieOptions());
 }
 
 export function clearSessionCookie(res) {
-  res.clearCookie(SESSION_COOKIE_NAME, getSessionCookieOptions());
+    res.clearCookie(SESSION_COOKIE_NAME, getSessionCookieOptions());
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: este ficheiro concentra tudo o que sabe sobre cookies e tokens. Assim login, logout e `requireAuth` usam as mesmas regras.
+5. Explicacao do codigo: este ficheiro concentra tudo o que sabe sobre cookies e tokens. Assim login, logout e `requireAuth` usam as mesmas regras.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -635,40 +655,42 @@ export function clearSessionCookie(res) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/middlewares/auth.middleware.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/middlewares/auth.middleware.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/middlewares/auth.middleware.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/middlewares/auth.middleware.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/middlewares/auth.middleware.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `server/src/middlewares/auth.middleware.js`.
 
 ```js
-import { SESSION_COOKIE_NAME, verifySessionToken } from '../services/session.service.js';
-import { AppError } from './error.middleware.js';
+import {
+    SESSION_COOKIE_NAME,
+    verifySessionToken,
+} from "../services/session.service.js";
+import { AppError } from "./error.middleware.js";
 
 /**
  * Bloqueia pedidos sem sessao valida.
  * Se passar, coloca o utilizador autenticado em req.user.
  */
 export function requireAuth(req, res, next) {
-  const token = req.cookies?.[SESSION_COOKIE_NAME];
+    const token = req.cookies?.[SESSION_COOKIE_NAME];
 
-  if (!token) {
-    return next(new AppError(401, 'Autenticacao obrigatoria'));
-  }
+    if (!token) {
+        return next(new AppError(401, "Autenticacao obrigatoria"));
+    }
 
-  try {
-    req.user = verifySessionToken(token);
-    return next();
-  } catch (err) {
-    return next(err);
-  }
+    try {
+        req.user = verifySessionToken(token);
+        return next();
+    } catch (err) {
+        return next(err);
+    }
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: qualquer rota sensivel pode usar `requireAuth`. Se nao houver cookie, responde `401`; se houver cookie valido, a rota sabe quem e o utilizador.
+5. Explicacao do codigo: qualquer rota sensivel pode usar `requireAuth`. Se nao houver cookie, responde `401`; se houver cookie valido, a rota sabe quem e o utilizador.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -676,60 +698,61 @@ export function requireAuth(req, res, next) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/services/auth.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/services/auth.service.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/services/auth.service.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/services/auth.service.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/services/auth.service.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `server/src/services/auth.service.js`. Manter `registerUser` e acrescentar `loginUser`.
 
 ```js
-import bcrypt from 'bcryptjs';
-import { User } from '../models/user.model.js';
-import { AppError } from '../middlewares/error.middleware.js';
+import bcrypt from "bcryptjs";
+import { User } from "../models/user.model.js";
+import { AppError } from "../middlewares/error.middleware.js";
 
 function toSafeUser(user) {
-  return {
-    id: user._id.toString(),
-    email: user.email,
-    role: user.role,
-    createdAt: user.createdAt
-  };
+    return {
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+    };
 }
 
 export async function registerUser({ email, password }) {
-  const existing = await User.findOne({ email }).select('_id');
+    const existing = await User.findOne({ email }).select("_id");
 
-  if (existing) {
-    throw new AppError(409, 'Ja existe uma conta com este email');
-  }
+    if (existing) {
+        throw new AppError(409, "Ja existe uma conta com este email");
+    }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  const user = await User.create({ email, passwordHash, role: 'cliente' });
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await User.create({ email, passwordHash, role: "cliente" });
 
-  return toSafeUser(user);
+    return toSafeUser(user);
 }
 
 export async function loginUser({ email, password }) {
-  const user = await User.findOne({ email }).select('+passwordHash email role createdAt');
+    const user = await User.findOne({ email }).select(
+        "+passwordHash email role createdAt",
+    );
 
-  if (!user) {
-    throw new AppError(401, 'Credenciais invalidas');
-  }
+    if (!user) {
+        throw new AppError(401, "Credenciais invalidas");
+    }
 
-  const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+    const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
-  if (!passwordMatches) {
-    throw new AppError(401, 'Credenciais invalidas');
-  }
+    if (!passwordMatches) {
+        throw new AppError(401, "Credenciais invalidas");
+    }
 
-  return toSafeUser(user);
+    return toSafeUser(user);
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: o login procura o utilizador e compara a password enviada com o hash guardado. A mensagem de erro e igual para email inexistente e password errada para evitar enumeração de contas.
+5. Explicacao do codigo: o login procura o utilizador e compara a password enviada com o hash guardado. A mensagem de erro e igual para email inexistente e password errada para evitar enumeração de contas.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -737,55 +760,60 @@ export async function loginUser({ email, password }) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/auth.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/controllers/auth.controller.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/controllers/auth.controller.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/controllers/auth.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/controllers/auth.controller.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `server/src/controllers/auth.controller.js` e substituir pelo ficheiro completo abaixo.
 
 ```js
-import { loginUser, registerUser } from '../services/auth.service.js';
-import { attachSessionCookie, clearSessionCookie } from '../services/session.service.js';
-import { validateLoginInput, validateRegisterInput } from '../validators/auth.validator.js';
+import { loginUser, registerUser } from "../services/auth.service.js";
+import {
+    attachSessionCookie,
+    clearSessionCookie,
+} from "../services/session.service.js";
+import {
+    validateLoginInput,
+    validateRegisterInput,
+} from "../validators/auth.validator.js";
 
 export async function registerController(req, res, next) {
-  try {
-    const input = validateRegisterInput(req.body);
-    const user = await registerUser(input);
+    try {
+        const input = validateRegisterInput(req.body);
+        const user = await registerUser(input);
 
-    return res.status(201).json({ user });
-  } catch (err) {
-    return next(err);
-  }
+        return res.status(201).json({ user });
+    } catch (err) {
+        return next(err);
+    }
 }
 
 export async function loginController(req, res, next) {
-  try {
-    const input = validateLoginInput(req.body);
-    const user = await loginUser(input);
+    try {
+        const input = validateLoginInput(req.body);
+        const user = await loginUser(input);
 
-    attachSessionCookie(res, user);
+        attachSessionCookie(res, user);
 
-    return res.status(200).json({ user });
-  } catch (err) {
-    return next(err);
-  }
+        return res.status(200).json({ user });
+    } catch (err) {
+        return next(err);
+    }
 }
 
 export function logoutController(req, res) {
-  clearSessionCookie(res);
-  return res.status(204).send();
+    clearSessionCookie(res);
+    return res.status(204).send();
 }
 
 export function meController(req, res) {
-  return res.status(200).json({ user: req.user });
+    return res.status(200).json({ user: req.user });
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: `loginController` cria o cookie; `logoutController` remove o cookie; `meController` devolve o utilizador que `requireAuth` colocou em `req.user`.
+5. Explicacao do codigo: `loginController` cria o cookie; `logoutController` remove o cookie; `meController` devolve o utilizador que `requireAuth` colocou em `req.user`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -793,34 +821,33 @@ export function meController(req, res) {
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/auth.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/routes/auth.routes.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/routes/auth.routes.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/routes/auth.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/routes/auth.routes.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `server/src/routes/auth.routes.js` e substituir pelo ficheiro completo abaixo.
 
 ```js
-import { Router } from 'express';
+import { Router } from "express";
 import {
-  loginController,
-  logoutController,
-  meController,
-  registerController
-} from '../controllers/auth.controller.js';
-import { requireAuth } from '../middlewares/auth.middleware.js';
+    loginController,
+    logoutController,
+    meController,
+    registerController,
+} from "../controllers/auth.controller.js";
+import { requireAuth } from "../middlewares/auth.middleware.js";
 
 export const authRoutes = Router();
 
-authRoutes.post('/register', registerController);
-authRoutes.post('/login', loginController);
-authRoutes.post('/logout', logoutController);
-authRoutes.get('/me', requireAuth, meController);
+authRoutes.post("/register", registerController);
+authRoutes.post("/login", loginController);
+authRoutes.post("/logout", logoutController);
+authRoutes.get("/me", requireAuth, meController);
 ```
 
-5. Explicacao didatica e detalhada do codigo: `/me` e protegido. Login e registo nao precisam de sessao previa; logout pode ser chamado mesmo que o cookie ja tenha expirado.
+5. Explicacao do codigo: `/me` e protegido. Login e registo nao precisam de sessao previa; logout pode ser chamado mesmo que o cookie ja tenha expirado.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -828,42 +855,41 @@ authRoutes.get('/me', requireAuth, meController);
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `server/src/app.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/app.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `server/src/app.js` e acrescentar `cookieParser()` antes das rotas.
 
 ```js
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import express from 'express';
-import { env } from './config/env.js';
-import { authRoutes } from './routes/auth.routes.js';
-import { errorMiddleware } from './middlewares/error.middleware.js';
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import { env } from "./config/env.js";
+import { authRoutes } from "./routes/auth.routes.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 export function createApp() {
-  const app = express();
+    const app = express();
 
-  app.use(cors({ origin: env.clientOrigin, credentials: true }));
-  app.use(express.json());
-  app.use(cookieParser());
+    app.use(cors({ origin: env.clientOrigin, credentials: true }));
+    app.use(express.json());
+    app.use(cookieParser());
 
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', app: 'orelle' });
-  });
+    app.get("/api/health", (req, res) => {
+        res.json({ status: "ok", app: "orelle" });
+    });
 
-  app.use('/api/auth', authRoutes);
-  app.use(errorMiddleware);
+    app.use("/api/auth", authRoutes);
+    app.use(errorMiddleware);
 
-  return app;
+    return app;
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: sem `cookieParser`, `req.cookies` fica vazio e `requireAuth` nao consegue ler `orelle_session`.
+5. Explicacao do codigo: sem `cookieParser`, `req.cookies` fica vazio e `requireAuth` nao consegue ler `orelle_session`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -871,43 +897,43 @@ export function createApp() {
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/services/apiClient.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `client/src/services/apiClient.js` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `client/src/services/apiClient.js`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `client/src/services/apiClient.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `client/src/services/apiClient.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `client/src/services/apiClient.js` e garantir `credentials: 'include'`.
 
 ```js
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001/api';
+const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
 
 export async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers ?? {})
-    },
-    ...options
-  });
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers ?? {}),
+        },
+        ...options,
+    });
 
-  if (response.status === 204) {
-    return null;
-  }
+    if (response.status === 204) {
+        return null;
+    }
 
-  const data = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({}));
 
-  if (!response.ok) {
-    throw new Error(data?.error?.message ?? 'Pedido falhou');
-  }
+    if (!response.ok) {
+        throw new Error(data?.error?.message ?? "Pedido falhou");
+    }
 
-  return data;
+    return data;
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: `credentials: 'include'` permite que o browser envie e receba cookies da API. Sem isto, o cookie `HttpOnly` pode ser criado mas nao circular corretamente entre frontend e backend.
+5. Explicacao do codigo: `credentials: 'include'` permite que o browser envie e receba cookies da API. Sem isto, o cookie `HttpOnly` pode ser criado mas nao circular corretamente entre frontend e backend.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -915,64 +941,68 @@ export async function apiRequest(path, options = {}) {
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/context/AuthContext.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `client/src/context/AuthContext.jsx` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `client/src/context/AuthContext.jsx`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `client/src/context/AuthContext.jsx` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `client/src/context/AuthContext.jsx`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `client/src/context/AuthContext.jsx`.
 
 ```jsx
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { apiRequest } from '../services/apiClient.js';
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    apiRequest('/auth/me')
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, []);
+    useEffect(() => {
+        apiRequest("/auth/me")
+            .then((data) => setUser(data.user))
+            .catch(() => setUser(null))
+            .finally(() => setLoading(false));
+    }, []);
 
-  async function login(credentials) {
-    const data = await apiRequest('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials)
-    });
+    async function login(credentials) {
+        const data = await apiRequest("/auth/login", {
+            method: "POST",
+            body: JSON.stringify(credentials),
+        });
 
-    setUser(data.user);
-    return data.user;
-  }
+        setUser(data.user);
+        return data.user;
+    }
 
-  async function logout() {
-    await apiRequest('/auth/logout', { method: 'POST' });
-    setUser(null);
-  }
+    async function logout() {
+        await apiRequest("/auth/logout", { method: "POST" });
+        setUser(null);
+    }
 
-  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading]);
+    const value = useMemo(
+        () => ({ user, loading, login, logout }),
+        [user, loading],
+    );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+    const context = useContext(AuthContext);
 
-  if (!context) {
-    throw new Error('useAuth deve ser usado dentro de AuthProvider');
-  }
+    if (!context) {
+        throw new Error("useAuth deve ser usado dentro de AuthProvider");
+    }
 
-  return context;
+    return context;
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: o contexto guarda o utilizador autenticado no frontend. O token continua no cookie `HttpOnly`; o React nunca le o token diretamente.
+5. Explicacao do codigo: o contexto guarda o utilizador autenticado no frontend. O token continua no cookie `HttpOnly`; o React nunca le o token diretamente.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -980,86 +1010,99 @@ export function useAuth() {
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/LoginPage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `client/src/pages/LoginPage.jsx` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `client/src/pages/LoginPage.jsx`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `client/src/pages/LoginPage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `client/src/pages/LoginPage.jsx`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Criar este ficheiro em `client/src/pages/LoginPage.jsx`.
 
 ```jsx
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export function LoginPage() {
-  const { login, logout, user } = useAuth();
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+    const { login, logout, user } = useAuth();
+    const [form, setForm] = useState({ email: "", password: "" });
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
-  function updateField(event) {
-    setForm((current) => ({
-      ...current,
-      [event.target.name]: event.target.value
-    }));
-  }
-
-  async function handleLogin(event) {
-    event.preventDefault();
-    setLoading(true);
-    setMessage('');
-
-    try {
-      const loggedUser = await login(form);
-      setMessage(`Sessao iniciada como ${loggedUser.email}`);
-    } catch (err) {
-      setMessage(err.message);
-    } finally {
-      setLoading(false);
+    function updateField(event) {
+        setForm((current) => ({
+            ...current,
+            [event.target.name]: event.target.value,
+        }));
     }
-  }
 
-  async function handleLogout() {
-    await logout();
-    setMessage('Sessao terminada');
-  }
+    async function handleLogin(event) {
+        event.preventDefault();
+        setLoading(true);
+        setMessage("");
 
-  return (
-    <main>
-      <h1>Login Orélle</h1>
+        try {
+            const loggedUser = await login(form);
+            setMessage(`Sessao iniciada como ${loggedUser.email}`);
+        } catch (err) {
+            setMessage(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-      {user ? (
-        <section>
-          <p>Autenticado como {user.email}</p>
-          <button type="button" onClick={handleLogout}>Terminar sessao</button>
-        </section>
-      ) : (
-        <form onSubmit={handleLogin}>
-          <label>
-            Email
-            <input name="email" type="email" value={form.email} onChange={updateField} required />
-          </label>
+    async function handleLogout() {
+        await logout();
+        setMessage("Sessao terminada");
+    }
 
-          <label>
-            Password
-            <input name="password" type="password" value={form.password} onChange={updateField} required />
-          </label>
+    return (
+        <main>
+            <h1>Login Orélle</h1>
 
-          <button type="submit" disabled={loading}>
-            {loading ? 'A entrar...' : 'Entrar'}
-          </button>
-        </form>
-      )}
+            {user ? (
+                <section>
+                    <p>Autenticado como {user.email}</p>
+                    <button type="button" onClick={handleLogout}>
+                        Terminar sessao
+                    </button>
+                </section>
+            ) : (
+                <form onSubmit={handleLogin}>
+                    <label>
+                        Email
+                        <input
+                            name="email"
+                            type="email"
+                            value={form.email}
+                            onChange={updateField}
+                            required
+                        />
+                    </label>
 
-      {message && <p role="status">{message}</p>}
-    </main>
-  );
+                    <label>
+                        Password
+                        <input
+                            name="password"
+                            type="password"
+                            value={form.password}
+                            onChange={updateField}
+                            required
+                        />
+                    </label>
+
+                    <button type="submit" disabled={loading}>
+                        {loading ? "A entrar..." : "Entrar"}
+                    </button>
+                </form>
+            )}
+
+            {message && <p role="status">{message}</p>}
+        </main>
+    );
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: esta pagina demonstra login, estado autenticado e logout. O cookie e invisivel para JavaScript, mas o browser envia-o automaticamente.
+5. Explicacao do codigo: esta pagina demonstra login, estado autenticado e logout. O cookie e invisivel para JavaScript, mas o browser envia-o automaticamente.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -1067,31 +1110,30 @@ export function LoginPage() {
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/App.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `client/src/App.jsx` conforme indicado na frase abaixo.
-   - LOCALIZACAO: `client/src/App.jsx`.
-   - REVER: imports, exports e ficheiros que este bloco referencia.
+    - CRIAR/EDITAR: `client/src/App.jsx` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `client/src/App.jsx`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Codigo completo, correto e integrado:
-
 
 Editar `client/src/App.jsx` para envolver a app em `AuthProvider`.
 
 ```jsx
-import { AuthProvider } from './context/AuthContext.jsx';
-import { LoginPage } from './pages/LoginPage.jsx';
-import { RegisterPage } from './pages/RegisterPage.jsx';
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { LoginPage } from "./pages/LoginPage.jsx";
+import { RegisterPage } from "./pages/RegisterPage.jsx";
 
 export function App() {
-  return (
-    <AuthProvider>
-      <RegisterPage />
-      <LoginPage />
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <RegisterPage />
+            <LoginPage />
+        </AuthProvider>
+    );
 }
 ```
 
-5. Explicacao didatica e detalhada do codigo: nesta fase a UI pode mostrar registo e login na mesma pagina. Routing visual pode ser refinado mais tarde.
+5. Explicacao do codigo: nesta fase a UI pode mostrar registo e login na mesma pagina. Routing visual pode ser refinado mais tarde.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -1099,16 +1141,15 @@ export function App() {
 
 1. Objetivo simples do passo: testar o contrato HTTP que a UI e os BKs seguintes vao usar.
 2. Ficheiros envolvidos:
-   - CRIAR: nenhum ficheiro novo.
-   - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
-   - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
-   - REVER: routes, controllers, validators e services deste BK.
+    - CRIAR: nenhum ficheiro novo.
+    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
+    - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
+    - REVER: routes, controllers, validators e services deste BK.
 3. O que fazer: usar os exemplos abaixo para confirmar pedidos validos, respostas de sucesso e erros esperados.
 4. Codigo completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o codigo implementado.
 5. Explicacao didatica e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
 6. Como validar: executar os pedidos com cliente HTTP ou teste automatizado e comparar status code e JSON.
 7. Erro comum ou cenario negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros dificeis de diagnosticar.
-
 
 Login valido:
 
@@ -1130,12 +1171,12 @@ Set-Cookie: orelle_session=...; Path=/; HttpOnly; SameSite=Lax
 
 ```json
 {
-  "user": {
-    "id": "66a000000000000000000001",
-    "email": "cliente@orelle.test",
-    "role": "cliente",
-    "createdAt": "2026-05-29T10:00:00.000Z"
-  }
+    "user": {
+        "id": "66a000000000000000000001",
+        "email": "cliente@orelle.test",
+        "role": "cliente",
+        "createdAt": "2026-05-29T10:00:00.000Z"
+    }
 }
 ```
 
@@ -1143,9 +1184,9 @@ Credenciais erradas `401`:
 
 ```json
 {
-  "error": {
-    "message": "Credenciais invalidas"
-  }
+    "error": {
+        "message": "Credenciais invalidas"
+    }
 }
 ```
 
@@ -1153,9 +1194,9 @@ Sessao ausente em `/api/auth/me` `401`:
 
 ```json
 {
-  "error": {
-    "message": "Autenticacao obrigatoria"
-  }
+    "error": {
+        "message": "Autenticacao obrigatoria"
+    }
 }
 ```
 
@@ -1171,84 +1212,85 @@ Resposta esperada: `204 No Content`, com limpeza do cookie.
 
 1. Objetivo simples do passo: provar que o comportamento principal e os cenarios negativos funcionam antes de entregar o BK.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
-   - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
-   - REVER: validators, services, controllers e rotas usados pelo teste.
+    - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
+    - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
+    - REVER: validators, services, controllers e rotas usados pelo teste.
 3. O que fazer: criar o teste completo abaixo e correr a suite.
 4. Codigo completo, correto e integrado: o teste abaixo deve acompanhar o codigo real, nao ser apenas exemplo solto.
 5. Explicacao didatica e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: nao basta escrever codigo, e preciso provar o comportamento.
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenario negativo: testar apenas o caminho feliz deixa falhas de seguranca e validacao por descobrir.
 
-
 Criar este ficheiro em `server/tests/auth.session.test.js`.
 
 ```js
-import bcrypt from 'bcryptjs';
-import { describe, expect, it, vi } from 'vitest';
-import request from 'supertest';
-import { createApp } from '../src/app.js';
-import { User } from '../src/models/user.model.js';
+import bcrypt from "bcryptjs";
+import { describe, expect, it, vi } from "vitest";
+import request from "supertest";
+import { createApp } from "../src/app.js";
+import { User } from "../src/models/user.model.js";
 
-vi.mock('../src/models/user.model.js', () => ({
-  User: {
-    findOne: vi.fn()
-  }
+vi.mock("../src/models/user.model.js", () => ({
+    User: {
+        findOne: vi.fn(),
+    },
 }));
 
-describe('BK-MF0-02 / RF02 - sessao segura', () => {
-  it('faz login e cria cookie HttpOnly', async () => {
-    const passwordHash = await bcrypt.hash('Senha12345', 12);
+describe("BK-MF0-02 / RF02 - sessao segura", () => {
+    it("faz login e cria cookie HttpOnly", async () => {
+        const passwordHash = await bcrypt.hash("Senha12345", 12);
 
-    User.findOne.mockReturnValueOnce({
-      select: vi.fn().mockResolvedValue({
-        _id: { toString: () => 'user-1' },
-        email: 'cliente@orelle.test',
-        role: 'cliente',
-        passwordHash,
-        createdAt: new Date('2026-05-29T10:00:00.000Z')
-      })
+        User.findOne.mockReturnValueOnce({
+            select: vi.fn().mockResolvedValue({
+                _id: { toString: () => "user-1" },
+                email: "cliente@orelle.test",
+                role: "cliente",
+                passwordHash,
+                createdAt: new Date("2026-05-29T10:00:00.000Z"),
+            }),
+        });
+
+        const response = await request(createApp())
+            .post("/api/auth/login")
+            .send({ email: "cliente@orelle.test", password: "Senha12345" });
+
+        expect(response.status).toBe(200);
+        expect(response.headers["set-cookie"].join(";")).toContain("HttpOnly");
+        expect(response.headers["set-cookie"].join(";")).toContain(
+            "SameSite=Lax",
+        );
     });
 
-    const response = await request(createApp())
-      .post('/api/auth/login')
-      .send({ email: 'cliente@orelle.test', password: 'Senha12345' });
+    it("rejeita password errada sem criar cookie", async () => {
+        const passwordHash = await bcrypt.hash("Senha12345", 12);
 
-    expect(response.status).toBe(200);
-    expect(response.headers['set-cookie'].join(';')).toContain('HttpOnly');
-    expect(response.headers['set-cookie'].join(';')).toContain('SameSite=Lax');
-  });
+        User.findOne.mockReturnValueOnce({
+            select: vi.fn().mockResolvedValue({
+                _id: { toString: () => "user-1" },
+                email: "cliente@orelle.test",
+                role: "cliente",
+                passwordHash,
+            }),
+        });
 
-  it('rejeita password errada sem criar cookie', async () => {
-    const passwordHash = await bcrypt.hash('Senha12345', 12);
+        const response = await request(createApp())
+            .post("/api/auth/login")
+            .send({ email: "cliente@orelle.test", password: "Errada123" });
 
-    User.findOne.mockReturnValueOnce({
-      select: vi.fn().mockResolvedValue({
-        _id: { toString: () => 'user-1' },
-        email: 'cliente@orelle.test',
-        role: 'cliente',
-        passwordHash
-      })
+        expect(response.status).toBe(401);
+        expect(response.headers["set-cookie"]).toBeUndefined();
     });
 
-    const response = await request(createApp())
-      .post('/api/auth/login')
-      .send({ email: 'cliente@orelle.test', password: 'Errada123' });
+    it("bloqueia /me sem cookie", async () => {
+        const response = await request(createApp()).get("/api/auth/me");
 
-    expect(response.status).toBe(401);
-    expect(response.headers['set-cookie']).toBeUndefined();
-  });
-
-  it('bloqueia /me sem cookie', async () => {
-    const response = await request(createApp()).get('/api/auth/me');
-
-    expect(response.status).toBe(401);
-    expect(response.body.error.message).toBe('Autenticacao obrigatoria');
-  });
+        expect(response.status).toBe(401);
+        expect(response.body.error.message).toBe("Autenticacao obrigatoria");
+    });
 });
 ```
 
-5. Explicacao didatica e detalhada do codigo: estes testes provam cookie `HttpOnly`, erro generico de credenciais e bloqueio de rota protegida sem cookie.
+5. Explicacao do codigo: estes testes provam cookie `HttpOnly`, erro generico de credenciais e bloqueio de rota protegida sem cookie.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
@@ -1256,16 +1298,15 @@ describe('BK-MF0-02 / RF02 - sessao segura', () => {
 
 1. Objetivo simples do passo: identificar decisoes que nao podem ser inventadas durante a implementacao.
 2. Ficheiros envolvidos:
-   - CRIAR: nenhum ficheiro de aplicacao.
-   - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
-   - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
-   - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
+    - CRIAR: nenhum ficheiro de aplicacao.
+    - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
+    - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
+    - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
 3. O que fazer: se algum bloqueio se aplicar, parar a implementacao real e atualizar primeiro a fonte documental correta.
 4. Codigo completo, correto e integrado: este passo nao adiciona codigo; protege a coerencia do codigo ja escrito.
 5. Explicacao didatica e detalhada: alunos nao devem preencher lacunas com suposicoes, sobretudo quando ha dados sensiveis, roles ou contratos usados por outros BKs.
 6. Como validar: confirmar que nao ficou nenhuma decisao implicita no codigo.
 7. Erro comum ou cenario negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, seguranca ou o handoff de fases seguintes.
-
 
 Antes de deploy real, confirmar em `.env`:
 
@@ -1278,6 +1319,7 @@ CLIENT_ORIGIN=http://localhost:5173
 Se `SESSION_SECRET` nao for definido em producao, a aplicacao deve falhar ao arrancar. Isto e intencional para nao publicar sessoes assinadas com segredo fraco.
 
 ### Evidence para PR/defesa
+
 - Screenshot ou output de DevTools mostrando `orelle_session` com `HttpOnly`.
 - `POST /api/auth/login` valido com `200`.
 - `POST /api/auth/login` invalido com `401` sem `Set-Cookie`.
@@ -1285,9 +1327,11 @@ Se `SESSION_SECRET` nao for definido em producao, a aplicacao deve falhar ao arr
 - `POST /api/auth/logout` com `204` e cookie limpo.
 
 ### Handoff para BK-MF0-03
+
 O proximo BK deve usar `requireAuth` em todas as rotas de perfil e deve ler o utilizador autenticado em `req.user.id`. Nao deve aceitar `userId` vindo do body para criar perfil.
 
 ## Changelog
+
 - `2026-04-14`: guia normalizado para contrato canonico comum.
 - `2026-05-25`: guia refinado para implementação concreta de sessão segura.
 - `2026-05-29`: tutorial linear integrado com cookie HttpOnly, JWT assinado, requireAuth, UI, payloads e testes negativos.
