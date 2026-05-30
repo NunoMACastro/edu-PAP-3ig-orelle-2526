@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import { env } from "./config/env.js";
@@ -9,13 +10,13 @@ export function createApp() {
 
     app.use(cors({ origin: env.clientOrigin, credentials: true }));
     app.use(express.json());
+    app.use(cookieParser());
 
     app.get("/api/health", (req, res) => {
         res.json({ status: "ok", app: "orelle" });
     });
 
     app.use("/api/auth", authRoutes);
-
     app.use(errorMiddleware);
 
     return app;

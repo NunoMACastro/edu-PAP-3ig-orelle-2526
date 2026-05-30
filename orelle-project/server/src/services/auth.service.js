@@ -11,7 +11,6 @@ function toSafeUser(user) {
     };
 }
 
-
 export async function registerUser({ email, password }) {
     const existing = await User.findOne({ email }).select("_id");
 
@@ -20,12 +19,25 @@ export async function registerUser({ email, password }) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const user = await User.create({ email, passwordHash, role: "cliente" });
 
-    const user = await User.create({
-        email,
-        passwordHash,
-        role: "cliente",
-    });
+    return toSafeUser(user);
+}
+
+export async function loginUser({ email, password }) {
+    const user = await User.findOne({ email }).select(
+        "+passwordHash email role createdAt",
+    );
+
+    if (!user) {
+        throw new AppError(401, "Credenciais invalidas");
+    }
+
+    const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+
+    if (!passwordMatches) {
+        throw new AppError(401, "Credenciais invalidas");
+    }
 
     return toSafeUser(user);
 }
