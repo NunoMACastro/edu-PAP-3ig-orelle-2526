@@ -1,5 +1,6 @@
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
+import { ProfileSetupPage } from "./pages/ProfileSetupPage.jsx";
 import { RegisterPage } from "./pages/RegisterPage.jsx";
 
 export function App() {
@@ -7,6 +8,7 @@ export function App() {
         <AuthProvider>
             <RegisterPage />
             <LoginPage />
+            <ProfileSetupPage />
         </AuthProvider>
     );
 }
