@@ -7,6 +7,14 @@ Content-Type: application/json
   "password": "Senha12345"
 }
 
+
+
+
+
+Set-Cookie: orelle_session=...; Path=/; HttpOnly; SameSite=Lax
+
+
+
 {
     "user": {
         "id": "66a000000000000000000001",
@@ -16,18 +24,23 @@ Content-Type: application/json
     }
 }
 
-{
-    "error": {
-        "message": "Dados de registo invalidos",
-        "details": {
-            "email": "Email invalido",
-            "password": "A password deve incluir letras e numeros"
-        }
-    }
-}
+
 
 {
     "error": {
-        "message": "Ja existe uma conta com este email"
+        "message": "Credenciais invalidas"
     }
 }
+
+
+
+{
+    "error": {
+        "message": "Autenticacao obrigatoria"
+    }
+}
+
+
+Logout:
+POST http://127.0.0.1:5000/api/auth/logout 
+
