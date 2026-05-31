@@ -367,8 +367,8 @@ export function App() {
 4. Código completo, correto e integrado:
 
 ```bash
-curl -i http://localhost:3000/api/catalog/products/abc
-curl -i http://localhost:3000/api/catalog/products/64f000000000000000000000
+curl -i http://localhost:3001/api/catalog/products/abc
+curl -i http://localhost:3001/api/catalog/products/64f000000000000000000000
 ```
 
 5. Explicação do código: o primeiro pedido válida formato; o segundo válida ausência de produto sem expor detalhes internos.
@@ -411,8 +411,8 @@ Evidência de testes por camada:
 - O BK prepara `BK-MF1-03` e `BK-MF1-04` sem inventar avaliações ou recomendações.
 
 ## Validação final
-- `curl http://localhost:3000/api/catalog/products/ID_VALIDO`
-- `curl http://localhost:3000/api/catalog/products/abc`
+- `curl http://localhost:3001/api/catalog/products/ID_VALIDO`
+- `curl http://localhost:3001/api/catalog/products/abc`
 - Testar o formulário no browser.
 
 ## Evidence para PR/defesa

@@ -12,7 +12,7 @@ O objetivo desta prompt é auditar, hidratar e corrigir guias BK de uma macrofas
 
 ```md
 MF_ALVO: MF1
-MODO: auditar_apenas
+MODO: corrigir_apenas
 ```
 
 Valores possíveis para `MODO`:

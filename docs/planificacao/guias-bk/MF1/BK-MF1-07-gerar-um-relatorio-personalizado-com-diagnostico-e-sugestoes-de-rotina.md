@@ -466,16 +466,16 @@ rg -n "cart|checkout|order|purchase|Product" server/src/services/face-report.ser
 4. Código completo, correto e integrado:
 
 ```bash
-curl -i -X POST http://localhost:3000/api/face-reports/latest
-curl -i -X POST http://localhost:3000/api/face-reports/latest \
-    -H "Authorization: Bearer TOKEN_SEM_ANALISE"
-curl -i -X POST http://localhost:3000/api/face-reports/latest \
-    -H "Authorization: Bearer TOKEN_COM_ANALISE_PENDENTE"
+curl -i -X POST http://localhost:3001/api/face-reports/latest
+curl -i -X POST http://localhost:3001/api/face-reports/latest \
+    -H "Cookie: orelle_session=COOKIE_CLIENTE_SEM_ANALISE"
+curl -i -X POST http://localhost:3001/api/face-reports/latest \
+    -H "Cookie: orelle_session=COOKIE_CLIENTE_COM_ANALISE_PENDENTE"
 ```
 
-5. Explicação do código: os pedidos confirmam autenticação e dependência de uma análise concluída.
+5. Explicação do código: os pedidos confirmam autenticação e dependência de uma análise concluída. Os pedidos autenticados usam o cookie `orelle_session` criado no login do `BK-MF0-02`; no browser, o `apiClient` envia esse cookie com `credentials: "include"` e não envia token.
 6. Como validar este passo: confirma `401` no primeiro pedido e `400` nos restantes.
-7. Erros comuns ou cenário negativo: usar qualquer análise existente na coleção pode expor dados de outro utilizador.
+7. Erros comuns ou cenário negativo: usar qualquer análise existente na coleção pode expor dados de outro utilizador; validar com header de autorização por token incentivaria um segundo sistema de autenticação.
 
 ### Validação
 - [ ] Negativos: mínimo `3` cenários.

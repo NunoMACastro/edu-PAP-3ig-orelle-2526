@@ -63,6 +63,7 @@ Também existe uma falha operacional importante: o ficheiro pode chegar ao disco
 - `POST /api/face-photos`
 - `FaceConsent`
 - `FacePhoto`
+- `ensureActiveFaceConsent`
 - `uploadFacePhotos`
 - `FacePhotoUploadPage`
 
@@ -301,6 +302,7 @@ import fs from "node:fs";
 import path from "node:path";
 import multer from "multer";
 import { AppError } from "./error.middleware.js";
+import { FaceConsent } from "../models/face-consent.model.js";
 
 const PRIVATE_UPLOAD_DIR = path.resolve("storage/private/facial-photos");
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -315,6 +317,24 @@ const storage = multer.diskStorage({
         callback(null, safeName);
     },
 });
+
+export async function ensureActiveFaceConsent(req, res, next) {
+    try {
+        const consent = await FaceConsent.findOne({
+            userId: req.user.id,
+            revokedAt: null,
+        });
+
+        if (!consent) {
+            return next(new AppError(403, "Consentimento facial em falta"));
+        }
+
+        req.faceConsent = consent;
+        return next();
+    } catch (err) {
+        return next(err);
+    }
+}
 
 function fileFilter(req, file, callback) {
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
@@ -337,9 +357,9 @@ export const uploadFacePhotos = multer({
 ]);
 ```
 
-5. Explicação do código: a validação exige duas imagens; o middleware limita formato, tamanho e quantidade antes do controller.
-6. Como validar este passo: envia um ficheiro `.txt` e confirma `400`.
-7. Erros comuns ou cenário negativo: guardar em `public/` permitiria acesso direto sem autorização.
+5. Explicação do código: `ensureActiveFaceConsent` corre depois de `requireAuth` e antes do upload. Assim, se o cliente ainda não tiver consentimento ativo, o pedido termina com `403` antes de `multer.diskStorage` escrever qualquer fotografia no disco. Depois disso, `uploadFacePhotos` limita formato, tamanho e quantidade antes do controller validar se chegaram as duas imagens obrigatórias.
+6. Como validar este passo: tenta enviar imagens sem consentimento ativo e confirma `403`; confirma que não apareceu ficheiro novo em `storage/private/facial-photos`. Depois envia um ficheiro `.txt` com consentimento ativo e confirma `400`.
+7. Erros comuns ou cenário negativo: guardar em `public/` permitiria acesso direto sem autorização; colocar a validação de consentimento só no service deixaria o ficheiro chegar ao disco antes da decisão de privacidade.
 
 ### Passo 5 - Criar service de consentimento e fotografias
 
@@ -368,9 +388,12 @@ function toFacePhotoResponse(photo) {
     };
 }
 
-async function removeUploadedFiles(uploadedFiles) {
+export async function removeUploadedFiles(uploadedFiles = []) {
     await Promise.all(
-        uploadedFiles.map(({ file }) => unlink(file.path).catch(() => undefined)),
+        uploadedFiles.map(({ file }) => {
+            if (!file?.path) return undefined;
+            return unlink(file.path).catch(() => undefined);
+        }),
     );
 }
 
@@ -396,14 +419,16 @@ export async function acceptFaceConsent(userId, input) {
     };
 }
 
-export async function saveFacePhotos(userId, uploadedFiles) {
-    const consent = await FaceConsent.findOne({ userId, revokedAt: null });
-
-    if (!consent) {
-        throw new AppError(403, "Consentimento facial em falta");
-    }
-
+export async function saveFacePhotos(userId, uploadedFiles, activeConsent) {
     try {
+        const consent =
+            activeConsent ??
+            (await FaceConsent.findOne({ userId, revokedAt: null }));
+
+        if (!consent) {
+            throw new AppError(403, "Consentimento facial em falta");
+        }
+
         const photos = await FacePhoto.insertMany(
             uploadedFiles.map(({ kind, file }) => ({
                 userId,
@@ -424,9 +449,9 @@ export async function saveFacePhotos(userId, uploadedFiles) {
 }
 ```
 
-5. Explicação do código: o service procura consentimento ativo antes de guardar fotografias. A resposta não inclui `storageKey`, e se o insert em MongoDB falhar depois de o upload ter escrito ficheiros no disco, o service tenta remover esses ficheiros para não deixar dados sensíveis órfãos.
-6. Como validar este passo: tenta upload sem consentimento e confirma `403`; simula falha de persistência e confirma que os ficheiros recém-recebidos não ficam na pasta privada.
-7. Erros comuns ou cenário negativo: guardar fotografia antes do consentimento viola privacidade; ignorar falhas intermédias cria ficheiros faciais sem registo associado.
+5. Explicação do código: o service recebe o consentimento já confirmado pela route, mas volta a ter defesa se for chamado noutro contexto. A resposta não inclui `storageKey`. Se faltar consentimento nessa segunda verificação, se o insert em MongoDB falhar ou se qualquer erro acontecer depois de o upload escrever ficheiros no disco, `removeUploadedFiles` tenta apagar os ficheiros recém-recebidos para não deixar dados sensíveis órfãos.
+6. Como validar este passo: simula falha de persistência e confirma que os ficheiros recém-recebidos não ficam na pasta privada; chama o service sem consentimento ativo e confirma `403` com limpeza.
+7. Erros comuns ou cenário negativo: ignorar falhas intermédias cria ficheiros faciais sem registo associado e dificulta eliminação/anonymização futura.
 
 ### Passo 6 - Criar controller e route
 
@@ -442,6 +467,7 @@ export async function saveFacePhotos(userId, uploadedFiles) {
 // server/src/controllers/face-photo.controller.js
 import {
     acceptFaceConsent,
+    removeUploadedFiles,
     saveFacePhotos,
 } from "../services/face-photo.service.js";
 import {
@@ -460,13 +486,24 @@ export async function acceptFaceConsentController(req, res, next) {
     }
 }
 
+function collectUploadedFilesForCleanup(files) {
+    return Object.values(files ?? {})
+        .flat()
+        .map((file) => ({ file }));
+}
+
 export async function uploadFacePhotosController(req, res, next) {
     try {
         const uploadedFiles = validateUploadedFaceFiles(req.files);
-        const photos = await saveFacePhotos(req.user.id, uploadedFiles);
+        const photos = await saveFacePhotos(
+            req.user.id,
+            uploadedFiles,
+            req.faceConsent,
+        );
 
         return res.status(201).json({ photos });
     } catch (err) {
+        await removeUploadedFiles(collectUploadedFilesForCleanup(req.files));
         return next(err);
     }
 }
@@ -476,7 +513,10 @@ export async function uploadFacePhotosController(req, res, next) {
 // server/src/routes/face-photo.routes.js
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
-import { uploadFacePhotos } from "../middlewares/face-photo-upload.middleware.js";
+import {
+    ensureActiveFaceConsent,
+    uploadFacePhotos,
+} from "../middlewares/face-photo-upload.middleware.js";
 import {
     acceptFaceConsentController,
     uploadFacePhotosController,
@@ -493,14 +533,15 @@ facePhotoRoutes.post(
 facePhotoRoutes.post(
     "/face-photos",
     requireAuth,
+    ensureActiveFaceConsent,
     uploadFacePhotos,
     uploadFacePhotosController,
 );
 ```
 
-5. Explicação do código: os dois endpoints exigem sessão. O userId vem da sessão e não do frontend.
-6. Como validar este passo: sem cookie, ambos devem responder `401`.
-7. Erros comuns ou cenário negativo: permitir upload anónimo torna impossível provar ownership.
+5. Explicação do código: os dois endpoints exigem sessão. O `userId` vem da sessão e não do frontend. Na rota de fotografias, a ordem é importante: primeiro autenticação, depois consentimento ativo, só depois upload. O controller ainda limpa ficheiros se a validação das duas fotografias falhar depois de o multipart já ter sido recebido.
+6. Como validar este passo: sem cookie, ambos devem responder `401`; com cookie mas sem consentimento, `/api/face-photos` deve responder `403` sem criar ficheiro; com apenas uma fotografia, deve responder `400` e apagar a fotografia recebida.
+7. Erros comuns ou cenário negativo: permitir upload anónimo torna impossível provar ownership; colocar `uploadFacePhotos` antes de `ensureActiveFaceConsent` volta a permitir ficheiros biométricos sem consentimento.
 
 ### Passo 7 - Registar route e adaptar apiClient para FormData
 
@@ -670,15 +711,16 @@ export function App() {
 - [ ] Sem sessão devolve `401`.
 - [ ] Sem consentimento devolve `403`.
 - [ ] Ficheiro inválido devolve `400`.
+- [ ] Upload incompleto devolve `400` e não deixa ficheiro órfão.
 - [ ] Resposta não inclui `storageKey` nem path interno.
 
 ### Matriz mínima de testes por prioridade
 
 | Camada | Evidência |
 | --- | --- |
-| Middleware | Tipo e tamanho de ficheiro validados. |
-| Service | Consentimento e ownership verificados. |
-| Controller/route | Endpoints devolvem contrato público. |
+| Middleware | Consentimento ativo antes do upload; tipo e tamanho de ficheiro validados. |
+| Service | Consentimento, ownership e limpeza em erro verificados. |
+| Controller/route | Endpoints devolvem contrato público e limpam upload incompleto. |
 | UI | Formulário envia `FormData` com duas fotografias. |
 
 Evidência de testes por camada:
@@ -692,6 +734,7 @@ Evidência de testes por camada:
 - Sem sessão responde `401`.
 - Sem consentimento responde `403`.
 - Ficheiro inválido responde `400`.
+- Upload incompleto responde `400` sem deixar ficheiro órfão.
 
 ## Critérios de aceite
 - Cenários negativos concluídos: mínimo `3`.
@@ -699,6 +742,8 @@ Evidência de testes por camada:
 - O backend exige sessão.
 - O backend exige consentimento ativo.
 - O backend exige `frontal` e `perfil`.
+- A rota confirma consentimento antes de `multer.diskStorage`.
+- Erros depois do upload limpam ficheiros recém-recebidos.
 - A resposta não devolve `storageKey`.
 - O frontend não guarda tokens no `localStorage`.
 
@@ -706,12 +751,14 @@ Evidência de testes por camada:
 - Enviar consentimento.
 - Fazer upload com `frontal` e `perfil`.
 - Repetir upload sem consentimento num utilizador novo e confirmar `403`.
+- Enviar só `frontal` com consentimento ativo e confirmar `400` e ausência de ficheiro órfão.
 
 ## Evidence para PR/defesa
 - Output de consentimento com `200`.
 - Output de upload com `201`.
 - Screenshot da página com mensagem de sucesso.
 - Output de tentativa sem sessão com `401`.
+- Output de tentativa sem consentimento com `403` e evidência de que não foi criado ficheiro.
 
 ## Handoff
 
@@ -720,4 +767,4 @@ Evidência de testes por camada:
 `BK-MF1-06` deve usar `FacePhoto` e `FaceConsent`. A análise não deve procurar ficheiros por caminho público nem aceitar `userId` vindo do frontend.
 
 ## Changelog
-- `2026-05-31`: guia revisto com consentimento mínimo, upload seguro, storage privado, ownership e frontend com `FormData`.
+- `2026-05-31`: guia revisto com consentimento mínimo antes do upload, limpeza de ficheiros em erro, storage privado, ownership e frontend com `FormData`.

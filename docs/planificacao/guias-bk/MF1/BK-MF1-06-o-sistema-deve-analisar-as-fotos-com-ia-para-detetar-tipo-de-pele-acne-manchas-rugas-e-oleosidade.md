@@ -487,16 +487,16 @@ export function App() {
 4. Código completo, correto e integrado:
 
 ```bash
-curl -i -X POST http://localhost:3000/api/face-analyses
-curl -i -X POST http://localhost:3000/api/face-analyses \
-    -H "Authorization: Bearer TOKEN_SEM_CONSENTIMENTO"
-curl -i -X POST http://localhost:3000/api/face-analyses \
-    -H "Authorization: Bearer TOKEN_COM_CONSENTIMENTO_SEM_FOTOS"
+curl -i -X POST http://localhost:3001/api/face-analyses
+curl -i -X POST http://localhost:3001/api/face-analyses \
+    -H "Cookie: orelle_session=COOKIE_CLIENTE_SEM_CONSENTIMENTO"
+curl -i -X POST http://localhost:3001/api/face-analyses \
+    -H "Cookie: orelle_session=COOKIE_CLIENTE_COM_CONSENTIMENTO_SEM_FOTOS"
 ```
 
-5. Explicação do código: os pedidos validam autenticação, consentimento e existência das duas fotografias antes de qualquer processamento.
+5. Explicação do código: os pedidos validam autenticação, consentimento e existência das duas fotografias antes de qualquer processamento. Os pedidos autenticados usam o cookie `orelle_session` criado no login do `BK-MF0-02`; o frontend real envia esse cookie com `credentials: "include"` e nunca usa token em `localStorage`.
 6. Como validar este passo: confirma `401`, `403` e `400` nos três cenários.
-7. Erros comuns ou cenário negativo: executar o provider antes dos guardrails desperdiça recursos e pode tratar dados sem base legal.
+7. Erros comuns ou cenário negativo: executar o provider antes dos guardrails desperdiça recursos e pode tratar dados sem base legal; testar com header de autorização por token criaria um contrato de autenticação diferente do resto da app.
 
 ### Validação
 - [ ] Negativos: mínimo `3` cenários.

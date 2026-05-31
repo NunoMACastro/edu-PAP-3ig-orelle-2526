@@ -29,6 +29,7 @@ As avaliações ajudam outros clientes a decidir e preparam a moderação admini
 - Criar endpoint `POST /api/catalog/products/:productId/reviews`.
 - Criar endpoint `GET /api/catalog/products/:productId/reviews`.
 - Impedir que o frontend envie `userId`.
+- Exigir role `cliente` para criar reviews.
 - Integrar formulário React com sessão por cookie.
 
 ## Scope-out
@@ -51,6 +52,8 @@ Avaliação de produto não é moderação. O cliente cria conteúdo; a administ
 
 O `userId` vem de `req.user.id`, criado por `requireAuth`. Isto impede que o frontend crie avaliações em nome de outro cliente. O produto vem do URL e é validado no backend.
 
+Além de estar autenticado, o utilizador que cria a avaliação deve ter role `cliente`. Esta autorização vem de `BK-MF0-05` e evita que contas de consultor ou administrador sejam usadas para produzir reviews de cliente. O frontend pode esconder o formulário, mas a decisão final fica no backend com `requireRole(ROLES.CLIENTE)`.
+
 A unicidade é uma regra de negócio persistida no modelo: um utilizador só pode ter uma avaliação por produto. A validação de input apanha estrelas e comentário inválidos; o índice único apanha a repetição real no MongoDB. O service deve transformar esse erro técnico num `409` compreensível para a API.
 
 Na resposta pública, a avaliação deve expor a nota, comentário, estado e data. Identificadores internos do utilizador não são necessários para mostrar reviews no produto e devem ser omitidos até existir um contrato explícito de perfil público.
@@ -59,6 +62,7 @@ Na resposta pública, a avaliação deve expor a nota, comentário, estado e dat
 - `Review` guarda `productId`, `userId`, `rating` e `comment`.
 - `validateReviewInput` válida estrelas e texto.
 - `createProductReview` confirma produto existente e grava ownership.
+- `requireRole(ROLES.CLIENTE)` garante que só clientes criam reviews.
 - `ProductReviewForm` envia avaliação com `credentials: "include"` através do `apiClient`.
 
 ## Ficheiros a criar/editar/rever
@@ -333,12 +337,16 @@ export async function listProductReviewsController(req, res, next) {
 2. Ficheiros envolvidos.
     - EDITAR: `server/src/routes/catalog.routes.js`
     - REVER: `server/src/middlewares/auth.middleware.js`
+    - REVER: `server/src/middlewares/role.middleware.js`
+    - REVER: `server/src/constants/roles.js`
     - LOCALIZAÇÃO: imports e rotas.
 3. O que fazer: acrescenta o código abaixo.
 4. Código completo, correto e integrado:
 
 ```js
 import { requireAuth } from "../middlewares/auth.middleware.js";
+import { requireRole } from "../middlewares/role.middleware.js";
+import { ROLES } from "../constants/roles.js";
 import {
     createProductReviewController,
     listProductReviewsController,
@@ -352,13 +360,14 @@ catalogRoutes.get(
 catalogRoutes.post(
     "/products/:productId/reviews",
     requireAuth,
+    requireRole(ROLES.CLIENTE),
     createProductReviewController,
 );
 ```
 
-5. Explicação do código: qualquer pessoa pode ler avaliações publicadas, mas só uma sessão autenticada pode criar.
-6. Como validar este passo: faz `POST` sem cookie e espera `401`.
-7. Erros comuns ou cenário negativo: proteger só no frontend deixa a API vulnerável.
+5. Explicação do código: qualquer pessoa pode ler avaliações publicadas, mas só uma sessão autenticada com role `cliente` pode criar. `requireAuth` identifica o utilizador, e `requireRole(ROLES.CLIENTE)` confirma que o papel dessa conta corresponde ao ator de `RF11`.
+6. Como validar este passo: faz `POST` sem cookie e espera `401`; depois faz `POST` com sessão de consultor ou administrador e espera `403`.
+7. Erros comuns ou cenário negativo: proteger só no frontend deixa a API vulnerável; usar apenas `requireAuth` confundiria autenticação com autorização.
 
 ### Passo 7 - Criar página de avaliação
 
@@ -477,6 +486,7 @@ export function App() {
 ### Validação
 - [ ] Negativos: mínimo `2` cenários.
 - [ ] Sem sessão devolve `401`.
+- [ ] Sessão autenticada sem role `cliente` devolve `403`.
 - [ ] Rating fora de `1..5` devolve `400`.
 - [ ] Produto inexistente devolve erro controlado.
 - [ ] UI mostra erro e sucesso sem expor dados internos.
@@ -498,6 +508,7 @@ Evidência de testes por camada:
 ## Expected results
 - `POST /api/catalog/products/:productId/reviews` com sessão válida responde `201`.
 - Sem sessão responde `401`.
+- Sessão autenticada sem role `cliente` responde `403`.
 - Rating fora de `1..5` responde `400`.
 - Produto inexistente responde `404`.
 - Segunda avaliação do mesmo utilizador para o mesmo produto responde `409`.
@@ -506,18 +517,21 @@ Evidência de testes por camada:
 - Cenários negativos concluídos: mínimo `2`.
 - Evidência de testes por camada documentada.
 - O backend usa `req.user.id`.
+- O backend usa `requireRole(ROLES.CLIENTE)`.
 - Não há `userId` no payload do frontend.
 - Só uma avaliação por utilizador e produto.
 - Reviews publicadas podem ser listadas por produto.
 
 ## Validação final
 - Criar review autenticada.
+- Tentar criar review com sessão de consultor ou administrador e confirmar `403`.
 - Repetir a mesma review e observar erro de duplicação controlado pelo índice.
 - Listar reviews do produto.
 
 ## Evidence para PR/defesa
 - Output de criação com `201`.
 - Output de criação sem login com `401`.
+- Output de criação com role não cliente e resposta `403`.
 - Screenshot do formulário.
 
 ## Handoff
@@ -527,4 +541,4 @@ Evidência de testes por camada:
 `BK-MF1-04` pode usar avaliações como contexto comercial futuro, mas a primeira versão de produtos semelhantes deve continuar baseada em catálogo para não depender de compras reais.
 
 ## Changelog
-- `2026-05-31`: guia revisto com modelo Review, validação, ownership por sessão, rotas e formulário React.
+- `2026-05-31`: guia revisto com modelo Review, validação, ownership por sessão, RBAC de cliente, rotas e formulário React.

@@ -335,17 +335,17 @@ export function App() {
 4. Código completo, correto e integrado:
 
 ```bash
-curl -i http://localhost:3000/api/me/skin-history \
-    -H "Authorization: Bearer TOKEN_UTILIZADOR_A"
-curl -i "http://localhost:3000/api/me/skin-history?userId=ID_UTILIZADOR_B" \
-    -H "Authorization: Bearer TOKEN_UTILIZADOR_A"
-curl -i http://localhost:3000/api/me/skin-history \
-    -H "Authorization: Bearer TOKEN_UTILIZADOR_B"
+curl -i http://localhost:3001/api/me/skin-history \
+    -H "Cookie: orelle_session=COOKIE_UTILIZADOR_A"
+curl -i "http://localhost:3001/api/me/skin-history?userId=ID_UTILIZADOR_B" \
+    -H "Cookie: orelle_session=COOKIE_UTILIZADOR_A"
+curl -i http://localhost:3001/api/me/skin-history \
+    -H "Cookie: orelle_session=COOKIE_UTILIZADOR_B"
 ```
 
-5. Explicação do código: o segundo pedido tenta manipular o ownership, mas o backend deve continuar a usar apenas `req.user.id`.
+5. Explicação do código: o segundo pedido tenta manipular o ownership, mas o backend deve continuar a usar apenas `req.user.id`. Os cookies representam sessões criadas pelo login do `BK-MF0-02`; isto valida o mesmo mecanismo que o frontend usa com `credentials: "include"`.
 6. Como validar este passo: confirma que o utilizador A nunca recebe entradas do utilizador B.
-7. Erros comuns ou cenário negativo: aceitar `userId` na query transforma o histórico numa fuga direta de dados pessoais.
+7. Erros comuns ou cenário negativo: aceitar `userId` na query transforma o histórico numa fuga direta de dados pessoais; trocar o cookie por header de autorização por token contraria o contrato de sessão da app.
 
 ### Validação
 - [ ] Negativos: mínimo `2` cenários.

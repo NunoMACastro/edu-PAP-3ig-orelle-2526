@@ -233,6 +233,10 @@ function toPublicProductResponse(product) {
     };
 }
 
+function escapeRegexText(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function listCatalogProducts(filters) {
     const query = {};
 
@@ -241,7 +245,8 @@ export async function listCatalogProducts(filters) {
     }
 
     if (filters.brandName) {
-        query.brandName = new RegExp(filters.brandName, "i");
+        const escapedBrandName = escapeRegexText(filters.brandName);
+        query.brandName = new RegExp(escapedBrandName, "i");
     }
 
     if (filters.skinType) {
@@ -273,9 +278,9 @@ export async function listCatalogProducts(filters) {
 }
 ```
 
-5. Explicação do código: o service devolve apenas campos públicos. `createdBy` fica fora da resposta para não expor dados administrativos.
-6. Como validar este passo: cria dois produtos com marcas diferentes e confirma que `brandName` filtra sem alterar a base de dados.
-7. Erros comuns ou cenário negativo: usar `Product.find(req.query)` deixaria o cliente pesquisar por campos internos.
+5. Explicação do código: o service devolve apenas campos públicos. `createdBy` fica fora da resposta para não expor dados administrativos. A pesquisa por marca usa regex apenas depois de escapar caracteres especiais, para que texto como `[` ou `.*` seja tratado como texto normal e não como uma expressão arbitrária enviada pelo cliente.
+6. Como validar este passo: cria dois produtos com marcas diferentes e confirma que `brandName` filtra sem alterar a base de dados; testa também `brandName=[` e confirma que a API responde de forma controlada.
+7. Erros comuns ou cenário negativo: usar `Product.find(req.query)` deixaria o cliente pesquisar por campos internos; criar regex diretamente com input do cliente pode gerar erros técnicos ou filtros demasiado pesados.
 
 ### Passo 4 - Criar controller público do catálogo
 
@@ -548,8 +553,8 @@ Evidência de testes por camada:
 - O frontend chama endpoint real.
 
 ## Validação final
-- `curl "http://localhost:3000/api/catalog/products?skinType=oleosa"`
-- `curl "http://localhost:3000/api/catalog/products?minPriceCents=-1"` deve devolver `400`.
+- `curl "http://localhost:3001/api/catalog/products?skinType=oleosa"`
+- `curl "http://localhost:3001/api/catalog/products?minPriceCents=-1"` deve devolver `400`.
 - Abrir a página e testar filtros com e sem resultados.
 
 ## Evidence para PR/defesa
