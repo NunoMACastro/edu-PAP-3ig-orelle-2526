@@ -83,6 +83,12 @@ PUT http://127.0.0.1:5000/api/profile/me
 Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
 Content-Type: application/json
 
+{
+  "nome": "Marta Silva",
+  "idade": 19,
+  "tipoDePele": "mista",
+  "genero": "feminino",
+  "objetivos": ["hidratar", "uniformizar textura"]
 
 
 
@@ -168,6 +174,25 @@ Resposta `201`:
 
 Erro sem sessao `401`:
 
+# Resposta Esperada (200 OK):
+# {
+#     "profile": {
+#         "nome": "Marta Silva",
+#         "idade": 19,
+#         "profilePhotoMode": "stub_url"
+#     }
+# }
+
+###
+
+### Atualizar Foto de Perfil (Stub)
+PATCH http://127.0.0.1:5000/api/profile/me/photo
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
+Content-Type: application/json
+
+{
+  "profilePhotoMode": "stub_url",
+  "profilePhotoUrl": "http://localhost/avatar-demo.png"
 ```json
 {
     "error": {
@@ -181,6 +206,25 @@ Erro sem sessao `401`:
 
 Erro de perfil duplicado `409`:
 
+# Resposta de Bloqueio Provisório:
+# {
+#     "error": {
+#         "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
+#     }
+# }
+
+###
+
+### ==========================================
+### ROLES E ATRIBUIÇÕES (MF05 - Criação de Roles)
+### ==========================================
+
+### Atualizar Preferências do Utilizador
+PUT http://127.0.0.1:5000/api/preferences/me
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
+Content-Type: application/json
+
+{
 ```json
 {
     "error": {
@@ -268,6 +312,7 @@ Content-Type: application/json
 #             "favoriteProductIds": "Produtos favoritos so ficam ativos depois do BK-MF0-07 criar o catalogo"
 #         }
 #     }
+# }
 # }
 ```json
 {

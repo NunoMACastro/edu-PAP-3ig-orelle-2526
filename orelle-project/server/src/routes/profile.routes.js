@@ -14,4 +14,5 @@ profileRoutes.post("/me", requireAuth, createMyProfileController);
 profileRoutes.put("/me", requireAuth, updateMyProfileController);
 profileRoutes.patch("/me/photo", requireAuth, updateMyProfilePhotoController);
 profileRoutes.patch("/me/photo", requireAuth, updateMyProfilePhotoController);
+profileRoutes.patch("/me/photo", requireAuth, updateMyProfilePhotoController);
 profileRoutes.post("/me", requireAuth, createMyProfileController);
