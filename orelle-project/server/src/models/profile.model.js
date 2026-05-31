@@ -46,6 +46,19 @@ const profileSchema = new Schema(
             type: [String],
             default: [],
         },
+        profilePhotoUrl: {
+            type: String,
+            default: ''
+        },
+        profilePhotoMode: {
+            type: String,
+            enum: ['stub_url', 'secure_upload'],
+            default: 'stub_url'
+        },
+        profilePhotoUpdatedAt: {
+            type: Date,
+            default: null
+        }
     },
     { timestamps: true },
 );
