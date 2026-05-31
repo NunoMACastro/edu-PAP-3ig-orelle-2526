@@ -1,4 +1,5 @@
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { AdminProductCreatePage } from "./pages/AdminProductCreatePage.jsx";
 import { EditProfilePage } from "./pages/EditProfilePage.jsx";
 import { LoginPage } from "./pages/LoginPage.jsx";
 import { PreferencesPage } from "./pages/PreferencesPage.jsx";
@@ -13,6 +14,7 @@ export function App() {
             <ProfileSetupPage />
             <EditProfilePage />
             <PreferencesPage />
+            <AdminProductCreatePage />
         </AuthProvider>
     );
 }
