@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
+import { ROLE_VALUES, ROLES } from "../constants/roles.js";
 
 const { Schema, model } = mongoose;
-
-const USER_ROLES = ["cliente", "consultor", "administrador"];
 
 const userSchema = new Schema(
     {
@@ -20,13 +19,11 @@ const userSchema = new Schema(
         },
         role: {
             type: String,
-            enum: USER_ROLES,
-            default: "cliente",
+            enum: ROLE_VALUES,
+            default: ROLES.CLIENTE,
         },
     },
-    {
-        timestamps: true,
-    },
+    { timestamps: true },
 );
 
 userSchema.index({ email: 1 }, { unique: true });
