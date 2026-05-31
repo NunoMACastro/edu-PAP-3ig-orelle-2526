@@ -37,12 +37,6 @@ Este BK transforma o catálogo administrativo criado em `BK-MF0-07` e organizado
 - Não alterar produtos; escrita de produtos continua reservada a administradores.
 - Não inventar ranking clínico ou diagnóstico facial.
 
-## Estado antes
-`CRITICO`: o guia anterior não indicava ficheiros, endpoints, DTOs, serviços, componentes nem código executável.
-
-## Estado depois
-`OK`: este guia passa a entregar backend e frontend completos para `RF09`, usando contratos já definidos na `MF0`.
-
 ## Pré-requisitos
 - `BK-MF0-07`: `server/src/models/product.model.js` e `server/src/services/product.service.js`.
 - `BK-MF0-08`: `server/src/models/category.model.js` e `Product.categoryIds`.
@@ -57,7 +51,11 @@ Este BK transforma o catálogo administrativo criado em `BK-MF0-07` e organizado
 ## Conceitos teóricos
 Pesquisa de produtos não é recomendação personalizada. Em `RF09`, o cliente escolhe filtros e o backend devolve produtos que correspondem a esses filtros. A app não deve usar IA para decidir o que é melhor para a pele do cliente nesta fase.
 
-No backend, a route recebe o pedido HTTP, o validator transforma query params em dados seguros, o service consulta MongoDB/Mongoose e o controller devolve apenas campos públicos. Isto evita que o frontend leia dados internos como `createdBy`.
+Query params chegam sempre como texto. Por isso, o validator converte preços para número, normaliza texto de pesquisa e rejeita valores fora do contrato antes de qualquer query em MongoDB. Esta validação protege a API contra filtros ambíguos, preços negativos e IDs mal formados.
+
+No backend, a route recebe o pedido HTTP, o validator transforma query params em dados seguros, o service consulta MongoDB/Mongoose e o controller devolve apenas campos públicos. Esta separação ajuda a perceber onde cada responsabilidade vive: validação na entrada, regra de pesquisa no service e resposta HTTP no controller.
+
+A resposta pública deve ser minimizada. Campos administrativos como `createdBy`, timestamps internos que não sejam necessários ou detalhes de gestão não devem sair para o cliente. A pesquisa é pública, mas isso não significa que todo o documento `Product` seja público.
 
 No frontend, o componente React guarda filtros em `useState`, faz o pedido com `useEffect` ou por submissão de formulário e mostra estados claros. Mesmo sendo uma rota pública, o `apiClient` continua a usar cookies com `credentials: "include"` para manter o padrão da aplicação.
 
@@ -304,7 +302,7 @@ export async function listCatalogProductsController(req, res, next) {
 }
 ```
 
-5. Explicação do código: o controller só coordena validação, service e resposta. A regra de pesquisa fica no service.
+5. Explicação do código: o controller só coordena validação, service e resposta. Se a query for inválida, o validator lança erro antes da consulta; se for válida, o service aplica filtros em MongoDB e o controller devolve sempre o contrato `{ products }`.
 6. Como validar este passo: faz `GET /api/catalog/products?minPriceCents=-5` e confirma resposta `400`.
 7. Erros comuns ou cenário negativo: colocar lógica de MongoDB no controller dificulta testes e duplicação futura.
 
@@ -536,12 +534,6 @@ Evidencia de testes por camada:
 - Service: teste ou log controlado com filtros combinados.
 - UI: screenshot da pesquisa com resultados e sem resultados.
 
-## Snippet tecnico aplicavel
-
-```http
-GET /api/catalog/products?q=serum&brandName=Orelle&minPriceCents=1000&maxPriceCents=5000
-```
-
 ## Expected results
 - `GET /api/catalog/products` responde `200` com `{ "products": [...] }`.
 - Filtros inválidos respondem `400`.
@@ -572,4 +564,4 @@ GET /api/catalog/products?q=serum&brandName=Orelle&minPriceCents=1000&maxPriceCe
 O próximo BK deve reutilizar `GET /api/catalog/products/:productId` ou criar uma rota de detalhe compatível com o mesmo modelo `Product`. Não deve criar outro schema de produto.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com endpoint, validator, service, controller, route, página React e validação pedagógica.
+- `2026-05-31`: guia revisto com endpoint, validator, service, controller, route, página React e validação pedagógica.

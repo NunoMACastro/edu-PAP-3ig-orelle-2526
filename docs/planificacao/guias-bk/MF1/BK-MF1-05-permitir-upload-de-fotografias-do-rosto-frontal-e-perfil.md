@@ -36,12 +36,6 @@ As fotografias faciais são dados biométricos sensíveis. Antes de guardar fich
 - Não gerar relatório; isso fica para `BK-MF1-07`.
 - Não criar painel de eliminação/anonymização; isso fica para `BK-MF5-01`.
 
-## Estado antes
-`CRITICO`: o guia anterior tratava fotografia facial como fluxo genérico e sem privacidade.
-
-## Estado depois
-`OK`: o guia cria consentimento, upload seguro, ownership e frontend com `FormData`.
-
 ## Pré-requisitos
 - `BK-MF0-02`: sessão com cookie HttpOnly e `requireAuth`.
 - `BK-MF0-03`: perfil do cliente.
@@ -56,7 +50,11 @@ As fotografias faciais são dados biométricos sensíveis. Antes de guardar fich
 ## Conceitos teóricos
 Upload facial não é análise facial. Este BK só guarda fotografias e metadados; a IA começa no próximo BK.
 
-O backend usa `requireAuth` para saber quem é o utilizador. O frontend nunca envia `userId`. O storage privado guarda ficheiros fora de uma pasta pública, e a API devolve apenas IDs e metadados seguros.
+O backend usa `requireAuth` para saber quem é o utilizador. O frontend nunca envia `userId`. O storage privado guarda ficheiros fora de uma pasta pública, e a API devolve apenas IDs e metadados seguros. `storageKey` fica no backend porque revela onde o ficheiro vive e pode abrir caminho a acesso indevido se escapar para o cliente.
+
+Fotografias faciais são dados sensíveis. Nesta fase, a proteção mínima é consentimento explícito, validação de formato/tamanho, ownership por sessão, pasta privada e resposta minimizada. A encriptação de ficheiros, eliminação/anonymização e auditoria de acessos ficam preparadas para BKs posteriores, mas este BK não deve bloquear esses requisitos futuros.
+
+Também existe uma falha operacional importante: o ficheiro pode chegar ao disco e a gravação em MongoDB falhar. O service deve limpar ficheiros recém-recebidos se a persistência falhar, reduzindo risco de ficheiros órfãos com dados biométricos.
 
 `Multer` é usado porque o Express não processa multipart/form-data sozinho. A alternativa seria escrever um parser manual, mas isso aumenta risco e complexidade sem valor pedagógico.
 
@@ -353,6 +351,7 @@ export const uploadFacePhotos = multer({
 4. Código completo, correto e integrado:
 
 ```js
+import { unlink } from "node:fs/promises";
 import { AppError } from "../middlewares/error.middleware.js";
 import { FaceConsent } from "../models/face-consent.model.js";
 import { FacePhoto } from "../models/face-photo.model.js";
@@ -367,6 +366,12 @@ function toFacePhotoResponse(photo) {
         status: photo.status,
         createdAt: photo.createdAt,
     };
+}
+
+async function removeUploadedFiles(uploadedFiles) {
+    await Promise.all(
+        uploadedFiles.map(({ file }) => unlink(file.path).catch(() => undefined)),
+    );
 }
 
 export async function acceptFaceConsent(userId, input) {
@@ -398,25 +403,30 @@ export async function saveFacePhotos(userId, uploadedFiles) {
         throw new AppError(403, "Consentimento facial em falta");
     }
 
-    const photos = await FacePhoto.insertMany(
-        uploadedFiles.map(({ kind, file }) => ({
-            userId,
-            kind,
-            storageKey: file.path,
-            originalName: file.originalname,
-            mimeType: file.mimetype,
-            sizeBytes: file.size,
-            consentId: consent._id,
-        })),
-    );
+    try {
+        const photos = await FacePhoto.insertMany(
+            uploadedFiles.map(({ kind, file }) => ({
+                userId,
+                kind,
+                storageKey: file.path,
+                originalName: file.originalname,
+                mimeType: file.mimetype,
+                sizeBytes: file.size,
+                consentId: consent._id,
+            })),
+        );
 
-    return photos.map(toFacePhotoResponse);
+        return photos.map(toFacePhotoResponse);
+    } catch (err) {
+        await removeUploadedFiles(uploadedFiles);
+        throw err;
+    }
 }
 ```
 
-5. Explicação do código: o service procura consentimento ativo antes de guardar fotografias. A resposta não inclui `storageKey`.
-6. Como validar este passo: tenta upload sem consentimento e confirma `403`.
-7. Erros comuns ou cenário negativo: guardar fotografia antes do consentimento viola privacidade.
+5. Explicação do código: o service procura consentimento ativo antes de guardar fotografias. A resposta não inclui `storageKey`, e se o insert em MongoDB falhar depois de o upload ter escrito ficheiros no disco, o service tenta remover esses ficheiros para não deixar dados sensíveis órfãos.
+6. Como validar este passo: tenta upload sem consentimento e confirma `403`; simula falha de persistência e confirma que os ficheiros recém-recebidos não ficam na pasta privada.
+7. Erros comuns ou cenário negativo: guardar fotografia antes do consentimento viola privacidade; ignorar falhas intermédias cria ficheiros faciais sem registo associado.
 
 ### Passo 6 - Criar controller e route
 
@@ -676,12 +686,6 @@ Evidencia de testes por camada:
 - Service: teste de consentimento ausente.
 - UI: screenshot do formulario com sucesso.
 
-## Snippet tecnico aplicavel
-
-```http
-POST /api/face-photos
-```
-
 ## Expected results
 - `POST /api/face-consent` autenticado responde `200`.
 - `POST /api/face-photos` com duas imagens válidas responde `201`.
@@ -716,4 +720,4 @@ POST /api/face-photos
 `BK-MF1-06` deve usar `FacePhoto` e `FaceConsent`. A análise não deve procurar ficheiros por caminho público nem aceitar `userId` vindo do frontend.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com consentimento mínimo, upload seguro, storage privado, ownership e frontend com `FormData`.
+- `2026-05-31`: guia revisto com consentimento mínimo, upload seguro, storage privado, ownership e frontend com `FormData`.

@@ -36,12 +36,6 @@ O histórico permite comparar evolução ao longo do tempo em `BK-MF2-01` e comp
 - Não comparar imagens; isso fica para `BK-MF3-01`.
 - Não criar painel de eliminação/anonymização.
 
-## Estado antes
-`CRITICO`: o guia anterior não definia histórico, ownership, service, route ou UI.
-
-## Estado depois
-`OK`: o guia entrega histórico seguro e prepara as macrofases seguintes.
-
 ## Pré-requisitos
 - `BK-MF1-06`: análises guardadas em `FaceAnalysis`.
 - `BK-MF1-07`: relatórios guardados em `FaceReport`.
@@ -56,6 +50,10 @@ O histórico permite comparar evolução ao longo do tempo em `BK-MF2-01` e comp
 Histórico pessoal não é gráfico. Este BK organiza dados em formato temporal. O gráfico virá depois, usando a resposta deste endpoint.
 
 O backend nunca aceita `userId` por query param. A identidade vem da sessão. Isto impede que alguém tente chamar `/api/me/skin-history?userId=outro`.
+
+Como o histórico junta análises e relatórios, a resposta deve ser curta, ordenada e sem dados de armazenamento. Não há paths, `storageKey`, IDs de consentimento ou detalhes de ficheiro; há apenas informação necessária para o cliente ver evolução e para BKs futuros criarem gráficos ou comparações.
+
+O limite de resultados protege performance e privacidade. Mesmo que o utilizador tenha muitos registos, este BK devolve um conjunto recente e previsível, preparado para paginação futura se o histórico crescer.
 
 ## Arquitetura do BK
 - `GET /api/me/skin-history`
@@ -113,7 +111,7 @@ Segue os passos lineares abaixo e valida sem sessao, sem dados e tentativa de ma
     - LOCALIZAÇÃO: `RF16`, `RF17` e `RF25`.
 3. O que fazer: confirma que `RF16` prepara comparações futuras.
 4. Código completo, correto e integrado: sem código novo neste passo.
-5. Explicação do código: o histórico é a ponte entre análise, evolução temporal e comparação futura.
+5. Explicação do código: o histórico é a ponte entre análise, evolução temporal e comparação futura. Este passo define o endpoint como leitura pessoal e sensível, para que gráficos e comparações futuras usem um contrato seguro em vez de consultar fotografias diretamente.
 6. Como validar este passo: a rota não deve receber `userId`.
 7. Erros comuns ou cenário negativo: permitir consultar histórico por ID enviado pelo frontend quebra privacidade.
 
@@ -157,8 +155,14 @@ function toReportHistoryItem(report) {
 
 export async function getPersonalSkinHistory(userId) {
     const [analyses, reports] = await Promise.all([
-        FaceAnalysis.find({ userId }).sort({ createdAt: -1 }).limit(30),
-        FaceReport.find({ userId }).sort({ createdAt: -1 }).limit(30),
+        FaceAnalysis.find({ userId })
+            .select("providerName findings limitations createdAt")
+            .sort({ createdAt: -1 })
+            .limit(30),
+        FaceReport.find({ userId })
+            .select("analysisId cosmeticSummary routineSuggestions limitations createdAt")
+            .sort({ createdAt: -1 })
+            .limit(30),
     ]);
 
     return [...analyses.map(toAnalysisHistoryItem), ...reports.map(toReportHistoryItem)]
@@ -166,9 +170,9 @@ export async function getPersonalSkinHistory(userId) {
 }
 ```
 
-5. Explicação do código: o service filtra por `userId` da sessão e nunca por valor vindo do frontend.
-6. Como validar este passo: cria dados para dois utilizadores e confirma que cada um vê apenas os seus.
-7. Erros comuns ou cenário negativo: listar sem filtro por `userId` expõe dados biométricos de todos.
+5. Explicação do código: o service filtra por `userId` da sessão e nunca por valor vindo do frontend. O `.select(...)` limita os campos devolvidos e impede que o histórico transporte detalhes técnicos desnecessários, como IDs de fotografias, consentimento ou storage.
+6. Como validar este passo: cria dados para dois utilizadores e confirma que cada um vê apenas os seus; confirma também que a resposta não inclui `storageKey`, `photoIds` ou `consentId`.
+7. Erros comuns ou cenário negativo: listar sem filtro por `userId` expõe dados biométricos de todos; devolver documentos completos aumenta superfície de fuga de dados.
 
 ### Passo 3 - Criar controller e route
 
@@ -228,7 +232,7 @@ import { skinHistoryRoutes } from "./routes/skin-history.routes.js";
 app.use("/api", skinHistoryRoutes);
 ```
 
-5. Explicação do código: o endpoint final é `GET /api/me/skin-history`.
+5. Explicação do código: o endpoint final é `GET /api/me/skin-history`. Montar a route em `/api` preserva o prefixo comum da aplicação e mantém `/me` como sinal de que os dados pertencem ao utilizador autenticado.
 6. Como validar este passo: confirma que a rota autenticada existe.
 7. Erros comuns ou cenário negativo: registar sem `requireAuth` expõe dados sensíveis.
 
@@ -363,17 +367,12 @@ Evidencia de testes por camada:
 - Service: teste de isolamento entre dois utilizadores.
 - UI: screenshot da lista temporal.
 
-## Snippet tecnico aplicavel
-
-```http
-GET /api/me/skin-history
-```
-
 ## Expected results
 - Com sessão: `200` com `{ "history": [...] }`.
 - Sem sessão: `401`.
 - Sem dados: `200` com lista vazia.
 - A resposta não inclui `storageKey` nem paths internos.
+- A resposta não inclui `photoIds` nem `consentId`.
 
 ## Criterios de aceite
 - Cenarios negativos concluidos: minimo `2`.
@@ -400,4 +399,4 @@ GET /api/me/skin-history
 `BK-MF2-01` deve usar `history` para construir gráficos. Não deve voltar a consultar fotografias diretamente nem contornar `GET /api/me/skin-history`.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com histórico pessoal, ownership, route autenticada e UI.
+- `2026-05-31`: guia revisto com histórico pessoal, ownership, route autenticada e UI.

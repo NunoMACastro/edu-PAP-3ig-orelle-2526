@@ -37,12 +37,6 @@ A análise facial é núcleo `CORE-IA`. Como usa dados biométricos, deve ser se
 - Não apresentar diagnóstico médico definitivo.
 - Não enviar imagens para treino externo.
 
-## Estado antes
-`CRITICO`: o guia anterior não tinha provider, service, validações, consentimento nem fallback.
-
-## Estado depois
-`OK`: o guia implementa análise controlada e preparatória para relatório e histórico.
-
 ## Pré-requisitos
 - `BK-MF1-05`: `FaceConsent` e `FacePhoto`.
 - `RNF18`: suporte para provider de IA externo ou provider isolado.
@@ -56,7 +50,11 @@ A análise facial é núcleo `CORE-IA`. Como usa dados biométricos, deve ser se
 ## Conceitos teóricos
 Análise facial não é recomendação automática. Este BK observa fotografias e produz sinais cosméticos: tipo de pele, acne, manchas, rugas e oleosidade. O resultado não é diagnóstico médico.
 
-O provider fica isolado para trocar uma implementação local por Azure Face API, TensorFlow/FastAPI ou outro motor sem reescrever controllers. A app regista fonte, confiança e limitações.
+O provider só deve receber fotografias já validadas e pertencentes ao utilizador autenticado. O frontend não envia paths, `storageKey` nem IDs de fotografias; o service escolhe as fotografias no backend depois de confirmar sessão, consentimento e ownership.
+
+O provider fica isolado para trocar uma implementação local por Azure Face API, TensorFlow/FastAPI ou outro motor sem reescrever controllers. A app regista fonte, confiança e limitações para o utilizador perceber de onde veio a conclusão e quão forte ela é.
+
+Os limites éticos fazem parte do contrato técnico. A análise deve evitar linguagem médica definitiva, indicar incerteza quando a confiança é baixa, não treinar modelos externos sem consentimento explícito e manter atenção a enviesamentos de iluminação, tom de pele, enquadramento e qualidade da fotografia.
 
 ## Arquitetura do BK
 - `POST /api/face-analyses`
@@ -118,7 +116,7 @@ Segue os passos lineares abaixo e valida sem sessao, sem consentimento e sem as 
     - LOCALIZAÇÃO: `RF14`, `RNF18`, `RNF23`, `RNF24`, `RNF25`.
 3. O que fazer: confirma que a saída deve ter fontes, confiança e limitações.
 4. Código completo, correto e integrado: sem código novo neste passo.
-5. Explicação do código: a regra protege utilizadores de conclusões exageradas.
+5. Explicação do código: a regra protege utilizadores de conclusões exageradas. O objetivo é obrigar o resultado a comunicar fontes, confiança e limitações, para que a análise seja entendida como leitura cosmética e não como diagnóstico médico.
 6. Como validar este passo: a resposta final deve dizer que não é diagnóstico médico.
 7. Erros comuns ou cenário negativo: prometer cura ou certeza clínica não pertence à Orélle.
 
@@ -390,7 +388,7 @@ import { faceAnalysisRoutes } from "./routes/face-analysis.routes.js";
 app.use("/api", faceAnalysisRoutes);
 ```
 
-5. Explicação do código: o endpoint final é `POST /api/face-analyses`.
+5. Explicação do código: o endpoint final é `POST /api/face-analyses`. A route usa `requireAuth`, por isso a análise é sempre criada para o utilizador da sessão e não para um `userId` enviado pelo cliente.
 6. Como validar este passo: confirma que a rota não devolve `404`.
 7. Erros comuns ou cenário negativo: registar depois do middleware de erro impede execução.
 
@@ -521,12 +519,6 @@ Evidencia de testes por camada:
 - Service: teste de consentimento ausente.
 - UI: screenshot com findings e limitations.
 
-## Snippet tecnico aplicavel
-
-```http
-POST /api/face-analyses
-```
-
 ## Expected results
 - Com sessão, consentimento e duas fotografias: `201`.
 - Sem sessão: `401`.
@@ -560,4 +552,4 @@ POST /api/face-analyses
 `BK-MF1-07` deve consumir `FaceAnalysis` e gerar relatório personalizado sem voltar a processar ficheiros diretamente.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com modelo de análise, provider isolado, guardrails, ownership e UI.
+- `2026-05-31`: guia revisto com modelo de análise, provider isolado, guardrails, ownership e UI.

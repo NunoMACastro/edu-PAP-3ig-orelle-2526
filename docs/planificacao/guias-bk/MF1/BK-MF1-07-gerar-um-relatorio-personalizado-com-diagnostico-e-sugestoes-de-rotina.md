@@ -37,12 +37,6 @@ O relatório transforma sinais técnicos da análise em linguagem compreensível
 - Não adicionar produtos ao carrinho.
 - Não apresentar diagnóstico médico definitivo.
 
-## Estado antes
-`CRITICO`: o guia anterior não definia modelo, service, rota, UI nem limites éticos.
-
-## Estado depois
-`OK`: o guia gera relatório completo, explicado e ligado à análise criada no BK anterior.
-
 ## Pré-requisitos
 - `BK-MF1-06`: `FaceAnalysis`.
 - `BK-MF0-02`: `requireAuth`.
@@ -56,7 +50,11 @@ O relatório transforma sinais técnicos da análise em linguagem compreensível
 ## Conceitos teóricos
 Relatório personalizado não é histórico completo. Este BK gera um documento associado a uma análise. O histórico de relatórios e análises será organizado em `BK-MF1-08`.
 
-Um relatório seguro deve indicar fontes e limitações. Se a análise tem confiança baixa, o relatório deve explicar essa incerteza em vez de fingir precisão.
+Um relatório seguro deve indicar fontes e limitações. Se a análise tem confiança baixa, o relatório deve explicar essa incerteza em vez de fingir precisão. O termo diagnóstico, neste projeto, significa diagnóstico cosmético limitado, sem valor médico.
+
+As sugestões de rotina são orientações gerais de cuidado, não recomendações personalizadas de produto nem ordens de compra. A recomendação comercial ligada a produtos fica para `RF18`/`BK-MF2-02`; este BK apenas transforma a análise em resumo, rotina de manhã/noite, fontes e limitações.
+
+Como o relatório agrega dados derivados de fotografias faciais, a resposta deve continuar minimizada e ligada ao utilizador autenticado. O service não recebe `analysisId` do frontend; escolhe a análise concluída mais recente do próprio utilizador para reduzir risco de acesso cruzado.
 
 ## Arquitetura do BK
 - `FaceReport`
@@ -190,7 +188,7 @@ const faceReportSchema = new Schema(
 export const FaceReport = model("FaceReport", faceReportSchema);
 ```
 
-5. Explicação do código: o relatório guarda resumo, rotina, fontes e limitações. Isto prepara histórico e exportação futura.
+5. Explicação do código: o relatório guarda resumo, rotina, fontes e limitações ligados a `userId` e `analysisId`. Esta ligação permite auditoria, histórico e exportação futura sem voltar a processar fotografias nem perder a origem da conclusão.
 6. Como validar este passo: confirma que `analysisId` é obrigatório.
 7. Erros comuns ou cenário negativo: guardar relatório sem ligação à análise impede auditoria.
 
@@ -282,7 +280,7 @@ export async function generateReportFromLatestAnalysis(userId) {
 }
 ```
 
-5. Explicação do código: o service lê apenas análises do próprio utilizador e cria sugestões genéricas de rotina, não produtos.
+5. Explicação do código: o service lê apenas análises concluídas do próprio utilizador, ordena pela mais recente e cria sugestões genéricas de rotina, não produtos. A resposta reutiliza `sources` e `limitations` da análise para manter explicabilidade e não esconder incerteza.
 6. Como validar este passo: tenta gerar relatório sem análise e confirma `400`.
 7. Erros comuns ou cenário negativo: usar a última análise global permitiria relatório de outro utilizador.
 
@@ -344,7 +342,7 @@ import { faceReportRoutes } from "./routes/face-report.routes.js";
 app.use("/api", faceReportRoutes);
 ```
 
-5. Explicação do código: o endpoint final é `POST /api/face-reports/latest`.
+5. Explicação do código: o endpoint final é `POST /api/face-reports/latest`. A palavra `latest` indica que o backend escolhe a análise concluída mais recente do utilizador autenticado; o frontend não decide qual análise de outra pessoa usar.
 6. Como validar este passo: confirma que a rota existe e não devolve `404`.
 7. Erros comuns ou cenário negativo: colocar a rota antes do parser JSON não afeta este endpoint, mas manter ordem consistente facilita leitura.
 
@@ -500,12 +498,6 @@ Evidencia de testes por camada:
 - Service: teste de ausencia de analise concluida.
 - UI: screenshot do relatorio.
 
-## Snippet tecnico aplicavel
-
-```http
-POST /api/face-reports/latest
-```
-
 ## Expected results
 - Com análise concluída: `201` com `{ "report": ... }`.
 - Sem sessão: `401`.
@@ -537,4 +529,4 @@ POST /api/face-reports/latest
 `BK-MF1-08` deve listar análises e relatórios do próprio utilizador, preservando ownership e ordem temporal.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com modelo de relatório, service, route, UI, limites cosméticos e handoff para histórico.
+- `2026-05-31`: guia revisto com modelo de relatório, service, route, UI, limites cosméticos e handoff para histórico.

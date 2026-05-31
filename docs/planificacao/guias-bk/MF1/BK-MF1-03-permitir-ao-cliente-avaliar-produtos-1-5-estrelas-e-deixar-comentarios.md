@@ -36,12 +36,6 @@ As avaliações ajudam outros clientes a decidir e preparam a moderação admini
 - Não permitir editar ou apagar avaliações neste BK.
 - Não usar avaliação como treino real de IA.
 
-## Estado antes
-`CRITICO`: o guia anterior não criava modelo, validator, service, controller, rota ou UI.
-
-## Estado depois
-`OK`: o guia passa a entregar avaliações completas e seguras para o contexto de `RF11`.
-
 ## Pré-requisitos
 - `BK-MF1-02`: detalhe de produto.
 - `BK-MF0-02`: `requireAuth`.
@@ -56,6 +50,10 @@ As avaliações ajudam outros clientes a decidir e preparam a moderação admini
 Avaliação de produto não é moderação. O cliente cria conteúdo; a administração só modera em fase posterior. Neste BK, o backend deve aceitar apenas nota válida e comentário controlado.
 
 O `userId` vem de `req.user.id`, criado por `requireAuth`. Isto impede que o frontend crie avaliações em nome de outro cliente. O produto vem do URL e é validado no backend.
+
+A unicidade é uma regra de negócio persistida no modelo: um utilizador só pode ter uma avaliação por produto. A validação de input apanha estrelas e comentário inválidos; o índice único apanha a repetição real no MongoDB. O service deve transformar esse erro técnico num `409` compreensível para a API.
+
+Na resposta pública, a avaliação deve expor a nota, comentário, estado e data. Identificadores internos do utilizador não são necessários para mostrar reviews no produto e devem ser omitidos até existir um contrato explícito de perfil público.
 
 ## Arquitetura do BK
 - `Review` guarda `productId`, `userId`, `rating` e `comment`.
@@ -234,12 +232,15 @@ function toReviewResponse(review) {
     return {
         id: review._id.toString(),
         productId: review.productId.toString(),
-        userId: review.userId.toString(),
         rating: review.rating,
         comment: review.comment,
         status: review.status,
         createdAt: review.createdAt,
     };
+}
+
+function isDuplicateReviewError(err) {
+    return err?.code === 11000;
 }
 
 export async function createProductReview(productId, userId, input) {
@@ -249,14 +250,22 @@ export async function createProductReview(productId, userId, input) {
         throw new AppError(404, "Produto não encontrado");
     }
 
-    const review = await Review.create({
-        productId,
-        userId,
-        rating: input.rating,
-        comment: input.comment,
-    });
+    try {
+        const review = await Review.create({
+            productId,
+            userId,
+            rating: input.rating,
+            comment: input.comment,
+        });
 
-    return toReviewResponse(review);
+        return toReviewResponse(review);
+    } catch (err) {
+        if (isDuplicateReviewError(err)) {
+            throw new AppError(409, "Ja avaliaste este produto");
+        }
+
+        throw err;
+    }
 }
 
 export async function listProductReviews(productId) {
@@ -268,9 +277,9 @@ export async function listProductReviews(productId) {
 }
 ```
 
-5. Explicação do código: o service valida produto existente e usa `userId` recebido da sessão, não do body.
-6. Como validar este passo: cria review sem produto existente e confirma `404`.
-7. Erros comuns ou cenário negativo: aceitar `userId` no body permitiria falsificar autoria.
+5. Explicação do código: o service valida produto existente, usa `userId` recebido da sessão e omite esse identificador na resposta pública. O índice único pode lançar erro técnico `11000`; o service converte esse caso em `409`, que comunica regra de negócio sem expor detalhe interno do MongoDB.
+6. Como validar este passo: cria review sem produto existente e confirma `404`; depois cria duas reviews para o mesmo produto/utilizador e confirma `409` na segunda.
+7. Erros comuns ou cenário negativo: aceitar `userId` no body permitiria falsificar autoria; devolver o erro bruto do índice exporia implementação interna.
 
 ### Passo 5 - Criar controller de reviews
 
@@ -486,17 +495,12 @@ Evidencia de testes por camada:
 - Service: teste de rating invalido.
 - UI: screenshot do formulario com sucesso.
 
-## Snippet tecnico aplicavel
-
-```http
-POST /api/catalog/products/64f000000000000000000000/reviews
-```
-
 ## Expected results
 - `POST /api/catalog/products/:productId/reviews` com sessão válida responde `201`.
 - Sem sessão responde `401`.
 - Rating fora de `1..5` responde `400`.
 - Produto inexistente responde `404`.
+- Segunda avaliação do mesmo utilizador para o mesmo produto responde `409`.
 
 ## Criterios de aceite
 - Cenarios negativos concluidos: minimo `2`.
@@ -523,4 +527,4 @@ POST /api/catalog/products/64f000000000000000000000/reviews
 `BK-MF1-04` pode usar avaliações como contexto comercial futuro, mas a primeira versão de produtos semelhantes deve continuar baseada em catálogo para não depender de compras reais.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com modelo Review, validação, ownership por sessão, rotas e formulário React.
+- `2026-05-31`: guia revisto com modelo Review, validação, ownership por sessão, rotas e formulário React.

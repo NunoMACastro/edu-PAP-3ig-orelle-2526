@@ -36,12 +36,6 @@ O detalhe do produto é o ponto onde o cliente confirma se um produto faz sentid
 - Não criar checkout.
 - Não devolver dados administrativos como `createdBy`.
 
-## Estado antes
-`CRITICO`: o guia anterior não criava rota, service, controller, frontend nem contratos para dados públicos.
-
-## Estado depois
-`OK`: o detalhe passa a ter endpoint e página integrados, preparando avaliações e relacionados sem inventar dados.
-
 ## Pré-requisitos
 - `BK-MF0-07`: modelo `Product`.
 - `BK-MF1-01`: prefixo público `/api/catalog`.
@@ -54,7 +48,9 @@ O detalhe do produto é o ponto onde o cliente confirma se um produto faz sentid
 ## Conceitos teóricos
 O detalhe de produto não é checkout. O backend só lê dados públicos e devolve uma resposta adequada ao cliente. O preço continua a ser devolvido em cêntimos para evitar erros de arredondamento.
 
-O controller não decide regras de negócio; chama o service. O service consulta `Product` e monta a resposta. O frontend usa o endpoint real e deve tratar produto inexistente como erro controlado.
+`reviewSummary` e `relatedProducts` aparecem neste BK como espaços de contrato, não como dados inventados. Enquanto `BK-MF1-03` e `BK-MF1-04` ainda não existem, a resposta pode devolver média `0`, total `0` e lista vazia. O guia deve deixar claro que isso é temporário e honesto: a página já sabe onde mostrar notas e relacionados, mas não finge avaliações nem recomendações.
+
+O controller não decide regras de negócio; chama o service. O service valida existência do produto, monta uma resposta pública e deixa os estados de erro bem definidos. O frontend usa o endpoint real e deve tratar `400` para ID inválido, `404` para produto inexistente e `200` para produto encontrado.
 
 ## Arquitetura do BK
 - `GET /api/catalog/products/:productId`
@@ -400,12 +396,6 @@ Evidencia de testes por camada:
 - Service: teste ou log controlado da query por ID.
 - UI: screenshot do detalhe carregado.
 
-## Snippet tecnico aplicavel
-
-```http
-GET /api/catalog/products/64f000000000000000000000
-```
-
 ## Expected results
 - Produto existente: `200` com `{ "product": { ... } }`.
 - ID inválido: `400`.
@@ -437,4 +427,4 @@ GET /api/catalog/products/64f000000000000000000000
 O próximo BK deve criar a entidade `Review` e atualizar o detalhe para apresentar avaliações reais sem alterar o contrato público do produto.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com detalhe público, validação de ID, página React e handoff para avaliações.
+- `2026-05-31`: guia revisto com detalhe público, validação de ID, página React e handoff para avaliações.

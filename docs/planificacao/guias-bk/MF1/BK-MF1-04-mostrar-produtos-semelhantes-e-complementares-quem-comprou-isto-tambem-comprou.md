@@ -37,12 +37,6 @@ Produtos relacionados melhoram descoberta comercial sem transformar o fluxo em d
 - Não adicionar produtos automaticamente ao carrinho.
 - Não prometer collaborative filtering avançado.
 
-## Estado antes
-`CRITICO`: o guia anterior usava checkout/pagamento num requisito de produtos relacionados.
-
-## Estado depois
-`OK`: o guia passa a implementar `RF12` com domínio correto e contrato de catálogo.
-
 ## Pré-requisitos
 - `BK-MF0-07`: `Product`.
 - `BK-MF0-08`: `categoryIds`.
@@ -56,7 +50,9 @@ Produtos relacionados melhoram descoberta comercial sem transformar o fluxo em d
 ## Conceitos teóricos
 `RF12` fala de produtos semelhantes e complementares. Nesta fase, a Orélle ainda não tem histórico de compras suficiente para "quem comprou isto também comprou" real. Por isso, a decisão técnica mínima é usar dados do catálogo. Esta decisão é `DERIVADO` e mantém a funcionalidade executável sem inventar comportamento.
 
-O backend deve devolver sugestões, não ações. Nenhum produto é comprado, reservado ou adicionado ao carrinho neste BK.
+O backend deve devolver sugestões, não ações. Nenhum produto é comprado, reservado ou adicionado ao carrinho neste BK. A lista também pode ser vazia: se o produto base não tiver categorias, tipo de pele, marca ou se não existirem produtos com stock, o resultado correto é `200` com lista vazia.
+
+Isto não é collaborative filtering. A regra é determinística e explicável: procura produtos com categoria, tipo de pele ou marca em comum, exclui o produto atual e filtra stock disponível. Recomendações personalizadas com perfil, compras ou IA ficam para requisitos futuros.
 
 ## Arquitetura do BK
 - `GET /api/catalog/products/:productId/related`
@@ -113,7 +109,7 @@ Segue os passos lineares abaixo e valida produto inexistente, lista vazia e excl
     - LOCALIZAÇÃO: `RF12`, `RF18` e linha de `BK-MF1-04`.
 3. O que fazer: regista que este BK usa catálogo e não análise facial.
 4. Código completo, correto e integrado: sem código novo neste passo.
-5. Explicação do código: a app fica funcional e mantém a recomendação personalizada para `RF18`.
+5. Explicação do código: a app fica funcional com regras de catálogo e mantém a recomendação personalizada para `RF18`. Esta separação evita misturar descoberta comercial simples com perfil facial, compras ou IA antes de esses dados existirem.
 6. Como validar este passo: confirma que nenhum ficheiro deste BK importa modelos de análise facial.
 7. Erros comuns ou cenário negativo: usar fotografias do utilizador para produtos semelhantes viola o domínio deste BK.
 
@@ -150,14 +146,26 @@ export async function listRelatedCatalogProducts(productId) {
         throw new AppError(404, "Produto nao encontrado");
     }
 
+    const criteria = [
+        product.categoryIds.length > 0
+            ? { categoryIds: { $in: product.categoryIds } }
+            : null,
+        product.skinTypes.length > 0
+            ? { skinTypes: { $in: product.skinTypes } }
+            : null,
+        product.brandName
+            ? { brandName: product.brandName }
+            : null,
+    ].filter(Boolean);
+
+    if (criteria.length === 0) {
+        return [];
+    }
+
     const related = await Product.find({
         _id: { $ne: product._id },
         stock: { $gt: 0 },
-        $or: [
-            { categoryIds: { $in: product.categoryIds } },
-            { skinTypes: { $in: product.skinTypes } },
-            { brandName: product.brandName },
-        ],
+        $or: criteria,
     })
         .sort({ stock: -1, createdAt: -1 })
         .limit(8);
@@ -166,9 +174,9 @@ export async function listRelatedCatalogProducts(productId) {
 }
 ```
 
-5. Explicação do código: a query procura produtos da mesma categoria, tipo de pele ou marca, exclui o produto atual e evita stock zero.
-6. Como validar este passo: cria dois produtos na mesma categoria e confirma que um aparece nos relacionados do outro.
-7. Erros comuns ou cenário negativo: não excluir o produto atual faz a página recomendar o que o cliente já está a ver.
+5. Explicação do código: o service cria critérios apenas com dados existentes no produto base. Se não houver categoria, tipo de pele nem marca, devolve lista vazia sem erro. Quando há critérios, a query procura semelhanças, exclui o produto atual e evita stock zero.
+6. Como validar este passo: cria dois produtos na mesma categoria e confirma que um aparece nos relacionados do outro; cria um produto sem critérios úteis e confirma `200` com lista vazia.
+7. Erros comuns ou cenário negativo: não excluir o produto atual faz a página recomendar o que o cliente já está a ver; não tratar critérios vazios pode gerar consultas confusas.
 
 ### Passo 3 - Criar controller
 
@@ -218,7 +226,7 @@ catalogRoutes.get(
 );
 ```
 
-5. Explicação do código: a rota é pública e de leitura, tal como pesquisa e detalhe.
+5. Explicação do código: a rota é pública e de leitura, tal como pesquisa e detalhe. Ela não altera carrinho, encomenda nem preferências; apenas devolve uma lista calculada pelo service com base no produto do URL.
 6. Como validar este passo: `GET /api/catalog/products/:productId/related` deve responder `200`.
 7. Erros comuns ou cenário negativo: criar `/api/recommendations` aqui mistura este BK com `RF18`.
 
@@ -346,15 +354,10 @@ Evidencia de testes por camada:
 - Service: teste de exclusao do produto atual.
 - UI: screenshot da lista relacionada.
 
-## Snippet tecnico aplicavel
-
-```http
-GET /api/catalog/products/64f000000000000000000000/related
-```
-
 ## Expected results
 - Produto existente com relacionados: `200` e lista com produtos.
 - Produto existente sem relacionados: `200` e lista vazia.
+- Produto base sem categoria, tipo de pele e marca: `200` e lista vazia.
 - Produto inexistente: `404`.
 - ID inválido: `400`.
 
@@ -383,4 +386,4 @@ GET /api/catalog/products/64f000000000000000000000/related
 `BK-MF1-05` inicia o domínio de fotografias faciais. Este BK não cria dependência com biometria nem recomendação personalizada.
 
 ## Changelog
-- `2026-05-31`: guia reescrito com produtos relacionados por catálogo, endpoint público, service e UI.
+- `2026-05-31`: guia revisto com produtos relacionados por catálogo, endpoint público, service e UI.
