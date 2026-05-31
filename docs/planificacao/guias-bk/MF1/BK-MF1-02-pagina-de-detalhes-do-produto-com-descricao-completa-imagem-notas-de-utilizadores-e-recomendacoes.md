@@ -50,7 +50,7 @@ O detalhe de produto não é checkout. O backend só lê dados públicos e devol
 
 `reviewSummary` e `relatedProducts` aparecem neste BK como espaços de contrato, não como dados inventados. Enquanto `BK-MF1-03` e `BK-MF1-04` ainda não existem, a resposta pode devolver média `0`, total `0` e lista vazia. O guia deve deixar claro que isso é temporário e honesto: a página já sabe onde mostrar notas e relacionados, mas não finge avaliações nem recomendações.
 
-O controller não decide regras de negócio; chama o service. O service valida existência do produto, monta uma resposta pública e deixa os estados de erro bem definidos. O frontend usa o endpoint real e deve tratar `400` para ID inválido, `404` para produto inexistente e `200` para produto encontrado.
+O controller não decide regras de negócio; chama o service. O service válida existência do produto, monta uma resposta pública e deixa os estados de erro bem definidos. O frontend usa o endpoint real e deve tratar `400` para ID inválido, `404` para produto inexistente e `200` para produto encontrado.
 
 ## Arquitetura do BK
 - `GET /api/catalog/products/:productId`
@@ -66,37 +66,37 @@ O controller não decide regras de negócio; chama o service. O service valida e
 - CRIAR: `client/src/pages/ProductDetailsPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
-Criar uma pagina de detalhe que mostra informacao publica do produto e prepara avaliacoes e relacionados.
+Criar uma página de detalhe que mostra informação pública do produto e prepara avaliações e relacionados.
 
-### Pre-requisitos
+### Pré-requisitos
 - Ter produtos criados em `BK-MF0-07`.
-- Ter listagem publica criada em `BK-MF1-01`.
+- Ter listagem pública criada em `BK-MF1-01`.
 - Saber validar `ObjectId` antes de consultar MongoDB.
 
 ### Erros comuns
 - Devolver produto inexistente como `200`.
 - Mostrar dados internos do produto.
-- Inventar avaliacoes antes de `BK-MF1-03`.
+- Inventar avaliações antes de `BK-MF1-03`.
 
 ### Check de compreensao
-- Porque e que o ID do produto deve ser validado antes da query?
-- Que campos do produto sao publicos?
-- Que deve acontecer quando ainda nao existem avaliacoes?
+- Porque é que o ID do produto deve ser validado antes da query?
+- Que campos do produto são publicos?
+- Que deve acontecer quando ainda não existem avaliações?
 
 ## Bloco operacional
 
 ### Entrada
 - `productId` no URL.
 - Model `Product` da `MF0`.
-- Resumo vazio de avaliacoes ate `BK-MF1-03`.
+- Resumo vazio de avaliações até `BK-MF1-03`.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 3).
+Executar cenários negativos obrigatórios (mínimo 3).
 
-Segue os passos lineares abaixo e fecha o BK apenas depois de validar ID invalido, produto inexistente e produto existente.
+Segue os passos lineares abaixo e fecha o BK apenas depois de validar ID inválido, produto inexistente e produto existente.
 
 ## Passos lineares
 
@@ -178,7 +178,7 @@ export async function getCatalogProductDetails(productId) {
     const product = await Product.findById(productId);
 
     if (!product) {
-        throw new AppError(404, "Produto nao encontrado");
+        throw new AppError(404, "Produto não encontrado");
     }
 
     return toProductDetailResponse(product);
@@ -371,28 +371,28 @@ curl -i http://localhost:3000/api/catalog/products/abc
 curl -i http://localhost:3000/api/catalog/products/64f000000000000000000000
 ```
 
-5. Explicação do código: o primeiro pedido valida formato; o segundo valida ausência de produto sem expor detalhes internos.
+5. Explicação do código: o primeiro pedido válida formato; o segundo válida ausência de produto sem expor detalhes internos.
 6. Como validar este passo: confirma `400` no primeiro pedido e `404` no segundo.
 7. Erros comuns ou cenário negativo: devolver `200` com `product: null` força o frontend a adivinhar o erro.
 
-### Validacao
-- [ ] Negativos: minimo `3` cenarios.
-- [ ] ID invalido devolve `400`.
+### Validação
+- [ ] Negativos: mínimo `3` cenários.
+- [ ] ID inválido devolve `400`.
 - [ ] Produto inexistente devolve `404`.
 - [ ] Produto existente devolve apenas campos publicos.
 - [ ] UI mostra erro quando o pedido falha.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
-| Validator | `abc` rejeitado como ID invalido. |
+| Validator | `abc` rejeitado como ID inválido. |
 | Service | Produto inexistente gera erro controlado. |
 | Controller/route | Endpoint devolve `{ "product": ... }`. |
-| UI | Pagina mostra detalhe e erro. |
+| UI | Página mostra detalhe e erro. |
 
-Evidencia de testes por camada:
-- API: output de `curl` com ID valido, invalido e inexistente.
+Evidência de testes por camada:
+- API: output de `curl` com ID válido, inválido e inexistente.
 - Service: teste ou log controlado da query por ID.
 - UI: screenshot do detalhe carregado.
 
@@ -402,9 +402,9 @@ Evidencia de testes por camada:
 - Produto inexistente: `404`.
 - A página mostra imagem, descrição, preço, stock, ingredientes, resumo de notas e lista vazia de relacionados.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `3`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `3`.
+- Evidência de testes por camada documentada.
 - O backend devolve apenas campos públicos.
 - O frontend usa endpoint real.
 - Estados `loading`, `error` e `success` existem.

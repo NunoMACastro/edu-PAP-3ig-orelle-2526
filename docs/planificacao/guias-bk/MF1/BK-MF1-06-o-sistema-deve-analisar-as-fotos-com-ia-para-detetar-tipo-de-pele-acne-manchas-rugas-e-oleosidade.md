@@ -73,37 +73,37 @@ Os limites éticos fazem parte do contrato técnico. A análise deve evitar ling
 - CRIAR: `client/src/pages/FaceAnalysisPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
-Criar uma analise facial cosmetica com provider isolado, guardrails e limites visiveis.
+Criar uma análise facial cosmética com provider isolado, guardrails e limites visiveis.
 
-### Pre-requisitos
+### Pré-requisitos
 - Ter upload facial seguro em `BK-MF1-05`.
 - Ter consentimento ativo.
 - Saber separar controller, service e provider.
 
 ### Erros comuns
-- Fazer a analise diretamente no controller.
+- Fazer a análise diretamente no controller.
 - Processar fotografias sem consentimento.
-- Apresentar resultado cosmetico como diagnostico medico.
+- Apresentar resultado cosmético como diagnóstico médico.
 
 ### Check de compreensao
-- Que condicoes bloqueiam a analise?
-- Porque e que o provider fica isolado?
+- Que condicoes bloqueiam a análise?
+- Porque é que o provider fica isolado?
 - Que limites devem aparecer na resposta?
 
 ## Bloco operacional
 
 ### Entrada
-- Sessao autenticada.
+- Sessão autenticada.
 - Consentimento ativo.
-- Fotografias frontal e perfil do proprio utilizador.
+- Fotografias frontal e perfil do próprio utilizador.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 3).
+Executar cenários negativos obrigatórios (mínimo 3).
 
-Segue os passos lineares abaixo e valida sem sessao, sem consentimento e sem as duas fotografias.
+Segue os passos lineares abaixo e valida sem sessão, sem consentimento e sem as duas fotografias.
 
 ## Passos lineares
 
@@ -214,7 +214,7 @@ function createFinding(label, confidence, explanation) {
 
 export async function analyzeSkinPhotos({ frontalPhoto, perfilPhoto }) {
     if (!frontalPhoto?.storageKey || !perfilPhoto?.storageKey) {
-        throw new AppError(400, "Fotografias validas obrigatorias para analise");
+        throw new AppError(400, "Fotografias válidas obrigatórias para análise");
     }
 
     return {
@@ -308,7 +308,7 @@ export async function createFaceAnalysisForUser(userId) {
     const perfilPhoto = latestByKind(photos, "perfil");
 
     if (!frontalPhoto || !perfilPhoto) {
-        throw new AppError(400, "Fotografias frontal e de perfil obrigatorias");
+        throw new AppError(400, "Fotografias frontal e de perfil obrigatórias");
     }
 
     const result = await analyzeSkinPhotos({ frontalPhoto, perfilPhoto });
@@ -498,24 +498,24 @@ curl -i -X POST http://localhost:3000/api/face-analyses \
 6. Como validar este passo: confirma `401`, `403` e `400` nos três cenários.
 7. Erros comuns ou cenário negativo: executar o provider antes dos guardrails desperdiça recursos e pode tratar dados sem base legal.
 
-### Validacao
-- [ ] Negativos: minimo `3` cenarios.
-- [ ] Sem sessao devolve `401`.
+### Validação
+- [ ] Negativos: mínimo `3` cenários.
+- [ ] Sem sessão devolve `401`.
 - [ ] Sem consentimento devolve `403`.
 - [ ] Sem frontal ou perfil devolve `400`.
-- [ ] Resposta inclui limitations e nao devolve paths internos.
+- [ ] Resposta inclui limitations e não devolve paths internos.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
 | Model | `FaceAnalysis` guarda findings, sources e limitations. |
-| Provider | Analise isolada do controller. |
+| Provider | Análise isolada do controller. |
 | Service | Guardrails aplicados antes do provider. |
-| UI | Pagina mostra resultado e limites. |
+| UI | Página mostra resultado e limites. |
 
-Evidencia de testes por camada:
-- API: output de analise criada e bloqueios.
+Evidência de testes por camada:
+- API: output de análise criada e bloqueios.
 - Service: teste de consentimento ausente.
 - UI: screenshot com findings e limitations.
 
@@ -526,9 +526,9 @@ Evidencia de testes por camada:
 - Sem frontal ou perfil: `400`.
 - Resposta inclui `findings`, `sources` e `limitations`.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `3`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `3`.
+- Evidência de testes por camada documentada.
 - Provider isolado existe.
 - Controller não contém lógica de IA.
 - Backend aplica ownership por sessão.

@@ -61,7 +61,7 @@ No frontend, o componente React guarda filtros em `useState`, faz o pedido com `
 
 ## Arquitetura do BK
 - `GET /api/catalog/products` lista produtos públicos.
-- `validateCatalogQuery` valida filtros.
+- `validateCatalogQuery` válida filtros.
 - `listCatalogProducts` consulta `Product` com filtros seguros.
 - `ProductSearchPage` mostra o catálogo pesquisável.
 
@@ -75,35 +75,35 @@ No frontend, o componente React guarda filtros em `useState`, faz o pedido com `
 - CRIAR: `client/src/pages/ProductSearchPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
-Construir uma pesquisa publica de catalogo com filtros controlados pelo backend.
+Construir uma pesquisa pública de catálogo com filtros controlados pelo backend.
 
-### Pre-requisitos
+### Pré-requisitos
 - Saber ler query params no Express.
 - Conhecer `Product`, `Category` e `Product.categoryIds` criados na `MF0`.
 - Saber usar `useState` para controlar filtros no React.
 
 ### Erros comuns
 - Filtrar produtos apenas no frontend.
-- Aceitar preco negativo ou categoria inexistente sem validar.
-- Devolver campos internos do produto na resposta publica.
+- Aceitar preço negativo ou categoria inexistente sem validar.
+- Devolver campos internos do produto na resposta pública.
 
 ### Check de compreensao
-- Que ficheiro valida os filtros antes do service?
-- Porque e que pesquisa de catalogo nao e recomendacao personalizada?
-- Que estados a pagina deve mostrar quando nao ha resultados?
+- Que ficheiro válida os filtros antes do service?
+- Porque é que pesquisa de catálogo não é recomendação personalizada?
+- Que estados a página deve mostrar quando não há resultados?
 
 ## Bloco operacional
 
 ### Entrada
 - Models de produto e categoria da `MF0`.
 - Pedido `GET /api/catalog/products` com filtros opcionais.
-- Pagina React de pesquisa.
+- Página React de pesquisa.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 3).
+Executar cenários negativos obrigatórios (mínimo 3).
 
 Segue os passos lineares abaixo e valida backend, frontend e casos vazios antes de fechar o BK.
 
@@ -153,7 +153,7 @@ function parseOptionalPrice(value, fieldName, errors) {
     const numberValue = Number(value);
 
     if (!Number.isInteger(numberValue) || numberValue < 0) {
-        errors[fieldName] = `${fieldName} deve ser inteiro em centimos`;
+        errors[fieldName] = `${fieldName} deve ser inteiro em cêntimos`;
         return undefined;
     }
 
@@ -192,11 +192,11 @@ export function validateCatalogQuery(query) {
         input.maxPriceCents !== undefined &&
         input.minPriceCents > input.maxPriceCents
     ) {
-        errors.price = "Preco minimo nao pode ser maior do que preco maximo";
+        errors.price = "Preço mínimo não pode ser maior do que preço máximo";
     }
 
     if (Object.keys(errors).length > 0) {
-        throw new AppError(400, "Filtros de catalogo invalidos", errors);
+        throw new AppError(400, "Filtros de catálogo inválidos", errors);
     }
 
     return input;
@@ -513,24 +513,24 @@ export function App() {
 6. Como validar este passo: abre o frontend e confirma que o formulário aparece sem erros no console.
 7. Erros comuns ou cenário negativo: criar uma página sem a importar no `App` impede validação visual.
 
-### Validacao
-- [ ] Negativos: minimo `3` cenarios.
-- [ ] Query com preco negativo devolve `400`.
+### Validação
+- [ ] Negativos: mínimo `3` cenários.
+- [ ] Query com preço negativo devolve `400`.
 - [ ] Categoria inexistente devolve `400`.
 - [ ] Pesquisa sem resultados devolve lista vazia sem erro.
 - [ ] Frontend mostra estados `loading`, `error`, `empty` e `success`.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
-| Validator | Query params invalidos rejeitados. |
+| Validator | Query params inválidos rejeitados. |
 | Service | Filtros aplicados em MongoDB sem campos internos. |
-| Controller/route | `GET /api/catalog/products` devolve contrato publico. |
-| UI | Pagina pesquisa e renderiza lista ou estado vazio. |
+| Controller/route | `GET /api/catalog/products` devolve contrato público. |
+| UI | Página pesquisa e renderiza lista ou estado vazio. |
 
-Evidencia de testes por camada:
-- API: output de `curl` com filtro valido e filtro invalido.
+Evidência de testes por camada:
+- API: output de `curl` com filtro válido e filtro inválido.
 - Service: teste ou log controlado com filtros combinados.
 - UI: screenshot da pesquisa com resultados e sem resultados.
 
@@ -539,9 +539,9 @@ Evidencia de testes por camada:
 - Filtros inválidos respondem `400`.
 - A página mostra `loading`, `error`, `empty` e lista de produtos.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `3`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `3`.
+- Evidência de testes por camada documentada.
 - Pesquisa por texto funciona.
 - Filtros por marca, tipo de pele, categoria e preço funcionam no backend.
 - Campos internos como `createdBy` não aparecem na resposta pública.

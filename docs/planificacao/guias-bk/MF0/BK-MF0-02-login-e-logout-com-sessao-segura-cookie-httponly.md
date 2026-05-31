@@ -29,7 +29,7 @@ O contrato técnico proposto é `POST /api/auth/login`, `POST /api/auth/logout` 
 
 Esta fase foi detalhada sem mockup de UI. A página de login deve ser simples, com feedback claro e sem definir design final de marca.
 
-##### Porque e que isto e importante
+##### Porque é que isto é importante
 
 - Permite proteger rotas futuras de perfil, preferências, produtos administrativos e uploads.
 - Aplica `RF02` e antecipa `RNF14`, mantendo sessão fora de `localStorage`.
@@ -46,7 +46,7 @@ Esta fase foi detalhada sem mockup de UI. A página de login deve ser simples, c
 - Página React de login e estado de autenticação básico.
 - Testes negativos de credenciais, ausência de cookie e logout.
 
-##### O que nao entra (scope-out)
+##### O que não entra (scope-out)
 
 - Recuperação de password.
 - Refresh tokens complexos.
@@ -70,14 +70,14 @@ Esta fase foi detalhada sem mockup de UI. A página de login deve ser simples, c
 - macro: `MF0` (CANONICO)
 - Owner: `Bruna` (CANONICO)
 - Apoio: `Izelicks` (CANONICO)
-- Dependencias (BK IDs): `-` (CANONICO)
-- Pre-condicoes: backend criado ou preparado; utilizador de teste criado por registo ou seed local (DERIVADO)
+- Dependências (BK IDs): `-` (CANONICO)
+- Pré-condições: backend criado ou preparado; utilizador de teste criado por registo ou seed local (DERIVADO)
 - Ref. Plano: `RF02`, `Fase 1`, `S01-S02`, `Reforco` (CANONICO)
 - Flow ID: `FLOW-AUTH-SESSION` (DERIVADO)
 - Fonte de verdade: `docs/RF.md` -> `RF02` (CANONICO)
 - Fonte de verdade: `docs/RNF.md` -> `RNF14` como restrição transversal (CANONICO)
 - Fonte de verdade: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md` -> linha `BK-MF0-02` (CANONICO)
-- Descricao: Login e logout com sessão segura baseada em cookie `HttpOnly` (CANONICO)
+- Descrição: Login e logout com sessão segura baseada em cookie `HttpOnly` (CANONICO)
 
 #### O que vamos fazer neste BK (DERIVADO):
 
@@ -85,7 +85,7 @@ Esta fase foi detalhada sem mockup de UI. A página de login deve ser simples, c
 - Estado esperado depois do BK: a app tem sessão autenticada, logout e middleware para proteger rotas.
 - Ficheiros a criar: `server/src/services/session.service.js`, `server/src/middlewares/auth.middleware.js`, `client/src/pages/LoginPage.jsx`, `client/src/context/AuthContext.jsx`.
 - Ficheiros a editar: `server/src/routes/auth.routes.js`, `server/src/controllers/auth.controller.js`, `server/src/services/auth.service.js`, `client/src/services/apiClient.js`, `client/src/App.jsx`.
-- Dependencias de BK anteriores: dependência canónica `-`; reutilização técnica do `User` de `BK-MF0-01` se já estiver implementado.
+- Dependências de BK anteriores: dependência canónica `-`; reutilização técnica do `User` de `BK-MF0-01` se já estiver implementado.
 - Impacto na arquitetura: introduz autenticação transversal e middleware reutilizável.
 - Impacto em frontend: cria estado autenticado e formulário de login.
 - Impacto em backend: adiciona criação/validação de token ou sessão e leitura segura via cookie.
@@ -94,7 +94,7 @@ Esta fase foi detalhada sem mockup de UI. A página de login deve ser simples, c
 - Impacto em testes: testar login válido, login inválido, rota protegida sem cookie e logout.
 - Handoff para o próximo BK: `BK-MF0-03` deve usar `requireAuth` para criar perfil apenas do utilizador autenticado.
 
-#### Pre-leitura minima (10-15 min) (DERIVADO):
+#### Pre-leitura mínima (10-15 min) (DERIVADO):
 
 - `docs/RF.md`: `RF02`.
 - `docs/RNF.md`: `RNF14`, `RNF10`, `RNF19`.
@@ -120,118 +120,118 @@ Um cookie `HttpOnly` é mais seguro do que guardar tokens no `localStorage` porq
 
 O login não compara a password recebida com uma password guardada. Compara a password recebida com o `passwordHash` usando `bcrypt.compare`. Se a comparação passar, o servidor emite uma sessão.
 
-O middleware `requireAuth` é uma peça de arquitetura. Ele lê o cookie, valida a sessão e coloca o utilizador em `req.user`. Assim, controllers futuros não precisam repetir lógica de autenticação.
+O middleware `requireAuth` é uma peça de arquitetura. Ele lê o cookie, válida a sessão e coloca o utilizador em `req.user`. Assim, controllers futuros não precisam repetir lógica de autenticação.
 
 Assunção técnica: para alunos de 12.º ano, pode usar-se JWT assinado em cookie `HttpOnly` por simplicidade. Se o orientador preferir sessões opacas guardadas no servidor, marcar como alteração técnica antes de implementar.
 
-#### Guia de execucao (passo-a-passo) (DERIVADO):
+#### Guia de execução (passo-a-passo) (DERIVADO):
 
 0. **Objetivo (~15 min): confirmar estratégia de sessão**
-    - Descricao detalhada do objetivo: decidir se a equipa usará JWT assinado em cookie ou sessão opaca.
-    - Justificacao: mudar estratégia a meio quebra login, guards e testes.
+    - Descrição detalhada do objetivo: decidir se a equipa usará JWT assinado em cookie ou sessão opaca.
+    - Justificação: mudar estratégia a meio quebra login, guards e testes.
     - Como fazer (0.1): registar a decisão no PR como `Assuncao tecnica`.
     - Como fazer (0.2): guardar `SESSION_SECRET` ou `JWT_SECRET` em `.env`, nunca no código.
     - Ficheiro a rever: `docs/RNF.md`.
     - Ficheiro alvo: `server/src/config/env.js`.
-    - Snippet de referencia: `sessionSecret: process.env.SESSION_SECRET`.
+    - Snippet de referência: `sessionSecret: process.env.SESSION_SECRET`.
     - O que verificar: app falha com erro claro se faltar segredo em ambiente real.
 
 1. **Objetivo (~25 min): criar validação de login**
-    - Descricao detalhada do objetivo: validar email e password antes do service.
-    - Justificacao: evita chamadas desnecessárias à BD e respostas inconsistentes.
+    - Descrição detalhada do objetivo: validar email e password antes do service.
+    - Justificação: evita chamadas desnecessárias à BD e respostas inconsistentes.
     - Como fazer (1.1): criar `validateLoginInput`.
     - Como fazer (1.2): devolver erro genérico quando credenciais estiverem erradas.
     - Ficheiro a rever: `server/src/validators/auth.validator.js`.
     - Ficheiro alvo: `server/src/validators/auth.validator.js`.
-    - Snippet de referencia: `if (!email || !password) errors.credentials = 'Credenciais inválidas';`.
+    - Snippet de referência: `if (!email || !password) errors.credentials = 'Credenciais inválidas';`.
     - O que verificar: dados vazios devolvem `400`.
 
 2. **Objetivo (~35 min): implementar service de login**
-    - Descricao detalhada do objetivo: procurar utilizador por email e comparar password com `bcrypt`.
-    - Justificacao: a regra de autenticação fica testável e separada do HTTP.
+    - Descrição detalhada do objetivo: procurar utilizador por email e comparar password com `bcrypt`.
+    - Justificação: a regra de autenticação fica testável e separada do HTTP.
     - Como fazer (2.1): procurar `User.findOne({ email })`.
     - Como fazer (2.2): usar `await bcrypt.compare(password, user.passwordHash)`.
     - Ficheiro a rever: `server/src/models/user.model.js`.
     - Ficheiro alvo: `server/src/services/auth.service.js`.
-    - Snippet de referencia: `const ok = await bcrypt.compare(password, user.passwordHash);`.
+    - Snippet de referência: `const ok = await bcrypt.compare(password, user.passwordHash);`.
     - O que verificar: password errada não revela se o email existe.
 
 3. **Objetivo (~30 min): criar emissão de cookie**
-    - Descricao detalhada do objetivo: criar função que define cookie seguro no controller.
-    - Justificacao: centralizar opções evita cookies diferentes entre endpoints.
+    - Descrição detalhada do objetivo: criar função que define cookie seguro no controller.
+    - Justificação: centralizar opções evita cookies diferentes entre endpoints.
     - Como fazer (3.1): criar `setAuthCookie(res, token)`.
     - Como fazer (3.2): usar `httpOnly: true`, `sameSite: 'lax'`, `secure: env.isProduction`.
     - Ficheiro a rever: `docs/RNF.md`.
     - Ficheiro alvo: `server/src/services/session.service.js`.
-    - Snippet de referencia: `res.cookie('orelle_session', token, cookieOptions);`.
+    - Snippet de referência: `res.cookie('orelle_session', token, cookieOptions);`.
     - O que verificar: DevTools mostra cookie como `HttpOnly`.
 
 4. **Objetivo (~30 min): criar login, logout e me**
-    - Descricao detalhada do objetivo: expor endpoints de sessão.
-    - Justificacao: frontend e BKs seguintes precisam de saber quem está autenticado.
+    - Descrição detalhada do objetivo: expor endpoints de sessão.
+    - Justificação: frontend e BKs seguintes precisam de saber quem está autenticado.
     - Como fazer (4.1): adicionar `POST /login`, `POST /logout`, `GET /me`.
     - Como fazer (4.2): no logout, limpar cookie com as mesmas opções de path.
     - Ficheiro a rever: `server/src/routes/auth.routes.js`.
     - Ficheiro alvo: `server/src/controllers/auth.controller.js`.
-    - Snippet de referencia: `res.clearCookie('orelle_session', cookieOptions);`.
+    - Snippet de referência: `res.clearCookie('orelle_session', cookieOptions);`.
     - O que verificar: logout remove acesso ao `/me`.
 
 5. **Objetivo (~35 min): criar requireAuth**
-    - Descricao detalhada do objetivo: bloquear rotas sem sessão válida.
-    - Justificacao: perfil, preferências e admin dependem deste middleware.
+    - Descrição detalhada do objetivo: bloquear rotas sem sessão válida.
+    - Justificação: perfil, preferências e admin dependem deste middleware.
     - Como fazer (5.1): ler cookie do pedido.
     - Como fazer (5.2): validar sessão e anexar `{ id, email, role }` a `req.user`.
     - Ficheiro a rever: `server/src/services/session.service.js`.
     - Ficheiro alvo: `server/src/middlewares/auth.middleware.js`.
-    - Snippet de referencia: `req.user = sessionUser; return next();`.
+    - Snippet de referência: `req.user = sessionUser; return next();`.
     - O que verificar: sem cookie devolve `401`.
 
 6. **Objetivo (~45 min): criar UI de login**
-    - Descricao detalhada do objetivo: permitir login sem guardar token no browser.
-    - Justificacao: cookies HttpOnly são enviados pelo browser automaticamente.
+    - Descrição detalhada do objetivo: permitir login sem guardar token no browser.
+    - Justificação: cookies HttpOnly são enviados pelo browser automaticamente.
     - Como fazer (6.1): configurar `apiClient` com `credentials: 'include'`.
     - Como fazer (6.2): criar `LoginPage` com estados loading/error/success.
     - Ficheiro a rever: `client/src/services/apiClient.js`.
     - Ficheiro alvo: `client/src/pages/LoginPage.jsx`.
-    - Snippet de referencia: `fetch(url, { credentials: 'include', ...options })`.
+    - Snippet de referência: `fetch(url, { credentials: 'include', ...options })`.
     - O que verificar: `localStorage` não contém tokens.
 
 7. **Objetivo (~45 min): validar sessão e preparar handoff**
-    - Descricao detalhada do objetivo: testar login, logout, `/me` e rota protegida.
-    - Justificacao: bugs de auth bloqueiam todos os BKs seguintes.
+    - Descrição detalhada do objetivo: testar login, logout, `/me` e rota protegida.
+    - Justificação: bugs de auth bloqueiam todos os BKs seguintes.
     - Como fazer (7.1): criar smoke com utilizador válido.
-    - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
+    - Como fazer (7.2): Executar cenários negativos obrigatórios (mínimo 3) e registar resultados.
     - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
     - Ficheiro alvo: `server/tests/auth.session.test.js`.
-    - Snippet de referencia: `expect(response.headers['set-cookie']).toContain('HttpOnly');`.
+    - Snippet de referência: `expect(response.headers['set-cookie']).toContain('HttpOnly');`.
     - O que verificar: evidência mostra cookie `HttpOnly` e logout efetivo.
 
-#### Checklist de validacao (DERIVADO):
+#### Checklist de validação (DERIVADO):
 
 - Smoke: login válido devolve `200`, cria cookie e `/api/auth/me` devolve utilizador seguro.
 - Negativo 1: passo 2; password errada; resultado esperado `401` sem cookie; risco que cobre: autenticação indevida.
 - Negativo 2: passo 5; chamada a `/me` sem cookie; resultado esperado `401`; risco que cobre: acesso anónimo.
 - Negativo 3: passo 6; verificar `localStorage`; resultado esperado sem token; risco que cobre: roubo de sessão por XSS.
-- Tecnico: `requireAuth` existe e é reutilizável.
-- Regressao das fases anteriores: confirmar que registo de `BK-MF0-01` continua a criar utilizador.
+- Técnico: `requireAuth` existe e é reutilizável.
+- Regressão das fases anteriores: confirmar que registo de `BK-MF0-01` continua a criar utilizador.
 - UI/mockup: sem mockup; página baseline com feedback claro.
-- Seguranca: cookie `HttpOnly`; segredo em `.env`; mensagem de erro de credenciais não enumera emails.
+- Segurança: cookie `HttpOnly`; segredo em `.env`; mensagem de erro de credenciais não enumera emails.
 
-#### Criterios de aceite:
+#### Critérios de aceite:
 
 - Outputs: endpoints `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` e middleware `requireAuth`.
-- Verificacoes: cookie `HttpOnly` criado no login e limpo no logout.
+- Verificações: cookie `HttpOnly` criado no login e limpo no logout.
 - Qualidade: não há tokens em `localStorage`/`sessionStorage`.
 - Continuidade: `BK-MF0-03`, `BK-MF0-04`, `BK-MF0-06` e `BK-MF0-07` podem proteger rotas.
-- Evidencia: output de testes/curl com headers `Set-Cookie` e teste negativo de cookie ausente.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
+- Evidência: output de testes/curl com headers `Set-Cookie` e teste negativo de cookie ausente.
+- Cenários negativos concluídos: mínimo `3` com resultado controlado.
+- Evidência de testes por camada conforme prioridade (`P0`).
 
 #### Evidence (para o PR/defesa):
 
 - `pr`: `A preencher no fecho do BK`
-- `proof`: `A preencher apos validacao`
-- `neg`: `A preencher apos testes negativos`
+- `proof`: `A preencher após validação`
+- `neg`: `A preencher após testes negativos`
 - `files`: `server/src/middlewares/auth.middleware.js`, `server/src/services/session.service.js`, `client/src/pages/LoginPage.jsx`
 - `commands`: `curl -i -X POST /api/auth/login`, `curl -i /api/auth/me`
 - `screenshots`: login com erro e login com sucesso
@@ -247,16 +247,16 @@ Assunção técnica: para alunos de 12.º ano, pode usar-se JWT assinado em cook
 ## Contexto do BK
 
 - Entrega alvo: implementar `Login e logout com sessão segura (cookie HttpOnly)` com rastreabilidade direta ao requisito `RF02`.
-- Foco tecnico da macro: `Fundamentos e governance`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+- Foco técnico da macro: `Fundamentos e governance`.
+- Regra de governança: preservar IDs BK, contrato de campos e consistência entre backlog, matriz, sprints e guias.
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
 
 Implementar sessão segura para que os próximos BKs consigam saber quem está autenticado.
 
-### Pre-requisitos
+### Pré-requisitos
 
 - Rever `RF02` e `RNF14`.
 - Ter `User` e `passwordHash` preparados ou criar um utilizador de teste local.
@@ -285,7 +285,7 @@ Implementar sessão segura para que os próximos BKs consigam saber quem está a
 
 - BK: `BK-MF0-02`
 - Requisito: `RF02`
-- Dependencias: `-`
+- Dependências: `-`
 - Artefactos: `RF.md`, `RNF.md`, `BACKLOG-MVP.md`, `MATRIZ-CANONICA-BK.md`
 
 ### Passos
@@ -297,22 +297,22 @@ Implementar sessão segura para que os próximos BKs consigam saber quem está a
 5. Criar logout e `/me`.
 6. Criar middleware `requireAuth`.
 7. Criar UI de login sem guardar token.
-8. Executar cenarios negativos obrigatorios (minimo 3) e registar evidência.
+8. Executar cenários negativos obrigatórios (mínimo 3) e registar evidência.
 
-### Cenarios negativos recomendados
+### Cenários negativos recomendados
 
 - Credenciais erradas devem devolver `401`.
 - `/api/auth/me` sem cookie deve devolver `401`.
 - Logout deve invalidar acesso posterior a `/api/auth/me`.
 
-### Validacao
+### Validação
 
 - [ ] Smoke: login válido cria cookie.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: cookie é `HttpOnly`.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+- [ ] Negativos: mínimo `3` cenários com resultado controlado.
+- [ ] Técnico: cookie é `HttpOnly`.
+- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificáveis.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
@@ -320,62 +320,62 @@ Implementar sessão segura para que os próximos BKs consigam saber quem está a
 
 ### Handoff
 
-- Proximo BK recomendado: `BK-MF0-03`
+- Próximo BK recomendado: `BK-MF0-03`
 - O próximo BK deve proteger criação de perfil com `requireAuth`.
 
-## Snippet tecnico aplicavel
+## Snippet técnico aplicável
 
-O codigo aplicavel deste BK-MF0-02 ja nao fica como anexo isolado. Para cumprir o contrato documental sem contrariar o formato tutorial, considera-se tecnico aplicavel o conjunto de blocos completos no `## Tutorial linear de implementacao`, sempre ligados a `BK-MF0-02` e `RF02`.
+O código aplicável deste BK-MF0-02 já não fica como anexo isolado. Para cumprir o contrato documental sem contrariar o formato tutorial, considera-se técnico aplicável o conjunto de blocos completos no `## Tutorial linear de implementação`, sempre ligados a `BK-MF0-02` e `RF02`.
 
-Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma funcao sem perceber ficheiro, imports, validacao, erro esperado e handoff. Por isso, o codigo foi integrado nos passos onde e usado.
+Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma função sem perceber ficheiro, imports, validação, erro esperado e handoff. Por isso, o código foi integrado nos passos onde é usado.
 
-## Criterios de aceite
+## Critérios de aceite
 
-- Entrega funcional especifica de `Login e logout com sessão segura (cookie HttpOnly)` validada contra `RF02`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
+- Entrega funcional específica de `Login e logout com sessão segura (cookie HttpOnly)` validada contra `RF02`.
+- Cenários negativos concluídos: mínimo `3` com resultado controlado.
+- Evidência de testes por camada conforme prioridade (`P0`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Evidence pronta para revisão técnica e defesa PAP.
 
 ## Evidence para PR/defesa
 
 - `pr`: `A preencher no fecho do BK`
-- `proof_tecnico`: `A preencher apos validacao`
-- `proof_negativos`: `A preencher apos testes negativos`
+- `proof_tecnico`: `A preencher após validação`
+- `proof_negativos`: `A preencher após testes negativos`
 - `proof_negocio`: sessão desbloqueia perfil, preferências, admin e fluxos personalizados.
 
-## Proximo BK recomendado
+## Próximo BK recomendado
 
 `BK-MF0-03`
 
-## Tutorial linear de implementacao
+## Tutorial linear de implementação
 
 ### Passo 1 - Confirmar contrato, scope e riscos
 
-1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos nao podem ser quebrados.
+1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos não podem ser quebrados.
 2. Ficheiros envolvidos:
-    - CRIAR: nenhum ficheiro de aplicacao neste passo.
-    - EDITAR: este guia BK, apenas para orientar a implementacao.
-    - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
-    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
-3. O que fazer: ler e respeitar as decisoes abaixo antes de implementar.
-4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; o codigo aparece nos passos seguintes, junto do ficheiro onde e usado.
-5. Explicacao didatica e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; so depois se escreve codigo.
-6. Como validar: confirmar que o header do BK, RF/RNF, dependencias e handoff continuam iguais aos documentos canonicos.
-7. Erro comum ou cenario negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendacoes/pagamentos antes da fase correta.
+    - CRIAR: nenhum ficheiro de aplicação neste passo.
+    - EDITAR: este guia BK, apenas para orientar a implementação.
+    - LOCALIZAÇÃO: ler esta secção antes de abrir o editor de código.
+    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e próximo BK.
+3. O que fazer: ler e respeitar as decisões abaixo antes de implementar.
+4. Código completo, correto e integrado: este passo ainda não tem código; o código aparece nos passos seguintes, junto do ficheiro onde é usado.
+5. Explicação didática e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; só depois se escreve código.
+6. Como validar: confirmar que o header do BK, RF/RNF, dependências e handoff continuam iguais aos documentos canónicos.
+7. Erro comum ou cenário negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendações/pagamentos antes da fase correta.
 
-**Decisao tecnica confirmada:**
-Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`. Esta escolha e pedagogica e simples para o 12.º ano. Em producao real, a equipa pode trocar por sessoes opacas guardadas no servidor, mas essa mudanca deve ser documentada antes de implementar.
+**Decisão técnica confirmada:**
+Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`. Esta escolha e pedagógica e simples para o 12.º ano. Em produção real, a equipa pode trocar por sessões opacas guardadas no servidor, mas essa mudanca deve ser documentada antes de implementar.
 
 **Scope-in deste passo:**
 
-- Acrescentar dependencias de sessao ao backend.
+- Acrescentar dependências de sessão ao backend.
 - Implementar `POST /api/auth/login`.
 - Implementar `POST /api/auth/logout`.
 - Implementar `GET /api/auth/me`.
 - Criar `requireAuth` para proteger BKs seguintes.
 - Configurar cookie `HttpOnly`, `SameSite=Lax` e `Secure` apenas fora de desenvolvimento.
-- Garantir que credenciais invalidas nao revelam se o email existe.
+- Garantir que credenciais inválidas não revelam se o email existe.
 
 **Scope-out deste passo:**
 
@@ -383,11 +383,11 @@ Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`.
 - Refresh tokens.
 - OAuth/Google login.
 - Gestao avancada de roles, que fica para `BK-MF0-05`.
-- CSRF completo; fica como reforco de hardening, mas o guia ja usa `SameSite=Lax`.
+- CSRF completo; fica como reforco de hardening, mas o guia já usa `SameSite=Lax`.
 
 ### Passo 2 - Mapear ficheiros antes de codificar
 
-1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever codigo, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
+1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - EDITAR:
         - `server/package.json`
@@ -410,38 +410,38 @@ Este BK usa JWT assinado guardado em cookie `HttpOnly` chamado `orelle_session`.
         - `server/src/models/user.model.js`, criado no `BK-MF0-01`.
         - `docs/RNF.md`, requisitos `RNF10` e `RNF14`.
         - `docs/planificacao/guias-bk/MF0/BK-MF0-03-criacao-de-perfil-personalizado-com-nome-idade-tipo-de-pele-genero-e-objetivos-ex-hidratar-antiacne.md`, porque vai depender de `requireAuth`.
-    - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+    - LOCALIZAÇÃO: usar exatamente os caminhos listados; quando o ficheiro já existir, editar o ficheiro existente em vez de criar outro com nome parecido.
 
 3. O que fazer: criar ou editar estes ficheiros pela ordem dos passos seguintes.
-4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; ele prepara a lista para os passos de implementacao.
-5. Explicacao didatica e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
-6. Como validar: verificar que cada caminho aparece uma unica vez e que os nomes batem com os imports dos passos seguintes.
-7. Erro comum ou cenario negativo: criar ficheiros duplicados, por exemplo outro controller com nome parecido, faz a app compilar parcialmente mas falhar no fluxo completo.
+4. Código completo, correto e integrado: este passo ainda não tem código; ele prepara a lista para os passos de implementação.
+5. Explicação didática e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
+6. Como validar: verificar que cada caminho aparece uma única vez e que os nomes batem com os imports dos passos seguintes.
+7. Erro comum ou cenário negativo: criar ficheiros duplicados, por exemplo outro controller com nome parecido, faz a app compilar parcialmente mas falhar no fluxo completo.
 
-### Passo 3 - Implementar codigo por ficheiro
+### Passo 3 - Implementar código por ficheiro
 
 1. Objetivo simples do passo: escrever cada ficheiro no local certo, mantendo o contrato com os BKs anteriores e seguintes.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
-    - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
-    - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
-3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de codigo deve ser colocado no ficheiro indicado.
-4. Codigo completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde sao usados.
-5. Explicacao didatica e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, sao validados, passam pelo service e chegam ao frontend.
-6. Como validar: apos cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
-7. Erro comum ou cenario negativo: copiar apenas parte do codigo deixa o tutorial incoerente e quebra os passos posteriores.
+    - LOCALIZAÇÃO: cada subpasso indica o caminho completo do ficheiro.
+    - REVER: imports, exports, nomes das funções e contratos HTTP usados no handoff.
+3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de código deve ser colocado no ficheiro indicado.
+4. Código completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde são usados.
+5. Explicação didática e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, são validados, passam pelo service e chegam ao frontend.
+6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
+7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
 ### Passo 4 - Criar ou editar `server/package.json`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/package.json` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/package.json` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/package.json`.
+    - LOCALIZAÇÃO: `server/package.json`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
-Editar `server/package.json` e substituir pelo ficheiro completo abaixo, mantendo scripts e dependencias do `BK-MF0-01` e acrescentando `cookie-parser` e `jsonwebtoken`.
+Editar `server/package.json` e substituir pelo ficheiro completo abaixo, mantendo scripts e dependências do `BK-MF0-01` e acrescentando `cookie-parser` e `jsonwebtoken`.
 
 ```json
 {
@@ -470,19 +470,19 @@ Editar `server/package.json` e substituir pelo ficheiro completo abaixo, mantend
 }
 ```
 
-5. Explicacao do codigo: este ficheiro continua a ser o manifesto completo do backend. `cookie-parser` deixa o Express ler cookies e `jsonwebtoken` cria/valida o token assinado que fica dentro do cookie, sem remover as dependencias necessarias para registo, MongoDB e testes.
+5. Explicação do código: este ficheiro continua a ser o manifesto completo do backend. `cookie-parser` deixa o Express ler cookies e `jsonwebtoken` cria/valida o token assinado que fica dentro do cookie, sem remover as dependências necessárias para registo, MongoDB e testes.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 5 - Criar ou editar `server/src/config/env.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/config/env.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/config/env.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/config/env.js`.
+    - LOCALIZAÇÃO: `server/src/config/env.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/config/env.js` e acrescentar `sessionSecret` e `sessionTtl`.
 
@@ -506,19 +506,19 @@ if (
 }
 ```
 
-5. Explicacao do codigo: o segredo assina a sessao. Em desenvolvimento existe um valor temporario; em producao, a app deve falhar se o segredo nao estiver definido.
+5. Explicação do código: o segredo assina a sessão. Em desenvolvimento existe um valor temporario; em produção, a app deve falhar se o segredo não estiver definido.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 6 - Criar ou editar `server/src/validators/auth.validator.js`
 
-1. Objetivo simples do passo: separar a validacao de registo da validacao de login, mantendo mensagens claras e sem revelar se a conta existe.
+1. Objetivo simples do passo: separar a validação de registo da validação de login, mantendo mensagens claras e sem revelar se a conta existe.
 2. Ficheiros envolvidos:
     - EDITAR: `server/src/validators/auth.validator.js`.
-    - LOCALIZACAO: substituir o ficheiro criado no `BK-MF0-01` pela versao completa abaixo.
+    - LOCALIZAÇÃO: substituir o ficheiro criado no `BK-MF0-01` pela versao completa abaixo.
     - REVER: `server/src/controllers/auth.controller.js` e `server/src/services/auth.service.js`, porque ambos usam estes validators.
 3. O que fazer: manter `validateRegisterInput` para registo e acrescentar `validateLoginInput` para login.
-4. Codigo completo, correto e integrado:
+4. Código completo, correto e integrado:
 
 Editar `server/src/validators/auth.validator.js` e substituir pelo ficheiro completo abaixo.
 
@@ -567,7 +567,7 @@ export function validateLoginInput(body) {
     }
 
     if (!password) {
-        errors.password = "Password obrigatoria";
+        errors.password = "Password obrigatória";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -578,19 +578,19 @@ export function validateLoginInput(body) {
 }
 ```
 
-5. Explicacao do codigo: o registo exige password forte porque esta a criar uma conta nova; o login apenas confirma que email e password foram enviados, porque a seguranca principal acontece na comparacao com o hash guardado. Separar os validators evita misturar regras de criacao de conta com regras de autenticacao.
-6. Como validar: pedir login sem password deve devolver `400`; pedir login com password errada mas formato valido deve chegar ao service e devolver `401 Credenciais invalidas`.
-7. Erro comum ou cenario negativo: usar `validateRegisterInput` no login pode bloquear passwords antigas se a politica de password mudar, criando uma regressao de autenticacao.
+5. Explicação do código: o registo exige password forte porque esta a criar uma conta nova; o login apenas confirma que email e password foram enviados, porque a segurança principal acontece na comparacao com o hash guardado. Separar os validators evita misturar regras de criação de conta com regras de autenticação.
+6. Como validar: pedir login sem password deve devolver `400`; pedir login com password errada mas formato válido deve chegar ao service e devolver `401 Credenciais invalidas`.
+7. Erro comum ou cenário negativo: usar `validateRegisterInput` no login pode bloquear passwords antigas se a política de password mudar, criando uma regressão de autenticação.
 
 ### Passo 7 - Criar ou editar `server/src/services/session.service.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/services/session.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/services/session.service.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/services/session.service.js`.
+    - LOCALIZAÇÃO: `server/src/services/session.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/services/session.service.js`.
 
@@ -633,7 +633,7 @@ export function verifySessionToken(token) {
             role: payload.role,
         };
     } catch {
-        throw new AppError(401, "Sessao invalida ou expirada");
+        throw new AppError(401, "Sessão inválida ou expirada");
     }
 }
 
@@ -647,19 +647,19 @@ export function clearSessionCookie(res) {
 }
 ```
 
-5. Explicacao do codigo: este ficheiro concentra tudo o que sabe sobre cookies e tokens. Assim login, logout e `requireAuth` usam as mesmas regras.
+5. Explicação do código: este ficheiro concentra tudo o que sabe sobre cookies e tokens. Assim login, logout e `requireAuth` usam as mesmas regras.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 8 - Criar ou editar `server/src/middlewares/auth.middleware.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/middlewares/auth.middleware.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/middlewares/auth.middleware.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/middlewares/auth.middleware.js`.
+    - LOCALIZAÇÃO: `server/src/middlewares/auth.middleware.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/middlewares/auth.middleware.js`.
 
@@ -671,14 +671,14 @@ import {
 import { AppError } from "./error.middleware.js";
 
 /**
- * Bloqueia pedidos sem sessao valida.
+ * Bloqueia pedidos sem sessão válida.
  * Se passar, coloca o utilizador autenticado em req.user.
  */
 export function requireAuth(req, res, next) {
     const token = req.cookies?.[SESSION_COOKIE_NAME];
 
     if (!token) {
-        return next(new AppError(401, "Autenticacao obrigatoria"));
+        return next(new AppError(401, "Autenticação obrigatória"));
     }
 
     try {
@@ -690,19 +690,19 @@ export function requireAuth(req, res, next) {
 }
 ```
 
-5. Explicacao do codigo: qualquer rota sensivel pode usar `requireAuth`. Se nao houver cookie, responde `401`; se houver cookie valido, a rota sabe quem e o utilizador.
+5. Explicação do código: qualquer rota sensível pode usar `requireAuth`. Se não houver cookie, responde `401`; se houver cookie válido, a rota sabe quem e o utilizador.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 9 - Criar ou editar `server/src/services/auth.service.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/services/auth.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/services/auth.service.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/services/auth.service.js`.
+    - LOCALIZAÇÃO: `server/src/services/auth.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/services/auth.service.js`. Manter `registerUser` e acrescentar `loginUser`.
 
@@ -724,7 +724,7 @@ export async function registerUser({ email, password }) {
     const existing = await User.findOne({ email }).select("_id");
 
     if (existing) {
-        throw new AppError(409, "Ja existe uma conta com este email");
+        throw new AppError(409, "Já existe uma conta com este email");
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -752,19 +752,19 @@ export async function loginUser({ email, password }) {
 }
 ```
 
-5. Explicacao do codigo: o login procura o utilizador e compara a password enviada com o hash guardado. A mensagem de erro e igual para email inexistente e password errada para evitar enumeração de contas.
+5. Explicação do código: o login procura o utilizador e compara a password enviada com o hash guardado. A mensagem de erro e igual para email inexistente e password errada para evitar enumeração de contas.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 10 - Criar ou editar `server/src/controllers/auth.controller.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/auth.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/controllers/auth.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/controllers/auth.controller.js`.
+    - LOCALIZAÇÃO: `server/src/controllers/auth.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/controllers/auth.controller.js` e substituir pelo ficheiro completo abaixo.
 
@@ -813,19 +813,19 @@ export function meController(req, res) {
 }
 ```
 
-5. Explicacao do codigo: `loginController` cria o cookie; `logoutController` remove o cookie; `meController` devolve o utilizador que `requireAuth` colocou em `req.user`.
+5. Explicação do código: `loginController` cria o cookie; `logoutController` remove o cookie; `meController` devolve o utilizador que `requireAuth` colocou em `req.user`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 11 - Criar ou editar `server/src/routes/auth.routes.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/auth.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/routes/auth.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/routes/auth.routes.js`.
+    - LOCALIZAÇÃO: `server/src/routes/auth.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/routes/auth.routes.js` e substituir pelo ficheiro completo abaixo.
 
@@ -847,19 +847,19 @@ authRoutes.post("/logout", logoutController);
 authRoutes.get("/me", requireAuth, meController);
 ```
 
-5. Explicacao do codigo: `/me` e protegido. Login e registo nao precisam de sessao previa; logout pode ser chamado mesmo que o cookie ja tenha expirado.
+5. Explicação do código: `/me` é protegido. Login e registo não precisam de sessão previa; logout pode ser chamado mesmo que o cookie já tenha expirado.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 12 - Criar ou editar `server/src/app.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/app.js`.
+    - LOCALIZAÇÃO: `server/src/app.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/app.js` e acrescentar `cookieParser()` antes das rotas.
 
@@ -889,19 +889,19 @@ export function createApp() {
 }
 ```
 
-5. Explicacao do codigo: sem `cookieParser`, `req.cookies` fica vazio e `requireAuth` nao consegue ler `orelle_session`.
+5. Explicação do código: sem `cookieParser`, `req.cookies` fica vazio e `requireAuth` não consegue ler `orelle_session`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 13 - Criar ou editar `client/src/services/apiClient.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/services/apiClient.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `client/src/services/apiClient.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `client/src/services/apiClient.js`.
+    - LOCALIZAÇÃO: `client/src/services/apiClient.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `client/src/services/apiClient.js` e garantir `credentials: 'include'`.
 
@@ -933,19 +933,19 @@ export async function apiRequest(path, options = {}) {
 }
 ```
 
-5. Explicacao do codigo: `credentials: 'include'` permite que o browser envie e receba cookies da API. Sem isto, o cookie `HttpOnly` pode ser criado mas nao circular corretamente entre frontend e backend.
+5. Explicação do código: `credentials: 'include'` permite que o browser envie e receba cookies da API. Sem isto, o cookie `HttpOnly` pode ser criado mas não circular corretamente entre frontend e backend.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 14 - Criar ou editar `client/src/context/AuthContext.jsx`
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/context/AuthContext.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `client/src/context/AuthContext.jsx` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `client/src/context/AuthContext.jsx`.
+    - LOCALIZAÇÃO: `client/src/context/AuthContext.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `client/src/context/AuthContext.jsx`.
 
@@ -1002,19 +1002,19 @@ export function useAuth() {
 }
 ```
 
-5. Explicacao do codigo: o contexto guarda o utilizador autenticado no frontend. O token continua no cookie `HttpOnly`; o React nunca le o token diretamente.
+5. Explicação do código: o contexto guarda o utilizador autenticado no frontend. O token continua no cookie `HttpOnly`; o React nunca le o token diretamente.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 15 - Criar ou editar `client/src/pages/LoginPage.jsx`
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/LoginPage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `client/src/pages/LoginPage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `client/src/pages/LoginPage.jsx`.
+    - LOCALIZAÇÃO: `client/src/pages/LoginPage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `client/src/pages/LoginPage.jsx`.
 
@@ -1042,7 +1042,7 @@ export function LoginPage() {
 
         try {
             const loggedUser = await login(form);
-            setMessage(`Sessao iniciada como ${loggedUser.email}`);
+            setMessage(`Sessão iniciada como ${loggedUser.email}`);
         } catch (err) {
             setMessage(err.message);
         } finally {
@@ -1052,7 +1052,7 @@ export function LoginPage() {
 
     async function handleLogout() {
         await logout();
-        setMessage("Sessao terminada");
+        setMessage("Sessão terminada");
     }
 
     return (
@@ -1063,7 +1063,7 @@ export function LoginPage() {
                 <section>
                     <p>Autenticado como {user.email}</p>
                     <button type="button" onClick={handleLogout}>
-                        Terminar sessao
+                        Terminar sessão
                     </button>
                 </section>
             ) : (
@@ -1102,19 +1102,19 @@ export function LoginPage() {
 }
 ```
 
-5. Explicacao do codigo: esta pagina demonstra login, estado autenticado e logout. O cookie e invisivel para JavaScript, mas o browser envia-o automaticamente.
+5. Explicação do código: esta página demonstra login, estado autenticado e logout. O cookie é invisível para JavaScript, mas o browser envia-o automaticamente.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 16 - Criar ou editar `client/src/App.jsx`
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/App.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `client/src/App.jsx` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `client/src/App.jsx`.
+    - LOCALIZAÇÃO: `client/src/App.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `client/src/App.jsx` para envolver a app em `AuthProvider`.
 
@@ -1133,25 +1133,25 @@ export function App() {
 }
 ```
 
-5. Explicacao do codigo: nesta fase a UI pode mostrar registo e login na mesma pagina. Routing visual pode ser refinado mais tarde.
+5. Explicação do código: nesta fase a UI pode mostrar registo e login na mesma página. Routing visual pode ser refinado mais tarde.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 17 - Validar payloads e respostas esperadas
 
 1. Objetivo simples do passo: testar o contrato HTTP que a UI e os BKs seguintes vao usar.
 2. Ficheiros envolvidos:
     - CRIAR: nenhum ficheiro novo.
-    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
-    - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
+    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real não bater com o contrato documentado.
+    - LOCALIZAÇÃO: executar pedidos contra os endpoints implementados nos passos anteriores.
     - REVER: routes, controllers, validators e services deste BK.
-3. O que fazer: usar os exemplos abaixo para confirmar pedidos validos, respostas de sucesso e erros esperados.
-4. Codigo completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o codigo implementado.
-5. Explicacao didatica e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
+3. O que fazer: usar os exemplos abaixo para confirmar pedidos válidos, respostas de sucesso e erros esperados.
+4. Código completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o código implementado.
+5. Explicação didática e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
 6. Como validar: executar os pedidos com cliente HTTP ou teste automatizado e comparar status code e JSON.
-7. Erro comum ou cenario negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros dificeis de diagnosticar.
+7. Erro comum ou cenário negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros difíceis de diagnosticar.
 
-Login valido:
+Login válido:
 
 ```http
 POST /api/auth/login
@@ -1159,7 +1159,7 @@ Content-Type: application/json
 
 {
   "email": "cliente@orelle.test",
-  "password": "Senha12345"
+  "password": "PalavraPasse12345"
 }
 ```
 
@@ -1190,12 +1190,12 @@ Credenciais erradas `401`:
 }
 ```
 
-Sessao ausente em `/api/auth/me` `401`:
+Sessão ausente em `/api/auth/me` `401`:
 
 ```json
 {
     "error": {
-        "message": "Autenticacao obrigatoria"
+        "message": "Autenticação obrigatória"
     }
 }
 ```
@@ -1210,16 +1210,16 @@ Resposta esperada: `204 No Content`, com limpeza do cookie.
 
 ### Passo 18 - Criar testes minimos
 
-1. Objetivo simples do passo: provar que o comportamento principal e os cenarios negativos funcionam antes de entregar o BK.
+1. Objetivo simples do passo: provar que o comportamento principal e os cenários negativos funcionam antes de entregar o BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
-    - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
+    - LOCALIZAÇÃO: pasta de testes do backend ou frontend indicada no próprio passo.
     - REVER: validators, services, controllers e rotas usados pelo teste.
 3. O que fazer: criar o teste completo abaixo e correr a suite.
-4. Codigo completo, correto e integrado: o teste abaixo deve acompanhar o codigo real, nao ser apenas exemplo solto.
-5. Explicacao didatica e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: nao basta escrever codigo, e preciso provar o comportamento.
+4. Código completo, correto e integrado: o teste abaixo deve acompanhar o código real, não ser apenas exemplo solto.
+5. Explicação didática e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: não basta escrever código, é preciso provar o comportamento.
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
-7. Erro comum ou cenario negativo: testar apenas o caminho feliz deixa falhas de seguranca e validacao por descobrir.
+7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
 Criar este ficheiro em `server/tests/auth.session.test.js`.
 
@@ -1236,9 +1236,9 @@ vi.mock("../src/models/user.model.js", () => ({
     },
 }));
 
-describe("BK-MF0-02 / RF02 - sessao segura", () => {
+describe("BK-MF0-02 / RF02 - sessão segura", () => {
     it("faz login e cria cookie HttpOnly", async () => {
-        const passwordHash = await bcrypt.hash("Senha12345", 12);
+        const passwordHash = await bcrypt.hash("PalavraPasse12345", 12);
 
         User.findOne.mockReturnValueOnce({
             select: vi.fn().mockResolvedValue({
@@ -1252,7 +1252,7 @@ describe("BK-MF0-02 / RF02 - sessao segura", () => {
 
         const response = await request(createApp())
             .post("/api/auth/login")
-            .send({ email: "cliente@orelle.test", password: "Senha12345" });
+            .send({ email: "cliente@orelle.test", password: "PalavraPasse12345" });
 
         expect(response.status).toBe(200);
         expect(response.headers["set-cookie"].join(";")).toContain("HttpOnly");
@@ -1262,7 +1262,7 @@ describe("BK-MF0-02 / RF02 - sessao segura", () => {
     });
 
     it("rejeita password errada sem criar cookie", async () => {
-        const passwordHash = await bcrypt.hash("Senha12345", 12);
+        const passwordHash = await bcrypt.hash("PalavraPasse12345", 12);
 
         User.findOne.mockReturnValueOnce({
             select: vi.fn().mockResolvedValue({
@@ -1285,28 +1285,28 @@ describe("BK-MF0-02 / RF02 - sessao segura", () => {
         const response = await request(createApp()).get("/api/auth/me");
 
         expect(response.status).toBe(401);
-        expect(response.body.error.message).toBe("Autenticacao obrigatoria");
+        expect(response.body.error.message).toBe("Autenticação obrigatória");
     });
 });
 ```
 
-5. Explicacao do codigo: estes testes provam cookie `HttpOnly`, erro generico de credenciais e bloqueio de rota protegida sem cookie.
+5. Explicação do código: estes testes provam cookie `HttpOnly`, erro genérico de credenciais e bloqueio de rota protegida sem cookie.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 19 - Confirmar bloqueios e decisoes antes do PR
+### Passo 19 - Confirmar bloqueios e decisões antes do PR
 
-1. Objetivo simples do passo: identificar decisoes que nao podem ser inventadas durante a implementacao.
+1. Objetivo simples do passo: identificar decisões que não podem ser inventadas durante a implementação.
 2. Ficheiros envolvidos:
-    - CRIAR: nenhum ficheiro de aplicacao.
-    - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
-    - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
+    - CRIAR: nenhum ficheiro de aplicação.
+    - EDITAR: apenas documentos canónicos se a decisão alterar contrato, scope ou política.
+    - LOCALIZAÇÃO: rever os pontos abaixo antes de abrir PR.
     - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
-3. O que fazer: se algum bloqueio se aplicar, parar a implementacao real e atualizar primeiro a fonte documental correta.
-4. Codigo completo, correto e integrado: este passo nao adiciona codigo; protege a coerencia do codigo ja escrito.
-5. Explicacao didatica e detalhada: alunos nao devem preencher lacunas com suposicoes, sobretudo quando ha dados sensiveis, roles ou contratos usados por outros BKs.
-6. Como validar: confirmar que nao ficou nenhuma decisao implicita no codigo.
-7. Erro comum ou cenario negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, seguranca ou o handoff de fases seguintes.
+3. O que fazer: se algum bloqueio se aplicar, parar a implementação real e atualizar primeiro a fonte documental correta.
+4. Código completo, correto e integrado: este passo não adiciona código; protege a coerência do código já escrito.
+5. Explicação didática e detalhada: alunos não devem preencher lacunas com suposicoes, sobretudo quando há dados sensíveis, roles ou contratos usados por outros BKs.
+6. Como validar: confirmar que não ficou nenhuma decisão implicita no código.
+7. Erro comum ou cenário negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, segurança ou o handoff de fases seguintes.
 
 Antes de deploy real, confirmar em `.env`:
 
@@ -1316,24 +1316,24 @@ SESSION_TTL=2h
 CLIENT_ORIGIN=http://localhost:5173
 ```
 
-Se `SESSION_SECRET` nao for definido em producao, a aplicacao deve falhar ao arrancar. Isto e intencional para nao publicar sessoes assinadas com segredo fraco.
+Se `SESSION_SECRET` não for definido em produção, a aplicação deve falhar ao arrancar. Isto é intencional para não publicar sessões assinadas com segredo fraco.
 
 ### Evidence para PR/defesa
 
 - Screenshot ou output de DevTools mostrando `orelle_session` com `HttpOnly`.
-- `POST /api/auth/login` valido com `200`.
-- `POST /api/auth/login` invalido com `401` sem `Set-Cookie`.
+- `POST /api/auth/login` válido com `200`.
+- `POST /api/auth/login` inválido com `401` sem `Set-Cookie`.
 - `GET /api/auth/me` sem cookie com `401`.
 - `POST /api/auth/logout` com `204` e cookie limpo.
 
 ### Handoff para BK-MF0-03
 
-O proximo BK deve usar `requireAuth` em todas as rotas de perfil e deve ler o utilizador autenticado em `req.user.id`. Nao deve aceitar `userId` vindo do body para criar perfil.
+O próximo BK deve usar `requireAuth` em todas as rotas de perfil e deve ler o utilizador autenticado em `req.user.id`. Não deve aceitar `userId` vindo do body para criar perfil.
 
 ## Changelog
 
-- `2026-04-14`: guia normalizado para contrato canonico comum.
+- `2026-04-14`: guia normalizado para contrato canónico comum.
 - `2026-05-25`: guia refinado para implementação concreta de sessão segura.
 - `2026-05-29`: tutorial linear integrado com cookie HttpOnly, JWT assinado, requireAuth, UI, payloads e testes negativos.
-- `2026-05-29`: estrutura corrigida para tutorial linear integrado, com codigo, explicacao, validacao e negativo no passo onde sao usados.
+- `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
 - `2026-05-29`: separado `validateLoginInput` de `validateRegisterInput` para manter login e registo coerentes.

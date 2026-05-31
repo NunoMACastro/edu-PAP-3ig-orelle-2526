@@ -27,7 +27,7 @@ Produtos relacionados melhoram descoberta comercial sem transformar o fluxo em d
 ## Scope-in
 - Criar endpoint `GET /api/catalog/products/:productId/related`.
 - Calcular relacionados por catálogo, sem histórico de compra real.
-- Excluir o produto atual da lista.
+- Remover o produto atual da lista.
 - Devolver lista vazia de forma clara se não houver resultados.
 - Criar componente React para apresentar relacionados.
 
@@ -66,25 +66,25 @@ Isto não é collaborative filtering. A regra é determinística e explicável: 
 - CRIAR: `client/src/pages/RelatedProductsPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
-Mostrar produtos semelhantes e complementares usando regras simples de catalogo.
+Mostrar produtos semelhantes e complementares usando regras simples de catálogo.
 
-### Pre-requisitos
+### Pré-requisitos
 - Ter produtos e categorias da `MF0`.
 - Ter detalhe de produto em `BK-MF1-02`.
-- Saber excluir o produto atual da lista relacionada.
+- Saber remover o produto atual da lista relacionada.
 
 ### Erros comuns
 - Implementar checkout neste BK.
-- Usar historico de compras que ainda nao existe.
-- Prometer recomendacao personalizada por IA nesta fase.
+- Usar histórico de compras que ainda não existe.
+- Prometer recomendação personalizada por IA nesta fase.
 
 ### Check de compreensao
-- Que dados de produto sao suficientes para encontrar semelhantes?
-- Porque e que a lista pode ficar vazia?
-- Que requisito futuro trata recomendacao personalizada?
+- Que dados de produto são suficientes para encontrar semelhantes?
+- Porque é que a lista pode ficar vazia?
+- Que requisito futuro trata recomendação personalizada?
 
 ## Bloco operacional
 
@@ -94,9 +94,9 @@ Mostrar produtos semelhantes e complementares usando regras simples de catalogo.
 - Lista de produtos publicos relacionados.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 2).
+Executar cenários negativos obrigatórios (mínimo 2).
 
-Segue os passos lineares abaixo e valida produto inexistente, lista vazia e exclusao do produto atual.
+Segue os passos lineares abaixo e valida produto inexistente, lista vazia e exclusão do produto atual.
 
 ## Passos lineares
 
@@ -143,7 +143,7 @@ export async function listRelatedCatalogProducts(productId) {
     const product = await Product.findById(productId);
 
     if (!product) {
-        throw new AppError(404, "Produto nao encontrado");
+        throw new AppError(404, "Produto não encontrado");
     }
 
     const criteria = [
@@ -176,7 +176,7 @@ export async function listRelatedCatalogProducts(productId) {
 
 5. Explicação do código: o service cria critérios apenas com dados existentes no produto base. Se não houver categoria, tipo de pele nem marca, devolve lista vazia sem erro. Quando há critérios, a query procura semelhanças, exclui o produto atual e evita stock zero.
 6. Como validar este passo: cria dois produtos na mesma categoria e confirma que um aparece nos relacionados do outro; cria um produto sem critérios úteis e confirma `200` com lista vazia.
-7. Erros comuns ou cenário negativo: não excluir o produto atual faz a página recomendar o que o cliente já está a ver; não tratar critérios vazios pode gerar consultas confusas.
+7. Erros comuns ou cenário negativo: não remover o produto atual faz a página recomendar o que o cliente já está a ver; não tratar critérios vazios pode gerar consultas confusas.
 
 ### Passo 3 - Criar controller
 
@@ -334,24 +334,24 @@ export function App() {
 6. Como validar este passo: abre o frontend e confirma que a secção aparece.
 7. Erros comuns ou cenário negativo: substituir as páginas anteriores impede validar a sequência da `MF1`.
 
-### Validacao
-- [ ] Negativos: minimo `2` cenarios.
+### Validação
+- [ ] Negativos: mínimo `2` cenários.
 - [ ] Produto inexistente devolve `404`.
 - [ ] Produto sem relacionados devolve lista vazia.
-- [ ] Produto atual nao aparece nos resultados.
+- [ ] Produto atual não aparece nos resultados.
 - [ ] UI mostra estado vazio.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
 | Service | Query exclui produto atual e limita resultados. |
 | Controller/route | Endpoint devolve `{ "relatedProducts": [...] }`. |
-| UI | Pagina mostra lista ou vazio. |
+| UI | Página mostra lista ou vazio. |
 
-Evidencia de testes por camada:
+Evidência de testes por camada:
 - API: output com relacionados e sem relacionados.
-- Service: teste de exclusao do produto atual.
+- Service: teste de exclusão do produto atual.
 - UI: screenshot da lista relacionada.
 
 ## Expected results
@@ -361,9 +361,9 @@ Evidencia de testes por camada:
 - Produto inexistente: `404`.
 - ID inválido: `400`.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `2`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `2`.
+- Evidência de testes por camada documentada.
 - O produto atual nunca aparece na lista.
 - Só produtos com `stock > 0` entram na lista.
 - A regra usa categoria, tipo de pele ou marca.

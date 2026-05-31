@@ -34,7 +34,7 @@ As fotografias faciais são dados biométricos sensíveis. Antes de guardar fich
 ## Scope-out
 - Não analisar fotografias com IA; isso fica para `BK-MF1-06`.
 - Não gerar relatório; isso fica para `BK-MF1-07`.
-- Não criar painel de eliminação/anonymização; isso fica para `BK-MF5-01`.
+- Não criar painel de eliminação/anonimização; isso fica para `BK-MF5-01`.
 
 ## Pré-requisitos
 - `BK-MF0-02`: sessão com cookie HttpOnly e `requireAuth`.
@@ -52,7 +52,7 @@ Upload facial não é análise facial. Este BK só guarda fotografias e metadado
 
 O backend usa `requireAuth` para saber quem é o utilizador. O frontend nunca envia `userId`. O storage privado guarda ficheiros fora de uma pasta pública, e a API devolve apenas IDs e metadados seguros. `storageKey` fica no backend porque revela onde o ficheiro vive e pode abrir caminho a acesso indevido se escapar para o cliente.
 
-Fotografias faciais são dados sensíveis. Nesta fase, a proteção mínima é consentimento explícito, validação de formato/tamanho, ownership por sessão, pasta privada e resposta minimizada. A encriptação de ficheiros, eliminação/anonymização e auditoria de acessos ficam preparadas para BKs posteriores, mas este BK não deve bloquear esses requisitos futuros.
+Fotografias faciais são dados sensíveis. Nesta fase, a proteção mínima é consentimento explícito, validação de formato/tamanho, ownership por sessão, pasta privada e resposta minimizada. A encriptação de ficheiros, eliminação/anonimização e auditoria de acessos ficam preparadas para BKs posteriores, mas este BK não deve bloquear esses requisitos futuros.
 
 Também existe uma falha operacional importante: o ficheiro pode chegar ao disco e a gravação em MongoDB falhar. O service deve limpar ficheiros recém-recebidos se a persistência falhar, reduzindo risco de ficheiros órfãos com dados biométricos.
 
@@ -80,37 +80,37 @@ Também existe uma falha operacional importante: o ficheiro pode chegar ao disco
 - CRIAR: `client/src/pages/FacePhotoUploadPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
-Permitir upload seguro de fotografias frontal e perfil com consentimento minimo antes de qualquer processamento.
+Permitir upload seguro de fotografias frontal e perfil com consentimento mínimo antes de qualquer processamento.
 
-### Pre-requisitos
-- Ter autenticacao por sessao em `BK-MF0-02`.
+### Pré-requisitos
+- Ter autenticação por sessão em `BK-MF0-02`.
 - Ter perfil de cliente em `BK-MF0-03`.
-- Compreender que fotografia facial e dado sensivel.
+- Compreender que fotografia facial e dado sensível.
 
 ### Erros comuns
-- Guardar fotografias em pasta publica.
+- Guardar fotografias em pasta pública.
 - Aceitar ficheiros sem validar tipo, tamanho e quantidade.
 - Devolver `storageKey` ou path interno na API.
 
 ### Check de compreensao
-- Porque e que o consentimento vem antes do upload?
-- Que campos de ficheiro sao obrigatorios?
+- Porque é que o consentimento vem antes do upload?
+- Que campos de ficheiro são obrigatórios?
 - Que dados nunca devem voltar para o frontend?
 
 ## Bloco operacional
 
 ### Entrada
-- Sessao autenticada.
+- Sessão autenticada.
 - Consentimento ativo.
 - FormData com `frontal` e `perfil`.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 3).
+Executar cenários negativos obrigatórios (mínimo 3).
 
-Segue os passos lineares abaixo e valida sem sessao, sem consentimento, ficheiro invalido e falta de uma fotografia.
+Segue os passos lineares abaixo e valida sem sessão, sem consentimento, ficheiro inválido e falta de uma fotografia.
 
 ## Passos lineares
 
@@ -284,7 +284,7 @@ export function validateUploadedFaceFiles(files) {
     const perfil = files?.perfil?.[0];
 
     if (!frontal || !perfil) {
-        throw new AppError(400, "Fotografia frontal e de perfil sao obrigatorias");
+        throw new AppError(400, "Fotografia frontal e de perfil são obrigatórias");
     }
 
     return [
@@ -318,7 +318,7 @@ const storage = multer.diskStorage({
 
 function fileFilter(req, file, callback) {
     if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-        return callback(new AppError(400, "Formato de imagem nao permitido"));
+        return callback(new AppError(400, "Formato de imagem não permitido"));
     }
 
     return callback(null, true);
@@ -665,26 +665,26 @@ export function App() {
 6. Como validar este passo: tenta enviar sem marcar consentimento, sem login e com ficheiro não imagem.
 7. Erros comuns ou cenário negativo: confiar só na checkbox visual permitiria chamada direta à API sem consentimento guardado.
 
-### Validacao
-- [ ] Negativos: minimo `3` cenarios.
-- [ ] Sem sessao devolve `401`.
+### Validação
+- [ ] Negativos: mínimo `3` cenários.
+- [ ] Sem sessão devolve `401`.
 - [ ] Sem consentimento devolve `403`.
-- [ ] Ficheiro invalido devolve `400`.
-- [ ] Resposta nao inclui `storageKey` nem path interno.
+- [ ] Ficheiro inválido devolve `400`.
+- [ ] Resposta não inclui `storageKey` nem path interno.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
 | Middleware | Tipo e tamanho de ficheiro validados. |
 | Service | Consentimento e ownership verificados. |
-| Controller/route | Endpoints devolvem contrato publico. |
-| UI | Formulario envia `FormData` com duas fotografias. |
+| Controller/route | Endpoints devolvem contrato público. |
+| UI | Formulário envia `FormData` com duas fotografias. |
 
-Evidencia de testes por camada:
-- API: output de upload valido e rejeicoes.
+Evidência de testes por camada:
+- API: output de upload válido e rejeicoes.
 - Service: teste de consentimento ausente.
-- UI: screenshot do formulario com sucesso.
+- UI: screenshot do formulário com sucesso.
 
 ## Expected results
 - `POST /api/face-consent` autenticado responde `200`.
@@ -693,9 +693,9 @@ Evidencia de testes por camada:
 - Sem consentimento responde `403`.
 - Ficheiro inválido responde `400`.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `3`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `3`.
+- Evidência de testes por camada documentada.
 - O backend exige sessão.
 - O backend exige consentimento ativo.
 - O backend exige `frontal` e `perfil`.

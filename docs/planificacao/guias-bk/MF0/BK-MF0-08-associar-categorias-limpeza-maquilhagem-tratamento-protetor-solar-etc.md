@@ -29,7 +29,7 @@ O objetivo não é construir pesquisa ainda. O objetivo é deixar o catálogo ca
 
 Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar categorias e permitir associá-las a um produto.
 
-##### Porque e que isto e importante
+##### Porque é que isto é importante
 
 - Organiza o catálogo e melhora navegação futura.
 - Prepara filtros de `MF1` com contrato estável.
@@ -46,7 +46,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar
 - UI simples de associação.
 - Testes de categoria inexistente, produto inexistente e permissão.
 
-##### O que nao entra (scope-out)
+##### O que não entra (scope-out)
 
 - Pesquisa/filtros públicos, que ficam para `BK-MF1-01`.
 - Página de detalhe do produto, que fica para `BK-MF1-02`.
@@ -69,14 +69,14 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar
 - macro: `MF0` (CANONICO)
 - Owner: `Bruna` (CANONICO)
 - Apoio: `Izelicks` (CANONICO)
-- Dependencias (BK IDs): `BK-MF0-07` (CANONICO)
-- Pre-condicoes: modelo `Product` existe e produtos podem ser criados (DERIVADO)
+- Dependências (BK IDs): `BK-MF0-07` (CANONICO)
+- Pré-condições: modelo `Product` existe e produtos podem ser criados (DERIVADO)
 - Ref. Plano: `RF08`, `Fase 1`, `S01-S02`, `Reforco` (CANONICO)
 - Flow ID: `FLOW-CATALOG-CATEGORIES` (DERIVADO)
 - Fonte de verdade: `docs/RF.md` -> `RF08` (CANONICO)
 - Fonte de verdade: `docs/planificacao/backlogs/BACKLOG-MVP.md` -> linha `BK-MF0-08` (CANONICO)
 - Fonte de verdade: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md` -> linha `BK-MF0-08` (CANONICO)
-- Descricao: categorias de catálogo associadas a produtos (CANONICO)
+- Descrição: categorias de catálogo associadas a produtos (CANONICO)
 
 #### O que vamos fazer neste BK (DERIVADO):
 
@@ -84,7 +84,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar
 - Estado esperado depois do BK: produtos podem ter categorias validadas.
 - Ficheiros a criar: `server/src/models/category.model.js`, `server/src/routes/admin-categories.routes.js`, `server/src/controllers/admin-categories.controller.js`, `server/src/services/category.service.js`, `server/src/validators/category.validator.js`, `server/src/scripts/seed-categories.js`, `client/src/pages/AdminCategoriesPage.jsx`.
 - Ficheiros a editar: `server/src/models/product.model.js`, `server/src/app.js`, `client/src/App.jsx`.
-- Dependencias de BK anteriores: `BK-MF0-07` fornece `Product`; `BK-MF0-05` fornece proteção admin se executado.
+- Dependências de BK anteriores: `BK-MF0-07` fornece `Product`; `BK-MF0-05` fornece proteção admin se executado.
 - Impacto na arquitetura: adiciona módulo `catalog/categories`.
 - Impacto em frontend: adiciona ecrã admin simples para categorias.
 - Impacto em backend: adiciona validação de relação produto-categoria.
@@ -93,7 +93,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar
 - Impacto em testes: P0 com 3 negativos e regressão de produto.
 - Handoff para o próximo BK: `BK-MF1-01` deve reutilizar `categoryIds` para filtros.
 
-#### Pre-leitura minima (10-15 min) (DERIVADO):
+#### Pre-leitura mínima (10-15 min) (DERIVADO):
 
 - `docs/RF.md`: `RF08` e `RF09`.
 - Guia `BK-MF0-07`: modelo `Product`.
@@ -118,114 +118,114 @@ Um `slug` ajuda a ter identificadores estáveis e legíveis. O nome visível pod
 
 Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` usa esses dados para construir a experiência de pesquisa e filtragem.
 
-#### Guia de execucao (passo-a-passo) (DERIVADO):
+#### Guia de execução (passo-a-passo) (DERIVADO):
 
 0. **Objetivo (~15 min): confirmar categorias iniciais canónicas**
-    - Descricao detalhada do objetivo: usar exemplos do `RF08` como seed inicial.
-    - Justificacao: evita inventar taxonomia completa sem fonte.
+    - Descrição detalhada do objetivo: usar exemplos do `RF08` como seed inicial.
+    - Justificação: evita inventar taxonomia completa sem fonte.
     - Como fazer (0.1): listar `limpeza`, `maquilhagem`, `tratamento`, `protetor-solar`.
     - Como fazer (0.2): marcar outras categorias como futuras e dependentes de confirmação.
     - Ficheiro a rever: `docs/RF.md`.
     - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
-    - Snippet de referencia: `const INITIAL_CATEGORIES = ['limpeza', 'maquilhagem', 'tratamento', 'protetor-solar'];`.
+    - Snippet de referência: `const INITIAL_CATEGORIES = ['limpeza', 'maquilhagem', 'tratamento', 'protetor-solar'];`.
     - O que verificar: não há subcategorias inventadas.
 
 1. **Objetivo (~25 min): criar modelo Category**
-    - Descricao detalhada do objetivo: persistir categorias com nome e slug únicos.
-    - Justificacao: filtros futuros precisam de valores estáveis.
+    - Descrição detalhada do objetivo: persistir categorias com nome e slug únicos.
+    - Justificação: filtros futuros precisam de valores estáveis.
     - Como fazer (1.1): criar `name`, `slug`, `isActive`.
     - Como fazer (1.2): aplicar índice único em `slug`.
     - Ficheiro a rever: `docs/RF.md`.
     - Ficheiro alvo: `server/src/models/category.model.js`.
-    - Snippet de referencia: `slug: { type: String, required: true, unique: true, index: true }`.
+    - Snippet de referência: `slug: { type: String, required: true, unique: true, index: true }`.
     - O que verificar: seed repetido não duplica categorias.
 
 2. **Objetivo (~30 min): ligar Product a Category**
-    - Descricao detalhada do objetivo: acrescentar `categoryIds` ao produto.
-    - Justificacao: produto pode pertencer a mais do que uma categoria.
+    - Descrição detalhada do objetivo: acrescentar `categoryIds` ao produto.
+    - Justificação: produto pode pertencer a mais do que uma categoria.
     - Como fazer (2.1): adicionar array de ObjectIds no schema `Product`.
     - Como fazer (2.2): não tornar obrigatório se existirem produtos antigos sem categoria.
     - Ficheiro a rever: `server/src/models/product.model.js`.
     - Ficheiro alvo: `server/src/models/product.model.js`.
-    - Snippet de referencia: `categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }]`.
+    - Snippet de referência: `categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }]`.
     - O que verificar: produto de `BK-MF0-07` continua válido.
 
 3. **Objetivo (~30 min): criar services de categoria**
-    - Descricao detalhada do objetivo: listar/criar categorias e validar associações.
-    - Justificacao: regra de existência da categoria fica fora do controller.
+    - Descrição detalhada do objetivo: listar/criar categorias e validar associações.
+    - Justificação: regra de existência da categoria fica fora do controller.
     - Como fazer (3.1): criar `listCategories` e `createCategory`.
     - Como fazer (3.2): criar `assignCategoriesToProduct(productId, categoryIds)`.
     - Ficheiro a rever: `server/src/models/category.model.js`.
     - Ficheiro alvo: `server/src/services/category.service.js`.
-    - Snippet de referencia: `const found = await Category.countDocuments({ _id: { $in: categoryIds } });`.
+    - Snippet de referência: `const found = await Category.countDocuments({ _id: { $in: categoryIds } });`.
     - O que verificar: todos os IDs enviados existem.
 
 4. **Objetivo (~30 min): criar rotas admin**
-    - Descricao detalhada do objetivo: expor gestão mínima de categorias.
-    - Justificacao: categorias alteram catálogo e devem ser protegidas.
+    - Descrição detalhada do objetivo: expor gestão mínima de categorias.
+    - Justificação: categorias alteram catálogo e devem ser protegidas.
     - Como fazer (4.1): criar `GET /api/admin/categories` e `POST /api/admin/categories`.
     - Como fazer (4.2): criar `PATCH /api/admin/products/:id/categories`.
     - Ficheiro a rever: `server/src/routes/admin-products.routes.js`.
     - Ficheiro alvo: `server/src/routes/admin-categories.routes.js`.
-    - Snippet de referencia: `router.patch('/products/:id/categories', requireAuth, requireRole(ROLES.ADMIN), assignCategoriesController);`.
+    - Snippet de referência: `router.patch('/products/:id/categories', requireAuth, requireRole(ROLES.ADMIN), assignCategoriesController);`.
     - O que verificar: cliente recebe `403`.
 
 5. **Objetivo (~30 min): criar seed de categorias**
-    - Descricao detalhada do objetivo: garantir dados base para testar filtros futuros.
-    - Justificacao: sem categorias iniciais, `MF1` não consegue pesquisar por categoria.
+    - Descrição detalhada do objetivo: garantir dados base para testar filtros futuros.
+    - Justificação: sem categorias iniciais, `MF1` não consegue pesquisar por categoria.
     - Como fazer (5.1): criar script idempotente.
     - Como fazer (5.2): não apagar categorias existentes.
     - Ficheiro a rever: `docs/RF.md`.
     - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
-    - Snippet de referencia: `await Category.updateOne({ slug }, { $setOnInsert: data }, { upsert: true });`.
+    - Snippet de referência: `await Category.updateOne({ slug }, { $setOnInsert: data }, { upsert: true });`.
     - O que verificar: correr seed duas vezes mantém 4 categorias iniciais, não 8.
 
 6. **Objetivo (~35 min): criar UI admin de categorias**
-    - Descricao detalhada do objetivo: listar categorias e associar a produto.
-    - Justificacao: demonstra visualmente a organização do catálogo.
+    - Descrição detalhada do objetivo: listar categorias e associar a produto.
+    - Justificação: demonstra visualmente a organização do catálogo.
     - Como fazer (6.1): criar ecrã simples com lista de categorias.
     - Como fazer (6.2): em produto, usar checkboxes ou select múltiplo.
     - Ficheiro a rever: `client/src/pages/AdminProductCreatePage.jsx`.
     - Ficheiro alvo: `client/src/pages/AdminCategoriesPage.jsx`.
-    - Snippet de referencia: `await apiClient.patch(\`/admin/products/${productId}/categories\`, { categoryIds });`.
+    - Snippet de referência: `await apiClient.patch(\`/admin/products/${productId}/categories\`, { categoryIds });`.
     - O que verificar: UI mostra erro quando categoria inválida é rejeitada.
 
 7. **Objetivo (~45 min): validar handoff para MF1**
-    - Descricao detalhada do objetivo: provar que produto categorizado está pronto para filtros.
-    - Justificacao: este é o último BK da `MF0` e entrega contrato para `BK-MF1-01`.
+    - Descrição detalhada do objetivo: provar que produto categorizado está pronto para filtros.
+    - Justificação: este é o último BK da `MF0` e entrega contrato para `BK-MF1-01`.
     - Como fazer (7.1): criar produto e associar categoria.
-    - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
+    - Como fazer (7.2): Executar cenários negativos obrigatórios (mínimo 3) e registar resultados.
     - Ficheiro a rever: `docs/planificacao/backlogs/MF-VIEWS.md`.
     - Ficheiro alvo: `server/tests/categories.test.js`.
-    - Snippet de referencia: `expect(product.categoryIds).toHaveLength(1);`.
+    - Snippet de referência: `expect(product.categoryIds).toHaveLength(1);`.
     - O que verificar: evidence inclui produto categorizado e contrato para pesquisa.
 
-#### Checklist de validacao (DERIVADO):
+#### Checklist de validação (DERIVADO):
 
 - Smoke: seed cria categorias iniciais e admin associa categoria válida a produto.
 - Negativo 1: passo 3; categoria inexistente; resultado esperado `400`; risco que cobre: referência inválida.
 - Negativo 2: passo 4; cliente tenta associar categoria; resultado esperado `403`; risco que cobre: alteração indevida do catálogo.
 - Negativo 3: passo 4; produto inexistente; resultado esperado `404`; risco que cobre: associação a recurso inexistente.
-- Tecnico: `Category.slug` único e `Product.categoryIds` validado.
-- Regressao das fases anteriores: criação de produto de `BK-MF0-07` continua válida.
+- Técnico: `Category.slug` único e `Product.categoryIds` validado.
+- Regressão das fases anteriores: criação de produto de `BK-MF0-07` continua válida.
 - UI/mockup: sem mockup; ecrã admin baseline.
-- Seguranca: endpoints de escrita protegidos por Admin.
+- Segurança: endpoints de escrita protegidos por Admin.
 
-#### Criterios de aceite:
+#### Critérios de aceite:
 
 - Outputs: modelo `Category`, seed inicial, endpoints admin e associação produto-categoria.
-- Verificacoes: categoria válida associada `200`; inválida `400`; produto inexistente `404`; cliente `403`.
+- Verificações: categoria válida associada `200`; inválida `400`; produto inexistente `404`; cliente `403`.
 - Qualidade: categorias iniciais derivam do `RF08`; sem taxonomia inventada.
 - Continuidade: `BK-MF1-01` consegue filtrar por `categoryIds`.
-- Evidencia: prova de seed idempotente, produto categorizado e negativos.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
+- Evidência: prova de seed idempotente, produto categorizado e negativos.
+- Cenários negativos concluídos: mínimo `3` com resultado controlado.
+- Evidência de testes por camada conforme prioridade (`P0`).
 
 #### Evidence (para o PR/defesa):
 
 - `pr`: `A preencher no fecho do BK`
-- `proof`: `A preencher apos validacao`
-- `neg`: `A preencher apos testes negativos`
+- `proof`: `A preencher após validação`
+- `neg`: `A preencher após testes negativos`
 - `files`: `server/src/models/category.model.js`, `server/src/models/product.model.js`, `server/src/routes/admin-categories.routes.js`, `client/src/pages/AdminCategoriesPage.jsx`
 - `commands`: `npm run seed:categories`, `curl -X PATCH /api/admin/products/:id/categories`, `npm test`
 - `screenshots`: categorias listadas e produto associado
@@ -241,16 +241,16 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
 ## Contexto do BK
 
 - Entrega alvo: implementar `Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.)` com rastreabilidade direta ao requisito `RF08`.
-- Foco tecnico da macro: `Fundamentos e governance`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+- Foco técnico da macro: `Fundamentos e governance`.
+- Regra de governança: preservar IDs BK, contrato de campos e consistência entre backlog, matriz, sprints e guias.
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
 
 Criar categorias controladas e associá-las aos produtos para preparar filtros da fase seguinte.
 
-### Pre-requisitos
+### Pré-requisitos
 
 - Rever `RF08`.
 - Ter `Product` de `BK-MF0-07`.
@@ -278,7 +278,7 @@ Criar categorias controladas e associá-las aos produtos para preparar filtros d
 
 - BK: `BK-MF0-08`
 - Requisito: `RF08`
-- Dependencias: `BK-MF0-07`
+- Dependências: `BK-MF0-07`
 - Artefactos: `RF.md`, `BACKLOG-MVP.md`, `MATRIZ-CANONICA-BK.md`
 
 ### Passos
@@ -290,22 +290,22 @@ Criar categorias controladas e associá-las aos produtos para preparar filtros d
 5. Criar rotas admin protegidas.
 6. Criar seed idempotente.
 7. Criar UI admin simples.
-8. Executar cenarios negativos obrigatorios (minimo 3) e registar evidência.
+8. Executar cenários negativos obrigatórios (mínimo 3) e registar evidência.
 
-### Cenarios negativos recomendados
+### Cenários negativos recomendados
 
 - Categoria inexistente deve devolver `400`.
 - Cliente em rota admin deve devolver `403`.
 - Produto inexistente deve devolver `404`.
 
-### Validacao
+### Validação
 
 - [ ] Smoke: produto fica associado a categoria válida.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: seed não duplica categorias.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+- [ ] Negativos: mínimo `3` cenários com resultado controlado.
+- [ ] Técnico: seed não duplica categorias.
+- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificáveis.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
@@ -313,52 +313,52 @@ Criar categorias controladas e associá-las aos produtos para preparar filtros d
 
 ### Handoff
 
-- Proximo BK recomendado: `BK-MF1-01`
+- Próximo BK recomendado: `BK-MF1-01`
 - A próxima fase deve reutilizar `categoryIds` para pesquisa e filtragem.
 
-## Snippet tecnico aplicavel
+## Snippet técnico aplicável
 
-O codigo aplicavel deste BK-MF0-08 ja nao fica como anexo isolado. Para cumprir o contrato documental sem contrariar o formato tutorial, considera-se tecnico aplicavel o conjunto de blocos completos no `## Tutorial linear de implementacao`, sempre ligados a `BK-MF0-08` e `RF08`.
+O código aplicável deste BK-MF0-08 já não fica como anexo isolado. Para cumprir o contrato documental sem contrariar o formato tutorial, considera-se técnico aplicável o conjunto de blocos completos no `## Tutorial linear de implementação`, sempre ligados a `BK-MF0-08` e `RF08`.
 
-Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma funcao sem perceber ficheiro, imports, validacao, erro esperado e handoff. Por isso, o codigo foi integrado nos passos onde e usado.
+Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma função sem perceber ficheiro, imports, validação, erro esperado e handoff. Por isso, o código foi integrado nos passos onde é usado.
 
-## Criterios de aceite
+## Critérios de aceite
 
-- Entrega funcional especifica de `Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.)` validada contra `RF08`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
+- Entrega funcional específica de `Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.)` validada contra `RF08`.
+- Cenários negativos concluídos: mínimo `3` com resultado controlado.
+- Evidência de testes por camada conforme prioridade (`P0`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Evidence pronta para revisão técnica e defesa PAP.
 
 ## Evidence para PR/defesa
 
 - `pr`: `A preencher no fecho do BK`
-- `proof_tecnico`: `A preencher apos validacao`
-- `proof_negativos`: `A preencher apos testes negativos`
+- `proof_tecnico`: `A preencher após validação`
+- `proof_negativos`: `A preencher após testes negativos`
 - `proof_negocio`: categorias desbloqueiam pesquisa, filtros e navegação de catálogo.
 
-## Proximo BK recomendado
+## Próximo BK recomendado
 
 `BK-MF1-01`
 
-## Tutorial linear de implementacao
+## Tutorial linear de implementação
 
 ### Passo 1 - Confirmar contrato, scope e riscos
 
-1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos nao podem ser quebrados.
+1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos não podem ser quebrados.
 2. Ficheiros envolvidos:
-    - CRIAR: nenhum ficheiro de aplicacao neste passo.
-    - EDITAR: este guia BK, apenas para orientar a implementacao.
-    - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
-    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
-3. O que fazer: ler e respeitar as decisoes abaixo antes de implementar.
-4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; o codigo aparece nos passos seguintes, junto do ficheiro onde e usado.
-5. Explicacao didatica e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; so depois se escreve codigo.
-6. Como validar: confirmar que o header do BK, RF/RNF, dependencias e handoff continuam iguais aos documentos canonicos.
-7. Erro comum ou cenario negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendacoes/pagamentos antes da fase correta.
+    - CRIAR: nenhum ficheiro de aplicação neste passo.
+    - EDITAR: este guia BK, apenas para orientar a implementação.
+    - LOCALIZAÇÃO: ler esta secção antes de abrir o editor de código.
+    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e próximo BK.
+3. O que fazer: ler e respeitar as decisões abaixo antes de implementar.
+4. Código completo, correto e integrado: este passo ainda não tem código; o código aparece nos passos seguintes, junto do ficheiro onde é usado.
+5. Explicação didática e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; só depois se escreve código.
+6. Como validar: confirmar que o header do BK, RF/RNF, dependências e handoff continuam iguais aos documentos canónicos.
+7. Erro comum ou cenário negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendações/pagamentos antes da fase correta.
 
-**Decisao tecnica confirmada:**
-Categorias sao metadados de catalogo, nao IA. A associacao produto-categoria e acao administrativa protegida no backend.
+**Decisão técnica confirmada:**
+Categorias são metadados de catálogo, não IA. A associação produto-categoria e ação administrativa protegida no backend.
 
 Categorias iniciais canonicas para seed:
 
@@ -379,12 +379,12 @@ Categorias iniciais canonicas para seed:
 **Scope-out deste passo:**
 
 - Pesquisa por categoria fica para `BK-MF1-01`.
-- Detalhe publico de produto fica para `BK-MF1-02`.
-- Recomendacoes, simulacao, carrinho e pagamentos ficam fora deste BK.
+- Detalhe público de produto fica para `BK-MF1-02`.
+- Recomendações, simulação, carrinho e pagamentos ficam fora deste BK.
 
 ### Passo 2 - Mapear ficheiros antes de codificar
 
-1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever codigo, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
+1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - CRIAR:
         - `server/src/models/category.model.js`
@@ -406,36 +406,36 @@ Categorias iniciais canonicas para seed:
         - `server/src/middlewares/role.middleware.js`.
         - `docs/RF.md`, requisito `RF08`.
         - `docs/planificacao/guias-bk/MF1/BK-MF1-01-permitir-pesquisa-e-filtragem-por-categoria-preco-tipo-de-pele-marca.md`.
-    - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+    - LOCALIZAÇÃO: usar exatamente os caminhos listados; quando o ficheiro já existir, editar o ficheiro existente em vez de criar outro com nome parecido.
 
 3. O que fazer: criar ou editar estes ficheiros pela ordem dos passos seguintes.
-4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; ele prepara a lista para os passos de implementacao.
-5. Explicacao didatica e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
-6. Como validar: verificar que cada caminho aparece uma unica vez e que os nomes batem com os imports dos passos seguintes.
-7. Erro comum ou cenario negativo: criar ficheiros duplicados, por exemplo outro controller com nome parecido, faz a app compilar parcialmente mas falhar no fluxo completo.
+4. Código completo, correto e integrado: este passo ainda não tem código; ele prepara a lista para os passos de implementação.
+5. Explicação didática e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
+6. Como validar: verificar que cada caminho aparece uma única vez e que os nomes batem com os imports dos passos seguintes.
+7. Erro comum ou cenário negativo: criar ficheiros duplicados, por exemplo outro controller com nome parecido, faz a app compilar parcialmente mas falhar no fluxo completo.
 
-### Passo 3 - Implementar codigo por ficheiro
+### Passo 3 - Implementar código por ficheiro
 
 1. Objetivo simples do passo: escrever cada ficheiro no local certo, mantendo o contrato com os BKs anteriores e seguintes.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
-    - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
-    - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
-3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de codigo deve ser colocado no ficheiro indicado.
-4. Codigo completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde sao usados.
-5. Explicacao didatica e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, sao validados, passam pelo service e chegam ao frontend.
-6. Como validar: apos cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
-7. Erro comum ou cenario negativo: copiar apenas parte do codigo deixa o tutorial incoerente e quebra os passos posteriores.
+    - LOCALIZAÇÃO: cada subpasso indica o caminho completo do ficheiro.
+    - REVER: imports, exports, nomes das funções e contratos HTTP usados no handoff.
+3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de código deve ser colocado no ficheiro indicado.
+4. Código completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde são usados.
+5. Explicação didática e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, são validados, passam pelo service e chegam ao frontend.
+6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
+7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
 ### Passo 4 - Criar ou editar `server/src/models/category.model.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/models/category.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/models/category.model.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/models/category.model.js`.
+    - LOCALIZAÇÃO: `server/src/models/category.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/models/category.model.js`.
 
@@ -473,19 +473,19 @@ const categorySchema = new Schema(
 export const Category = model("Category", categorySchema);
 ```
 
-5. Explicacao do codigo: `slug` e o identificador estavel usado em URLs e filtros. Exemplo: "Protetor Solar" vira `protetor-solar`.
+5. Explicação do código: `slug` e o identificador estavel usado em URLs e filtros. Exemplo: "Protetor Solar" vira `protetor-solar`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 5 - Criar ou editar `server/src/validators/category.validator.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/category.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/validators/category.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/validators/category.validator.js`.
+    - LOCALIZAÇÃO: `server/src/validators/category.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/validators/category.validator.js`.
 
@@ -518,7 +518,7 @@ export function validateCategoryInput(body) {
     }
 
     if (description.length > 300) {
-        errors.description = "Descricao deve ter no maximo 300 caracteres";
+        errors.description = "Descrição deve ter no máximo 300 caracteres";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -547,19 +547,19 @@ export function validateCategoryIds(body) {
 }
 ```
 
-5. Explicacao do codigo: o validator cria slugs previsiveis e impede associar IDs que nem sequer parecem ObjectId de MongoDB.
+5. Explicação do código: o validator cria slugs previsiveis e impede associar IDs que nem sequer parecem ObjectId de MongoDB.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 6 - Criar ou editar `server/src/services/category.service.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/services/category.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/services/category.service.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/services/category.service.js`.
+    - LOCALIZAÇÃO: `server/src/services/category.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/services/category.service.js`.
 
@@ -604,7 +604,7 @@ export async function assignCategoriesToProduct(productId, categoryIds) {
     const found = await Category.countDocuments({ _id: { $in: categoryIds } });
 
     if (found !== categoryIds.length) {
-        throw new AppError(400, "Uma ou mais categorias nao existem");
+        throw new AppError(400, "Uma ou mais categorias não existem");
     }
 
     const product = await Product.findByIdAndUpdate(
@@ -614,26 +614,26 @@ export async function assignCategoriesToProduct(productId, categoryIds) {
     );
 
     if (!product) {
-        throw new AppError(404, "Produto nao encontrado");
+        throw new AppError(404, "Produto não encontrado");
     }
 
     return toProductCategoryResponse(product);
 }
 ```
 
-5. Explicacao do codigo: antes de associar, o service conta se todas as categorias existem. Assim o produto nao fica com referencias partidas.
+5. Explicação do código: antes de associar, o service conta se todas as categorias existem. Assim o produto não fica com referências partidas.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 7 - Criar ou editar `server/src/controllers/admin-categories.controller.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/admin-categories.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/controllers/admin-categories.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/controllers/admin-categories.controller.js`.
+    - LOCALIZAÇÃO: `server/src/controllers/admin-categories.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/controllers/admin-categories.controller.js`.
 
@@ -673,19 +673,19 @@ export async function assignProductCategoriesController(req, res, next) {
 }
 ```
 
-5. Explicacao do codigo: ha um controller para criar categorias e outro para associar categorias a produtos.
+5. Explicação do código: há um controller para criar categorias e outro para associar categorias a produtos.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 8 - Criar ou editar `server/src/routes/admin-categories.routes.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/admin-categories.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/routes/admin-categories.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/routes/admin-categories.routes.js`.
+    - LOCALIZAÇÃO: `server/src/routes/admin-categories.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/routes/admin-categories.routes.js`.
 
@@ -716,19 +716,19 @@ adminCategoriesRoutes.patch(
 );
 ```
 
-5. Explicacao do codigo: a rota fica sob `/api/admin`, tal como produtos e utilizadores administrativos.
+5. Explicação do código: a rota fica sob `/api/admin`, tal como produtos e utilizadores administrativos.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 9 - Criar ou editar `server/src/scripts/seed-categories.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/scripts/seed-categories.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/scripts/seed-categories.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/scripts/seed-categories.js`.
+    - LOCALIZAÇÃO: `server/src/scripts/seed-categories.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/scripts/seed-categories.js`.
 
@@ -767,19 +767,19 @@ await disconnectDB();
 console.log("Categorias iniciais preparadas");
 ```
 
-5. Explicacao do codigo: o seed pode ser corrido varias vezes sem duplicar categorias porque usa `upsert`.
+5. Explicação do código: o seed pode ser corrido varias vezes sem duplicar categorias porque usa `upsert`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 10 - Criar ou editar `server/src/app.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/app.js`.
+    - LOCALIZAÇÃO: `server/src/app.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/app.js` e substituir pelo ficheiro completo abaixo, preservando toda a API da `MF0` e acrescentando categorias admin.
 
@@ -820,19 +820,19 @@ export function createApp() {
 }
 ```
 
-5. Explicacao do codigo: este e o estado final de `server/src/app.js` no fim da `MF0`. A app tem identidade, perfil, preferências e administração de catálogo, mas ainda não promete análise facial, recomendações avançadas, carrinho ou pagamentos.
+5. Explicação do código: este e o estado final de `server/src/app.js` no fim da `MF0`. A app tem identidade, perfil, preferências e administração de catálogo, mas ainda não promete análise facial, recomendações avançadas, carrinho ou pagamentos.
 6. Como validar: confirmar `GET /api/health`, `POST /api/auth/login`, `GET /api/profile/me`, `GET /api/preferences/me` e rotas `/api/admin/*` com admin.
-7. Erro comum ou cenario negativo: substituir este ficheiro por um snippet parcial apaga rotas criadas nos BKs anteriores e quebra a macrofase.
+7. Erro comum ou cenário negativo: substituir este ficheiro por um snippet parcial apaga rotas criadas nos BKs anteriores e quebra a macrofase.
 
 ### Passo 11 - Criar ou editar `client/src/pages/AdminCategoriesPage.jsx`
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/AdminCategoriesPage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `client/src/pages/AdminCategoriesPage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `client/src/pages/AdminCategoriesPage.jsx`.
+    - LOCALIZAÇÃO: `client/src/pages/AdminCategoriesPage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `client/src/pages/AdminCategoriesPage.jsx`.
 
@@ -904,7 +904,7 @@ export function AdminCategoriesPage() {
                     />
                 </label>
                 <label>
-                    IDs de categorias separados por virgula
+                    IDs de categorias separados por vírgula
                     <input
                         value={categoryIdsText}
                         onChange={(event) =>
@@ -921,19 +921,19 @@ export function AdminCategoriesPage() {
 }
 ```
 
-5. Explicacao do codigo: a UI e administrativa e simples. O backend continua a validar permissao e existencia das categorias.
+5. Explicação do código: a UI e administrativa e simples. O backend continua a validar permissão e existencia das categorias.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 12 - Criar ou editar `client/src/App.jsx`
 
-1. Objetivo simples do passo: ligar a pagina admin de categorias a app de demonstracao sem criar routing definitivo.
+1. Objetivo simples do passo: ligar a página admin de categorias a app de demonstração sem criar routing definitivo.
 2. Ficheiros envolvidos:
     - EDITAR: `client/src/App.jsx`.
-    - LOCALIZACAO: substituir o ficheiro atual por esta versao completa.
-    - REVER: paginas importadas abaixo e `AuthContext.jsx`.
-3. O que fazer: manter as paginas anteriores e acrescentar a nova pagina deste BK.
-4. Codigo completo, correto e integrado:
+    - LOCALIZAÇÃO: substituir o ficheiro atual por esta versao completa.
+    - REVER: páginas importadas abaixo e `AuthContext.jsx`.
+3. O que fazer: manter as páginas anteriores e acrescentar a nova página deste BK.
+4. Código completo, correto e integrado:
 
 Editar `client/src/App.jsx` e substituir pelo ficheiro completo abaixo.
 
@@ -962,23 +962,23 @@ export function App() {
 }
 ```
 
-5. Explicacao do codigo: este e o frontend de demonstracao no fim da MF0. Mostra identidade, perfil, preferencias e catalogo base, sem prometer IA facial, simulacao, recomendacoes avancadas ou pagamentos.
-6. Como validar: abrir o frontend e confirmar que a nova pagina consegue chamar a API com o mesmo `apiClient` e a mesma sessao segura.
-7. Erro comum ou cenario negativo: deixar a pagina criada mas nao importada em `App.jsx` faz o codigo existir no repositorio, mas ficar invisivel para demonstracao e defesa.
+5. Explicação do código: este e o frontend de demonstração no fim da MF0. Mostra identidade, perfil, preferencias e catálogo base, sem prometer IA facial, simulação, recomendações avancadas ou pagamentos.
+6. Como validar: abrir o frontend e confirmar que a nova página consegue chamar a API com o mesmo `apiClient` e a mesma sessão segura.
+7. Erro comum ou cenário negativo: deixar a página criada mas não importada em `App.jsx` faz o código existir no repositório, mas ficar invisível para demonstração e defesa.
 
 ### Passo 13 - Validar payloads e respostas esperadas
 
 1. Objetivo simples do passo: testar o contrato HTTP que a UI e os BKs seguintes vao usar.
 2. Ficheiros envolvidos:
     - CRIAR: nenhum ficheiro novo.
-    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
-    - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
+    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real não bater com o contrato documentado.
+    - LOCALIZAÇÃO: executar pedidos contra os endpoints implementados nos passos anteriores.
     - REVER: routes, controllers, validators e services deste BK.
-3. O que fazer: usar os exemplos abaixo para confirmar pedidos validos, respostas de sucesso e erros esperados.
-4. Codigo completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o codigo implementado.
-5. Explicacao didatica e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
+3. O que fazer: usar os exemplos abaixo para confirmar pedidos válidos, respostas de sucesso e erros esperados.
+4. Código completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o código implementado.
+5. Explicação didática e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
 6. Como validar: executar os pedidos com cliente HTTP ou teste automatizado e comparar status code e JSON.
-7. Erro comum ou cenario negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros dificeis de diagnosticar.
+7. Erro comum ou cenário negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros difíceis de diagnosticar.
 
 Criar categoria:
 
@@ -1034,23 +1034,23 @@ Categoria inexistente `400`:
 ```json
 {
     "error": {
-        "message": "Uma ou mais categorias nao existem"
+        "message": "Uma ou mais categorias não existem"
     }
 }
 ```
 
 ### Passo 14 - Criar testes minimos
 
-1. Objetivo simples do passo: provar que o comportamento principal e os cenarios negativos funcionam antes de entregar o BK.
+1. Objetivo simples do passo: provar que o comportamento principal e os cenários negativos funcionam antes de entregar o BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
-    - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
+    - LOCALIZAÇÃO: pasta de testes do backend ou frontend indicada no próprio passo.
     - REVER: validators, services, controllers e rotas usados pelo teste.
 3. O que fazer: criar o teste completo abaixo e correr a suite.
-4. Codigo completo, correto e integrado: o teste abaixo deve acompanhar o codigo real, nao ser apenas exemplo solto.
-5. Explicacao didatica e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: nao basta escrever codigo, e preciso provar o comportamento.
+4. Código completo, correto e integrado: o teste abaixo deve acompanhar o código real, não ser apenas exemplo solto.
+5. Explicação didática e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: não basta escrever código, é preciso provar o comportamento.
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
-7. Erro comum ou cenario negativo: testar apenas o caminho feliz deixa falhas de seguranca e validacao por descobrir.
+7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
 Criar este ficheiro em `server/tests/categories.test.js`.
 
@@ -1081,25 +1081,25 @@ describe("BK-MF0-08 / RF08 - categorias", () => {
 });
 ```
 
-5. Explicacao do codigo: os testes garantem slugs previsiveis e impedem IDs invalidos antes de tocar na base de dados.
+5. Explicação do código: os testes garantem slugs previsiveis e impedem IDs inválidos antes de tocar na base de dados.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 15 - Confirmar bloqueios e decisoes antes do PR
+### Passo 15 - Confirmar bloqueios e decisões antes do PR
 
-1. Objetivo simples do passo: identificar decisoes que nao podem ser inventadas durante a implementacao.
+1. Objetivo simples do passo: identificar decisões que não podem ser inventadas durante a implementação.
 2. Ficheiros envolvidos:
-    - CRIAR: nenhum ficheiro de aplicacao.
-    - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
-    - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
+    - CRIAR: nenhum ficheiro de aplicação.
+    - EDITAR: apenas documentos canónicos se a decisão alterar contrato, scope ou política.
+    - LOCALIZAÇÃO: rever os pontos abaixo antes de abrir PR.
     - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
-3. O que fazer: se algum bloqueio se aplicar, parar a implementacao real e atualizar primeiro a fonte documental correta.
-4. Codigo completo, correto e integrado: este passo nao adiciona codigo; protege a coerencia do codigo ja escrito.
-5. Explicacao didatica e detalhada: alunos nao devem preencher lacunas com suposicoes, sobretudo quando ha dados sensiveis, roles ou contratos usados por outros BKs.
-6. Como validar: confirmar que nao ficou nenhuma decisao implicita no codigo.
-7. Erro comum ou cenario negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, seguranca ou o handoff de fases seguintes.
+3. O que fazer: se algum bloqueio se aplicar, parar a implementação real e atualizar primeiro a fonte documental correta.
+4. Código completo, correto e integrado: este passo não adiciona código; protege a coerência do código já escrito.
+5. Explicação didática e detalhada: alunos não devem preencher lacunas com suposicoes, sobretudo quando há dados sensíveis, roles ou contratos usados por outros BKs.
+6. Como validar: confirmar que não ficou nenhuma decisão implicita no código.
+7. Erro comum ou cenário negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, segurança ou o handoff de fases seguintes.
 
-Se `Product.categoryIds` nao existir no modelo criado em `BK-MF0-07`, atualizar primeiro `server/src/models/product.model.js`. Sem esse campo, `BK-MF1-01` nao conseguira filtrar produtos por categoria.
+Se `Product.categoryIds` não existir no modelo criado em `BK-MF0-07`, atualizar primeiro `server/src/models/product.model.js`. Sem esse campo, `BK-MF1-01` não conseguira filtrar produtos por categoria.
 
 ### Evidence para PR/defesa
 
@@ -1107,17 +1107,17 @@ Se `Product.categoryIds` nao existir no modelo criado em `BK-MF0-07`, atualizar 
 - Admin cria categoria com `201`.
 - Cliente recebe `403` ao tentar criar categoria.
 - Produto recebe `categoryIds` com `200`.
-- ID invalido ou categoria inexistente devolve `400`.
+- ID inválido ou categoria inexistente devolve `400`.
 - Handoff documentado para filtros de `BK-MF1-01`.
 
 ### Handoff para BK-MF1-01
 
-O proximo BK deve usar `Product.categoryIds`, `Product.priceCents`, `Product.skinTypes` e `Product.brandName` para pesquisa e filtragem. Nao deve criar outro contrato de categoria.
+O próximo BK deve usar `Product.categoryIds`, `Product.priceCents`, `Product.skinTypes` e `Product.brandName` para pesquisa e filtragem. Não deve criar outro contrato de categoria.
 
 ## Changelog
 
-- `2026-04-14`: guia normalizado para contrato canonico comum.
+- `2026-04-14`: guia normalizado para contrato canónico comum.
 - `2026-05-25`: guia refinado para categorias e handoff da MF0 para MF1.
-- `2026-05-29`: tutorial linear integrado com Category, seed, associacao produto-categoria, payloads, UI, testes e handoff para MF1.
-- `2026-05-29`: estrutura corrigida para tutorial linear integrado, com codigo, explicacao, validacao e negativo no passo onde sao usados.
-- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a pagina admin de categorias.
+- `2026-05-29`: tutorial linear integrado com Category, seed, associação produto-categoria, payloads, UI, testes e handoff para MF1.
+- `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
+- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a página admin de categorias.

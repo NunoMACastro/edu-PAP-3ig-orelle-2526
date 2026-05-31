@@ -27,11 +27,11 @@ Neste BK vamos permitir que o cliente atualize dados do perfil criado em `BK-MF0
 
 Como qualquer fotografia facial pode identificar uma pessoa e pode ser tratada como dado sensível/biométrico dependendo do uso, este BK não pode fingir upload real sem infraestrutura. Se ainda não existir consentimento explícito, armazenamento seguro e limitação de acesso, a implementação deve usar apenas `profilePhotoUrl` controlado ou stub documentado, sem receber ficheiros reais.
 
-O foco é editar com segurança: só o dono do perfil pode alterar os seus dados, o backend valida todos os campos e a UI mostra estados de loading, erro e sucesso.
+O foco é editar com segurança: só o dono do perfil pode alterar os seus dados, o backend válida todos os campos e a UI mostra estados de loading, erro e sucesso.
 
 Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identidade visual final.
 
-##### Porque e que isto e importante
+##### Porque é que isto é importante
 
 - Evita que o perfil fique estático e desatualizado.
 - Prepara a ideia de atualização periódica sem antecipar análise facial biométrica.
@@ -47,7 +47,7 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - Atualização da página de perfil no frontend.
 - Testes negativos de acesso, campos inválidos e ficheiro inválido.
 
-##### O que nao entra (scope-out)
+##### O que não entra (scope-out)
 
 - Upload de fotografias frontal/perfil para análise de pele.
 - Processamento facial, IA, simulação, relatório ou diagnóstico.
@@ -72,14 +72,14 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - macro: `MF0` (CANONICO)
 - Owner: `Izelicks` (CANONICO)
 - Apoio: `Bruna` (CANONICO)
-- Dependencias (BK IDs): `BK-MF0-03` (CANONICO)
-- Pre-condicoes: perfil criado e associado ao utilizador; upload real bloqueado até existir consentimento, armazenamento seguro e acesso limitado (DERIVADO)
+- Dependências (BK IDs): `BK-MF0-03` (CANONICO)
+- Pré-condições: perfil criado e associado ao utilizador; upload real bloqueado até existir consentimento, armazenamento seguro e acesso limitado (DERIVADO)
 - Ref. Plano: `RF04`, `Fase 1`, `S01-S02`, `Core` (CANONICO)
 - Flow ID: `FLOW-PROFILE-EDIT` (DERIVADO)
 - Fonte de verdade: `docs/RF.md` -> `RF04` (CANONICO)
 - Fonte de verdade: `docs/planificacao/backlogs/BACKLOG-MVP.md` -> linha `BK-MF0-04` (CANONICO)
 - Fonte de verdade: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md` -> linha `BK-MF0-04` (CANONICO)
-- Descricao: edição do perfil e atualização controlada de fotografia de perfil não analítica (CANONICO + DERIVADO)
+- Descrição: edição do perfil e atualização controlada de fotografia de perfil não analítica (CANONICO + DERIVADO)
 
 #### O que vamos fazer neste BK (DERIVADO):
 
@@ -87,16 +87,16 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - Estado esperado depois do BK: o cliente pode editar dados e, no máximo, associar fotografia por URL/stub controlado se o upload seguro ainda não existir.
 - Ficheiros a criar: `server/src/validators/profile-photo.validator.js`, `client/src/pages/EditProfilePage.jsx`.
 - Ficheiros a editar: `server/src/routes/profile.routes.js`, `server/src/controllers/profile.controller.js`, `server/src/services/profile.service.js`, `server/src/models/profile.model.js`, `client/src/App.jsx`.
-- Dependencias de BK anteriores: `BK-MF0-03` define campos e relação `userId`.
+- Dependências de BK anteriores: `BK-MF0-03` define campos e relação `userId`.
 - Impacto na arquitetura: adiciona update parcial ao módulo `profile`.
 - Impacto em frontend: formulário de edição com valores iniciais.
 - Impacto em backend: controller usa `req.user.id` e não aceita editar `userId`.
 - Impacto em dados: pode acrescentar `profilePhotoUrl` e `profilePhotoMode`; `profilePhotoMeta` só entra se upload real estiver aprovado.
-- Impacto em segurança: valida tipo/tamanho de ficheiro, exige consentimento para upload real, limita acesso ao dono/admin autorizado e bloqueia edição alheia.
+- Impacto em segurança: válida tipo/tamanho de ficheiro, exige consentimento para upload real, limita acesso ao dono/admin autorizado e bloqueia edição alheia.
 - Impacto em testes: P1 exige unit/integration e 2 negativos.
 - Handoff para o próximo BK: `BK-MF0-05` pode usar perfil e conta para distinguir permissões.
 
-#### Pre-leitura minima (10-15 min) (DERIVADO):
+#### Pre-leitura mínima (10-15 min) (DERIVADO):
 
 - `docs/RF.md`: `RF04`.
 - Guia `BK-MF0-03`: modelo `Profile`.
@@ -123,94 +123,94 @@ Uma fotografia de perfil pode parecer simples, mas continua a exigir validação
 
 Usar `PATCH` para fotografia separa a atualização de imagem da atualização textual. Isso torna o fluxo mais claro e evita misturar erros de ficheiro com erros de campos de perfil. Se o modo for stub, o endpoint deve guardar apenas metadados seguros, por exemplo `{ profilePhotoMode: 'stub_url', profilePhotoUrl }`.
 
-#### Guia de execucao (passo-a-passo) (DERIVADO):
+#### Guia de execução (passo-a-passo) (DERIVADO):
 
 0. **Objetivo (~15 min): separar fotografia de perfil de fotografia biométrica**
-    - Descricao detalhada do objetivo: documentar que este BK não processa imagens de análise facial e que upload real fica bloqueado sem consentimento/armazenamento seguro.
-    - Justificacao: imagens faciais podem ser dados sensíveis e não podem ser tratadas como simples ficheiros decorativos.
+    - Descrição detalhada do objetivo: documentar que este BK não processa imagens de análise facial e que upload real fica bloqueado sem consentimento/armazenamento seguro.
+    - Justificação: imagens faciais podem ser dados sensíveis e não podem ser tratadas como simples ficheiros decorativos.
     - Como fazer (0.1): nomear o campo como `profilePhotoUrl` ou `avatarUrl` e adicionar `profilePhotoMode`.
     - Como fazer (0.2): usar `profilePhotoMode: 'stub_url'` quando não houver upload real aprovado; evitar nomes como `analysisPhoto`.
     - Ficheiro a rever: `docs/RF.md`.
     - Ficheiro alvo: `server/src/models/profile.model.js`.
-    - Snippet de referencia: `profilePhotoMode: { type: String, enum: ['stub_url', 'secure_upload'], default: 'stub_url' }`.
+    - Snippet de referência: `profilePhotoMode: { type: String, enum: ['stub_url', 'secure_upload'], default: 'stub_url' }`.
     - O que verificar: `RF13` não foi implementado aqui e não há upload real sem consentimento.
 
 1. **Objetivo (~25 min): preparar atualização do Profile**
-    - Descricao detalhada do objetivo: permitir alterar campos de `RF03`.
-    - Justificacao: reutiliza contrato do perfil sem criar outro documento.
+    - Descrição detalhada do objetivo: permitir alterar campos de `RF03`.
+    - Justificação: reutiliza contrato do perfil sem criar outro documento.
     - Como fazer (1.1): criar função `updateMyProfile(userId, input)`.
     - Como fazer (1.2): filtrar campos permitidos antes de atualizar.
     - Ficheiro a rever: `server/src/services/profile.service.js`.
     - Ficheiro alvo: `server/src/services/profile.service.js`.
-    - Snippet de referencia: `const allowed = pick(input, ['nome', 'idade', 'tipoDePele', 'genero', 'objetivos']);`.
+    - Snippet de referência: `const allowed = pick(input, ['nome', 'idade', 'tipoDePele', 'genero', 'objetivos']);`.
     - O que verificar: `userId` do body é ignorado.
 
 2. **Objetivo (~25 min): criar validação de edição**
-    - Descricao detalhada do objetivo: validar apenas campos enviados sem obrigar a reenviar tudo.
-    - Justificacao: edição parcial melhora UX e reduz erros.
+    - Descrição detalhada do objetivo: validar apenas campos enviados sem obrigar a reenviar tudo.
+    - Justificação: edição parcial melhora UX e reduz erros.
     - Como fazer (2.1): reaproveitar regras do `profile.validator`.
     - Como fazer (2.2): rejeitar objeto vazio com `400`.
     - Ficheiro a rever: `server/src/validators/profile.validator.js`.
     - Ficheiro alvo: `server/src/validators/profile.validator.js`.
-    - Snippet de referencia: `if (Object.keys(input).length === 0) errors.base = 'Nada para atualizar';`.
+    - Snippet de referência: `if (Object.keys(input).length === 0) errors.base = 'Nada para atualizar';`.
     - O que verificar: idade inválida continua a falhar.
 
 3. **Objetivo (~30 min): criar endpoint de edição**
-    - Descricao detalhada do objetivo: expor `PUT /api/profile/me`.
-    - Justificacao: `/me` mantém ownership no servidor.
+    - Descrição detalhada do objetivo: expor `PUT /api/profile/me`.
+    - Justificação: `/me` mantém ownership no servidor.
     - Como fazer (3.1): aplicar `requireAuth`.
     - Como fazer (3.2): devolver `404` se o perfil ainda não existir.
     - Ficheiro a rever: `server/src/routes/profile.routes.js`.
     - Ficheiro alvo: `server/src/controllers/profile.controller.js`.
-    - Snippet de referencia: `router.put('/me', requireAuth, updateMyProfileController);`.
+    - Snippet de referência: `router.put('/me', requireAuth, updateMyProfileController);`.
     - O que verificar: não há rota `PUT /api/profile/:userId` para clientes.
 
 4. **Objetivo (~30 min): criar atualização de fotografia em modo seguro**
-    - Descricao detalhada do objetivo: permitir trocar avatar/foto de perfil apenas no modo que a infraestrutura suporta.
-    - Justificacao: cumpre `RF04` sem antecipar análise facial nem recolher ficheiros sensíveis de forma insegura.
+    - Descrição detalhada do objetivo: permitir trocar avatar/foto de perfil apenas no modo que a infraestrutura suporta.
+    - Justificação: cumpre `RF04` sem antecipar análise facial nem recolher ficheiros sensíveis de forma insegura.
     - Como fazer (4.1): se não existir consentimento + storage seguro + controlo de acesso, guardar só URL/stub controlado e bloquear ficheiro real.
     - Como fazer (4.2): se upload real estiver aprovado, validar MIME `image/jpeg`, `image/png` ou `image/webp`, limite de tamanho, consentimento e acesso restrito.
     - Ficheiro a rever: `docs/RNF.md`.
     - Ficheiro alvo: `server/src/validators/profile-photo.validator.js`.
-    - Snippet de referencia: `if (!consentAccepted && mode === 'secure_upload') throw new AppError(403, 'Consentimento obrigatório');`.
+    - Snippet de referência: `if (!consentAccepted && mode === 'secure_upload') throw new AppError(403, 'Consentimento obrigatório');`.
     - O que verificar: ficheiro real é bloqueado quando o modo seguro não está disponível.
 
 5. **Objetivo (~45 min): criar UI de edição e evidence**
-    - Descricao detalhada do objetivo: permitir editar perfil e foto com feedback.
-    - Justificacao: o aluno consegue demonstrar evolução do perfil na defesa.
+    - Descrição detalhada do objetivo: permitir editar perfil e foto com feedback.
+    - Justificação: o aluno consegue demonstrar evolução do perfil na defesa.
     - Como fazer (5.1): carregar valores existentes em `EditProfilePage`.
-    - Como fazer (5.2): Executar cenarios negativos obrigatorios (minimo 2) e registar resultados.
+    - Como fazer (5.2): Executar cenários negativos obrigatórios (mínimo 2) e registar resultados.
     - Ficheiro a rever: `client/src/pages/ProfileSetupPage.jsx`.
     - Ficheiro alvo: `client/src/pages/EditProfilePage.jsx`.
-    - Snippet de referencia: `await apiClient.put('/profile/me', form);`.
+    - Snippet de referência: `await apiClient.put('/profile/me', form);`.
     - O que verificar: sucesso atualiza o ecrã sem criar perfil novo.
 
-#### Checklist de validacao (DERIVADO):
+#### Checklist de validação (DERIVADO):
 
 - Smoke: editar `nome` e `objetivos` de um perfil existente; esperar `200`.
 - Negativo 1: passo 3; pedido sem sessão; resultado esperado `401`; risco que cobre: edição anónima.
 - Negativo 2: passo 4; upload real sem consentimento ou sem storage seguro; resultado esperado `403` ou `BLOCKER`; risco que cobre: recolha insegura de imagem sensível.
 - Negativo 3: passo 4; ficheiro com tipo/tamanho inválido quando upload seguro estiver aprovado; resultado esperado `400`; risco que cobre: ficheiro perigoso ou pesado.
-- Tecnico: rota usa `/me` e `req.user.id`.
-- Regressao das fases anteriores: criação de perfil continua a impedir duplicados.
+- Técnico: rota usa `/me` e `req.user.id`.
+- Regressão das fases anteriores: criação de perfil continua a impedir duplicados.
 - UI/mockup: sem mockup; manter formulário simples com feedback imediato.
-- Seguranca: não aceitar alteração de `userId`, `role` ou campos internos.
+- Segurança: não aceitar alteração de `userId`, `role` ou campos internos.
 
-#### Criterios de aceite:
+#### Critérios de aceite:
 
 - Outputs: `PUT /api/profile/me`, validação parcial, UI de edição e fotografia em modo `stub_url` ou upload seguro aprovado.
-- Verificacoes: edição válida `200`, sem sessão `401`, upload real sem consentimento/storage seguro bloqueado, ficheiro inválido `400` quando aplicável.
+- Verificações: edição válida `200`, sem sessão `401`, upload real sem consentimento/storage seguro bloqueado, ficheiro inválido `400` quando aplicável.
 - Qualidade: não implementa análise facial fora de fase e não finge upload real quando só existe stub.
 - Continuidade: `BK-MF0-05` mantém roles fora do perfil e dentro de `User`.
-- Evidencia: prova de antes/depois do perfil e negativos documentados.
-- Cenarios negativos concluidos: minimo `2` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P1`).
+- Evidência: prova de antes/depois do perfil e negativos documentados.
+- Cenários negativos concluídos: mínimo `2` com resultado controlado.
+- Evidência de testes por camada conforme prioridade (`P1`).
 
 #### Evidence (para o PR/defesa):
 
 - `pr`: `A preencher no fecho do BK`
-- `proof`: `A preencher apos validacao`
-- `neg`: `A preencher apos testes negativos`
+- `proof`: `A preencher após validação`
+- `neg`: `A preencher após testes negativos`
 - `files`: `server/src/services/profile.service.js`, `server/src/routes/profile.routes.js`, `client/src/pages/EditProfilePage.jsx`
 - `commands`: `curl -X PUT /api/profile/me`, `npm test`
 - `screenshots`: perfil antes/depois da edição
@@ -226,16 +226,16 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
 ## Contexto do BK
 
 - Entrega alvo: implementar `Possibilidade de editar o perfil e atualizar fotografias periodicamente` com rastreabilidade direta ao requisito `RF04`.
-- Foco tecnico da macro: `Fundamentos e governance`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+- Foco técnico da macro: `Fundamentos e governance`.
+- Regra de governança: preservar IDs BK, contrato de campos e consistência entre backlog, matriz, sprints e guias.
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
 
 Permitir edição segura do perfil existente, sem duplicar dados e sem implementar análise facial fora da fase.
 
-### Pre-requisitos
+### Pré-requisitos
 
 - Rever `RF04`.
 - Ter `Profile` de `BK-MF0-03`.
@@ -264,7 +264,7 @@ Permitir edição segura do perfil existente, sem duplicar dados e sem implement
 
 - BK: `BK-MF0-04`
 - Requisito: `RF04`
-- Dependencias: `BK-MF0-03`
+- Dependências: `BK-MF0-03`
 - Artefactos: `RF.md`, `BACKLOG-MVP.md`, `MATRIZ-CANONICA-BK.md`
 
 ### Passos
@@ -274,22 +274,22 @@ Permitir edição segura do perfil existente, sem duplicar dados e sem implement
 3. Criar validação parcial.
 4. Criar rota `PUT /api/profile/me`.
 5. Criar UI de edição.
-6. Executar cenarios negativos obrigatorios (minimo 2) e registar evidência.
+6. Executar cenários negativos obrigatórios (mínimo 2) e registar evidência.
 
-### Cenarios negativos recomendados
+### Cenários negativos recomendados
 
 - Pedido sem sessão deve devolver `401`.
 - Upload real sem consentimento/storage seguro deve ficar bloqueado.
 - Fotografia com tipo/tamanho inválido deve devolver `400` quando upload seguro estiver ativo.
 
-### Validacao
+### Validação
 
 - [ ] Smoke: edição válida devolve `200`.
-- [ ] Negativos: minimo `2` cenarios com resultado controlado.
-- [ ] Tecnico: não altera `userId` nem `role`.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+- [ ] Negativos: mínimo `2` cenários com resultado controlado.
+- [ ] Técnico: não altera `userId` nem `role`.
+- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificáveis.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
@@ -297,57 +297,57 @@ Permitir edição segura do perfil existente, sem duplicar dados e sem implement
 
 ### Handoff
 
-- Proximo BK recomendado: `BK-MF0-05`
+- Próximo BK recomendado: `BK-MF0-05`
 - O próximo BK deve manter permissões no `User`, não dentro do `Profile`.
 
-## Snippet tecnico aplicavel
+## Snippet técnico aplicável
 
-O codigo aplicavel deste BK-MF0-04 ja nao fica como anexo isolado. Para cumprir o contrato documental sem contrariar o formato tutorial, considera-se tecnico aplicavel o conjunto de blocos completos no `## Tutorial linear de implementacao`, sempre ligados a `BK-MF0-04` e `RF04`.
+O código aplicável deste BK-MF0-04 já não fica como anexo isolado. Para cumprir o contrato documental sem contrariar o formato tutorial, considera-se técnico aplicável o conjunto de blocos completos no `## Tutorial linear de implementação`, sempre ligados a `BK-MF0-04` e `RF04`.
 
-Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma funcao sem perceber ficheiro, imports, validacao, erro esperado e handoff. Por isso, o codigo foi integrado nos passos onde e usado.
+Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma função sem perceber ficheiro, imports, validação, erro esperado e handoff. Por isso, o código foi integrado nos passos onde é usado.
 
-## Criterios de aceite
+## Critérios de aceite
 
-- Entrega funcional especifica de `Possibilidade de editar o perfil e atualizar fotografias periodicamente` validada contra `RF04`.
-- Cenarios negativos concluidos: minimo `2` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P1`).
+- Entrega funcional específica de `Possibilidade de editar o perfil e atualizar fotografias periodicamente` validada contra `RF04`.
+- Cenários negativos concluídos: mínimo `2` com resultado controlado.
+- Evidência de testes por camada conforme prioridade (`P1`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Evidence pronta para revisão técnica e defesa PAP.
 
 ## Evidence para PR/defesa
 
 - `pr`: `A preencher no fecho do BK`
-- `proof_tecnico`: `A preencher apos validacao`
-- `proof_negativos`: `A preencher apos testes negativos`
+- `proof_tecnico`: `A preencher após validação`
+- `proof_negativos`: `A preencher após testes negativos`
 - `proof_negocio`: edição mantém perfil útil para personalização futura sem executar análise facial nesta fase.
 
-## Proximo BK recomendado
+## Próximo BK recomendado
 
 `BK-MF0-05`
 
-## Tutorial linear de implementacao
+## Tutorial linear de implementação
 
 ### Passo 1 - Confirmar contrato, scope e riscos
 
-1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos nao podem ser quebrados.
+1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos não podem ser quebrados.
 2. Ficheiros envolvidos:
-    - CRIAR: nenhum ficheiro de aplicacao neste passo.
-    - EDITAR: este guia BK, apenas para orientar a implementacao.
-    - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
-    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
-3. O que fazer: ler e respeitar as decisoes abaixo antes de implementar.
-4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; o codigo aparece nos passos seguintes, junto do ficheiro onde e usado.
-5. Explicacao didatica e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; so depois se escreve codigo.
-6. Como validar: confirmar que o header do BK, RF/RNF, dependencias e handoff continuam iguais aos documentos canonicos.
-7. Erro comum ou cenario negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendacoes/pagamentos antes da fase correta.
+    - CRIAR: nenhum ficheiro de aplicação neste passo.
+    - EDITAR: este guia BK, apenas para orientar a implementação.
+    - LOCALIZAÇÃO: ler esta secção antes de abrir o editor de código.
+    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e próximo BK.
+3. O que fazer: ler e respeitar as decisões abaixo antes de implementar.
+4. Código completo, correto e integrado: este passo ainda não tem código; o código aparece nos passos seguintes, junto do ficheiro onde é usado.
+5. Explicação didática e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; só depois se escreve código.
+6. Como validar: confirmar que o header do BK, RF/RNF, dependências e handoff continuam iguais aos documentos canónicos.
+7. Erro comum ou cenário negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendações/pagamentos antes da fase correta.
 
-**Decisao tecnica confirmada:**
-Nesta fase, a fotografia e apenas um avatar por URL controlado (`profilePhotoMode: 'stub_url'`). Nao ha upload real de ficheiro neste BK. Isto evita tratar uma fotografia facial como upload comum antes de existirem consentimento explicito, armazenamento seguro, retencao e controlo de acesso.
+**Decisão técnica confirmada:**
+Nesta fase, a fotografia e apenas um avatar por URL controlado (`profilePhotoMode: 'stub_url'`). Não há upload real de ficheiro neste BK. Isto evita tratar uma fotografia facial como upload comum antes de existirem consentimento explicito, armazenamento seguro, retencao e controlo de acesso.
 
 **Scope-in deste passo:**
 
 - Editar campos do perfil criado em `BK-MF0-03`.
-- Impedir alteracao de `userId`, `role` ou campos internos.
+- Impedir alteração de `userId`, `role` ou campos internos.
 - Guardar `profilePhotoUrl` apenas se for URL controlado.
 - Guardar `profilePhotoMode: 'stub_url'`.
 - Bloquear qualquer tentativa de `secure_upload` neste BK.
@@ -355,13 +355,13 @@ Nesta fase, a fotografia e apenas um avatar por URL controlado (`profilePhotoMod
 **Scope-out deste passo:**
 
 - Upload real de fotografias do rosto fica para `BK-MF1-05`.
-- Consentimento formal para analise facial fica para `BK-MF7-01`.
-- Encriptacao de fotografias/relatorios fica para `BK-MF6-07`.
-- Analise facial, simulacao, diagnostico e recomendacoes continuam fora da `MF0`.
+- Consentimento formal para análise facial fica para `BK-MF7-01`.
+- Encriptacao de fotografias/relatórios fica para `BK-MF6-07`.
+- Análise facial, simulação, diagnóstico e recomendações continuam fora da `MF0`.
 
 ### Passo 2 - Mapear ficheiros antes de codificar
 
-1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever codigo, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
+1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - EDITAR:
         - `server/src/models/profile.model.js`
@@ -380,36 +380,36 @@ Nesta fase, a fotografia e apenas um avatar por URL controlado (`profilePhotoMod
         - `docs/RNF.md`: `RNF08`, `RNF11`, `RNF12`, `RNF13`, `RNF25`.
         - `docs/planificacao/guias-bk/MF1/BK-MF1-05-permitir-upload-de-fotografias-do-rosto-frontal-e-perfil.md`.
         - `docs/planificacao/guias-bk/MF7/BK-MF7-01-consentimento-explicito-para-analise-facial-rgpd.md`.
-    - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+    - LOCALIZAÇÃO: usar exatamente os caminhos listados; quando o ficheiro já existir, editar o ficheiro existente em vez de criar outro com nome parecido.
 
 3. O que fazer: criar ou editar estes ficheiros pela ordem dos passos seguintes.
-4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; ele prepara a lista para os passos de implementacao.
-5. Explicacao didatica e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
-6. Como validar: verificar que cada caminho aparece uma unica vez e que os nomes batem com os imports dos passos seguintes.
-7. Erro comum ou cenario negativo: criar ficheiros duplicados, por exemplo outro controller com nome parecido, faz a app compilar parcialmente mas falhar no fluxo completo.
+4. Código completo, correto e integrado: este passo ainda não tem código; ele prepara a lista para os passos de implementação.
+5. Explicação didática e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
+6. Como validar: verificar que cada caminho aparece uma única vez e que os nomes batem com os imports dos passos seguintes.
+7. Erro comum ou cenário negativo: criar ficheiros duplicados, por exemplo outro controller com nome parecido, faz a app compilar parcialmente mas falhar no fluxo completo.
 
-### Passo 3 - Implementar codigo por ficheiro
+### Passo 3 - Implementar código por ficheiro
 
 1. Objetivo simples do passo: escrever cada ficheiro no local certo, mantendo o contrato com os BKs anteriores e seguintes.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
-    - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
-    - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
-3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de codigo deve ser colocado no ficheiro indicado.
-4. Codigo completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde sao usados.
-5. Explicacao didatica e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, sao validados, passam pelo service e chegam ao frontend.
-6. Como validar: apos cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
-7. Erro comum ou cenario negativo: copiar apenas parte do codigo deixa o tutorial incoerente e quebra os passos posteriores.
+    - LOCALIZAÇÃO: cada subpasso indica o caminho completo do ficheiro.
+    - REVER: imports, exports, nomes das funções e contratos HTTP usados no handoff.
+3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de código deve ser colocado no ficheiro indicado.
+4. Código completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde são usados.
+5. Explicação didática e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, são validados, passam pelo service e chegam ao frontend.
+6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
+7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
 ### Passo 4 - Criar ou editar `server/src/models/profile.model.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/models/profile.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/models/profile.model.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/models/profile.model.js`.
+    - LOCALIZAÇÃO: `server/src/models/profile.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `profileSchema` e acrescentar estes campos depois de `objetivos`.
 
@@ -429,21 +429,21 @@ profilePhotoUpdatedAt: {
 }
 ```
 
-5. Explicacao do codigo: o modelo fica preparado para fotografia, mas por defeito usa `stub_url`. O valor `secure_upload` existe para futuro, mas este BK bloqueia esse modo no validator.
+5. Explicação do código: o modelo fica preparado para fotografia, mas por defeito usa `stub_url`. O valor `secure_upload` existe para futuro, mas este BK bloqueia esse modo no validator.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 5 - Criar ou editar `server/src/validators/profile.validator.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/profile.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/validators/profile.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/validators/profile.validator.js`.
+    - LOCALIZAÇÃO: `server/src/validators/profile.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
-Editar `server/src/validators/profile.validator.js` e acrescentar a funcao abaixo no fim do ficheiro.
+Editar `server/src/validators/profile.validator.js` e acrescentar a função abaixo no fim do ficheiro.
 
 ```js
 export function validateUpdateProfileInput(body) {
@@ -453,7 +453,7 @@ export function validateUpdateProfileInput(body) {
 
     for (const key of forbiddenKeys) {
         if (key in body) {
-            errors[key] = "Este campo nao pode ser alterado pelo cliente";
+            errors[key] = "Este campo não pode ser alterado pelo cliente";
         }
     }
 
@@ -514,19 +514,19 @@ export function validateUpdateProfileInput(body) {
 }
 ```
 
-5. Explicacao do codigo: a funcao deixa editar apenas campos permitidos. Se o aluno tentar mandar `role` ou `userId`, o backend devolve erro.
+5. Explicação do código: a função deixa editar apenas campos permitidos. Se o aluno tentar mandar `role` ou `userId`, o backend devolve erro.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 6 - Criar ou editar `server/src/validators/profile-photo.validator.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/profile-photo.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/validators/profile-photo.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/validators/profile-photo.validator.js`.
+    - LOCALIZAÇÃO: `server/src/validators/profile-photo.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `server/src/validators/profile-photo.validator.js`.
 
@@ -549,7 +549,7 @@ export function validateProfilePhotoInput(body) {
     if (mode === "secure_upload") {
         throw new AppError(
             403,
-            "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro",
+            "Upload real de fotografia bloqueado neste BK; usar stub_url até existir consentimento e storage seguro",
         );
     }
 
@@ -580,19 +580,19 @@ export function validateProfilePhotoInput(body) {
 }
 ```
 
-5. Explicacao do codigo: este validator impede upload real e so aceita URLs de origens controladas. Assim o aluno demonstra o fluxo sem recolher imagens faciais reais.
+5. Explicação do código: este validator impede upload real e só aceita URLs de origens controladas. Assim o aluno demonstra o fluxo sem recolher imagens faciais reais.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 7 - Criar ou editar `server/src/services/profile.service.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/services/profile.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/services/profile.service.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/services/profile.service.js`.
+    - LOCALIZAÇÃO: `server/src/services/profile.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/services/profile.service.js` e substituir pelo ficheiro completo abaixo.
 
@@ -621,7 +621,7 @@ export async function createMyProfile(userId, input) {
     const existing = await Profile.findOne({ userId }).select("_id");
 
     if (existing) {
-        throw new AppError(409, "Este utilizador ja tem perfil");
+        throw new AppError(409, "Este utilizador já tem perfil");
     }
 
     const profile = await Profile.create({ userId, ...input });
@@ -632,7 +632,7 @@ export async function getMyProfile(userId) {
     const profile = await Profile.findOne({ userId });
 
     if (!profile) {
-        throw new AppError(404, "Perfil ainda nao criado");
+        throw new AppError(404, "Perfil ainda não criado");
     }
 
     return toProfileResponse(profile);
@@ -646,7 +646,7 @@ export async function updateMyProfile(userId, input) {
     );
 
     if (!profile) {
-        throw new AppError(404, "Perfil ainda nao criado");
+        throw new AppError(404, "Perfil ainda não criado");
     }
 
     return toProfileResponse(profile);
@@ -666,26 +666,26 @@ export async function updateMyProfilePhoto(userId, input) {
     );
 
     if (!profile) {
-        throw new AppError(404, "Perfil ainda nao criado");
+        throw new AppError(404, "Perfil ainda não criado");
     }
 
     return toProfileResponse(profile);
 }
 ```
 
-5. Explicacao do codigo: o service atualiza sempre pelo `userId` da sessao. Nao existe rota para editar perfil de outra pessoa.
+5. Explicação do código: o service atualiza sempre pelo `userId` da sessão. Não existe rota para editar perfil de outra pessoa.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 8 - Criar ou editar `server/src/controllers/profile.controller.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/profile.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/controllers/profile.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/controllers/profile.controller.js`.
+    - LOCALIZAÇÃO: `server/src/controllers/profile.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/controllers/profile.controller.js` e acrescentar estes controllers.
 
@@ -725,21 +725,21 @@ export async function updateMyProfilePhotoController(req, res, next) {
 }
 ```
 
-Nota de localizacao: se o ficheiro ja tiver `createMyProfileController` e `getMyProfileController`, manter essas funcoes e acrescentar as duas novas exportacoes. O import deve ficar consolidado para nao duplicar linhas.
+Nota de localização: se o ficheiro já tiver `createMyProfileController` e `getMyProfileController`, manter essas funções e acrescentar as duas novas exportacoes. O import deve ficar consolidado para não duplicar linhas.
 
-5. Explicacao do codigo: ha um controller para editar texto e outro para fotografia. Separar ajuda a tratar erros de imagem sem misturar com erros de idade/nome.
+5. Explicação do código: há um controller para editar texto e outro para fotografia. Separar ajuda a tratar erros de imagem sem misturar com erros de idade/nome.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 9 - Criar ou editar `server/src/routes/profile.routes.js`
 
 1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/profile.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `server/src/routes/profile.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `server/src/routes/profile.routes.js`.
+    - LOCALIZAÇÃO: `server/src/routes/profile.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Editar `server/src/routes/profile.routes.js` e substituir pelo ficheiro completo abaixo.
 
@@ -761,19 +761,19 @@ profileRoutes.put("/me", requireAuth, updateMyProfileController);
 profileRoutes.patch("/me/photo", requireAuth, updateMyProfilePhotoController);
 ```
 
-5. Explicacao do codigo: todas as rotas de perfil usam `requireAuth`. O aluno nao deve criar `PUT /api/profile/:userId` para clientes.
+5. Explicação do código: todas as rotas de perfil usam `requireAuth`. O aluno não deve criar `PUT /api/profile/:userId` para clientes.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 10 - Criar ou editar `client/src/pages/EditProfilePage.jsx`
 
 1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/EditProfilePage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: `client/src/pages/EditProfilePage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZACAO: `client/src/pages/EditProfilePage.jsx`.
+    - LOCALIZAÇÃO: `client/src/pages/EditProfilePage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
-3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
-4. Codigo completo, correto e integrado:
+3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Código completo, correto e integrado:
 
 Criar este ficheiro em `client/src/pages/EditProfilePage.jsx`.
 
@@ -908,19 +908,19 @@ export function EditProfilePage() {
 }
 ```
 
-5. Explicacao do codigo: o formulario de fotografia so envia uma URL controlada. Nao ha `<input type="file">` neste BK.
+5. Explicação do código: o formulário de fotografia só envia uma URL controlada. Não há `<input type="file">` neste BK.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
 ### Passo 11 - Criar ou editar `client/src/App.jsx`
 
-1. Objetivo simples do passo: ligar a pagina de edicao de perfil a app de demonstracao sem criar routing definitivo.
+1. Objetivo simples do passo: ligar a página de edição de perfil a app de demonstração sem criar routing definitivo.
 2. Ficheiros envolvidos:
     - EDITAR: `client/src/App.jsx`.
-    - LOCALIZACAO: substituir o ficheiro atual por esta versao completa.
+    - LOCALIZAÇÃO: substituir o ficheiro atual por esta versao completa.
     - REVER: `ProfileSetupPage.jsx`, `EditProfilePage.jsx`, `LoginPage.jsx` e `AuthContext.jsx`.
-3. O que fazer: manter as paginas de registo/login/perfil e acrescentar a edicao segura de perfil.
-4. Codigo completo, correto e integrado:
+3. O que fazer: manter as páginas de registo/login/perfil e acrescentar a edição segura de perfil.
+4. Código completo, correto e integrado:
 
 Editar `client/src/App.jsx` e substituir pelo ficheiro completo abaixo.
 
@@ -943,23 +943,23 @@ export function App() {
 }
 ```
 
-5. Explicacao do codigo: nesta fase a app ainda pode mostrar paginas em sequencia para demonstracao. O importante e a pagina de edicao usar o mesmo cliente HTTP e o mesmo cookie seguro, sem inventar outro sistema de sessao.
-6. Como validar: abrir o frontend depois de login e confirmar que a pagina de edicao chama `PUT /api/profile/me` com credenciais incluídas.
-7. Erro comum ou cenario negativo: criar uma segunda app React ou outro provider de auth faria as paginas deixarem de partilhar a mesma sessao.
+5. Explicação do código: nesta fase a app ainda pode mostrar páginas em sequencia para demonstração. O importante é a página de edição usar o mesmo cliente HTTP e o mesmo cookie seguro, sem inventar outro sistema de sessão.
+6. Como validar: abrir o frontend depois de login e confirmar que a página de edição chama `PUT /api/profile/me` com credenciais incluídas.
+7. Erro comum ou cenário negativo: criar uma segunda app React ou outro provider de auth faria as páginas deixarem de partilhar a mesma sessão.
 
 ### Passo 12 - Validar payloads e respostas esperadas
 
 1. Objetivo simples do passo: testar o contrato HTTP que a UI e os BKs seguintes vao usar.
 2. Ficheiros envolvidos:
     - CRIAR: nenhum ficheiro novo.
-    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
-    - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
+    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real não bater com o contrato documentado.
+    - LOCALIZAÇÃO: executar pedidos contra os endpoints implementados nos passos anteriores.
     - REVER: routes, controllers, validators e services deste BK.
-3. O que fazer: usar os exemplos abaixo para confirmar pedidos validos, respostas de sucesso e erros esperados.
-4. Codigo completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o codigo implementado.
-5. Explicacao didatica e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
+3. O que fazer: usar os exemplos abaixo para confirmar pedidos válidos, respostas de sucesso e erros esperados.
+4. Código completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o código implementado.
+5. Explicação didática e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
 6. Como validar: executar os pedidos com cliente HTTP ou teste automatizado e comparar status code e JSON.
-7. Erro comum ou cenario negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros dificeis de diagnosticar.
+7. Erro comum ou cenário negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros difíceis de diagnosticar.
 
 Editar perfil:
 
@@ -1007,23 +1007,23 @@ Tentativa de upload real bloqueada `403`:
 ```json
 {
     "error": {
-        "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
+        "message": "Upload real de fotografia bloqueado neste BK; usar stub_url até existir consentimento e storage seguro"
     }
 }
 ```
 
 ### Passo 13 - Criar testes minimos
 
-1. Objetivo simples do passo: provar que o comportamento principal e os cenarios negativos funcionam antes de entregar o BK.
+1. Objetivo simples do passo: provar que o comportamento principal e os cenários negativos funcionam antes de entregar o BK.
 2. Ficheiros envolvidos:
     - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
-    - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
+    - LOCALIZAÇÃO: pasta de testes do backend ou frontend indicada no próprio passo.
     - REVER: validators, services, controllers e rotas usados pelo teste.
 3. O que fazer: criar o teste completo abaixo e correr a suite.
-4. Codigo completo, correto e integrado: o teste abaixo deve acompanhar o codigo real, nao ser apenas exemplo solto.
-5. Explicacao didatica e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: nao basta escrever codigo, e preciso provar o comportamento.
+4. Código completo, correto e integrado: o teste abaixo deve acompanhar o código real, não ser apenas exemplo solto.
+5. Explicação didática e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: não basta escrever código, é preciso provar o comportamento.
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
-7. Erro comum ou cenario negativo: testar apenas o caminho feliz deixa falhas de seguranca e validacao por descobrir.
+7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
 Criar este ficheiro em `server/tests/profile.edit.test.js`.
 
@@ -1050,7 +1050,7 @@ describe("BK-MF0-04 / RF04 - fotografia segura", () => {
         ).toThrow("Upload real de fotografia bloqueado");
     });
 
-    it("rejeita origem externa nao controlada", () => {
+    it("rejeita origem externa não controlada", () => {
         expect(() =>
             validateProfilePhotoInput({
                 profilePhotoMode: "stub_url",
@@ -1061,30 +1061,30 @@ describe("BK-MF0-04 / RF04 - fotografia segura", () => {
 });
 ```
 
-5. Explicacao do codigo: estes testes provam que a seguranca nao depende da UI. Mesmo que alguem tente forcar `secure_upload`, o backend bloqueia.
+5. Explicação do código: estes testes provam que a segurança não depende da UI. Mesmo que alguem tente forcar `secure_upload`, o backend bloqueia.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 14 - Confirmar bloqueios e decisoes antes do PR
+### Passo 14 - Confirmar bloqueios e decisões antes do PR
 
-1. Objetivo simples do passo: identificar decisoes que nao podem ser inventadas durante a implementacao.
+1. Objetivo simples do passo: identificar decisões que não podem ser inventadas durante a implementação.
 2. Ficheiros envolvidos:
-    - CRIAR: nenhum ficheiro de aplicacao.
-    - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
-    - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
+    - CRIAR: nenhum ficheiro de aplicação.
+    - EDITAR: apenas documentos canónicos se a decisão alterar contrato, scope ou política.
+    - LOCALIZAÇÃO: rever os pontos abaixo antes de abrir PR.
     - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
-3. O que fazer: se algum bloqueio se aplicar, parar a implementacao real e atualizar primeiro a fonte documental correta.
-4. Codigo completo, correto e integrado: este passo nao adiciona codigo; protege a coerencia do codigo ja escrito.
-5. Explicacao didatica e detalhada: alunos nao devem preencher lacunas com suposicoes, sobretudo quando ha dados sensiveis, roles ou contratos usados por outros BKs.
-6. Como validar: confirmar que nao ficou nenhuma decisao implicita no codigo.
-7. Erro comum ou cenario negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, seguranca ou o handoff de fases seguintes.
+3. O que fazer: se algum bloqueio se aplicar, parar a implementação real e atualizar primeiro a fonte documental correta.
+4. Código completo, correto e integrado: este passo não adiciona código; protege a coerência do código já escrito.
+5. Explicação didática e detalhada: alunos não devem preencher lacunas com suposicoes, sobretudo quando há dados sensíveis, roles ou contratos usados por outros BKs.
+6. Como validar: confirmar que não ficou nenhuma decisão implicita no código.
+7. Erro comum ou cenário negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, segurança ou o handoff de fases seguintes.
 
-Upload real de fotografias so pode ser implementado depois de haver decisao documentada sobre:
+Upload real de fotografias só pode ser implementado depois de haver decisão documentada sobre:
 
 - consentimento explicito para imagem facial;
 - armazenamento seguro/encriptado;
 - limite de tamanho e MIME;
-- politica de retencao/apagamento;
+- política de retencao/apagamento;
 - auditoria de acessos.
 
 Ficheiros que devem ser atualizados antes de upload real:
@@ -1095,7 +1095,7 @@ Ficheiros que devem ser atualizados antes de upload real:
 
 ### Evidence para PR/defesa
 
-- `PUT /api/profile/me` valido com `200`.
+- `PUT /api/profile/me` válido com `200`.
 - Tentativa de alterar `role` ou `userId` com `400`.
 - `PATCH /api/profile/me/photo` com `stub_url` e `200`.
 - Tentativa de `secure_upload` com `403`.
@@ -1103,13 +1103,13 @@ Ficheiros que devem ser atualizados antes de upload real:
 
 ### Handoff para BK-MF0-05
 
-O proximo BK deve manter roles em `User`, nao em `Profile`. Este BK nunca deve permitir editar permissoes.
+O próximo BK deve manter roles em `User`, não em `Profile`. Este BK nunca deve permitir editar permissões.
 
 ## Changelog
 
-- `2026-04-14`: guia normalizado para contrato canonico comum.
+- `2026-04-14`: guia normalizado para contrato canónico comum.
 - `2026-05-25`: guia refinado para edição segura de perfil e foto não analítica.
 - `2026-05-25`: reforçada regra de consentimento, storage seguro e stub obrigatório quando upload real não existir.
 - `2026-05-29`: tutorial linear integrado com update de perfil, fotografia stub, bloqueio de upload real, payloads, testes e handoff.
-- `2026-05-29`: estrutura corrigida para tutorial linear integrado, com codigo, explicacao, validacao e negativo no passo onde sao usados.
-- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a pagina de edicao de perfil.
+- `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
+- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a página de edição de perfil.

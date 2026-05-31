@@ -57,7 +57,7 @@ Na resposta pública, a avaliação deve expor a nota, comentário, estado e dat
 
 ## Arquitetura do BK
 - `Review` guarda `productId`, `userId`, `rating` e `comment`.
-- `validateReviewInput` valida estrelas e texto.
+- `validateReviewInput` válida estrelas e texto.
 - `createProductReview` confirma produto existente e grava ownership.
 - `ProductReviewForm` envia avaliação com `credentials: "include"` através do `apiClient`.
 
@@ -70,37 +70,37 @@ Na resposta pública, a avaliação deve expor a nota, comentário, estado e dat
 - CRIAR: `client/src/pages/ProductReviewPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
 Permitir que um cliente autenticado avalie um produto com estrelas e comentario controlado.
 
-### Pre-requisitos
-- Ter login por sessao em `BK-MF0-02`.
+### Pré-requisitos
+- Ter login por sessão em `BK-MF0-02`.
 - Ter roles em `BK-MF0-05`.
 - Ter detalhe de produto em `BK-MF1-02`.
 
 ### Erros comuns
 - Aceitar `userId` vindo do frontend.
 - Permitir estrelas fora do intervalo `1..5`.
-- Expor dados internos do utilizador junto da avaliacao.
+- Expor dados internos do utilizador junto da avaliação.
 
 ### Check de compreensao
-- Porque e que o dono da avaliacao vem de `req.user.id`?
-- Que erro deve surgir se o produto nao existir?
+- Porque é que o dono da avaliação vem de `req.user.id`?
+- Que erro deve surgir se o produto não existir?
 - Que dados de utilizador podem aparecer publicamente?
 
 ## Bloco operacional
 
 ### Entrada
-- Sessao autenticada de cliente.
+- Sessão autenticada de cliente.
 - `productId` no URL.
 - Body com `rating` e `comment`.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 2).
+Executar cenários negativos obrigatórios (mínimo 2).
 
-Segue os passos lineares abaixo e valida autenticacao, intervalo de estrelas e produto inexistente.
+Segue os passos lineares abaixo e valida autenticação, intervalo de estrelas e produto inexistente.
 
 ## Passos lineares
 
@@ -261,7 +261,7 @@ export async function createProductReview(productId, userId, input) {
         return toReviewResponse(review);
     } catch (err) {
         if (isDuplicateReviewError(err)) {
-            throw new AppError(409, "Ja avaliaste este produto");
+            throw new AppError(409, "Já avaliaste este produto");
         }
 
         throw err;
@@ -277,7 +277,7 @@ export async function listProductReviews(productId) {
 }
 ```
 
-5. Explicação do código: o service valida produto existente, usa `userId` recebido da sessão e omite esse identificador na resposta pública. O índice único pode lançar erro técnico `11000`; o service converte esse caso em `409`, que comunica regra de negócio sem expor detalhe interno do MongoDB.
+5. Explicação do código: o service válida produto existente, usa `userId` recebido da sessão e omite esse identificador na resposta pública. O índice único pode lançar erro técnico `11000`; o service converte esse caso em `409`, que comunica regra de negócio sem expor detalhe interno do MongoDB.
 6. Como validar este passo: cria review sem produto existente e confirma `404`; depois cria duas reviews para o mesmo produto/utilizador e confirma `409` na segunda.
 7. Erros comuns ou cenário negativo: aceitar `userId` no body permitiria falsificar autoria; devolver o erro bruto do índice exporia implementação interna.
 
@@ -474,26 +474,26 @@ export function App() {
 6. Como validar este passo: abre o frontend e confirma que o formulário de avaliação aparece.
 7. Erros comuns ou cenário negativo: esquecer o import gera erro de compilação no frontend.
 
-### Validacao
-- [ ] Negativos: minimo `2` cenarios.
-- [ ] Sem sessao devolve `401`.
+### Validação
+- [ ] Negativos: mínimo `2` cenários.
+- [ ] Sem sessão devolve `401`.
 - [ ] Rating fora de `1..5` devolve `400`.
 - [ ] Produto inexistente devolve erro controlado.
 - [ ] UI mostra erro e sucesso sem expor dados internos.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
-| Model | Indice unico por `productId` e `userId`. |
+| Model | Indice único por `productId` e `userId`. |
 | Validator | Rating e comentario validados. |
-| Service | Ownership vem da sessao. |
-| UI | Formulario submete avaliacao real. |
+| Service | Ownership vem da sessão. |
+| UI | Formulário submete avaliação real. |
 
-Evidencia de testes por camada:
-- API: output de criacao e listagem de reviews.
-- Service: teste de rating invalido.
-- UI: screenshot do formulario com sucesso.
+Evidência de testes por camada:
+- API: output de criação e listagem de reviews.
+- Service: teste de rating inválido.
+- UI: screenshot do formulário com sucesso.
 
 ## Expected results
 - `POST /api/catalog/products/:productId/reviews` com sessão válida responde `201`.
@@ -502,9 +502,9 @@ Evidencia de testes por camada:
 - Produto inexistente responde `404`.
 - Segunda avaliação do mesmo utilizador para o mesmo produto responde `409`.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `2`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `2`.
+- Evidência de testes por camada documentada.
 - O backend usa `req.user.id`.
 - Não há `userId` no payload do frontend.
 - Só uma avaliação por utilizador e produto.

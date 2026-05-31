@@ -71,37 +71,37 @@ Como o relatório agrega dados derivados de fotografias faciais, a resposta deve
 - CRIAR: `client/src/pages/FaceReportPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
-Gerar um relatorio personalizado a partir da ultima analise concluida do proprio utilizador.
+Gerar um relatório personalizado a partir da última análise concluída do próprio utilizador.
 
-### Pre-requisitos
-- Ter analise facial criada em `BK-MF1-06`.
-- Saber distinguir leitura cosmetica de diagnostico medico.
-- Saber persistir documento ligado a utilizador e analise.
+### Pré-requisitos
+- Ter análise facial criada em `BK-MF1-06`.
+- Saber distinguir leitura cosmética de diagnóstico médico.
+- Saber persistir documento ligado a utilizador e análise.
 
 ### Erros comuns
-- Criar relatorio sem analise concluida.
-- Sugerir compra automatica.
-- Esconder limites e fontes da analise.
+- Criar relatório sem análise concluída.
+- Sugerir compra automática.
+- Esconder limites e fontes da análise.
 
 ### Check de compreensao
-- De onde vem a analise usada no relatorio?
-- Porque e que o relatorio nao cria encomendas?
-- Que mensagem protege o utilizador contra excesso de confianca?
+- De onde vem a análise usada no relatório?
+- Porque é que o relatório não cria encomendas?
+- Que mensagem protege o utilizador contra excesso de confiança?
 
 ## Bloco operacional
 
 ### Entrada
-- Sessao autenticada.
-- Ultima `FaceAnalysis` concluida do utilizador.
+- Sessão autenticada.
+- Última `FaceAnalysis` concluída do utilizador.
 - Modelo `FaceReport`.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 3).
+Executar cenários negativos obrigatórios (mínimo 3).
 
-Segue os passos lineares abaixo e valida sem sessao, sem analise e com analise ainda nao concluida.
+Segue os passos lineares abaixo e valida sem sessão, sem análise e com análise ainda não concluída.
 
 ## Passos lineares
 
@@ -264,7 +264,7 @@ export async function generateReportFromLatestAnalysis(userId) {
         .sort({ createdAt: -1 });
 
     if (!analysis) {
-        throw new AppError(400, "Analise facial concluida obrigatoria");
+        throw new AppError(400, "Análise facial concluída obrigatória");
     }
 
     const report = await FaceReport.create({
@@ -477,26 +477,26 @@ curl -i -X POST http://localhost:3000/api/face-reports/latest \
 6. Como validar este passo: confirma `401` no primeiro pedido e `400` nos restantes.
 7. Erros comuns ou cenário negativo: usar qualquer análise existente na coleção pode expor dados de outro utilizador.
 
-### Validacao
-- [ ] Negativos: minimo `3` cenarios.
-- [ ] Sem sessao devolve `401`.
-- [ ] Sem analise concluida devolve `400`.
-- [ ] Relatorio nao cria carrinho, encomenda ou checkout.
+### Validação
+- [ ] Negativos: mínimo `3` cenários.
+- [ ] Sem sessão devolve `401`.
+- [ ] Sem análise concluída devolve `400`.
+- [ ] Relatório não cria carrinho, encomenda ou checkout.
 - [ ] Resposta inclui resumo, rotina, sources e limitations.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
 | Model | `FaceReport` guarda resumo, rotina, sources e limitations. |
-| Service | Usa apenas analise do proprio utilizador. |
-| Controller/route | Endpoint cria relatorio com `201`. |
-| UI | Pagina mostra resumo, rotina e limites. |
+| Service | Usa apenas análise do próprio utilizador. |
+| Controller/route | Endpoint cria relatório com `201`. |
+| UI | Página mostra resumo, rotina e limites. |
 
-Evidencia de testes por camada:
-- API: output de relatorio criado e erro sem analise.
-- Service: teste de ausencia de analise concluida.
-- UI: screenshot do relatorio.
+Evidência de testes por camada:
+- API: output de relatório criado e erro sem análise.
+- Service: teste de ausência de análise concluída.
+- UI: screenshot do relatório.
 
 ## Expected results
 - Com análise concluída: `201` com `{ "report": ... }`.
@@ -504,9 +504,9 @@ Evidencia de testes por camada:
 - Sem análise: `400`.
 - A resposta inclui resumo, rotina, fontes e limitações.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `3`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `3`.
+- Evidência de testes por camada documentada.
 - Relatório pertence ao utilizador autenticado.
 - Não existem recomendações automáticas de compra.
 - O texto deixa claro que a leitura é cosmética.

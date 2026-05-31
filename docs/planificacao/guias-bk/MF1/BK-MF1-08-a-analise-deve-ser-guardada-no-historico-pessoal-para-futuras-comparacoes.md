@@ -34,7 +34,7 @@ O histórico permite comparar evolução ao longo do tempo em `BK-MF2-01` e comp
 ## Scope-out
 - Não criar gráficos; isso fica para `BK-MF2-01`.
 - Não comparar imagens; isso fica para `BK-MF3-01`.
-- Não criar painel de eliminação/anonymização.
+- Não criar painel de eliminação/anonimização.
 
 ## Pré-requisitos
 - `BK-MF1-06`: análises guardadas em `FaceAnalysis`.
@@ -53,7 +53,7 @@ O backend nunca aceita `userId` por query param. A identidade vem da sessão. Is
 
 Como o histórico junta análises e relatórios, a resposta deve ser curta, ordenada e sem dados de armazenamento. Não há paths, `storageKey`, IDs de consentimento ou detalhes de ficheiro; há apenas informação necessária para o cliente ver evolução e para BKs futuros criarem gráficos ou comparações.
 
-O limite de resultados protege performance e privacidade. Mesmo que o utilizador tenha muitos registos, este BK devolve um conjunto recente e previsível, preparado para paginação futura se o histórico crescer.
+O limite de resultados protege performance e privacidade. Mesmo que o utilizador tenha muitos registos, este BK devolve um conjunto recente e previsível, preparado para páginação futura se o histórico crescer.
 
 ## Arquitetura do BK
 - `GET /api/me/skin-history`
@@ -68,37 +68,37 @@ O limite de resultados protege performance e privacidade. Mesmo que o utilizador
 - CRIAR: `client/src/pages/SkinHistoryPage.jsx`
 - EDITAR: `client/src/App.jsx`
 
-## Bloco pedagogico
+## Bloco pedagógico
 
 ### Objetivo
-Listar historico pessoal de analises e relatorios sem permitir acesso cruzado entre utilizadores.
+Listar histórico pessoal de análises e relatórios sem permitir acesso cruzado entre utilizadores.
 
-### Pre-requisitos
+### Pré-requisitos
 - Ter `FaceAnalysis` em `BK-MF1-06`.
 - Ter `FaceReport` em `BK-MF1-07`.
-- Ter sessao autenticada com `req.user.id`.
+- Ter sessão autenticada com `req.user.id`.
 
 ### Erros comuns
 - Aceitar `userId` vindo da query.
 - Devolver paths ou `storageKey` de fotografias.
-- Misturar historico de utilizadores diferentes.
+- Misturar histórico de utilizadores diferentes.
 
 ### Check de compreensao
-- Porque e que a rota usa `/api/me/skin-history`?
-- Que tipos de entrada entram no historico?
-- Como validar que o utilizador A nao ve dados do utilizador B?
+- Porque é que a rota usa `/api/me/skin-history`?
+- Que tipos de entrada entram no histórico?
+- Como validar que o utilizador A não ve dados do utilizador B?
 
 ## Bloco operacional
 
 ### Entrada
-- Sessao autenticada.
-- Analises e relatorios do proprio utilizador.
+- Sessão autenticada.
+- Análises e relatórios do próprio utilizador.
 - Resposta temporal ordenada por data.
 
 ### Passos
-Executar cenarios negativos obrigatorios (minimo 2).
+Executar cenários negativos obrigatórios (mínimo 2).
 
-Segue os passos lineares abaixo e valida sem sessao, sem dados e tentativa de manipular `userId`.
+Segue os passos lineares abaixo e valida sem sessão, sem dados e tentativa de manipular `userId`.
 
 ## Passos lineares
 
@@ -347,23 +347,23 @@ curl -i http://localhost:3000/api/me/skin-history \
 6. Como validar este passo: confirma que o utilizador A nunca recebe entradas do utilizador B.
 7. Erros comuns ou cenário negativo: aceitar `userId` na query transforma o histórico numa fuga direta de dados pessoais.
 
-### Validacao
-- [ ] Negativos: minimo `2` cenarios.
-- [ ] Sem sessao devolve `401`.
-- [ ] Query com `userId` externo nao altera ownership.
-- [ ] Historico vazio devolve lista vazia.
-- [ ] Resposta nao inclui `storageKey` nem paths internos.
+### Validação
+- [ ] Negativos: mínimo `2` cenários.
+- [ ] Sem sessão devolve `401`.
+- [ ] Query com `userId` externo não altera ownership.
+- [ ] Histórico vazio devolve lista vazia.
+- [ ] Resposta não inclui `storageKey` nem paths internos.
 
-### Matriz minima de testes por prioridade
+### Matriz mínima de testes por prioridade
 
-| Camada | Evidencia |
+| Camada | Evidência |
 | --- | --- |
 | Service | Consulta filtra por `req.user.id`. |
 | Controller/route | Endpoint `/api/me/skin-history` autenticado. |
-| UI | Pagina mostra lista temporal ou vazio. |
+| UI | Página mostra lista temporal ou vazio. |
 
-Evidencia de testes por camada:
-- API: output com historico, sem sessao e tentativa de `userId` externo.
+Evidência de testes por camada:
+- API: output com histórico, sem sessão e tentativa de `userId` externo.
 - Service: teste de isolamento entre dois utilizadores.
 - UI: screenshot da lista temporal.
 
@@ -374,9 +374,9 @@ Evidencia de testes por camada:
 - A resposta não inclui `storageKey` nem paths internos.
 - A resposta não inclui `photoIds` nem `consentId`.
 
-## Criterios de aceite
-- Cenarios negativos concluidos: minimo `2`.
-- Evidencia de testes por camada documentada.
+## Critérios de aceite
+- Cenários negativos concluídos: mínimo `2`.
+- Evidência de testes por camada documentada.
 - O backend filtra por `req.user.id`.
 - A UI mostra estado vazio.
 - O histórico está ordenado por data descrescente.
