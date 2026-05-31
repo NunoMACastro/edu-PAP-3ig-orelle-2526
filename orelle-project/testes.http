@@ -91,3 +91,51 @@ Erro de perfil duplicado `409`:
         "message": "Este utilizador ja tem perfil"
     }
 }
+
+
+PUT /api/profile/me
+Cookie: orelle_session=...
+Content-Type: application/json
+
+{
+  "nome": "Marta Silva",
+  "idade": 19,
+  "tipoDePele": "mista",
+  "genero": "feminino",
+  "objetivos": ["hidratar", "uniformizar textura"]
+}
+```
+
+Resposta `200`:
+
+```json
+{
+    "profile": {
+        "nome": "Marta Silva",
+        "idade": 19,
+        "profilePhotoMode": "stub_url"
+    }
+}
+```
+
+Atualizar fotografia stub:
+
+```http
+PATCH /api/profile/me/photo
+Cookie: orelle_session=...
+Content-Type: application/json
+
+{
+  "profilePhotoMode": "stub_url",
+  "profilePhotoUrl": "http://localhost/avatar-demo.png"
+}
+```
+
+Tentativa de upload real bloqueada `403`:
+
+```json
+{
+    "error": {
+        "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
+    }
+}
