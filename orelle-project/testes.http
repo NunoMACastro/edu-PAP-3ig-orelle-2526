@@ -44,3 +44,50 @@ Set-Cookie: orelle_session=...; Path=/; HttpOnly; SameSite=Lax
 Logout:
 POST http://127.0.0.1:5000/api/auth/logout 
 
+POST /api/profile/me
+Cookie: orelle_session=...
+Content-Type: application/json
+
+{
+  "nome": "Marta Silva",
+  "idade": 18,
+  "tipoDePele": "mista",
+  "genero": "feminino",
+  "objetivos": ["hidratar", "reduzir oleosidade"]
+}
+```
+
+Resposta `201`:
+
+```json
+{
+    "profile": {
+        "id": "66b000000000000000000001",
+        "userId": "66a000000000000000000001",
+        "nome": "Marta Silva",
+        "idade": 18,
+        "tipoDePele": "mista",
+        "genero": "feminino",
+        "objetivos": ["hidratar", "reduzir oleosidade"]
+    }
+}
+```
+
+Erro sem sessao `401`:
+
+```json
+{
+    "error": {
+        "message": "Autenticacao obrigatoria"
+    }
+}
+```
+
+Erro de perfil duplicado `409`:
+
+```json
+{
+    "error": {
+        "message": "Este utilizador ja tem perfil"
+    }
+}

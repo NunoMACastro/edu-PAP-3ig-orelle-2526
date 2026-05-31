@@ -3,6 +3,8 @@ import cors from "cors";
 import express from "express";
 import { env } from "./config/env.js";
 import { authRoutes } from "./routes/auth.routes.js";
+import { adminUsersRoutes } from "./routes/admin-users.routes.js";
+import { profileRoutes } from "./routes/profile.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 export function createApp() {
@@ -17,6 +19,9 @@ export function createApp() {
     });
 
     app.use("/api/auth", authRoutes);
+    app.use("/api/profile", profileRoutes);
+    app.use("/api/admin", adminUsersRoutes);
+
     app.use(errorMiddleware);
 
     return app;
