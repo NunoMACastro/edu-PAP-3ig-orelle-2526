@@ -7,6 +7,8 @@ import { adminUsersRoutes } from "./routes/admin-users.routes.js";
 import { adminProductsRoutes } from "./routes/admin-products.routes.js";
 import { preferencesRoutes } from "./routes/preferences.routes.js";
 import { profileRoutes } from "./routes/profile.routes.js";
+import { profileRoutes } from "./routes/profile.routes.js";
+import { preferencesRoutes } from "./routes/preferences.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 export function createApp() {

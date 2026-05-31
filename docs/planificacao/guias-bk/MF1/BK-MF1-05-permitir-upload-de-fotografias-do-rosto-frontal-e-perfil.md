@@ -16,108 +16,704 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-05-permitir-upload-de-fotografias-do-rosto-frontal-e-perfil.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-05-31`
 
-## Contexto do BK
-- Entrega alvo: implementar `Permitir upload de fotografias do rosto (frontal e perfil)` com rastreabilidade direta ao requisito `RF13`.
-- Foco tecnico da macro: `Nucleo funcional I`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+## Objetivo
+Neste BK vais implementar upload autenticado de duas fotografias faciais: uma frontal e uma de perfil.
+
+## Importância
+As fotografias faciais são dados biométricos sensíveis. Antes de guardar ficheiros, a Orélle deve confirmar consentimento, validar tipo/tamanho e associar tudo ao utilizador autenticado.
+
+## Scope-in
+- Criar consentimento mínimo para análise facial.
+- Criar upload com `Multer`.
+- Aceitar exatamente `frontal` e `perfil`.
+- Guardar ficheiros fora de pasta pública.
+- Guardar metadados em MongoDB sem devolver caminho interno.
+
+## Scope-out
+- Não analisar fotografias com IA; isso fica para `BK-MF1-06`.
+- Não gerar relatório; isso fica para `BK-MF1-07`.
+- Não criar painel de eliminação/anonymização; isso fica para `BK-MF5-01`.
+
+## Estado antes
+`CRITICO`: o guia anterior tratava fotografia facial como fluxo genérico e sem privacidade.
+
+## Estado depois
+`OK`: o guia cria consentimento, upload seguro, ownership e frontend com `FormData`.
+
+## Pré-requisitos
+- `BK-MF0-02`: sessão com cookie HttpOnly e `requireAuth`.
+- `BK-MF0-03`: perfil do cliente.
+- `RNF12`: consentimento explícito para análise facial.
+
+## Glossário
+- Fotografia frontal: imagem tirada de frente para a câmara.
+- Fotografia de perfil: imagem lateral do rosto.
+- Consentimento: confirmação explícita de que o cliente aceita tratamento das fotografias para análise facial.
+- Minimização: guardar apenas o necessário para o fluxo.
+
+## Conceitos teóricos
+Upload facial não é análise facial. Este BK só guarda fotografias e metadados; a IA começa no próximo BK.
+
+O backend usa `requireAuth` para saber quem é o utilizador. O frontend nunca envia `userId`. O storage privado guarda ficheiros fora de uma pasta pública, e a API devolve apenas IDs e metadados seguros.
+
+`Multer` é usado porque o Express não processa multipart/form-data sozinho. A alternativa seria escrever um parser manual, mas isso aumenta risco e complexidade sem valor pedagógico.
+
+## Arquitetura do BK
+- `POST /api/face-consent`
+- `POST /api/face-photos`
+- `FaceConsent`
+- `FacePhoto`
+- `uploadFacePhotos`
+- `FacePhotoUploadPage`
+
+## Ficheiros a criar/editar/rever
+- EDITAR: `server/package.json`
+- CRIAR: `server/src/models/face-consent.model.js`
+- CRIAR: `server/src/models/face-photo.model.js`
+- CRIAR: `server/src/validators/face-photo.validator.js`
+- CRIAR: `server/src/middlewares/face-photo-upload.middleware.js`
+- CRIAR: `server/src/services/face-photo.service.js`
+- CRIAR: `server/src/controllers/face-photo.controller.js`
+- CRIAR: `server/src/routes/face-photo.routes.js`
+- EDITAR: `server/src/app.js`
+- EDITAR: `client/src/services/apiClient.js`
+- CRIAR: `client/src/pages/FacePhotoUploadPage.jsx`
+- EDITAR: `client/src/App.jsx`
 
 ## Bloco pedagogico
+
 ### Objetivo
-Executar `Permitir upload de fotografias do rosto (frontal e perfil)` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+Permitir upload seguro de fotografias frontal e perfil com consentimento minimo antes de qualquer processamento.
 
 ### Pre-requisitos
-- Rever `RF13` em `docs/RF.md` ou `docs/RNF.md`.
-- Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `BK-MF0-03`.
+- Ter autenticacao por sessao em `BK-MF0-02`.
+- Ter perfil de cliente em `BK-MF0-03`.
+- Compreender que fotografia facial e dado sensivel.
 
 ### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Atualizar o guia sem alinhar metadados no backlog/matriz.
-- Registar evidence sem provas objetivas (log, output, screenshot ou teste).
+- Guardar fotografias em pasta publica.
+- Aceitar ficheiros sem validar tipo, tamanho e quantidade.
+- Devolver `storageKey` ou path interno na API.
 
 ### Check de compreensao
-- [ ] Sei explicar o objetivo do BK em menos de 30 segundos.
-- [ ] Sei quais sao entradas, saidas e criterio de sucesso.
-- [ ] Sei justificar o handoff e o risco principal do BK.
-
-### Tempo estimado
-- `Core`: `60-90 min`.
-- `Reforco`: `+20-40 min` para BK `P0`.
+- Porque e que o consentimento vem antes do upload?
+- Que campos de ficheiro sao obrigatorios?
+- Que dados nunca devem voltar para o frontend?
 
 ## Bloco operacional
+
 ### Entrada
-- BK: `BK-MF1-05`
-- Requisito: `RF13`
-- Dependencias: `BK-MF0-03`
-- Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
+- Sessao autenticada.
+- Consentimento ativo.
+- FormData com `frontal` e `perfil`.
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF1-05` e do requisito `RF13`.
-2. Validar pre-condicoes e dependencias declaradas (BK-MF0-03).
-3. Definir contrato de entrada/saida para `Permitir upload de fotografias do rosto (frontal e perfil)`.
-4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
-8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
+Executar cenarios negativos obrigatorios (minimo 3).
 
-### Cenarios negativos recomendados
-- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
-- tentativa com estado de negocio invalido (transicao nao permitida)
-- falha de integracao externa (timeout/erro) com fallback controlado
+Segue os passos lineares abaixo e valida sem sessao, sem consentimento, ficheiro invalido e falta de uma fotografia.
 
-### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+## Passos lineares
 
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
+### Passo 1 - Adicionar dependência de upload
 
-### Handoff
-- Proximo BK recomendado: `BK-MF1-06`
-- Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
-- Se houver bloqueio >48h, escalar no scorecard da sprint.
+1. Explicação simples do objetivo: permitir receber `multipart/form-data`.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/package.json`
+    - LOCALIZAÇÃO: objeto `dependencies`.
+3. O que fazer: adiciona `multer`.
+4. Código completo, correto e integrado:
 
-## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF1-05` / `RF13`)**
-
-```ts
-const BK_ID = 'BK-MF1-05';
-const REQ_ID = 'RF13';
-
-type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
-
-export function executar_bk_mf1_05(input: AnaliseInput) {
-  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
-  const startedAt = Date.now();
-  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
-  const duracaoMs = Date.now() - startedAt;
-  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
-  return resultado;
+```json
+{
+  "dependencies": {
+    "multer": "^2.0.0"
+  }
 }
 ```
 
+5. Explicação do código: `multer` fica responsável por receber ficheiros e aplicar limites antes do controller.
+6. Como validar este passo: executar `npm install` dentro de `server`.
+7. Erros comuns ou cenário negativo: aceitar ficheiros sem middleware permite pedidos sem limite de tamanho.
+
+### Passo 2 - Criar modelo de consentimento
+
+1. Explicação simples do objetivo: guardar prova de consentimento por utilizador.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/models/face-consent.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o modelo.
+4. Código completo, correto e integrado:
+
+```js
+import mongoose from "mongoose";
+
+const { Schema, model } = mongoose;
+
+const faceConsentSchema = new Schema(
+    {
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            unique: true,
+            index: true,
+        },
+        acceptedAt: {
+            type: Date,
+            required: true,
+        },
+        version: {
+            type: String,
+            required: true,
+            default: "face-analysis-v1",
+        },
+        purpose: {
+            type: String,
+            required: true,
+            default: "analise_facial_cosmetica",
+        },
+        revokedAt: {
+            type: Date,
+            default: null,
+        },
+    },
+    { timestamps: true },
+);
+
+export const FaceConsent = model("FaceConsent", faceConsentSchema);
+```
+
+5. Explicação do código: o consentimento fica ligado ao utilizador por `userId`. `revokedAt` prepara revogação futura sem apagar o histórico de decisão.
+6. Como validar este passo: cria consentimento para o mesmo utilizador duas vezes e confirma que é atualizado, não duplicado.
+7. Erros comuns ou cenário negativo: guardar consentimento apenas no frontend não prova nada no backend.
+
+### Passo 3 - Criar modelo de fotografia facial
+
+1. Explicação simples do objetivo: guardar metadados dos ficheiros sem expor caminho interno.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/models/face-photo.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o modelo.
+4. Código completo, correto e integrado:
+
+```js
+import mongoose from "mongoose";
+
+const { Schema, model } = mongoose;
+
+const facePhotoSchema = new Schema(
+    {
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true,
+        },
+        kind: {
+            type: String,
+            enum: ["frontal", "perfil"],
+            required: true,
+        },
+        storageKey: {
+            type: String,
+            required: true,
+            select: false,
+        },
+        originalName: {
+            type: String,
+            required: true,
+        },
+        mimeType: {
+            type: String,
+            required: true,
+        },
+        sizeBytes: {
+            type: Number,
+            required: true,
+            min: 1,
+        },
+        consentId: {
+            type: Schema.Types.ObjectId,
+            ref: "FaceConsent",
+            required: true,
+        },
+        status: {
+            type: String,
+            enum: ["active", "deleted"],
+            default: "active",
+        },
+    },
+    { timestamps: true },
+);
+
+facePhotoSchema.index({ userId: 1, kind: 1, createdAt: -1 });
+
+export const FacePhoto = model("FacePhoto", facePhotoSchema);
+```
+
+5. Explicação do código: `storageKey` usa `select: false` para não sair por engano em consultas comuns.
+6. Como validar este passo: faz uma consulta normal e confirma que `storageKey` não aparece.
+7. Erros comuns ou cenário negativo: devolver caminho físico do ficheiro expõe estrutura interna do servidor.
+
+### Passo 4 - Criar validação e middleware de upload
+
+1. Explicação simples do objetivo: aceitar apenas imagens pequenas e nos campos certos.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/validators/face-photo.validator.js`
+    - CRIAR: `server/src/middlewares/face-photo-upload.middleware.js`
+    - LOCALIZAÇÃO: ficheiros completos.
+3. O que fazer: cria os dois ficheiros.
+4. Código completo, correto e integrado:
+
+```js
+// server/src/validators/face-photo.validator.js
+import { AppError } from "../middlewares/error.middleware.js";
+
+export function validateFaceConsentInput(body) {
+    if (body.accepted !== true) {
+        throw new AppError(400, "Consentimento facial obrigatorio");
+    }
+
+    return {
+        version: String(body.version ?? "face-analysis-v1"),
+    };
+}
+
+export function validateUploadedFaceFiles(files) {
+    const frontal = files?.frontal?.[0];
+    const perfil = files?.perfil?.[0];
+
+    if (!frontal || !perfil) {
+        throw new AppError(400, "Fotografia frontal e de perfil sao obrigatorias");
+    }
+
+    return [
+        { kind: "frontal", file: frontal },
+        { kind: "perfil", file: perfil },
+    ];
+}
+```
+
+```js
+// server/src/middlewares/face-photo-upload.middleware.js
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import multer from "multer";
+import { AppError } from "./error.middleware.js";
+
+const PRIVATE_UPLOAD_DIR = path.resolve("storage/private/facial-photos");
+const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+fs.mkdirSync(PRIVATE_UPLOAD_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+    destination: PRIVATE_UPLOAD_DIR,
+    filename(req, file, callback) {
+        const extension = path.extname(file.originalname).toLowerCase();
+        const safeName = `${crypto.randomUUID()}${extension}`;
+        callback(null, safeName);
+    },
+});
+
+function fileFilter(req, file, callback) {
+    if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+        return callback(new AppError(400, "Formato de imagem nao permitido"));
+    }
+
+    return callback(null, true);
+}
+
+export const uploadFacePhotos = multer({
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+        files: 2,
+    },
+}).fields([
+    { name: "frontal", maxCount: 1 },
+    { name: "perfil", maxCount: 1 },
+]);
+```
+
+5. Explicação do código: a validação exige duas imagens; o middleware limita formato, tamanho e quantidade antes do controller.
+6. Como validar este passo: envia um ficheiro `.txt` e confirma `400`.
+7. Erros comuns ou cenário negativo: guardar em `public/` permitiria acesso direto sem autorização.
+
+### Passo 5 - Criar service de consentimento e fotografias
+
+1. Explicação simples do objetivo: guardar consentimento e metadados com ownership.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/services/face-photo.service.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o service.
+4. Código completo, correto e integrado:
+
+```js
+import { AppError } from "../middlewares/error.middleware.js";
+import { FaceConsent } from "../models/face-consent.model.js";
+import { FacePhoto } from "../models/face-photo.model.js";
+
+function toFacePhotoResponse(photo) {
+    return {
+        id: photo._id.toString(),
+        kind: photo.kind,
+        originalName: photo.originalName,
+        mimeType: photo.mimeType,
+        sizeBytes: photo.sizeBytes,
+        status: photo.status,
+        createdAt: photo.createdAt,
+    };
+}
+
+export async function acceptFaceConsent(userId, input) {
+    const consent = await FaceConsent.findOneAndUpdate(
+        { userId },
+        {
+            $set: {
+                version: input.version,
+                purpose: "analise_facial_cosmetica",
+                acceptedAt: new Date(),
+                revokedAt: null,
+            },
+        },
+        { upsert: true, new: true, runValidators: true },
+    );
+
+    return {
+        id: consent._id.toString(),
+        version: consent.version,
+        acceptedAt: consent.acceptedAt,
+        purpose: consent.purpose,
+    };
+}
+
+export async function saveFacePhotos(userId, uploadedFiles) {
+    const consent = await FaceConsent.findOne({ userId, revokedAt: null });
+
+    if (!consent) {
+        throw new AppError(403, "Consentimento facial em falta");
+    }
+
+    const photos = await FacePhoto.insertMany(
+        uploadedFiles.map(({ kind, file }) => ({
+            userId,
+            kind,
+            storageKey: file.path,
+            originalName: file.originalname,
+            mimeType: file.mimetype,
+            sizeBytes: file.size,
+            consentId: consent._id,
+        })),
+    );
+
+    return photos.map(toFacePhotoResponse);
+}
+```
+
+5. Explicação do código: o service procura consentimento ativo antes de guardar fotografias. A resposta não inclui `storageKey`.
+6. Como validar este passo: tenta upload sem consentimento e confirma `403`.
+7. Erros comuns ou cenário negativo: guardar fotografia antes do consentimento viola privacidade.
+
+### Passo 6 - Criar controller e route
+
+1. Explicação simples do objetivo: expor consentimento e upload em endpoints protegidos.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/controllers/face-photo.controller.js`
+    - CRIAR: `server/src/routes/face-photo.routes.js`
+    - LOCALIZAÇÃO: ficheiros completos.
+3. O que fazer: cria controller e route.
+4. Código completo, correto e integrado:
+
+```js
+// server/src/controllers/face-photo.controller.js
+import {
+    acceptFaceConsent,
+    saveFacePhotos,
+} from "../services/face-photo.service.js";
+import {
+    validateFaceConsentInput,
+    validateUploadedFaceFiles,
+} from "../validators/face-photo.validator.js";
+
+export async function acceptFaceConsentController(req, res, next) {
+    try {
+        const input = validateFaceConsentInput(req.body);
+        const consent = await acceptFaceConsent(req.user.id, input);
+
+        return res.status(200).json({ consent });
+    } catch (err) {
+        return next(err);
+    }
+}
+
+export async function uploadFacePhotosController(req, res, next) {
+    try {
+        const uploadedFiles = validateUploadedFaceFiles(req.files);
+        const photos = await saveFacePhotos(req.user.id, uploadedFiles);
+
+        return res.status(201).json({ photos });
+    } catch (err) {
+        return next(err);
+    }
+}
+```
+
+```js
+// server/src/routes/face-photo.routes.js
+import { Router } from "express";
+import { requireAuth } from "../middlewares/auth.middleware.js";
+import { uploadFacePhotos } from "../middlewares/face-photo-upload.middleware.js";
+import {
+    acceptFaceConsentController,
+    uploadFacePhotosController,
+} from "../controllers/face-photo.controller.js";
+
+export const facePhotoRoutes = Router();
+
+facePhotoRoutes.post(
+    "/face-consent",
+    requireAuth,
+    acceptFaceConsentController,
+);
+
+facePhotoRoutes.post(
+    "/face-photos",
+    requireAuth,
+    uploadFacePhotos,
+    uploadFacePhotosController,
+);
+```
+
+5. Explicação do código: os dois endpoints exigem sessão. O userId vem da sessão e não do frontend.
+6. Como validar este passo: sem cookie, ambos devem responder `401`.
+7. Erros comuns ou cenário negativo: permitir upload anónimo torna impossível provar ownership.
+
+### Passo 7 - Registar route e adaptar apiClient para FormData
+
+1. Explicação simples do objetivo: ligar a API e permitir envio de ficheiros pelo frontend.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/app.js`
+    - EDITAR: `client/src/services/apiClient.js`
+    - LOCALIZAÇÃO: imports, routes e função `apiRequest`.
+3. O que fazer: adiciona a route e atualiza o cliente API.
+4. Código completo, correto e integrado:
+
+```js
+// server/src/app.js
+import { facePhotoRoutes } from "./routes/face-photo.routes.js";
+
+app.use("/api", facePhotoRoutes);
+```
+
+```js
+// client/src/services/apiClient.js
+const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
+
+export async function apiRequest(path, options = {}) {
+    const isFormData = options.body instanceof FormData;
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        credentials: "include",
+        headers: isFormData
+            ? options.headers
+            : {
+                  "Content-Type": "application/json",
+                  ...(options.headers ?? {}),
+              },
+        ...options,
+    });
+
+    if (response.status === 204) return null;
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data?.error?.message ?? "Pedido falhou");
+    }
+
+    return data;
+}
+```
+
+5. Explicação do código: em `FormData`, o browser define o boundary do multipart. Definir manualmente `Content-Type` quebraria o upload.
+6. Como validar este passo: envia um `FormData` e confirma que o backend recebe `req.files`.
+7. Erros comuns ou cenário negativo: esquecer `credentials: "include"` faz o upload falhar por falta de sessão.
+
+### Passo 8 - Criar página de upload facial
+
+1. Explicação simples do objetivo: permitir aceitar consentimento e enviar as duas fotografias.
+2. Ficheiros envolvidos.
+    - CRIAR: `client/src/pages/FacePhotoUploadPage.jsx`
+    - EDITAR: `client/src/App.jsx`
+    - LOCALIZAÇÃO: ficheiro completo e imports do `App`.
+3. O que fazer: cria a página e regista no `App`.
+4. Código completo, correto e integrado:
+
+```jsx
+// client/src/pages/FacePhotoUploadPage.jsx
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
+
+export function FacePhotoUploadPage() {
+    const [accepted, setAccepted] = useState(false);
+    const [frontal, setFrontal] = useState(null);
+    const [perfil, setPerfil] = useState(null);
+    const [status, setStatus] = useState("idle");
+    const [message, setMessage] = useState("");
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setStatus("loading");
+        setMessage("");
+
+        try {
+            await apiRequest("/face-consent", {
+                method: "POST",
+                body: JSON.stringify({ accepted, version: "face-analysis-v1" }),
+            });
+
+            const formData = new FormData();
+            formData.append("frontal", frontal);
+            formData.append("perfil", perfil);
+
+            const data = await apiRequest("/face-photos", {
+                method: "POST",
+                body: formData,
+            });
+
+            setStatus("success");
+            setMessage(`${data.photos.length} fotografias guardadas.`);
+        } catch (err) {
+            setStatus("error");
+            setMessage(err.message);
+        }
+    }
+
+    return (
+        <section>
+            <h1>Fotografias para análise facial</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={accepted}
+                        onChange={(event) => setAccepted(event.target.checked)}
+                    />
+                    Aceito o tratamento destas fotografias para análise facial cosmética.
+                </label>
+                <label>
+                    Fotografia frontal
+                    <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        onChange={(event) => setFrontal(event.target.files[0])}
+                    />
+                </label>
+                <label>
+                    Fotografia de perfil
+                    <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        onChange={(event) => setPerfil(event.target.files[0])}
+                    />
+                </label>
+                <button
+                    type="submit"
+                    disabled={!accepted || !frontal || !perfil || status === "loading"}
+                >
+                    {status === "loading" ? "A enviar..." : "Enviar fotografias"}
+                </button>
+            </form>
+            {message && <p role={status === "error" ? "alert" : undefined}>{message}</p>}
+        </section>
+    );
+}
+```
+
+```jsx
+// client/src/App.jsx
+import { FacePhotoUploadPage } from "./pages/FacePhotoUploadPage.jsx";
+
+export function App() {
+    return (
+        <>
+            <ProductSearchPage />
+            <ProductDetailsPage />
+            <ProductReviewPage />
+            <RelatedProductsPage />
+            <FacePhotoUploadPage />
+        </>
+    );
+}
+```
+
+5. Explicação do código: a UI bloqueia envio sem consentimento e sem as duas imagens, mas a segurança real continua no backend.
+6. Como validar este passo: tenta enviar sem marcar consentimento, sem login e com ficheiro não imagem.
+7. Erros comuns ou cenário negativo: confiar só na checkbox visual permitiria chamada direta à API sem consentimento guardado.
+
+### Validacao
+- [ ] Negativos: minimo `3` cenarios.
+- [ ] Sem sessao devolve `401`.
+- [ ] Sem consentimento devolve `403`.
+- [ ] Ficheiro invalido devolve `400`.
+- [ ] Resposta nao inclui `storageKey` nem path interno.
+
+### Matriz minima de testes por prioridade
+
+| Camada | Evidencia |
+| --- | --- |
+| Middleware | Tipo e tamanho de ficheiro validados. |
+| Service | Consentimento e ownership verificados. |
+| Controller/route | Endpoints devolvem contrato publico. |
+| UI | Formulario envia `FormData` com duas fotografias. |
+
+Evidencia de testes por camada:
+- API: output de upload valido e rejeicoes.
+- Service: teste de consentimento ausente.
+- UI: screenshot do formulario com sucesso.
+
+## Snippet tecnico aplicavel
+
+```http
+POST /api/face-photos
+```
+
+## Expected results
+- `POST /api/face-consent` autenticado responde `200`.
+- `POST /api/face-photos` com duas imagens válidas responde `201`.
+- Sem sessão responde `401`.
+- Sem consentimento responde `403`.
+- Ficheiro inválido responde `400`.
+
 ## Criterios de aceite
-- Entrega funcional especifica de `Permitir upload de fotografias do rosto (frontal e perfil)` validada contra `RF13`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
-- Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Cenarios negativos concluidos: minimo `3`.
+- Evidencia de testes por camada documentada.
+- O backend exige sessão.
+- O backend exige consentimento ativo.
+- O backend exige `frontal` e `perfil`.
+- A resposta não devolve `storageKey`.
+- O frontend não guarda tokens no `localStorage`.
+
+## Validação final
+- Enviar consentimento.
+- Fazer upload com `frontal` e `perfil`.
+- Repetir upload sem consentimento num utilizador novo e confirmar `403`.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
-- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de utilidade/qualidade da recomendacao ou analise IA.
+- Output de consentimento com `200`.
+- Output de upload com `201`.
+- Screenshot da página com mensagem de sucesso.
+- Output de tentativa sem sessão com `401`.
 
-## Proximo BK recomendado
-`BK-MF1-06`
+## Handoff
+
+### Handoff
+
+`BK-MF1-06` deve usar `FacePhoto` e `FaceConsent`. A análise não deve procurar ficheiros por caminho público nem aceitar `userId` vindo do frontend.
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-05-31`: guia reescrito com consentimento mínimo, upload seguro, storage privado, ownership e frontend com `FormData`.

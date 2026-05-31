@@ -58,6 +58,11 @@ export async function createMyProfileController(req, res, next) {
         const profile = await createMyProfile(req.user.id, input);
 
         return res.status(201).json({ profile });
+export async function getMyProfileController(req, res, next) {
+    try {
+        const profile = await getMyProfile(req.user.id);
+
+        return res.status(200).json({ profile });
     } catch (err) {
         return next(err);
     }

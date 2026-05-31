@@ -16,108 +16,525 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-08`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-07-gerar-um-relatorio-personalizado-com-diagnostico-e-sugestoes-de-rotina.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-05-31`
 
-## Contexto do BK
-- Entrega alvo: implementar `Gerar um relatório personalizado com diagnóstico e sugestões de rotina` com rastreabilidade direta ao requisito `RF15`.
-- Foco tecnico da macro: `Nucleo funcional I`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+## Objetivo
+Neste BK vais gerar um relatório personalizado a partir da análise facial mais recente do utilizador autenticado.
+
+## Importância
+O relatório transforma sinais técnicos da análise em linguagem compreensível para o cliente. Deve explicar limites, resumir pontos observados e sugerir rotina cosmética sem prometer efeito clínico.
+
+## Scope-in
+- Criar modelo `FaceReport`.
+- Criar endpoint `POST /api/face-reports/latest`.
+- Gerar diagnóstico cosmético limitado.
+- Gerar sugestões de rotina de manhã e noite.
+- Mostrar relatório no frontend.
+
+## Scope-out
+- Não recomendar produtos personalizados; isso fica para `BK-MF2-02`.
+- Não exportar PDF; isso pertence a `RNF16`.
+- Não adicionar produtos ao carrinho.
+- Não apresentar diagnóstico médico definitivo.
+
+## Estado antes
+`CRITICO`: o guia anterior não definia modelo, service, rota, UI nem limites éticos.
+
+## Estado depois
+`OK`: o guia gera relatório completo, explicado e ligado à análise criada no BK anterior.
+
+## Pré-requisitos
+- `BK-MF1-06`: `FaceAnalysis`.
+- `BK-MF0-02`: `requireAuth`.
+- `RNF23`: explicabilidade.
+
+## Glossário
+- Relatório: resumo interpretável da análise facial.
+- Diagnóstico cosmético: leitura limitada ao contexto de pele e rotina, sem valor médico.
+- Rotina: conjunto de cuidados sugeridos para manhã e noite.
+
+## Conceitos teóricos
+Relatório personalizado não é histórico completo. Este BK gera um documento associado a uma análise. O histórico de relatórios e análises será organizado em `BK-MF1-08`.
+
+Um relatório seguro deve indicar fontes e limitações. Se a análise tem confiança baixa, o relatório deve explicar essa incerteza em vez de fingir precisão.
+
+## Arquitetura do BK
+- `FaceReport`
+- `generateReportFromLatestAnalysis`
+- `POST /api/face-reports/latest`
+- `FaceReportPage`
+
+## Ficheiros a criar/editar/rever
+- CRIAR: `server/src/models/face-report.model.js`
+- CRIAR: `server/src/services/face-report.service.js`
+- CRIAR: `server/src/controllers/face-report.controller.js`
+- CRIAR: `server/src/routes/face-report.routes.js`
+- EDITAR: `server/src/app.js`
+- CRIAR: `client/src/pages/FaceReportPage.jsx`
+- EDITAR: `client/src/App.jsx`
 
 ## Bloco pedagogico
+
 ### Objetivo
-Executar `Gerar um relatório personalizado com diagnóstico e sugestões de rotina` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+Gerar um relatorio personalizado a partir da ultima analise concluida do proprio utilizador.
 
 ### Pre-requisitos
-- Rever `RF15` em `docs/RF.md` ou `docs/RNF.md`.
-- Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `BK-MF1-06`.
+- Ter analise facial criada em `BK-MF1-06`.
+- Saber distinguir leitura cosmetica de diagnostico medico.
+- Saber persistir documento ligado a utilizador e analise.
 
 ### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Atualizar o guia sem alinhar metadados no backlog/matriz.
-- Registar evidence sem provas objetivas (log, output, screenshot ou teste).
+- Criar relatorio sem analise concluida.
+- Sugerir compra automatica.
+- Esconder limites e fontes da analise.
 
 ### Check de compreensao
-- [ ] Sei explicar o objetivo do BK em menos de 30 segundos.
-- [ ] Sei quais sao entradas, saidas e criterio de sucesso.
-- [ ] Sei justificar o handoff e o risco principal do BK.
-
-### Tempo estimado
-- `Core`: `60-90 min`.
-- `Reforco`: `+20-40 min` para BK `P0`.
+- De onde vem a analise usada no relatorio?
+- Porque e que o relatorio nao cria encomendas?
+- Que mensagem protege o utilizador contra excesso de confianca?
 
 ## Bloco operacional
+
 ### Entrada
-- BK: `BK-MF1-07`
-- Requisito: `RF15`
-- Dependencias: `BK-MF1-06`
-- Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
+- Sessao autenticada.
+- Ultima `FaceAnalysis` concluida do utilizador.
+- Modelo `FaceReport`.
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF1-07` e do requisito `RF15`.
-2. Validar pre-condicoes e dependencias declaradas (BK-MF1-06).
-3. Definir contrato de entrada/saida para `Gerar um relatório personalizado com diagnóstico e sugestões de rotina`.
-4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
-8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
+Executar cenarios negativos obrigatorios (minimo 3).
 
-### Cenarios negativos recomendados
-- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
-- tentativa com estado de negocio invalido (transicao nao permitida)
-- falha de integracao externa (timeout/erro) com fallback controlado
+Segue os passos lineares abaixo e valida sem sessao, sem analise e com analise ainda nao concluida.
 
-### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+## Passos lineares
 
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
+### Passo 1 - Confirmar limites do relatório
 
-### Handoff
-- Proximo BK recomendado: `BK-MF1-08`
-- Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
-- Se houver bloqueio >48h, escalar no scorecard da sprint.
+1. Explicação simples do objetivo: impedir promessas médicas e compra automática.
+2. Ficheiros envolvidos.
+    - REVER: `docs/RF.md`
+    - REVER: `docs/RNF.md`
+    - LOCALIZAÇÃO: `RF15`, `RF18`, `RF19`, `RNF23`.
+3. O que fazer: confirma que este BK gera relatório, não recomendação personalizada.
+4. Código completo, correto e integrado: sem código novo neste passo.
+5. Explicação do código: a separação mantém o fluxo pedagógico e evita overengineering.
+6. Como validar este passo: o relatório não deve conter botão de compra automática.
+7. Erros comuns ou cenário negativo: sugerir produto específico com motivo pertence a `RF18`/`RF19`.
 
-## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF1-07` / `RF15`)**
+### Passo 2 - Criar modelo de relatório
 
-```ts
-const BK_ID = 'BK-MF1-07';
-const REQ_ID = 'RF15';
+1. Explicação simples do objetivo: guardar relatório ligado a análise e utilizador.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/models/face-report.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o modelo.
+4. Código completo, correto e integrado:
 
-type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
+```js
+import mongoose from "mongoose";
 
-export function executar_bk_mf1_07(input: AnaliseInput) {
-  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
-  const startedAt = Date.now();
-  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
-  const duracaoMs = Date.now() - startedAt;
-  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
-  return resultado;
+const { Schema, model } = mongoose;
+
+const routineStepSchema = new Schema(
+    {
+        period: {
+            type: String,
+            enum: ["manha", "noite"],
+            required: true,
+        },
+        title: {
+            type: String,
+            required: true,
+        },
+        reason: {
+            type: String,
+            required: true,
+        },
+    },
+    { _id: false },
+);
+
+const faceReportSchema = new Schema(
+    {
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true,
+        },
+        analysisId: {
+            type: Schema.Types.ObjectId,
+            ref: "FaceAnalysis",
+            required: true,
+            index: true,
+        },
+        cosmeticSummary: {
+            type: String,
+            required: true,
+        },
+        routineSuggestions: {
+            type: [routineStepSchema],
+            required: true,
+        },
+        sources: {
+            type: [String],
+            required: true,
+        },
+        limitations: {
+            type: [String],
+            required: true,
+        },
+    },
+    { timestamps: true },
+);
+
+export const FaceReport = model("FaceReport", faceReportSchema);
+```
+
+5. Explicação do código: o relatório guarda resumo, rotina, fontes e limitações. Isto prepara histórico e exportação futura.
+6. Como validar este passo: confirma que `analysisId` é obrigatório.
+7. Erros comuns ou cenário negativo: guardar relatório sem ligação à análise impede auditoria.
+
+### Passo 3 - Criar service de relatório
+
+1. Explicação simples do objetivo: gerar relatório a partir da última análise do próprio utilizador.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/services/face-report.service.js`
+    - REVER: `server/src/models/face-analysis.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o service.
+4. Código completo, correto e integrado:
+
+```js
+import { AppError } from "../middlewares/error.middleware.js";
+import { FaceAnalysis } from "../models/face-analysis.model.js";
+import { FaceReport } from "../models/face-report.model.js";
+
+function buildCosmeticSummary(analysis) {
+    const { skinType, acne, manchas, rugas, oleosidade } = analysis.findings;
+
+    return [
+        `Tipo de pele estimado: ${skinType.label}.`,
+        `Acne: ${acne.label}.`,
+        `Manchas: ${manchas.label}.`,
+        `Rugas: ${rugas.label}.`,
+        `Oleosidade: ${oleosidade.label}.`,
+        "Esta leitura é cosmética e deve ser interpretada com as limitações indicadas.",
+    ].join(" ");
+}
+
+function buildRoutineSuggestions(analysis) {
+    const oleosidade = analysis.findings.oleosidade.label;
+
+    return [
+        {
+            period: "manha",
+            title: "Limpeza suave",
+            reason: `Ajuda a preparar a pele sem assumir tratamento médico. Oleosidade observada: ${oleosidade}.`,
+        },
+        {
+            period: "manha",
+            title: "Cuidado emoliente leve",
+            reason: "O cuidado emoliente apoia conforto da pele e não substitui avaliação profissional.",
+        },
+        {
+            period: "noite",
+            title: "Remover impurezas",
+            reason: "A rotina noturna reduz acumulação de resíduos do dia.",
+        },
+        {
+            period: "noite",
+            title: "Reforçar cuidado noturno",
+            reason: "Apoia consistência da rotina sem prometer resultado clínico.",
+        },
+    ];
+}
+
+function toFaceReportResponse(report) {
+    return {
+        id: report._id.toString(),
+        analysisId: report.analysisId.toString(),
+        cosmeticSummary: report.cosmeticSummary,
+        routineSuggestions: report.routineSuggestions,
+        sources: report.sources,
+        limitations: report.limitations,
+        createdAt: report.createdAt,
+    };
+}
+
+export async function generateReportFromLatestAnalysis(userId) {
+    const analysis = await FaceAnalysis.findOne({ userId, status: "completed" })
+        .sort({ createdAt: -1 });
+
+    if (!analysis) {
+        throw new AppError(400, "Analise facial concluida obrigatoria");
+    }
+
+    const report = await FaceReport.create({
+        userId,
+        analysisId: analysis._id,
+        cosmeticSummary: buildCosmeticSummary(analysis),
+        routineSuggestions: buildRoutineSuggestions(analysis),
+        sources: analysis.sources,
+        limitations: analysis.limitations,
+    });
+
+    return toFaceReportResponse(report);
 }
 ```
 
+5. Explicação do código: o service lê apenas análises do próprio utilizador e cria sugestões genéricas de rotina, não produtos.
+6. Como validar este passo: tenta gerar relatório sem análise e confirma `400`.
+7. Erros comuns ou cenário negativo: usar a última análise global permitiria relatório de outro utilizador.
+
+### Passo 4 - Criar controller e route
+
+1. Explicação simples do objetivo: disponibilizar geração do relatório pela API.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/controllers/face-report.controller.js`
+    - CRIAR: `server/src/routes/face-report.routes.js`
+    - LOCALIZAÇÃO: ficheiros completos.
+3. O que fazer: cria controller e route.
+4. Código completo, correto e integrado:
+
+```js
+// server/src/controllers/face-report.controller.js
+import { generateReportFromLatestAnalysis } from "../services/face-report.service.js";
+
+export async function generateLatestFaceReportController(req, res, next) {
+    try {
+        const report = await generateReportFromLatestAnalysis(req.user.id);
+        return res.status(201).json({ report });
+    } catch (err) {
+        return next(err);
+    }
+}
+```
+
+```js
+// server/src/routes/face-report.routes.js
+import { Router } from "express";
+import { requireAuth } from "../middlewares/auth.middleware.js";
+import { generateLatestFaceReportController } from "../controllers/face-report.controller.js";
+
+export const faceReportRoutes = Router();
+
+faceReportRoutes.post(
+    "/face-reports/latest",
+    requireAuth,
+    generateLatestFaceReportController,
+);
+```
+
+5. Explicação do código: a rota usa a sessão para escolher o utilizador. O frontend não envia IDs de análise.
+6. Como validar este passo: sem sessão, espera `401`.
+7. Erros comuns ou cenário negativo: aceitar `analysisId` vindo do cliente pode quebrar ownership.
+
+### Passo 5 - Registar route na app
+
+1. Explicação simples do objetivo: ligar relatórios ao Express.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/app.js`
+    - LOCALIZAÇÃO: imports e routes.
+3. O que fazer: adiciona a route.
+4. Código completo, correto e integrado:
+
+```js
+import { faceReportRoutes } from "./routes/face-report.routes.js";
+
+app.use("/api", faceReportRoutes);
+```
+
+5. Explicação do código: o endpoint final é `POST /api/face-reports/latest`.
+6. Como validar este passo: confirma que a rota existe e não devolve `404`.
+7. Erros comuns ou cenário negativo: colocar a rota antes do parser JSON não afeta este endpoint, mas manter ordem consistente facilita leitura.
+
+### Passo 6 - Criar página do relatório
+
+1. Explicação simples do objetivo: permitir gerar e ler o relatório no frontend.
+2. Ficheiros envolvidos.
+    - CRIAR: `client/src/pages/FaceReportPage.jsx`
+    - EDITAR: `client/src/App.jsx`
+    - LOCALIZAÇÃO: ficheiro completo e imports do `App`.
+3. O que fazer: cria e regista a página.
+4. Código completo, correto e integrado:
+
+```jsx
+// client/src/pages/FaceReportPage.jsx
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
+
+export function FaceReportPage() {
+    const [report, setReport] = useState(null);
+    const [status, setStatus] = useState("idle");
+    const [error, setError] = useState("");
+
+    async function handleGenerate() {
+        setStatus("loading");
+        setError("");
+        setReport(null);
+
+        try {
+            const data = await apiRequest("/face-reports/latest", {
+                method: "POST",
+            });
+            setReport(data.report);
+            setStatus("success");
+        } catch (err) {
+            setError(err.message);
+            setStatus("error");
+        }
+    }
+
+    return (
+        <section>
+            <h1>Relatório personalizado</h1>
+            <button onClick={handleGenerate} disabled={status === "loading"}>
+                {status === "loading" ? "A gerar..." : "Gerar relatório"}
+            </button>
+            {status === "error" && <p role="alert">{error}</p>}
+            {status === "success" && report && (
+                <article>
+                    <p>{report.cosmeticSummary}</p>
+                    <h2>Rotina sugerida</h2>
+                    <ul>
+                        {report.routineSuggestions.map((step) => (
+                            <li key={`${step.period}-${step.title}`}>
+                                <strong>{step.period}: {step.title}</strong>
+                                <p>{step.reason}</p>
+                            </li>
+                        ))}
+                    </ul>
+                    <h2>Limitações</h2>
+                    <ul>
+                        {report.limitations.map((item) => (
+                            <li key={item}>{item}</li>
+                        ))}
+                    </ul>
+                </article>
+            )}
+        </section>
+    );
+}
+```
+
+```jsx
+// client/src/App.jsx
+import { FaceReportPage } from "./pages/FaceReportPage.jsx";
+
+export function App() {
+    return (
+        <>
+            <ProductSearchPage />
+            <ProductDetailsPage />
+            <ProductReviewPage />
+            <RelatedProductsPage />
+            <FacePhotoUploadPage />
+            <FaceAnalysisPage />
+            <FaceReportPage />
+        </>
+    );
+}
+```
+
+5. Explicação do código: a UI mostra resumo, rotina e limitações. Isto torna o resultado explicável para o cliente.
+6. Como validar este passo: tenta gerar relatório antes da análise e confirma erro.
+7. Erros comuns ou cenário negativo: esconder limitações cria confiança excessiva no resultado.
+
+### Passo 7 - Validar ausência de compra automática
+
+1. Explicação simples do objetivo: confirmar que o relatório não cria carrinho, encomenda ou recomendação comercial automática.
+2. Ficheiros envolvidos.
+    - REVER: `server/src/services/face-report.service.js`
+    - REVER: `server/src/controllers/face-report.controller.js`
+    - REVER: `client/src/pages/FaceReportPage.jsx`
+3. O que fazer: procura chamadas ou imports relacionados com carrinho, encomenda ou checkout nos ficheiros do relatório.
+4. Código completo, correto e integrado:
+
+```bash
+rg -n "cart|checkout|order|purchase|Product" server/src/services/face-report.service.js server/src/controllers/face-report.controller.js client/src/pages/FaceReportPage.jsx
+```
+
+5. Explicação do código: o comando deve ficar sem resultados para confirmar que o relatório se mantém cosmético.
+6. Como validar este passo: executa o comando e confirma que não há referências comerciais no fluxo do relatório.
+7. Erros comuns ou cenário negativo: criar encomenda a partir de sinais cosméticos altera o contrato e exige consentimentos e regras adicionais.
+
+### Passo 8 - Validar negativos do relatório
+
+1. Explicação simples do objetivo: garantir que o relatório só nasce a partir de uma análise concluída do próprio utilizador.
+2. Ficheiros envolvidos.
+    - REVER: `server/src/services/face-report.service.js`
+    - REVER: `server/src/routes/face-report.routes.js`
+3. O que fazer: testa sem sessão, com sessão sem análise e com sessão cujo último registo ainda não esteja concluído.
+4. Código completo, correto e integrado:
+
+```bash
+curl -i -X POST http://localhost:3000/api/face-reports/latest
+curl -i -X POST http://localhost:3000/api/face-reports/latest \
+    -H "Authorization: Bearer TOKEN_SEM_ANALISE"
+curl -i -X POST http://localhost:3000/api/face-reports/latest \
+    -H "Authorization: Bearer TOKEN_COM_ANALISE_PENDENTE"
+```
+
+5. Explicação do código: os pedidos confirmam autenticação e dependência de uma análise concluída.
+6. Como validar este passo: confirma `401` no primeiro pedido e `400` nos restantes.
+7. Erros comuns ou cenário negativo: usar qualquer análise existente na coleção pode expor dados de outro utilizador.
+
+### Validacao
+- [ ] Negativos: minimo `3` cenarios.
+- [ ] Sem sessao devolve `401`.
+- [ ] Sem analise concluida devolve `400`.
+- [ ] Relatorio nao cria carrinho, encomenda ou checkout.
+- [ ] Resposta inclui resumo, rotina, sources e limitations.
+
+### Matriz minima de testes por prioridade
+
+| Camada | Evidencia |
+| --- | --- |
+| Model | `FaceReport` guarda resumo, rotina, sources e limitations. |
+| Service | Usa apenas analise do proprio utilizador. |
+| Controller/route | Endpoint cria relatorio com `201`. |
+| UI | Pagina mostra resumo, rotina e limites. |
+
+Evidencia de testes por camada:
+- API: output de relatorio criado e erro sem analise.
+- Service: teste de ausencia de analise concluida.
+- UI: screenshot do relatorio.
+
+## Snippet tecnico aplicavel
+
+```http
+POST /api/face-reports/latest
+```
+
+## Expected results
+- Com análise concluída: `201` com `{ "report": ... }`.
+- Sem sessão: `401`.
+- Sem análise: `400`.
+- A resposta inclui resumo, rotina, fontes e limitações.
+
 ## Criterios de aceite
-- Entrega funcional especifica de `Gerar um relatório personalizado com diagnóstico e sugestões de rotina` validada contra `RF15`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
-- Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Cenarios negativos concluidos: minimo `3`.
+- Evidencia de testes por camada documentada.
+- Relatório pertence ao utilizador autenticado.
+- Não existem recomendações automáticas de compra.
+- O texto deixa claro que a leitura é cosmética.
+- O relatório prepara histórico em `BK-MF1-08`.
+
+## Validação final
+- Fazer análise no BK anterior.
+- Gerar relatório.
+- Repetir sem análise num utilizador novo e confirmar `400`.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
-- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de utilidade/qualidade da recomendacao ou analise IA.
+- Output de relatório com `201`.
+- Output sem análise com `400`.
+- Screenshot do relatório com rotina e limitações.
 
-## Proximo BK recomendado
-`BK-MF1-08`
+## Handoff
+
+### Handoff
+
+`BK-MF1-08` deve listar análises e relatórios do próprio utilizador, preservando ownership e ordem temporal.
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-05-31`: guia reescrito com modelo de relatório, service, route, UI, limites cosméticos e handoff para histórico.

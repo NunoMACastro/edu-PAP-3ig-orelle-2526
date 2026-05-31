@@ -1,4 +1,4 @@
-# BK-MF1-04 - Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”)
+# BK-MF1-04 - Mostrar produtos semelhantes e complementares ("quem comprou isto também comprou...")
 
 ## Header
 - `doc_id`: `GUIA-BK-MF1-04`
@@ -16,102 +16,371 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF1-05`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-04-mostrar-produtos-semelhantes-e-complementares-quem-comprou-isto-tambem-comprou.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-05-31`
 
-## Contexto do BK
-- Entrega alvo: implementar `Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”)` com rastreabilidade direta ao requisito `RF12`.
-- Foco tecnico da macro: `Nucleo funcional I`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+## Objetivo
+Neste BK vais mostrar produtos semelhantes e complementares a partir de dados de catálogo: categoria, tipo de pele, marca e stock.
+
+## Importância
+Produtos relacionados melhoram descoberta comercial sem transformar o fluxo em diagnóstico facial ou checkout. O cliente continua a decidir livremente o que quer ver ou comprar.
+
+## Scope-in
+- Criar endpoint `GET /api/catalog/products/:productId/related`.
+- Calcular relacionados por catálogo, sem histórico de compra real.
+- Excluir o produto atual da lista.
+- Devolver lista vazia de forma clara se não houver resultados.
+- Criar componente React para apresentar relacionados.
+
+## Scope-out
+- Não criar carrinho.
+- Não usar dados biométricos.
+- Não adicionar produtos automaticamente ao carrinho.
+- Não prometer collaborative filtering avançado.
+
+## Estado antes
+`CRITICO`: o guia anterior usava checkout/pagamento num requisito de produtos relacionados.
+
+## Estado depois
+`OK`: o guia passa a implementar `RF12` com domínio correto e contrato de catálogo.
+
+## Pré-requisitos
+- `BK-MF0-07`: `Product`.
+- `BK-MF0-08`: `categoryIds`.
+- `BK-MF1-02`: rota de detalhe.
+
+## Glossário
+- Produto semelhante: produto da mesma categoria ou indicado para o mesmo tipo de pele.
+- Produto complementar: produto de outra categoria que pode acompanhar o produto atual, sem promessa clínica.
+- Regra determinística: regra clara baseada em campos do catálogo.
+
+## Conceitos teóricos
+`RF12` fala de produtos semelhantes e complementares. Nesta fase, a Orélle ainda não tem histórico de compras suficiente para "quem comprou isto também comprou" real. Por isso, a decisão técnica mínima é usar dados do catálogo. Esta decisão é `DERIVADO` e mantém a funcionalidade executável sem inventar comportamento.
+
+O backend deve devolver sugestões, não ações. Nenhum produto é comprado, reservado ou adicionado ao carrinho neste BK.
+
+## Arquitetura do BK
+- `GET /api/catalog/products/:productId/related`
+- `listRelatedCatalogProducts`
+- `RelatedProductsPage`
+
+## Ficheiros a criar/editar/rever
+- CRIAR: `server/src/services/related-products.service.js`
+- CRIAR: `server/src/controllers/related-products.controller.js`
+- EDITAR: `server/src/routes/catalog.routes.js`
+- CRIAR: `client/src/pages/RelatedProductsPage.jsx`
+- EDITAR: `client/src/App.jsx`
 
 ## Bloco pedagogico
+
 ### Objetivo
-Executar `Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”)` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+Mostrar produtos semelhantes e complementares usando regras simples de catalogo.
 
 ### Pre-requisitos
-- Rever `RF12` em `docs/RF.md` ou `docs/RNF.md`.
-- Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `BK-MF0-07`.
+- Ter produtos e categorias da `MF0`.
+- Ter detalhe de produto em `BK-MF1-02`.
+- Saber excluir o produto atual da lista relacionada.
 
 ### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Atualizar o guia sem alinhar metadados no backlog/matriz.
-- Registar evidence sem provas objetivas (log, output, screenshot ou teste).
+- Implementar checkout neste BK.
+- Usar historico de compras que ainda nao existe.
+- Prometer recomendacao personalizada por IA nesta fase.
 
 ### Check de compreensao
-- [ ] Sei explicar o objetivo do BK em menos de 30 segundos.
-- [ ] Sei quais sao entradas, saidas e criterio de sucesso.
-- [ ] Sei justificar o handoff e o risco principal do BK.
-
-### Tempo estimado
-- `Core`: `60-90 min`.
-- `Reforco`: `+20-40 min` para BK `P0`.
+- Que dados de produto sao suficientes para encontrar semelhantes?
+- Porque e que a lista pode ficar vazia?
+- Que requisito futuro trata recomendacao personalizada?
 
 ## Bloco operacional
+
 ### Entrada
-- BK: `BK-MF1-04`
-- Requisito: `RF12`
-- Dependencias: `BK-MF0-07`
-- Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
+- `productId` no URL.
+- Produto base com categorias, tipo de pele, marca e stock.
+- Lista de produtos publicos relacionados.
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF1-04` e do requisito `RF12`.
-2. Validar pre-condicoes e dependencias declaradas (BK-MF0-07).
-3. Definir contrato de entrada/saida para `Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”)`.
-4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
+Executar cenarios negativos obrigatorios (minimo 2).
 
-### Cenarios negativos recomendados
-- entrada obrigatoria em falta com erro validado
-- tentativa em estado de negocio invalido com resposta controlada
+Segue os passos lineares abaixo e valida produto inexistente, lista vazia e exclusao do produto atual.
 
-### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `2` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+## Passos lineares
 
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
+### Passo 1 - Confirmar decisão de catálogo
 
-### Handoff
-- Proximo BK recomendado: `BK-MF1-05`
-- Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
-- Se houver bloqueio >48h, escalar no scorecard da sprint.
+1. Explicação simples do objetivo: evitar confundir produtos relacionados com recomendação personalizada por IA.
+2. Ficheiros envolvidos.
+    - REVER: `docs/RF.md`
+    - REVER: `docs/planificacao/backlogs/ANEXO-CORE-DUAL-BK.md`
+    - LOCALIZAÇÃO: `RF12`, `RF18` e linha de `BK-MF1-04`.
+3. O que fazer: regista que este BK usa catálogo e não análise facial.
+4. Código completo, correto e integrado: sem código novo neste passo.
+5. Explicação do código: a app fica funcional e mantém a recomendação personalizada para `RF18`.
+6. Como validar este passo: confirma que nenhum ficheiro deste BK importa modelos de análise facial.
+7. Erros comuns ou cenário negativo: usar fotografias do utilizador para produtos semelhantes viola o domínio deste BK.
 
-## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de monetizacao (`BK-MF1-04` / `RF12`)**
+### Passo 2 - Criar service de produtos relacionados
 
-```ts
-const BK_ID = 'BK-MF1-04';
-const REQ_ID = 'RF12';
+1. Explicação simples do objetivo: encontrar produtos compatíveis sem duplicar o produto atual.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/services/related-products.service.js`
+    - REVER: `server/src/models/product.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o service abaixo.
+4. Código completo, correto e integrado:
 
-type CheckoutInput = { userId: string; carrinhoId: string; valorTotal: number };
+```js
+import { AppError } from "../middlewares/error.middleware.js";
+import { Product } from "../models/product.model.js";
 
-export function executar_bk_mf1_04(input: CheckoutInput) {
-  if (!input.userId || !input.carrinhoId) throw new Error(`${BK_ID}: contexto de checkout invalido`);
-  if (input.valorTotal <= 0) throw new Error(`${BK_ID}: total invalido`);
-  return { bkId: BK_ID, reqId: REQ_ID, pagamento: 'PENDENTE', contabilizado: true };
+function toRelatedProductResponse(product) {
+    return {
+        id: product._id.toString(),
+        name: product.name,
+        brandName: product.brandName,
+        imageUrl: product.imageUrl,
+        priceCents: product.priceCents,
+        skinTypes: product.skinTypes,
+        categoryIds: product.categoryIds.map((id) => id.toString()),
+    };
+}
+
+export async function listRelatedCatalogProducts(productId) {
+    const product = await Product.findById(productId);
+
+    if (!product) {
+        throw new AppError(404, "Produto nao encontrado");
+    }
+
+    const related = await Product.find({
+        _id: { $ne: product._id },
+        stock: { $gt: 0 },
+        $or: [
+            { categoryIds: { $in: product.categoryIds } },
+            { skinTypes: { $in: product.skinTypes } },
+            { brandName: product.brandName },
+        ],
+    })
+        .sort({ stock: -1, createdAt: -1 })
+        .limit(8);
+
+    return related.map(toRelatedProductResponse);
 }
 ```
 
+5. Explicação do código: a query procura produtos da mesma categoria, tipo de pele ou marca, exclui o produto atual e evita stock zero.
+6. Como validar este passo: cria dois produtos na mesma categoria e confirma que um aparece nos relacionados do outro.
+7. Erros comuns ou cenário negativo: não excluir o produto atual faz a página recomendar o que o cliente já está a ver.
+
+### Passo 3 - Criar controller
+
+1. Explicação simples do objetivo: expor relacionados por HTTP.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/controllers/related-products.controller.js`
+    - REVER: `server/src/validators/product-id.validator.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o controller.
+4. Código completo, correto e integrado:
+
+```js
+import { listRelatedCatalogProducts } from "../services/related-products.service.js";
+import { validateProductIdParam } from "../validators/product-id.validator.js";
+
+export async function listRelatedProductsController(req, res, next) {
+    try {
+        const productId = validateProductIdParam(req.params);
+        const products = await listRelatedCatalogProducts(productId);
+
+        return res.status(200).json({ products });
+    } catch (err) {
+        return next(err);
+    }
+}
+```
+
+5. Explicação do código: o controller reutiliza o validator de ID criado no detalhe para manter respostas consistentes.
+6. Como validar este passo: chama com ID inválido e espera `400`.
+7. Erros comuns ou cenário negativo: validar ID num ficheiro novo duplicado aumenta drift.
+
+### Passo 4 - Editar route do catálogo
+
+1. Explicação simples do objetivo: adicionar endpoint de relacionados ao módulo público de catálogo.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/routes/catalog.routes.js`
+    - LOCALIZAÇÃO: imports e rotas.
+3. O que fazer: acrescenta o código.
+4. Código completo, correto e integrado:
+
+```js
+import { listRelatedProductsController } from "../controllers/related-products.controller.js";
+
+catalogRoutes.get(
+    "/products/:productId/related",
+    listRelatedProductsController,
+);
+```
+
+5. Explicação do código: a rota é pública e de leitura, tal como pesquisa e detalhe.
+6. Como validar este passo: `GET /api/catalog/products/:productId/related` deve responder `200`.
+7. Erros comuns ou cenário negativo: criar `/api/recommendations` aqui mistura este BK com `RF18`.
+
+### Passo 5 - Criar página de relacionados
+
+1. Explicação simples do objetivo: mostrar a lista ao cliente.
+2. Ficheiros envolvidos.
+    - CRIAR: `client/src/pages/RelatedProductsPage.jsx`
+    - REVER: `client/src/services/apiClient.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria a página.
+4. Código completo, correto e integrado:
+
+```jsx
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
+
+export function RelatedProductsPage() {
+    const [productId, setProductId] = useState("");
+    const [products, setProducts] = useState([]);
+    const [status, setStatus] = useState("idle");
+    const [error, setError] = useState("");
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setStatus("loading");
+        setError("");
+        setProducts([]);
+
+        try {
+            const data = await apiRequest(
+                `/catalog/products/${productId}/related`,
+            );
+            setProducts(data.products);
+            setStatus(data.products.length === 0 ? "empty" : "success");
+        } catch (err) {
+            setError(err.message);
+            setStatus("error");
+        }
+    }
+
+    return (
+        <section>
+            <h1>Produtos semelhantes e complementares</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    ID do produto
+                    <input
+                        value={productId}
+                        onChange={(event) => setProductId(event.target.value)}
+                    />
+                </label>
+                <button type="submit" disabled={status === "loading"}>
+                    {status === "loading" ? "A procurar..." : "Ver relacionados"}
+                </button>
+            </form>
+
+            {status === "error" && <p role="alert">{error}</p>}
+            {status === "empty" && <p>Sem produtos relacionados.</p>}
+            {status === "success" && (
+                <ul>
+                    {products.map((product) => (
+                        <li key={product.id}>
+                            <img src={product.imageUrl} alt={product.name} />
+                            <strong>{product.name}</strong>
+                            <span>{(product.priceCents / 100).toFixed(2)} €</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
+    );
+}
+```
+
+5. Explicação do código: a página trata lista vazia como resultado normal e não como erro.
+6. Como validar este passo: usa um produto sem pares compatíveis e confirma a mensagem vazia.
+7. Erros comuns ou cenário negativo: mostrar compra automática seria incorreto; este BK só mostra sugestões.
+
+### Passo 6 - Registar página no App
+
+1. Explicação simples do objetivo: permitir validação visual.
+2. Ficheiros envolvidos.
+    - EDITAR: `client/src/App.jsx`
+    - LOCALIZAÇÃO: imports e JSX principal.
+3. O que fazer: acrescenta a página.
+4. Código completo, correto e integrado:
+
+```jsx
+import { RelatedProductsPage } from "./pages/RelatedProductsPage.jsx";
+
+export function App() {
+    return (
+        <>
+            <ProductSearchPage />
+            <ProductDetailsPage />
+            <ProductReviewPage />
+            <RelatedProductsPage />
+        </>
+    );
+}
+```
+
+5. Explicação do código: a página fica visível para testar o endpoint sem depender de routing avançado.
+6. Como validar este passo: abre o frontend e confirma que a secção aparece.
+7. Erros comuns ou cenário negativo: substituir as páginas anteriores impede validar a sequência da `MF1`.
+
+### Validacao
+- [ ] Negativos: minimo `2` cenarios.
+- [ ] Produto inexistente devolve `404`.
+- [ ] Produto sem relacionados devolve lista vazia.
+- [ ] Produto atual nao aparece nos resultados.
+- [ ] UI mostra estado vazio.
+
+### Matriz minima de testes por prioridade
+
+| Camada | Evidencia |
+| --- | --- |
+| Service | Query exclui produto atual e limita resultados. |
+| Controller/route | Endpoint devolve `{ "relatedProducts": [...] }`. |
+| UI | Pagina mostra lista ou vazio. |
+
+Evidencia de testes por camada:
+- API: output com relacionados e sem relacionados.
+- Service: teste de exclusao do produto atual.
+- UI: screenshot da lista relacionada.
+
+## Snippet tecnico aplicavel
+
+```http
+GET /api/catalog/products/64f000000000000000000000/related
+```
+
+## Expected results
+- Produto existente com relacionados: `200` e lista com produtos.
+- Produto existente sem relacionados: `200` e lista vazia.
+- Produto inexistente: `404`.
+- ID inválido: `400`.
+
 ## Criterios de aceite
-- Entrega funcional especifica de `Mostrar produtos semelhantes e complementares (“quem comprou isto também comprou…”)` validada contra `RF12`.
-- Cenarios negativos concluidos: minimo `2` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P1`).
-- Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Cenarios negativos concluidos: minimo `2`.
+- Evidencia de testes por camada documentada.
+- O produto atual nunca aparece na lista.
+- Só produtos com `stock > 0` entram na lista.
+- A regra usa categoria, tipo de pele ou marca.
+- A UI distingue erro de lista vazia.
+
+## Validação final
+- Criar dois produtos na mesma categoria.
+- Chamar `GET /api/catalog/products/:productId/related`.
+- Testar ID inválido.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
-- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de conversao comercial (checkout/recompra/carrinho).
+- Output do endpoint com relacionados.
+- Output do endpoint com lista vazia.
+- Screenshot da UI.
 
-## Proximo BK recomendado
-`BK-MF1-05`
+## Handoff
+
+### Handoff
+
+`BK-MF1-05` inicia o domínio de fotografias faciais. Este BK não cria dependência com biometria nem recomendação personalizada.
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-05-31`: guia reescrito com produtos relacionados por catálogo, endpoint público, service e UI.

@@ -89,6 +89,19 @@ Content-Type: application/json
   "tipoDePele": "mista",
   "genero": "feminino",
   "objetivos": ["hidratar", "uniformizar textura"]
+
+
+
+Set-Cookie: orelle_session=...; Path=/; HttpOnly; SameSite=Lax
+
+
+
+{
+  "nome": "Marta Silva",
+  "idade": 19,
+  "tipoDePele": "mista",
+  "genero": "feminino",
+  "objetivos": ["hidratar", "uniformizar textura"]
 }
 
 # Resposta Esperada (200 OK):
@@ -110,7 +123,155 @@ Content-Type: application/json
 {
   "profilePhotoMode": "stub_url",
   "profilePhotoUrl": "http://localhost/avatar-demo.png"
+
+
+{
+    "error": {
+        "message": "Credenciais invalidas"
+    }
 }
+
+
+
+{
+    "error": {
+        "message": "Autenticacao obrigatoria"
+    }
+}
+
+
+Logout:
+POST http://127.0.0.1:5000/api/auth/logout 
+
+POST /api/profile/me
+Cookie: orelle_session=...
+Content-Type: application/json
+
+{
+  "nome": "Marta Silva",
+  "idade": 18,
+  "tipoDePele": "mista",
+  "genero": "feminino",
+  "objetivos": ["hidratar", "reduzir oleosidade"]
+}
+```
+
+Resposta `201`:
+
+```json
+{
+    "profile": {
+        "id": "66b000000000000000000001",
+        "userId": "66a000000000000000000001",
+        "nome": "Marta Silva",
+        "idade": 18,
+        "tipoDePele": "mista",
+        "genero": "feminino",
+        "objetivos": ["hidratar", "reduzir oleosidade"]
+    }
+}
+```
+
+Erro sem sessao `401`:
+
+# Resposta Esperada (200 OK):
+# {
+#     "profile": {
+#         "nome": "Marta Silva",
+#         "idade": 19,
+#         "profilePhotoMode": "stub_url"
+#     }
+# }
+
+###
+
+### Atualizar Foto de Perfil (Stub)
+PATCH http://127.0.0.1:5000/api/profile/me/photo
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
+Content-Type: application/json
+
+{
+  "profilePhotoMode": "stub_url",
+  "profilePhotoUrl": "http://localhost/avatar-demo.png"
+```json
+{
+    "error": {
+        "message": "Autenticacao obrigatoria"
+{
+    "error": {
+        "message": "Credenciais invalidas"
+    }
+}
+```
+
+Erro de perfil duplicado `409`:
+
+# Resposta de Bloqueio Provisório:
+# {
+#     "error": {
+#         "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
+#     }
+# }
+
+###
+
+### ==========================================
+### ROLES E ATRIBUIÇÕES (MF05 - Criação de Roles)
+### ==========================================
+
+### Atualizar Preferências do Utilizador
+PUT http://127.0.0.1:5000/api/preferences/me
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
+Content-Type: application/json
+
+{
+```json
+{
+    "error": {
+        "message": "Este utilizador ja tem perfil"
+    }
+}
+
+
+PUT /api/profile/me
+Cookie: orelle_session=...
+Content-Type: application/json
+
+{
+  "nome": "Marta Silva",
+  "idade": 19,
+  "tipoDePele": "mista",
+  "genero": "feminino",
+  "objetivos": ["hidratar", "uniformizar textura"]
+}
+```
+
+Resposta `200`:
+
+```json
+{
+    "profile": {
+        "nome": "Marta Silva",
+        "idade": 19,
+        "profilePhotoMode": "stub_url"
+    }
+}
+```
+
+Atualizar fotografia stub:
+
+```http
+PATCH /api/profile/me/photo
+Cookie: orelle_session=...
+Content-Type: application/json
+
+{
+  "profilePhotoMode": "stub_url",
+  "profilePhotoUrl": "http://localhost/avatar-demo.png"
+}
+```
+
+Tentativa de upload real bloqueada `403`:
 
 # Resposta de Bloqueio Provisório:
 # {
@@ -152,3 +313,20 @@ Content-Type: application/json
 #         }
 #     }
 # }
+# }
+```json
+{
+    "error": {
+        "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
+
+
+{
+    "error": {
+        "message": "Autenticacao obrigatoria"
+    }
+}
+
+
+Logout:
+POST http://127.0.0.1:5000/api/auth/logout 
+
