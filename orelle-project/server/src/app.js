@@ -5,6 +5,7 @@ import { env } from "./config/env.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { adminUsersRoutes } from "./routes/admin-users.routes.js";
 import { adminProductsRoutes } from "./routes/admin-products.routes.js";
+import { adminCategoriesRoutes } from "./routes/admin-categories.routes.js";
 import { preferencesRoutes } from "./routes/preferences.routes.js";
 import { profileRoutes } from "./routes/profile.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
@@ -25,6 +26,7 @@ export function createApp() {
     app.use("/api/preferences", preferencesRoutes);
     app.use("/api/admin", adminUsersRoutes);
     app.use("/api/admin", adminProductsRoutes);
+    app.use("/api/admin", adminCategoriesRoutes);
 
     app.use(errorMiddleware);
 
