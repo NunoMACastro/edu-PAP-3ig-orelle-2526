@@ -1,5 +1,9 @@
+### ==========================================
+### AUTENTICAÇÃO (MF01 - MF02)
+### ==========================================
 
-POST http://127.0.0.1:5000/api/auth/register 
+### Registo de Utilizador
+POST http://127.0.0.1:5000/api/auth/register
 Content-Type: application/json
 
 {
@@ -7,45 +11,45 @@ Content-Type: application/json
   "password": "Senha12345"
 }
 
+# Resposta Esperada (201 Created):
+# Set-Cookie: orelle_session=...; Path=/; HttpOnly; SameSite=Lax
+# {
+#     "user": {
+#         "id": "66a000000000000000000001",
+#         "email": "cliente@orelle.test",
+#         "role": "cliente",
+#         "createdAt": "2026-05-29T10:00:00.000Z"
+#     }
+# }
 
+###
 
-
-
-Set-Cookie: orelle_session=...; Path=/; HttpOnly; SameSite=Lax
-
-
-
-{
-    "user": {
-        "id": "66a000000000000000000001",
-        "email": "cliente@orelle.test",
-        "role": "cliente",
-        "createdAt": "2026-05-29T10:00:00.000Z"
-    }
-}
-
-
+### Login do Utilizador
+POST http://127.0.0.1:5000/api/auth/login
+Content-Type: application/json
 
 {
-    "error": {
-        "message": "Credenciais invalidas"
-    }
+  "email": "cliente@orelle.test",
+  "password": "Senha12345"
 }
 
+# Erros Possíveis:
+# 401: { "error": { "message": "Credenciais invalidas" } }
 
+###
 
-{
-    "error": {
-        "message": "Autenticacao obrigatoria"
-    }
-}
+### Logout do Utilizador
+POST http://127.0.0.1:5000/api/auth/logout
 
+###
 
-Logout:
-POST http://127.0.0.1:5000/api/auth/logout 
+### ==========================================
+### PERFIL (MF03 - MF04)
+### ==========================================
 
-POST /api/profile/me
-Cookie: orelle_session=...
+### Criar Perfil Próprio
+POST http://127.0.0.1:5000/api/profile/me
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
 Content-Type: application/json
 
 {
@@ -55,46 +59,28 @@ Content-Type: application/json
   "genero": "feminino",
   "objetivos": ["hidratar", "reduzir oleosidade"]
 }
-```
 
-Resposta `201`:
+# Resposta Esperada (201 Created):
+# {
+#     "profile": {
+#         "id": "66b000000000000000000001",
+#         "userId": "66a000000000000000000001",
+#         "nome": "Marta Silva",
+#         "idade": 18,
+#         "tipoDePele": "mista",
+#         "genero": "feminino",
+#         "objetivos": ["hidratar", "reduzir oleosidade"]
+#     }
+# }
+# Erros Possíveis:
+# 401: { "error": { "message": "Autenticacao obrigatoria" } }
+# 400: { "error": { "message": "Este utilizador ja tem perfil" } }
 
-```json
-{
-    "profile": {
-        "id": "66b000000000000000000001",
-        "userId": "66a000000000000000000001",
-        "nome": "Marta Silva",
-        "idade": 18,
-        "tipoDePele": "mista",
-        "genero": "feminino",
-        "objetivos": ["hidratar", "reduzir oleosidade"]
-    }
-}
-```
+###
 
-Erro sem sessao `401`:
-
-```json
-{
-    "error": {
-        "message": "Autenticacao obrigatoria"
-    }
-}
-```
-
-Erro de perfil duplicado `409`:
-
-```json
-{
-    "error": {
-        "message": "Este utilizador ja tem perfil"
-    }
-}
-
-
-PUT /api/profile/me
-Cookie: orelle_session=...
+### Atualizar Dados do Perfil Próprio
+PUT http://127.0.0.1:5000/api/profile/me
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
 Content-Type: application/json
 
 {
@@ -104,38 +90,65 @@ Content-Type: application/json
   "genero": "feminino",
   "objetivos": ["hidratar", "uniformizar textura"]
 }
-```
 
-Resposta `200`:
+# Resposta Esperada (200 OK):
+# {
+#     "profile": {
+#         "nome": "Marta Silva",
+#         "idade": 19,
+#         "profilePhotoMode": "stub_url"
+#     }
+# }
 
-```json
-{
-    "profile": {
-        "nome": "Marta Silva",
-        "idade": 19,
-        "profilePhotoMode": "stub_url"
-    }
-}
-```
+###
 
-Atualizar fotografia stub:
-
-```http
-PATCH /api/profile/me/photo
-Cookie: orelle_session=...
+### Atualizar Foto de Perfil (Stub)
+PATCH http://127.0.0.1:5000/api/profile/me/photo
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
 Content-Type: application/json
 
 {
   "profilePhotoMode": "stub_url",
   "profilePhotoUrl": "http://localhost/avatar-demo.png"
 }
-```
 
-Tentativa de upload real bloqueada `403`:
+# Resposta de Bloqueio Provisório:
+# {
+#     "error": {
+#         "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
+#     }
+# }
 
-```json
+###
+
+### ==========================================
+### ROLES E ATRIBUIÇÕES (MF05 - Criação de Roles)
+### ==========================================
+
+### Atualizar Preferências do Utilizador
+PUT http://127.0.0.1:5000/api/preferences/me
+Cookie: orelle_session=SUBSTITUIR_PELO_TEU_COOKIE
+Content-Type: application/json
+
 {
-    "error": {
-        "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
-    }
+  "favoriteBrandNames": ["Orelle", "The Ordinary"],
+  "favoriteProductIds": []
 }
+
+# Resposta Esperada (200 OK):
+# {
+#     "preferences": {
+#         "userId": "66a000000000000000000001",
+#         "favoriteBrandNames": ["Orelle", "The Ordinary"],
+#         "favoriteProductIds": []
+#     }
+# }
+# Erro de Validação (Produtos indisponíveis até MF07):
+# {
+#     "error": {
+#         "message": "Preferencias invalidas",
+#         "details": {
+#             "favoriteProductIds": "Produtos favoritos so ficam ativos depois do BK-MF0-07 criar o catalogo"
+#         }
+#     }
+# }
