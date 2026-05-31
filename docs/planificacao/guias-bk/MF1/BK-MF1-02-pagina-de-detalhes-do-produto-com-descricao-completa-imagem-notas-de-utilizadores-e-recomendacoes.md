@@ -16,108 +16,425 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-03`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-02-pagina-de-detalhes-do-produto-com-descricao-completa-imagem-notas-de-utilizadores-e-recomendacoes.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-05-31`
 
-## Contexto do BK
-- Entrega alvo: implementar `Página de detalhes do produto com descrição completa, imagem, notas de utilizadores e recomendações` com rastreabilidade direta ao requisito `RF10`.
-- Foco tecnico da macro: `Nucleo funcional I`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+## Objetivo
+Neste BK vais implementar a página de detalhe de produto com descrição completa, imagem, ingredientes, preço, stock, resumo de notas e zona preparada para recomendações de catálogo.
+
+## Importância
+O detalhe do produto é o ponto onde o cliente confirma se um produto faz sentido antes de o avaliar, comparar com semelhantes ou adicionar ao carrinho em fases futuras.
+
+## Scope-in
+- Criar endpoint `GET /api/catalog/products/:productId`.
+- Devolver apenas dados públicos do produto.
+- Preparar campos `reviewSummary` e `relatedProducts` para os BKs seguintes.
+- Criar página React com estados `loading`, `error`, `empty` e `success`.
+
+## Scope-out
+- Não criar formulário de avaliação; isso fica para `BK-MF1-03`.
+- Não criar algoritmo de produtos semelhantes; isso fica para `BK-MF1-04`.
+- Não criar checkout.
+- Não devolver dados administrativos como `createdBy`.
+
+## Estado antes
+`CRITICO`: o guia anterior não criava rota, service, controller, frontend nem contratos para dados públicos.
+
+## Estado depois
+`OK`: o detalhe passa a ter endpoint e página integrados, preparando avaliações e relacionados sem inventar dados.
+
+## Pré-requisitos
+- `BK-MF0-07`: modelo `Product`.
+- `BK-MF1-01`: prefixo público `/api/catalog`.
+
+## Glossário
+- Detalhe de produto: ecrã com informação completa de um produto.
+- Resumo de notas: média e contagem de avaliações, começando a zero até `BK-MF1-03` criar reviews.
+- Produtos relacionados: lista de produtos semelhantes ou complementares, preenchida por `BK-MF1-04`.
+
+## Conceitos teóricos
+O detalhe de produto não é checkout. O backend só lê dados públicos e devolve uma resposta adequada ao cliente. O preço continua a ser devolvido em cêntimos para evitar erros de arredondamento.
+
+O controller não decide regras de negócio; chama o service. O service consulta `Product` e monta a resposta. O frontend usa o endpoint real e deve tratar produto inexistente como erro controlado.
+
+## Arquitetura do BK
+- `GET /api/catalog/products/:productId`
+- `validateProductIdParam`
+- `getCatalogProductDetails`
+- `ProductDetailsPage`
+
+## Ficheiros a criar/editar/rever
+- CRIAR: `server/src/validators/product-id.validator.js`
+- EDITAR: `server/src/services/product.service.js`
+- CRIAR: `server/src/controllers/product-details.controller.js`
+- EDITAR: `server/src/routes/catalog.routes.js`
+- CRIAR: `client/src/pages/ProductDetailsPage.jsx`
+- EDITAR: `client/src/App.jsx`
 
 ## Bloco pedagogico
+
 ### Objetivo
-Executar `Página de detalhes do produto com descrição completa, imagem, notas de utilizadores e recomendações` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+Criar uma pagina de detalhe que mostra informacao publica do produto e prepara avaliacoes e relacionados.
 
 ### Pre-requisitos
-- Rever `RF10` em `docs/RF.md` ou `docs/RNF.md`.
-- Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `BK-MF0-07`.
+- Ter produtos criados em `BK-MF0-07`.
+- Ter listagem publica criada em `BK-MF1-01`.
+- Saber validar `ObjectId` antes de consultar MongoDB.
 
 ### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Atualizar o guia sem alinhar metadados no backlog/matriz.
-- Registar evidence sem provas objetivas (log, output, screenshot ou teste).
+- Devolver produto inexistente como `200`.
+- Mostrar dados internos do produto.
+- Inventar avaliacoes antes de `BK-MF1-03`.
 
 ### Check de compreensao
-- [ ] Sei explicar o objetivo do BK em menos de 30 segundos.
-- [ ] Sei quais sao entradas, saidas e criterio de sucesso.
-- [ ] Sei justificar o handoff e o risco principal do BK.
-
-### Tempo estimado
-- `Core`: `60-90 min`.
-- `Reforco`: `+20-40 min` para BK `P0`.
+- Porque e que o ID do produto deve ser validado antes da query?
+- Que campos do produto sao publicos?
+- Que deve acontecer quando ainda nao existem avaliacoes?
 
 ## Bloco operacional
+
 ### Entrada
-- BK: `BK-MF1-02`
-- Requisito: `RF10`
-- Dependencias: `BK-MF0-07`
-- Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
+- `productId` no URL.
+- Model `Product` da `MF0`.
+- Resumo vazio de avaliacoes ate `BK-MF1-03`.
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF1-02` e do requisito `RF10`.
-2. Validar pre-condicoes e dependencias declaradas (BK-MF0-07).
-3. Definir contrato de entrada/saida para `Página de detalhes do produto com descrição completa, imagem, notas de utilizadores e recomendações`.
-4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
-8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
+Executar cenarios negativos obrigatorios (minimo 3).
 
-### Cenarios negativos recomendados
-- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
-- tentativa com estado de negocio invalido (transicao nao permitida)
-- falha de integracao externa (timeout/erro) com fallback controlado
+Segue os passos lineares abaixo e fecha o BK apenas depois de validar ID invalido, produto inexistente e produto existente.
 
-### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+## Passos lineares
 
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
+### Passo 1 - Confirmar domínio do detalhe
 
-### Handoff
-- Proximo BK recomendado: `BK-MF1-03`
-- Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
-- Se houver bloqueio >48h, escalar no scorecard da sprint.
+1. Explicação simples do objetivo: separar detalhe de produto de avaliação, produtos relacionados e checkout.
+2. Ficheiros envolvidos.
+    - REVER: `docs/RF.md`
+    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
+    - LOCALIZAÇÃO: linhas de `RF10`, `RF11`, `RF12`, `RF26`.
+3. O que fazer: confirma que `RF10` mostra informação e não cria compra.
+4. Código completo, correto e integrado: sem código novo neste passo.
+5. Explicação do código: a separação evita criar carrinho ou recomendação IA antes da fase correta.
+6. Como validar este passo: escreve em uma frase o que pertence a este BK: ler produto e mostrar detalhe.
+7. Erros comuns ou cenário negativo: adicionar produto ao carrinho nesta página antes de `RF26` quebra a sequência.
 
-## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF1-02` / `RF10`)**
+### Passo 2 - Validar o ID do produto
 
-```ts
-const BK_ID = 'BK-MF1-02';
-const REQ_ID = 'RF10';
+1. Explicação simples do objetivo: impedir consultas com IDs inválidos.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/validators/product-id.validator.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o validator.
+4. Código completo, correto e integrado:
 
-type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
+```js
+import mongoose from "mongoose";
+import { AppError } from "../middlewares/error.middleware.js";
 
-export function executar_bk_mf1_02(input: AnaliseInput) {
-  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
-  const startedAt = Date.now();
-  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
-  const duracaoMs = Date.now() - startedAt;
-  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
-  return resultado;
+export function validateProductIdParam(params) {
+    const productId = String(params.productId ?? "").trim();
+
+    if (!mongoose.isValidObjectId(productId)) {
+        throw new AppError(400, "Produto invalido");
+    }
+
+    return productId;
 }
 ```
 
+5. Explicação do código: um ObjectId inválido nunca deve chegar ao service. Isto evita erros técnicos expostos ao cliente.
+6. Como validar este passo: chama o endpoint com `/api/catalog/products/abc` e espera `400`.
+7. Erros comuns ou cenário negativo: deixar o Mongoose lançar o erro bruto pode expor detalhes internos.
+
+### Passo 3 - Acrescentar detalhe no service
+
+1. Explicação simples do objetivo: obter um produto público pelo ID.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/services/product.service.js`
+    - REVER: `server/src/models/product.model.js`
+    - LOCALIZAÇÃO: acrescentar no fim do ficheiro.
+3. O que fazer: adiciona a função abaixo.
+4. Código completo, correto e integrado:
+
+```js
+import { AppError } from "../middlewares/error.middleware.js";
+
+function toProductDetailResponse(product) {
+    return {
+        id: product._id.toString(),
+        name: product.name,
+        brandName: product.brandName,
+        description: product.description,
+        ingredientNames: product.ingredientNames,
+        skinTypes: product.skinTypes,
+        imageUrl: product.imageUrl,
+        priceCents: product.priceCents,
+        stock: product.stock,
+        categoryIds: product.categoryIds.map((id) => id.toString()),
+        reviewSummary: {
+            averageRating: 0,
+            totalReviews: 0,
+        },
+        relatedProducts: [],
+    };
+}
+
+export async function getCatalogProductDetails(productId) {
+    const product = await Product.findById(productId);
+
+    if (!product) {
+        throw new AppError(404, "Produto nao encontrado");
+    }
+
+    return toProductDetailResponse(product);
+}
+```
+
+5. Explicação do código: `reviewSummary` e `relatedProducts` começam com valores vazios honestos. Os BKs seguintes atualizam esses dados com entidades reais.
+6. Como validar este passo: pesquisa um ID existente e confirma que a resposta não inclui `createdBy`.
+7. Erros comuns ou cenário negativo: devolver o documento Mongoose inteiro expõe campos administrativos.
+
+### Passo 4 - Criar controller de detalhe
+
+1. Explicação simples do objetivo: ligar validação, service e resposta HTTP.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/controllers/product-details.controller.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o controller.
+4. Código completo, correto e integrado:
+
+```js
+import { getCatalogProductDetails } from "../services/product.service.js";
+import { validateProductIdParam } from "../validators/product-id.validator.js";
+
+export async function getProductDetailsController(req, res, next) {
+    try {
+        const productId = validateProductIdParam(req.params);
+        const product = await getCatalogProductDetails(productId);
+
+        return res.status(200).json({ product });
+    } catch (err) {
+        return next(err);
+    }
+}
+```
+
+5. Explicação do código: o controller devolve `200` para produto encontrado, `400` para ID inválido e `404` para produto inexistente.
+6. Como validar este passo: testa ID inválido e ID bem formado mas inexistente.
+7. Erros comuns ou cenário negativo: responder `200` com `null` obriga o frontend a adivinhar o erro.
+
+### Passo 5 - Editar a route do catálogo
+
+1. Explicação simples do objetivo: acrescentar rota de detalhe ao ficheiro criado no BK anterior.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/routes/catalog.routes.js`
+    - LOCALIZAÇÃO: imports e rotas.
+3. O que fazer: adiciona o import e a rota.
+4. Código completo, correto e integrado:
+
+```js
+import { getProductDetailsController } from "../controllers/product-details.controller.js";
+
+catalogRoutes.get("/products/:productId", getProductDetailsController);
+```
+
+5. Explicação do código: a rota de detalhe usa o mesmo prefixo `/api/catalog` da pesquisa.
+6. Como validar este passo: `GET /api/catalog/products/:productId` não deve devolver `404` de route.
+7. Erros comuns ou cenário negativo: criar `/api/products/:id` separadamente gera contratos duplicados.
+
+### Passo 6 - Criar página de detalhe
+
+1. Explicação simples do objetivo: mostrar o produto e tratar todos os estados de UI.
+2. Ficheiros envolvidos.
+    - CRIAR: `client/src/pages/ProductDetailsPage.jsx`
+    - REVER: `client/src/services/apiClient.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria a página.
+4. Código completo, correto e integrado:
+
+```jsx
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
+
+export function ProductDetailsPage() {
+    const [productId, setProductId] = useState("");
+    const [product, setProduct] = useState(null);
+    const [status, setStatus] = useState("idle");
+    const [error, setError] = useState("");
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setStatus("loading");
+        setError("");
+        setProduct(null);
+
+        try {
+            const data = await apiRequest(`/catalog/products/${productId}`);
+            setProduct(data.product);
+            setStatus("success");
+        } catch (err) {
+            setError(err.message);
+            setStatus("error");
+        }
+    }
+
+    return (
+        <section>
+            <h1>Detalhe do produto</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    ID do produto
+                    <input
+                        value={productId}
+                        onChange={(event) => setProductId(event.target.value)}
+                    />
+                </label>
+                <button type="submit" disabled={status === "loading"}>
+                    {status === "loading" ? "A carregar..." : "Ver produto"}
+                </button>
+            </form>
+
+            {status === "error" && <p role="alert">{error}</p>}
+            {status === "success" && product && (
+                <article>
+                    <img src={product.imageUrl} alt={product.name} />
+                    <h2>{product.name}</h2>
+                    <p>{product.brandName}</p>
+                    <p>{product.description}</p>
+                    <p>{(product.priceCents / 100).toFixed(2)} €</p>
+                    <p>Stock: {product.stock}</p>
+                    <p>
+                        Nota média: {product.reviewSummary.averageRating} (
+                        {product.reviewSummary.totalReviews} avaliações)
+                    </p>
+                    <h3>Ingredientes</h3>
+                    <ul>
+                        {product.ingredientNames.map((ingredient) => (
+                            <li key={ingredient}>{ingredient}</li>
+                        ))}
+                    </ul>
+                    <h3>Produtos relacionados</h3>
+                    {product.relatedProducts.length === 0 ? (
+                        <p>Sem produtos relacionados neste momento.</p>
+                    ) : (
+                        <ul>
+                            {product.relatedProducts.map((item) => (
+                                <li key={item.id}>{item.name}</li>
+                            ))}
+                        </ul>
+                    )}
+                </article>
+            )}
+        </section>
+    );
+}
+```
+
+5. Explicação do código: o formulário permite validar o BK sem router. A página mostra estado de erro e não tenta usar dados inexistentes.
+6. Como validar este passo: usa um ID válido e depois `abc`.
+7. Erros comuns ou cenário negativo: não tratar `404` deixa a interface sem feedback.
+
+### Passo 7 - Registar a página no App
+
+1. Explicação simples do objetivo: permitir validação visual do detalhe.
+2. Ficheiros envolvidos.
+    - EDITAR: `client/src/App.jsx`
+    - LOCALIZAÇÃO: imports e JSX principal.
+3. O que fazer: acrescenta a página junto da pesquisa.
+4. Código completo, correto e integrado:
+
+```jsx
+import { ProductDetailsPage } from "./pages/ProductDetailsPage.jsx";
+import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
+
+export function App() {
+    return (
+        <>
+            <ProductSearchPage />
+            <ProductDetailsPage />
+        </>
+    );
+}
+```
+
+5. Explicação do código: a aplicação passa a permitir pesquisar e abrir detalhe por ID durante a validação.
+6. Como validar este passo: abre o frontend e confirma que as duas secções aparecem.
+7. Erros comuns ou cenário negativo: substituir a pesquisa pelo detalhe impede validar `BK-MF1-01`.
+
+### Passo 8 - Validar negativos de detalhe
+
+1. Explicação simples do objetivo: confirmar que o contrato do detalhe falha de forma controlada.
+2. Ficheiros envolvidos.
+    - REVER: `server/src/validators/product-id.validator.js`
+    - REVER: `server/src/services/product.service.js`
+    - REVER: `server/src/controllers/product-details.controller.js`
+3. O que fazer: executa pedidos com ID inválido e com ID bem formado que não existe na base de dados.
+4. Código completo, correto e integrado:
+
+```bash
+curl -i http://localhost:3000/api/catalog/products/abc
+curl -i http://localhost:3000/api/catalog/products/64f000000000000000000000
+```
+
+5. Explicação do código: o primeiro pedido valida formato; o segundo valida ausência de produto sem expor detalhes internos.
+6. Como validar este passo: confirma `400` no primeiro pedido e `404` no segundo.
+7. Erros comuns ou cenário negativo: devolver `200` com `product: null` força o frontend a adivinhar o erro.
+
+### Validacao
+- [ ] Negativos: minimo `3` cenarios.
+- [ ] ID invalido devolve `400`.
+- [ ] Produto inexistente devolve `404`.
+- [ ] Produto existente devolve apenas campos publicos.
+- [ ] UI mostra erro quando o pedido falha.
+
+### Matriz minima de testes por prioridade
+
+| Camada | Evidencia |
+| --- | --- |
+| Validator | `abc` rejeitado como ID invalido. |
+| Service | Produto inexistente gera erro controlado. |
+| Controller/route | Endpoint devolve `{ "product": ... }`. |
+| UI | Pagina mostra detalhe e erro. |
+
+Evidencia de testes por camada:
+- API: output de `curl` com ID valido, invalido e inexistente.
+- Service: teste ou log controlado da query por ID.
+- UI: screenshot do detalhe carregado.
+
+## Snippet tecnico aplicavel
+
+```http
+GET /api/catalog/products/64f000000000000000000000
+```
+
+## Expected results
+- Produto existente: `200` com `{ "product": { ... } }`.
+- ID inválido: `400`.
+- Produto inexistente: `404`.
+- A página mostra imagem, descrição, preço, stock, ingredientes, resumo de notas e lista vazia de relacionados.
+
 ## Criterios de aceite
-- Entrega funcional especifica de `Página de detalhes do produto com descrição completa, imagem, notas de utilizadores e recomendações` validada contra `RF10`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
-- Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Cenarios negativos concluidos: minimo `3`.
+- Evidencia de testes por camada documentada.
+- O backend devolve apenas campos públicos.
+- O frontend usa endpoint real.
+- Estados `loading`, `error` e `success` existem.
+- O BK prepara `BK-MF1-03` e `BK-MF1-04` sem inventar avaliações ou recomendações.
+
+## Validação final
+- `curl http://localhost:3000/api/catalog/products/ID_VALIDO`
+- `curl http://localhost:3000/api/catalog/products/abc`
+- Testar o formulário no browser.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
-- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de conversao comercial (checkout/recompra/carrinho).
+- Screenshot do detalhe de produto.
+- Output do endpoint com produto existente.
+- Output do endpoint com ID inválido.
 
-## Proximo BK recomendado
-`BK-MF1-03`
+## Handoff
+
+### Handoff
+
+O próximo BK deve criar a entidade `Review` e atualizar o detalhe para apresentar avaliações reais sem alterar o contrato público do produto.
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-05-31`: guia reescrito com detalhe público, validação de ID, página React e handoff para avaliações.

@@ -1,4 +1,4 @@
-# BK-MF1-03 - Permitir ao cliente avaliar produtos (1–5 estrelas) e deixar comentários
+# BK-MF1-03 - Permitir ao cliente avaliar produtos (1-5 estrelas) e deixar comentários
 
 ## Header
 - `doc_id`: `GUIA-BK-MF1-03`
@@ -16,105 +16,511 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF1-04`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-03-permitir-ao-cliente-avaliar-produtos-1-5-estrelas-e-deixar-comentarios.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-05-31`
 
-## Contexto do BK
-- Entrega alvo: implementar `Permitir ao cliente avaliar produtos (1–5 estrelas) e deixar comentários` com rastreabilidade direta ao requisito `RF11`.
-- Foco tecnico da macro: `Nucleo funcional I`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+## Objetivo
+Neste BK vais permitir que um cliente autenticado avalie um produto com 1 a 5 estrelas e deixe um comentário.
+
+## Importância
+As avaliações ajudam outros clientes a decidir e preparam a moderação administrativa de `BK-MF4-02`. Como comentários são conteúdo de utilizador, o backend deve validar texto, ownership e autenticação.
+
+## Scope-in
+- Criar entidade `Review`.
+- Criar endpoint `POST /api/catalog/products/:productId/reviews`.
+- Criar endpoint `GET /api/catalog/products/:productId/reviews`.
+- Impedir que o frontend envie `userId`.
+- Integrar formulário React com sessão por cookie.
+
+## Scope-out
+- Não criar moderação administrativa.
+- Não permitir editar ou apagar avaliações neste BK.
+- Não usar avaliação como treino real de IA.
+
+## Estado antes
+`CRITICO`: o guia anterior não criava modelo, validator, service, controller, rota ou UI.
+
+## Estado depois
+`OK`: o guia passa a entregar avaliações completas e seguras para o contexto de `RF11`.
+
+## Pré-requisitos
+- `BK-MF1-02`: detalhe de produto.
+- `BK-MF0-02`: `requireAuth`.
+- `BK-MF0-05`: role `cliente`.
+
+## Glossário
+- Review: avaliação feita por um cliente a um produto.
+- Rating: nota inteira entre 1 e 5.
+- Ownership: regra que liga a avaliação ao utilizador autenticado.
+
+## Conceitos teóricos
+Avaliação de produto não é moderação. O cliente cria conteúdo; a administração só modera em fase posterior. Neste BK, o backend deve aceitar apenas nota válida e comentário controlado.
+
+O `userId` vem de `req.user.id`, criado por `requireAuth`. Isto impede que o frontend crie avaliações em nome de outro cliente. O produto vem do URL e é validado no backend.
+
+## Arquitetura do BK
+- `Review` guarda `productId`, `userId`, `rating` e `comment`.
+- `validateReviewInput` valida estrelas e texto.
+- `createProductReview` confirma produto existente e grava ownership.
+- `ProductReviewForm` envia avaliação com `credentials: "include"` através do `apiClient`.
+
+## Ficheiros a criar/editar/rever
+- CRIAR: `server/src/models/review.model.js`
+- CRIAR: `server/src/validators/review.validator.js`
+- CRIAR: `server/src/services/review.service.js`
+- CRIAR: `server/src/controllers/review.controller.js`
+- EDITAR: `server/src/routes/catalog.routes.js`
+- CRIAR: `client/src/pages/ProductReviewPage.jsx`
+- EDITAR: `client/src/App.jsx`
 
 ## Bloco pedagogico
+
 ### Objetivo
-Executar `Permitir ao cliente avaliar produtos (1–5 estrelas) e deixar comentários` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+Permitir que um cliente autenticado avalie um produto com estrelas e comentario controlado.
 
 ### Pre-requisitos
-- Rever `RF11` em `docs/RF.md` ou `docs/RNF.md`.
-- Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `BK-MF1-02`.
+- Ter login por sessao em `BK-MF0-02`.
+- Ter roles em `BK-MF0-05`.
+- Ter detalhe de produto em `BK-MF1-02`.
 
 ### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Atualizar o guia sem alinhar metadados no backlog/matriz.
-- Registar evidence sem provas objetivas (log, output, screenshot ou teste).
+- Aceitar `userId` vindo do frontend.
+- Permitir estrelas fora do intervalo `1..5`.
+- Expor dados internos do utilizador junto da avaliacao.
 
 ### Check de compreensao
-- [ ] Sei explicar o objetivo do BK em menos de 30 segundos.
-- [ ] Sei quais sao entradas, saidas e criterio de sucesso.
-- [ ] Sei justificar o handoff e o risco principal do BK.
-
-### Tempo estimado
-- `Core`: `60-90 min`.
-- `Reforco`: `+20-40 min` para BK `P0`.
+- Porque e que o dono da avaliacao vem de `req.user.id`?
+- Que erro deve surgir se o produto nao existir?
+- Que dados de utilizador podem aparecer publicamente?
 
 ## Bloco operacional
+
 ### Entrada
-- BK: `BK-MF1-03`
-- Requisito: `RF11`
-- Dependencias: `BK-MF1-02`
-- Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
+- Sessao autenticada de cliente.
+- `productId` no URL.
+- Body com `rating` e `comment`.
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF1-03` e do requisito `RF11`.
-2. Validar pre-condicoes e dependencias declaradas (BK-MF1-02).
-3. Definir contrato de entrada/saida para `Permitir ao cliente avaliar produtos (1–5 estrelas) e deixar comentários`.
-4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
+Executar cenarios negativos obrigatorios (minimo 2).
 
-### Cenarios negativos recomendados
-- entrada obrigatoria em falta com erro validado
-- tentativa em estado de negocio invalido com resposta controlada
+Segue os passos lineares abaixo e valida autenticacao, intervalo de estrelas e produto inexistente.
 
-### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `2` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+## Passos lineares
 
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
+### Passo 1 - Confirmar regras da avaliação
 
-### Handoff
-- Proximo BK recomendado: `BK-MF1-04`
-- Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
-- Se houver bloqueio >48h, escalar no scorecard da sprint.
+1. Explicação simples do objetivo: garantir que vais implementar apenas `RF11`.
+2. Ficheiros envolvidos.
+    - REVER: `docs/RF.md`
+    - REVER: `docs/planificacao/guias-bk/MF4/BK-MF4-02-moderacao-de-comentarios-e-avaliacoes.md`
+    - LOCALIZAÇÃO: linhas de `RF11` e `RF34`.
+3. O que fazer: confirma que a moderação fica fora deste BK.
+4. Código completo, correto e integrado: sem código novo neste passo.
+5. Explicação do código: este passo evita misturar criação de avaliação com administração.
+6. Como validar este passo: identifica que `RF11` pertence ao cliente e `RF34` pertence ao admin.
+7. Erros comuns ou cenário negativo: criar endpoint admin neste BK aumenta escopo sem contrato.
 
-## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF1-03` / `RF11`)**
+### Passo 2 - Criar modelo Review
 
-```ts
-const BK_ID = 'BK-MF1-03';
-const REQ_ID = 'RF11';
+1. Explicação simples do objetivo: guardar a avaliação com ligações ao produto e ao utilizador.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/models/review.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o model abaixo.
+4. Código completo, correto e integrado:
 
-type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
+```js
+import mongoose from "mongoose";
 
-export function executar_bk_mf1_03(input: AnaliseInput) {
-  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
-  const startedAt = Date.now();
-  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
-  const duracaoMs = Date.now() - startedAt;
-  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
-  return resultado;
+const { Schema, model } = mongoose;
+
+const reviewSchema = new Schema(
+    {
+        productId: {
+            type: Schema.Types.ObjectId,
+            ref: "Product",
+            required: true,
+            index: true,
+        },
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true,
+        },
+        rating: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5,
+        },
+        comment: {
+            type: String,
+            required: true,
+            trim: true,
+            minlength: 3,
+            maxlength: 600,
+        },
+        status: {
+            type: String,
+            enum: ["published", "hidden"],
+            default: "published",
+        },
+    },
+    { timestamps: true },
+);
+
+reviewSchema.index({ productId: 1, userId: 1 }, { unique: true });
+
+export const Review = model("Review", reviewSchema);
+```
+
+5. Explicação do código: o índice único impede várias avaliações do mesmo utilizador para o mesmo produto.
+6. Como validar este passo: tenta criar duas reviews com o mesmo `productId` e `userId`; a segunda deve falhar.
+7. Erros comuns ou cenário negativo: guardar email do utilizador na review expõe dados desnecessários.
+
+### Passo 3 - Criar validator de avaliação
+
+1. Explicação simples do objetivo: validar rating e comentário.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/validators/review.validator.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o validator.
+4. Código completo, correto e integrado:
+
+```js
+import { AppError } from "../middlewares/error.middleware.js";
+
+export function validateReviewInput(body) {
+    const rating = Number(body.rating);
+    const comment = String(body.comment ?? "").trim().replace(/\s+/g, " ");
+    const errors = {};
+
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+        errors.rating = "A avaliação deve ser um inteiro entre 1 e 5";
+    }
+
+    if (comment.length < 3 || comment.length > 600) {
+        errors.comment = "O comentário deve ter entre 3 e 600 caracteres";
+    }
+
+    if (Object.keys(errors).length > 0) {
+        throw new AppError(400, "Avaliação inválida", errors);
+    }
+
+    return { rating, comment };
 }
 ```
 
+5. Explicação do código: o backend não confia em validação HTML; confirma a regra de negócio antes de gravar.
+6. Como validar este passo: envia `rating: 6` e confirma `400`.
+7. Erros comuns ou cenário negativo: aceitar texto sem limite permite abuso e piora UX.
+
+### Passo 4 - Criar service de reviews
+
+1. Explicação simples do objetivo: gravar e listar reviews com regras de ownership.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/services/review.service.js`
+    - REVER: `server/src/models/product.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o service.
+4. Código completo, correto e integrado:
+
+```js
+import { AppError } from "../middlewares/error.middleware.js";
+import { Product } from "../models/product.model.js";
+import { Review } from "../models/review.model.js";
+
+function toReviewResponse(review) {
+    return {
+        id: review._id.toString(),
+        productId: review.productId.toString(),
+        userId: review.userId.toString(),
+        rating: review.rating,
+        comment: review.comment,
+        status: review.status,
+        createdAt: review.createdAt,
+    };
+}
+
+export async function createProductReview(productId, userId, input) {
+    const exists = await Product.exists({ _id: productId });
+
+    if (!exists) {
+        throw new AppError(404, "Produto não encontrado");
+    }
+
+    const review = await Review.create({
+        productId,
+        userId,
+        rating: input.rating,
+        comment: input.comment,
+    });
+
+    return toReviewResponse(review);
+}
+
+export async function listProductReviews(productId) {
+    const reviews = await Review.find({ productId, status: "published" })
+        .sort({ createdAt: -1 })
+        .limit(30);
+
+    return reviews.map(toReviewResponse);
+}
+```
+
+5. Explicação do código: o service valida produto existente e usa `userId` recebido da sessão, não do body.
+6. Como validar este passo: cria review sem produto existente e confirma `404`.
+7. Erros comuns ou cenário negativo: aceitar `userId` no body permitiria falsificar autoria.
+
+### Passo 5 - Criar controller de reviews
+
+1. Explicação simples do objetivo: receber pedidos HTTP e devolver status corretos.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/controllers/review.controller.js`
+    - REVER: `server/src/validators/product-id.validator.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o controller.
+4. Código completo, correto e integrado:
+
+```js
+import {
+    createProductReview,
+    listProductReviews,
+} from "../services/review.service.js";
+import { validateProductIdParam } from "../validators/product-id.validator.js";
+import { validateReviewInput } from "../validators/review.validator.js";
+
+export async function createProductReviewController(req, res, next) {
+    try {
+        const productId = validateProductIdParam(req.params);
+        const input = validateReviewInput(req.body);
+        const review = await createProductReview(productId, req.user.id, input);
+
+        return res.status(201).json({ review });
+    } catch (err) {
+        return next(err);
+    }
+}
+
+export async function listProductReviewsController(req, res, next) {
+    try {
+        const productId = validateProductIdParam(req.params);
+        const reviews = await listProductReviews(productId);
+
+        return res.status(200).json({ reviews });
+    } catch (err) {
+        return next(err);
+    }
+}
+```
+
+5. Explicação do código: criação exige `req.user.id`; listagem é pública porque comentários publicados são visíveis na página de produto.
+6. Como validar este passo: sem login, `POST` deve falhar por `requireAuth` na route.
+7. Erros comuns ou cenário negativo: devolver `passwordHash` do autor nunca deve acontecer; este controller nem consulta esse campo.
+
+### Passo 6 - Editar route do catálogo
+
+1. Explicação simples do objetivo: expor criação e leitura de avaliações.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/routes/catalog.routes.js`
+    - REVER: `server/src/middlewares/auth.middleware.js`
+    - LOCALIZAÇÃO: imports e rotas.
+3. O que fazer: acrescenta o código abaixo.
+4. Código completo, correto e integrado:
+
+```js
+import { requireAuth } from "../middlewares/auth.middleware.js";
+import {
+    createProductReviewController,
+    listProductReviewsController,
+} from "../controllers/review.controller.js";
+
+catalogRoutes.get(
+    "/products/:productId/reviews",
+    listProductReviewsController,
+);
+
+catalogRoutes.post(
+    "/products/:productId/reviews",
+    requireAuth,
+    createProductReviewController,
+);
+```
+
+5. Explicação do código: qualquer pessoa pode ler avaliações publicadas, mas só uma sessão autenticada pode criar.
+6. Como validar este passo: faz `POST` sem cookie e espera `401`.
+7. Erros comuns ou cenário negativo: proteger só no frontend deixa a API vulnerável.
+
+### Passo 7 - Criar página de avaliação
+
+1. Explicação simples do objetivo: permitir ao cliente submeter avaliação a partir do frontend.
+2. Ficheiros envolvidos.
+    - CRIAR: `client/src/pages/ProductReviewPage.jsx`
+    - REVER: `client/src/services/apiClient.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria a página.
+4. Código completo, correto e integrado:
+
+```jsx
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
+
+export function ProductReviewPage() {
+    const [productId, setProductId] = useState("");
+    const [rating, setRating] = useState("5");
+    const [comment, setComment] = useState("");
+    const [status, setStatus] = useState("idle");
+    const [message, setMessage] = useState("");
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setStatus("loading");
+        setMessage("");
+
+        try {
+            const data = await apiRequest(
+                `/catalog/products/${productId}/reviews`,
+                {
+                    method: "POST",
+                    body: JSON.stringify({ rating: Number(rating), comment }),
+                },
+            );
+            setStatus("success");
+            setMessage(`Avaliação registada com ID ${data.review.id}`);
+        } catch (err) {
+            setStatus("error");
+            setMessage(err.message);
+        }
+    }
+
+    return (
+        <section>
+            <h1>Avaliar produto</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    ID do produto
+                    <input
+                        value={productId}
+                        onChange={(event) => setProductId(event.target.value)}
+                    />
+                </label>
+                <label>
+                    Estrelas
+                    <select
+                        value={rating}
+                        onChange={(event) => setRating(event.target.value)}
+                    >
+                        {[1, 2, 3, 4, 5].map((value) => (
+                            <option key={value} value={value}>
+                                {value}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+                <label>
+                    Comentário
+                    <textarea
+                        value={comment}
+                        onChange={(event) => setComment(event.target.value)}
+                    />
+                </label>
+                <button type="submit" disabled={status === "loading"}>
+                    {status === "loading" ? "A enviar..." : "Enviar avaliação"}
+                </button>
+            </form>
+            {message && <p role={status === "error" ? "alert" : undefined}>{message}</p>}
+        </section>
+    );
+}
+```
+
+5. Explicação do código: o frontend envia apenas `rating` e `comment`; o autor vem da sessão no backend. O `apiClient` envia cookies com `credentials: "include"` e não usa tokens no `localStorage`.
+6. Como validar este passo: tenta submeter sem login e confirma mensagem de erro.
+7. Erros comuns ou cenário negativo: enviar `userId` no body é desnecessário e inseguro.
+
+### Passo 8 - Registar a página no App
+
+1. Explicação simples do objetivo: mostrar a página de avaliação na aplicação.
+2. Ficheiros envolvidos.
+    - EDITAR: `client/src/App.jsx`
+    - LOCALIZAÇÃO: imports e JSX principal.
+3. O que fazer: adiciona a página.
+4. Código completo, correto e integrado:
+
+```jsx
+import { ProductReviewPage } from "./pages/ProductReviewPage.jsx";
+
+export function App() {
+    return (
+        <>
+            <ProductSearchPage />
+            <ProductDetailsPage />
+            <ProductReviewPage />
+        </>
+    );
+}
+```
+
+5. Explicação do código: a página fica disponível para validação manual do fluxo.
+6. Como validar este passo: abre o frontend e confirma que o formulário de avaliação aparece.
+7. Erros comuns ou cenário negativo: esquecer o import gera erro de compilação no frontend.
+
+### Validacao
+- [ ] Negativos: minimo `2` cenarios.
+- [ ] Sem sessao devolve `401`.
+- [ ] Rating fora de `1..5` devolve `400`.
+- [ ] Produto inexistente devolve erro controlado.
+- [ ] UI mostra erro e sucesso sem expor dados internos.
+
+### Matriz minima de testes por prioridade
+
+| Camada | Evidencia |
+| --- | --- |
+| Model | Indice unico por `productId` e `userId`. |
+| Validator | Rating e comentario validados. |
+| Service | Ownership vem da sessao. |
+| UI | Formulario submete avaliacao real. |
+
+Evidencia de testes por camada:
+- API: output de criacao e listagem de reviews.
+- Service: teste de rating invalido.
+- UI: screenshot do formulario com sucesso.
+
+## Snippet tecnico aplicavel
+
+```http
+POST /api/catalog/products/64f000000000000000000000/reviews
+```
+
+## Expected results
+- `POST /api/catalog/products/:productId/reviews` com sessão válida responde `201`.
+- Sem sessão responde `401`.
+- Rating fora de `1..5` responde `400`.
+- Produto inexistente responde `404`.
+
 ## Criterios de aceite
-- Entrega funcional especifica de `Permitir ao cliente avaliar produtos (1–5 estrelas) e deixar comentários` validada contra `RF11`.
-- Cenarios negativos concluidos: minimo `2` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P1`).
-- Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Cenarios negativos concluidos: minimo `2`.
+- Evidencia de testes por camada documentada.
+- O backend usa `req.user.id`.
+- Não há `userId` no payload do frontend.
+- Só uma avaliação por utilizador e produto.
+- Reviews publicadas podem ser listadas por produto.
+
+## Validação final
+- Criar review autenticada.
+- Repetir a mesma review e observar erro de duplicação controlado pelo índice.
+- Listar reviews do produto.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
-- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de conversao comercial (checkout/recompra/carrinho).
+- Output de criação com `201`.
+- Output de criação sem login com `401`.
+- Screenshot do formulário.
 
-## Proximo BK recomendado
-`BK-MF1-04`
+## Handoff
+
+### Handoff
+
+`BK-MF1-04` pode usar avaliações como contexto comercial futuro, mas a primeira versão de produtos semelhantes deve continuar baseada em catálogo para não depender de compras reais.
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-05-31`: guia reescrito com modelo Review, validação, ownership por sessão, rotas e formulário React.

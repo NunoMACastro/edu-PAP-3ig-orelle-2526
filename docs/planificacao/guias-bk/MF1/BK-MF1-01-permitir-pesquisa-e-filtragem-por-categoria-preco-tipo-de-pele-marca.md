@@ -16,108 +16,560 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-02`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-01-permitir-pesquisa-e-filtragem-por-categoria-preco-tipo-de-pele-marca.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-05-31`
 
-## Contexto do BK
-- Entrega alvo: implementar `Permitir pesquisa e filtragem por categoria, preço, tipo de pele, marca` com rastreabilidade direta ao requisito `RF09`.
-- Foco tecnico da macro: `Nucleo funcional I`.
-- Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
+## Objetivo
+Neste BK vais implementar a pesquisa e filtragem pública de produtos da Orélle por texto, categoria, intervalo de preço, tipo de pele e marca.
+
+## Importância
+Este BK transforma o catálogo administrativo criado em `BK-MF0-07` e organizado por categorias em `BK-MF0-08` numa experiência útil para o cliente. Sem pesquisa e filtros, o catálogo existe na base de dados, mas o utilizador não consegue encontrar rapidamente produtos compatíveis com o seu perfil cosmético.
+
+## Scope-in
+- Criar endpoint público `GET /api/catalog/products`.
+- Validar query params no backend.
+- Reutilizar `Product`, `Category` e `Product.categoryIds` criados na `MF0`.
+- Criar página React de pesquisa com estados `loading`, `error`, `empty` e `success`.
+- Usar `credentials: "include"` no cliente API, preservando o contrato de sessão sem tokens no `localStorage`.
+
+## Scope-out
+- Não criar carrinho, checkout ou pagamento.
+- Não criar recomendação personalizada por IA.
+- Não alterar produtos; escrita de produtos continua reservada a administradores.
+- Não inventar ranking clínico ou diagnóstico facial.
+
+## Estado antes
+`CRITICO`: o guia anterior não indicava ficheiros, endpoints, DTOs, serviços, componentes nem código executável.
+
+## Estado depois
+`OK`: este guia passa a entregar backend e frontend completos para `RF09`, usando contratos já definidos na `MF0`.
+
+## Pré-requisitos
+- `BK-MF0-07`: `server/src/models/product.model.js` e `server/src/services/product.service.js`.
+- `BK-MF0-08`: `server/src/models/category.model.js` e `Product.categoryIds`.
+- `BK-MF0-02`: `client/src/services/apiClient.js` com `credentials: "include"`.
+
+## Glossário
+- Produto: item do catálogo com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock.
+- Categoria: agrupamento como limpeza, maquilhagem, tratamento ou protetor solar.
+- Filtro: critério usado para reduzir a lista de produtos.
+- Query param: valor enviado no URL, por exemplo `?brandName=Orelle`.
+
+## Conceitos teóricos
+Pesquisa de produtos não é recomendação personalizada. Em `RF09`, o cliente escolhe filtros e o backend devolve produtos que correspondem a esses filtros. A app não deve usar IA para decidir o que é melhor para a pele do cliente nesta fase.
+
+No backend, a route recebe o pedido HTTP, o validator transforma query params em dados seguros, o service consulta MongoDB/Mongoose e o controller devolve apenas campos públicos. Isto evita que o frontend leia dados internos como `createdBy`.
+
+No frontend, o componente React guarda filtros em `useState`, faz o pedido com `useEffect` ou por submissão de formulário e mostra estados claros. Mesmo sendo uma rota pública, o `apiClient` continua a usar cookies com `credentials: "include"` para manter o padrão da aplicação.
+
+## Arquitetura do BK
+- `GET /api/catalog/products` lista produtos públicos.
+- `validateCatalogQuery` valida filtros.
+- `listCatalogProducts` consulta `Product` com filtros seguros.
+- `ProductSearchPage` mostra o catálogo pesquisável.
+
+## Ficheiros a criar/editar/rever
+- CRIAR: `server/src/validators/catalog-query.validator.js`
+- EDITAR: `server/src/services/product.service.js`
+- CRIAR: `server/src/controllers/catalog.controller.js`
+- CRIAR: `server/src/routes/catalog.routes.js`
+- EDITAR: `server/src/app.js`
+- EDITAR: `client/src/services/apiClient.js`
+- CRIAR: `client/src/pages/ProductSearchPage.jsx`
+- EDITAR: `client/src/App.jsx`
 
 ## Bloco pedagogico
+
 ### Objetivo
-Executar `Permitir pesquisa e filtragem por categoria, preço, tipo de pele, marca` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+Construir uma pesquisa publica de catalogo com filtros controlados pelo backend.
 
 ### Pre-requisitos
-- Rever `RF09` em `docs/RF.md` ou `docs/RNF.md`.
-- Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `BK-MF0-07`.
+- Saber ler query params no Express.
+- Conhecer `Product`, `Category` e `Product.categoryIds` criados na `MF0`.
+- Saber usar `useState` para controlar filtros no React.
 
 ### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Atualizar o guia sem alinhar metadados no backlog/matriz.
-- Registar evidence sem provas objetivas (log, output, screenshot ou teste).
+- Filtrar produtos apenas no frontend.
+- Aceitar preco negativo ou categoria inexistente sem validar.
+- Devolver campos internos do produto na resposta publica.
 
 ### Check de compreensao
-- [ ] Sei explicar o objetivo do BK em menos de 30 segundos.
-- [ ] Sei quais sao entradas, saidas e criterio de sucesso.
-- [ ] Sei justificar o handoff e o risco principal do BK.
-
-### Tempo estimado
-- `Core`: `60-90 min`.
-- `Reforco`: `+20-40 min` para BK `P0`.
+- Que ficheiro valida os filtros antes do service?
+- Porque e que pesquisa de catalogo nao e recomendacao personalizada?
+- Que estados a pagina deve mostrar quando nao ha resultados?
 
 ## Bloco operacional
+
 ### Entrada
-- BK: `BK-MF1-01`
-- Requisito: `RF09`
-- Dependencias: `BK-MF0-07`
-- Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
+- Models de produto e categoria da `MF0`.
+- Pedido `GET /api/catalog/products` com filtros opcionais.
+- Pagina React de pesquisa.
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF1-01` e do requisito `RF09`.
-2. Validar pre-condicoes e dependencias declaradas (BK-MF0-07).
-3. Definir contrato de entrada/saida para `Permitir pesquisa e filtragem por categoria, preço, tipo de pele, marca`.
-4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
-8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
+Executar cenarios negativos obrigatorios (minimo 3).
 
-### Cenarios negativos recomendados
-- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
-- tentativa com estado de negocio invalido (transicao nao permitida)
-- falha de integracao externa (timeout/erro) com fallback controlado
+Segue os passos lineares abaixo e valida backend, frontend e casos vazios antes de fechar o BK.
 
-### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+## Passos lineares
 
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
+### Passo 1 - Confirmar contrato do catálogo
 
-### Handoff
-- Proximo BK recomendado: `BK-MF1-02`
-- Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
-- Se houver bloqueio >48h, escalar no scorecard da sprint.
+1. Explicação simples do objetivo: garantir que vais reutilizar o produto e as categorias já definidos, sem criar outro modelo para o mesmo conceito.
+2. Ficheiros envolvidos.
+    - REVER: `docs/RF.md`
+    - REVER: `docs/planificacao/guias-bk/MF0/BK-MF0-07-registar-produtos-com-nome-descricao-ingredientes-tipo-de-pele-indicado-imagem-preco-e-stock.md`
+    - REVER: `docs/planificacao/guias-bk/MF0/BK-MF0-08-associar-categorias-limpeza-maquilhagem-tratamento-protetor-solar-etc.md`
+    - LOCALIZAÇÃO: secções de `RF07`, `RF08` e `RF09`.
+3. O que fazer: confirma que o produto tem `name`, `brandName`, `description`, `ingredientNames`, `skinTypes`, `imageUrl`, `priceCents`, `stock` e `categoryIds`.
+4. Código completo, correto e integrado: sem código novo neste passo.
+5. Explicação do código: este passo evita duplicar schemas e mantém a sequência técnica da `MF0`.
+6. Como validar este passo: confirma que `Product.categoryIds` existe no guia `BK-MF0-07` e que `BK-MF0-08` associa categorias a produtos.
+7. Erros comuns ou cenário negativo: criar um novo modelo `CatalogProduct` quebraria o handoff para detalhe, avaliações e carrinho.
 
-## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF1-01` / `RF09`)**
+### Passo 2 - Criar validator dos filtros
 
-```ts
-const BK_ID = 'BK-MF1-01';
-const REQ_ID = 'RF09';
+1. Explicação simples do objetivo: transformar query params em filtros seguros antes de chegar ao service.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/validators/catalog-query.validator.js`
+    - REVER: `server/src/models/profile.model.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o ficheiro abaixo.
+4. Código completo, correto e integrado:
 
-type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
+```js
+import mongoose from "mongoose";
+import { AppError } from "../middlewares/error.middleware.js";
+import { SKIN_TYPES } from "../models/profile.model.js";
 
-export function executar_bk_mf1_01(input: AnaliseInput) {
-  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
-  const startedAt = Date.now();
-  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
-  const duracaoMs = Date.now() - startedAt;
-  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
-  return resultado;
+function normalizeText(value) {
+    return String(value ?? "").trim().replace(/\s+/g, " ");
+}
+
+function normalizeOptionalText(value) {
+    const text = normalizeText(value);
+    return text.length > 0 ? text : undefined;
+}
+
+function parseOptionalPrice(value, fieldName, errors) {
+    if (value === undefined || value === null || value === "") return undefined;
+
+    const numberValue = Number(value);
+
+    if (!Number.isInteger(numberValue) || numberValue < 0) {
+        errors[fieldName] = `${fieldName} deve ser inteiro em centimos`;
+        return undefined;
+    }
+
+    return numberValue;
+}
+
+export function validateCatalogQuery(query) {
+    const errors = {};
+    const input = {
+        search: normalizeOptionalText(query.search),
+        brandName: normalizeOptionalText(query.brandName),
+        skinType: normalizeOptionalText(query.skinType),
+        categoryId: normalizeOptionalText(query.categoryId),
+        minPriceCents: parseOptionalPrice(
+            query.minPriceCents,
+            "minPriceCents",
+            errors,
+        ),
+        maxPriceCents: parseOptionalPrice(
+            query.maxPriceCents,
+            "maxPriceCents",
+            errors,
+        ),
+    };
+
+    if (input.skinType && !SKIN_TYPES.includes(input.skinType)) {
+        errors.skinType = `Tipo de pele deve ser: ${SKIN_TYPES.join(", ")}`;
+    }
+
+    if (input.categoryId && !mongoose.isValidObjectId(input.categoryId)) {
+        errors.categoryId = "Categoria invalida";
+    }
+
+    if (
+        input.minPriceCents !== undefined &&
+        input.maxPriceCents !== undefined &&
+        input.minPriceCents > input.maxPriceCents
+    ) {
+        errors.price = "Preco minimo nao pode ser maior do que preco maximo";
+    }
+
+    if (Object.keys(errors).length > 0) {
+        throw new AppError(400, "Filtros de catalogo invalidos", errors);
+    }
+
+    return input;
 }
 ```
 
+5. Explicação do código: o validator impede tipos de pele fora do contrato, preços negativos e IDs de categoria inválidos. Assim o MongoDB recebe filtros previsíveis.
+6. Como validar este passo: chama `validateCatalogQuery({ minPriceCents: "-1" })` e confirma que lança `AppError(400)`.
+7. Erros comuns ou cenário negativo: converter preço no frontend apenas não chega; o backend deve proteger a API.
+
+### Passo 3 - Editar o service de produtos
+
+1. Explicação simples do objetivo: acrescentar leitura pública ao service já criado em `BK-MF0-07`.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/services/product.service.js`
+    - REVER: `server/src/models/product.model.js`
+    - LOCALIZAÇÃO: acrescentar as funções abaixo sem remover `createProduct`.
+3. O que fazer: mantém a função `createProduct` existente e acrescenta este bloco no fim do ficheiro.
+4. Código completo, correto e integrado:
+
+```js
+function toPublicProductResponse(product) {
+    return {
+        id: product._id.toString(),
+        name: product.name,
+        brandName: product.brandName,
+        description: product.description,
+        ingredientNames: product.ingredientNames,
+        skinTypes: product.skinTypes,
+        imageUrl: product.imageUrl,
+        priceCents: product.priceCents,
+        stock: product.stock,
+        categoryIds: product.categoryIds.map((id) => id.toString()),
+    };
+}
+
+export async function listCatalogProducts(filters) {
+    const query = {};
+
+    if (filters.search) {
+        query.$text = { $search: filters.search };
+    }
+
+    if (filters.brandName) {
+        query.brandName = new RegExp(filters.brandName, "i");
+    }
+
+    if (filters.skinType) {
+        query.skinTypes = filters.skinType;
+    }
+
+    if (filters.categoryId) {
+        query.categoryIds = filters.categoryId;
+    }
+
+    if (
+        filters.minPriceCents !== undefined ||
+        filters.maxPriceCents !== undefined
+    ) {
+        query.priceCents = {};
+        if (filters.minPriceCents !== undefined) {
+            query.priceCents.$gte = filters.minPriceCents;
+        }
+        if (filters.maxPriceCents !== undefined) {
+            query.priceCents.$lte = filters.maxPriceCents;
+        }
+    }
+
+    const products = await Product.find(query)
+        .sort({ createdAt: -1 })
+        .limit(40);
+
+    return products.map(toPublicProductResponse);
+}
+```
+
+5. Explicação do código: o service devolve apenas campos públicos. `createdBy` fica fora da resposta para não expor dados administrativos.
+6. Como validar este passo: cria dois produtos com marcas diferentes e confirma que `brandName` filtra sem alterar a base de dados.
+7. Erros comuns ou cenário negativo: usar `Product.find(req.query)` deixaria o cliente pesquisar por campos internos.
+
+### Passo 4 - Criar controller público do catálogo
+
+1. Explicação simples do objetivo: ligar o validator ao service e devolver HTTP status correto.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/controllers/catalog.controller.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria o controller abaixo.
+4. Código completo, correto e integrado:
+
+```js
+import { listCatalogProducts } from "../services/product.service.js";
+import { validateCatalogQuery } from "../validators/catalog-query.validator.js";
+
+export async function listCatalogProductsController(req, res, next) {
+    try {
+        const filters = validateCatalogQuery(req.query);
+        const products = await listCatalogProducts(filters);
+
+        return res.status(200).json({ products });
+    } catch (err) {
+        return next(err);
+    }
+}
+```
+
+5. Explicação do código: o controller só coordena validação, service e resposta. A regra de pesquisa fica no service.
+6. Como validar este passo: faz `GET /api/catalog/products?minPriceCents=-5` e confirma resposta `400`.
+7. Erros comuns ou cenário negativo: colocar lógica de MongoDB no controller dificulta testes e duplicação futura.
+
+### Passo 5 - Criar route do catálogo
+
+1. Explicação simples do objetivo: expor o endpoint público de pesquisa.
+2. Ficheiros envolvidos.
+    - CRIAR: `server/src/routes/catalog.routes.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria a route abaixo.
+4. Código completo, correto e integrado:
+
+```js
+import { Router } from "express";
+import { listCatalogProductsController } from "../controllers/catalog.controller.js";
+
+export const catalogRoutes = Router();
+
+catalogRoutes.get("/products", listCatalogProductsController);
+```
+
+5. Explicação do código: a rota fica pública porque pesquisar catálogo não exige login. Escrita de produtos continua em `/api/admin/products`.
+6. Como validar este passo: confirma que a rota final será `GET /api/catalog/products`.
+7. Erros comuns ou cenário negativo: proteger pesquisa pública com role de admin impediria o cliente de ver o catálogo.
+
+### Passo 6 - Registar a route na app
+
+1. Explicação simples do objetivo: ligar a route ao Express.
+2. Ficheiros envolvidos.
+    - EDITAR: `server/src/app.js`
+    - LOCALIZAÇÃO: zona dos imports e zona onde as routes são registadas.
+3. O que fazer: adiciona o import e o `app.use` abaixo.
+4. Código completo, correto e integrado:
+
+```js
+import { catalogRoutes } from "./routes/catalog.routes.js";
+
+app.use("/api/catalog", catalogRoutes);
+```
+
+5. Explicação do código: o prefixo `/api/catalog` separa leitura pública de administração.
+6. Como validar este passo: arranca a API e confirma que `GET /api/catalog/products` não devolve `404`.
+7. Erros comuns ou cenário negativo: registar a route depois do middleware de erro faz com que nunca seja chamada.
+
+### Passo 7 - Criar página React de pesquisa
+
+1. Explicação simples do objetivo: permitir que o cliente use filtros sem escrever URLs manualmente.
+2. Ficheiros envolvidos.
+    - CRIAR: `client/src/pages/ProductSearchPage.jsx`
+    - REVER: `client/src/services/apiClient.js`
+    - LOCALIZAÇÃO: ficheiro completo.
+3. O que fazer: cria a página abaixo.
+4. Código completo, correto e integrado:
+
+```jsx
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
+
+const SKIN_TYPES = ["oleosa", "seca", "mista", "sensivel", "normal"];
+
+export function ProductSearchPage() {
+    const [filters, setFilters] = useState({
+        search: "",
+        brandName: "",
+        skinType: "",
+        minPriceCents: "",
+        maxPriceCents: "",
+    });
+    const [products, setProducts] = useState([]);
+    const [status, setStatus] = useState("idle");
+    const [error, setError] = useState("");
+
+    function updateFilter(field, value) {
+        setFilters((current) => ({ ...current, [field]: value }));
+    }
+
+    function buildQueryString() {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+            if (String(value).trim()) params.set(key, value);
+        });
+        return params.toString();
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setStatus("loading");
+        setError("");
+
+        try {
+            const query = buildQueryString();
+            const data = await apiRequest(`/catalog/products?${query}`);
+            setProducts(data.products);
+            setStatus(data.products.length === 0 ? "empty" : "success");
+        } catch (err) {
+            setError(err.message);
+            setProducts([]);
+            setStatus("error");
+        }
+    }
+
+    return (
+        <main>
+            <h1>Catálogo Orélle</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Pesquisa
+                    <input
+                        value={filters.search}
+                        onChange={(event) =>
+                            updateFilter("search", event.target.value)
+                        }
+                    />
+                </label>
+                <label>
+                    Marca
+                    <input
+                        value={filters.brandName}
+                        onChange={(event) =>
+                            updateFilter("brandName", event.target.value)
+                        }
+                    />
+                </label>
+                <label>
+                    Tipo de pele
+                    <select
+                        value={filters.skinType}
+                        onChange={(event) =>
+                            updateFilter("skinType", event.target.value)
+                        }
+                    >
+                        <option value="">Todos</option>
+                        {SKIN_TYPES.map((type) => (
+                            <option key={type} value={type}>
+                                {type}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+                <label>
+                    Preço mínimo em cêntimos
+                    <input
+                        type="number"
+                        min="0"
+                        value={filters.minPriceCents}
+                        onChange={(event) =>
+                            updateFilter("minPriceCents", event.target.value)
+                        }
+                    />
+                </label>
+                <label>
+                    Preço máximo em cêntimos
+                    <input
+                        type="number"
+                        min="0"
+                        value={filters.maxPriceCents}
+                        onChange={(event) =>
+                            updateFilter("maxPriceCents", event.target.value)
+                        }
+                    />
+                </label>
+                <button type="submit" disabled={status === "loading"}>
+                    {status === "loading" ? "A pesquisar..." : "Pesquisar"}
+                </button>
+            </form>
+
+            {status === "error" && <p role="alert">{error}</p>}
+            {status === "empty" && <p>Não foram encontrados produtos.</p>}
+            {status === "success" && (
+                <ul>
+                    {products.map((product) => (
+                        <li key={product.id}>
+                            <img src={product.imageUrl} alt={product.name} />
+                            <h2>{product.name}</h2>
+                            <p>{product.brandName}</p>
+                            <p>{(product.priceCents / 100).toFixed(2)} €</p>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </main>
+    );
+}
+```
+
+5. Explicação do código: a página mantém filtros no estado local, chama o endpoint real e mostra mensagens diferentes para erro, vazio e sucesso.
+6. Como validar este passo: pesquisa por uma marca existente e depois por uma marca inexistente.
+7. Erros comuns ou cenário negativo: guardar token no browser é errado; o `apiClient` deve continuar a usar cookie HttpOnly com `credentials: "include"`.
+
+### Passo 8 - Registar a página no frontend
+
+1. Explicação simples do objetivo: tornar a página acessível no fluxo da aplicação.
+2. Ficheiros envolvidos.
+    - EDITAR: `client/src/App.jsx`
+    - LOCALIZAÇÃO: imports e zona de navegação.
+3. O que fazer: adiciona a página ao `App`.
+4. Código completo, correto e integrado:
+
+```jsx
+import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
+
+export function App() {
+    return <ProductSearchPage />;
+}
+```
+
+5. Explicação do código: esta versão mínima deixa o catálogo como ecrã principal para validação do BK.
+6. Como validar este passo: abre o frontend e confirma que o formulário aparece sem erros no console.
+7. Erros comuns ou cenário negativo: criar uma página sem a importar no `App` impede validação visual.
+
+### Validacao
+- [ ] Negativos: minimo `3` cenarios.
+- [ ] Query com preco negativo devolve `400`.
+- [ ] Categoria inexistente devolve `400`.
+- [ ] Pesquisa sem resultados devolve lista vazia sem erro.
+- [ ] Frontend mostra estados `loading`, `error`, `empty` e `success`.
+
+### Matriz minima de testes por prioridade
+
+| Camada | Evidencia |
+| --- | --- |
+| Validator | Query params invalidos rejeitados. |
+| Service | Filtros aplicados em MongoDB sem campos internos. |
+| Controller/route | `GET /api/catalog/products` devolve contrato publico. |
+| UI | Pagina pesquisa e renderiza lista ou estado vazio. |
+
+Evidencia de testes por camada:
+- API: output de `curl` com filtro valido e filtro invalido.
+- Service: teste ou log controlado com filtros combinados.
+- UI: screenshot da pesquisa com resultados e sem resultados.
+
+## Snippet tecnico aplicavel
+
+```http
+GET /api/catalog/products?q=serum&brandName=Orelle&minPriceCents=1000&maxPriceCents=5000
+```
+
+## Expected results
+- `GET /api/catalog/products` responde `200` com `{ "products": [...] }`.
+- Filtros inválidos respondem `400`.
+- A página mostra `loading`, `error`, `empty` e lista de produtos.
+
 ## Criterios de aceite
-- Entrega funcional especifica de `Permitir pesquisa e filtragem por categoria, preço, tipo de pele, marca` validada contra `RF09`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
-- Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Evidence pronta para revisao tecnica e defesa PAP.
+- Cenarios negativos concluidos: minimo `3`.
+- Evidencia de testes por camada documentada.
+- Pesquisa por texto funciona.
+- Filtros por marca, tipo de pele, categoria e preço funcionam no backend.
+- Campos internos como `createdBy` não aparecem na resposta pública.
+- O frontend chama endpoint real.
+
+## Validação final
+- `curl "http://localhost:3000/api/catalog/products?skinType=oleosa"`
+- `curl "http://localhost:3000/api/catalog/products?minPriceCents=-1"` deve devolver `400`.
+- Abrir a página e testar filtros com e sem resultados.
 
 ## Evidence para PR/defesa
-- `pr`: referencia de commit/PR e resumo tecnico da alteracao.
-- `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de conversao comercial (checkout/recompra/carrinho).
+- Screenshot da página com resultados.
+- Output do `curl` com filtro válido.
+- Output do `curl` com filtro inválido.
 
-## Proximo BK recomendado
-`BK-MF1-02`
+## Handoff
+
+### Handoff
+
+O próximo BK deve reutilizar `GET /api/catalog/products/:productId` ou criar uma rota de detalhe compatível com o mesmo modelo `Product`. Não deve criar outro schema de produto.
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-05-31`: guia reescrito com endpoint, validator, service, controller, route, página React e validação pedagógica.
