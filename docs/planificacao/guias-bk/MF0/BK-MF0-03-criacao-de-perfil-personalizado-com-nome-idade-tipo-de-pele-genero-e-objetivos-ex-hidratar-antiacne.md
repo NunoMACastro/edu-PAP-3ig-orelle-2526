@@ -1,6 +1,7 @@
 # BK-MF0-03 - Criação de perfil personalizado com nome, idade, tipo de pele, género e objetivos (ex: hidratar, antiacne)
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF0-03`
 - `bk_id`: `BK-MF0-03`
 - `macro`: `MF0`
@@ -16,7 +17,7 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF0-04`
 - `guia_path`: `docs/planificacao/guias-bk/MF0/BK-MF0-03-criacao-de-perfil-personalizado-com-nome-idade-tipo-de-pele-genero-e-objetivos-ex-hidratar-antiacne.md`
-- `last_updated`: `2026-05-25`
+- `last_updated`: `2026-05-29`
 
 #### BK-MF0-03 - Criação de perfil personalizado com nome, idade, tipo de pele, género e objetivos (ex: hidratar, antiacne)
 
@@ -121,84 +122,84 @@ A app não deve tratar estes dados como diagnóstico médico. O perfil ajuda rec
 #### Guia de execucao (passo-a-passo) (DERIVADO):
 
 0. **Objetivo (~15 min): confirmar campos canónicos do perfil**
-   - Descricao detalhada do objetivo: alinhar os campos com `RF03`.
-   - Justificacao: inventar campos nesta fase cria drift e confunde recomendações futuras.
-   - Como fazer (0.1): listar apenas `nome`, `idade`, `tipoDePele`, `genero`, `objetivos`.
-   - Como fazer (0.2): marcar listas de valores como `DERIVADO`.
-   - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/validators/profile.validator.js`.
-   - Snippet de referencia: `const SKIN_TYPES = ['oleosa', 'seca', 'mista', 'normal', 'sensivel'];`.
-   - O que verificar: não foram adicionados campos médicos ou alergias neste BK.
+    - Descricao detalhada do objetivo: alinhar os campos com `RF03`.
+    - Justificacao: inventar campos nesta fase cria drift e confunde recomendações futuras.
+    - Como fazer (0.1): listar apenas `nome`, `idade`, `tipoDePele`, `genero`, `objetivos`.
+    - Como fazer (0.2): marcar listas de valores como `DERIVADO`.
+    - Ficheiro a rever: `docs/RF.md`.
+    - Ficheiro alvo: `server/src/validators/profile.validator.js`.
+    - Snippet de referencia: `const SKIN_TYPES = ['oleosa', 'seca', 'mista', 'normal', 'sensivel'];`.
+    - O que verificar: não foram adicionados campos médicos ou alergias neste BK.
 
 1. **Objetivo (~25 min): criar modelo Profile**
-   - Descricao detalhada do objetivo: persistir perfil ligado a `User`.
-   - Justificacao: a relação única evita vários perfis contraditórios por utilizador.
-   - Como fazer (1.1): criar `userId` obrigatório, único e referenciado a `User`.
-   - Como fazer (1.2): criar campos de perfil com `timestamps`.
-   - Ficheiro a rever: `server/src/models/user.model.js`.
-   - Ficheiro alvo: `server/src/models/profile.model.js`.
-   - Snippet de referencia: `userId: { type: Schema.Types.ObjectId, ref: 'User', unique: true, required: true }`.
-   - O que verificar: índice único em `userId`.
+    - Descricao detalhada do objetivo: persistir perfil ligado a `User`.
+    - Justificacao: a relação única evita vários perfis contraditórios por utilizador.
+    - Como fazer (1.1): criar `userId` obrigatório, único e referenciado a `User`.
+    - Como fazer (1.2): criar campos de perfil com `timestamps`.
+    - Ficheiro a rever: `server/src/models/user.model.js`.
+    - Ficheiro alvo: `server/src/models/profile.model.js`.
+    - Snippet de referencia: `userId: { type: Schema.Types.ObjectId, ref: 'User', unique: true, required: true }`.
+    - O que verificar: índice único em `userId`.
 
 2. **Objetivo (~30 min): criar validação de perfil**
-   - Descricao detalhada do objetivo: impedir perfis incompletos ou inconsistentes.
-   - Justificacao: recomendações futuras dependem de dados previsíveis.
-   - Como fazer (2.1): validar `nome` com tamanho mínimo e máximo.
-   - Como fazer (2.2): validar idade num intervalo razoável definido pela equipa.
-   - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/validators/profile.validator.js`.
-   - Snippet de referencia: `if (!SKIN_TYPES.includes(tipoDePele)) errors.tipoDePele = 'Tipo de pele inválido';`.
-   - O que verificar: erros são claros e por campo.
+    - Descricao detalhada do objetivo: impedir perfis incompletos ou inconsistentes.
+    - Justificacao: recomendações futuras dependem de dados previsíveis.
+    - Como fazer (2.1): validar `nome` com tamanho mínimo e máximo.
+    - Como fazer (2.2): validar idade num intervalo razoável definido pela equipa.
+    - Ficheiro a rever: `docs/RF.md`.
+    - Ficheiro alvo: `server/src/validators/profile.validator.js`.
+    - Snippet de referencia: `if (!SKIN_TYPES.includes(tipoDePele)) errors.tipoDePele = 'Tipo de pele inválido';`.
+    - O que verificar: erros são claros e por campo.
 
 3. **Objetivo (~35 min): implementar service de criação**
-   - Descricao detalhada do objetivo: criar perfil para o utilizador autenticado.
-   - Justificacao: o service garante que cada user só cria um perfil.
-   - Como fazer (3.1): procurar perfil existente por `userId`.
-   - Como fazer (3.2): devolver `409` se já existir.
-   - Ficheiro a rever: `server/src/models/profile.model.js`.
-   - Ficheiro alvo: `server/src/services/profile.service.js`.
-   - Snippet de referencia: `const existing = await Profile.findOne({ userId });`.
-   - O que verificar: chamadas repetidas não criam duplicados.
+    - Descricao detalhada do objetivo: criar perfil para o utilizador autenticado.
+    - Justificacao: o service garante que cada user só cria um perfil.
+    - Como fazer (3.1): procurar perfil existente por `userId`.
+    - Como fazer (3.2): devolver `409` se já existir.
+    - Ficheiro a rever: `server/src/models/profile.model.js`.
+    - Ficheiro alvo: `server/src/services/profile.service.js`.
+    - Snippet de referencia: `const existing = await Profile.findOne({ userId });`.
+    - O que verificar: chamadas repetidas não criam duplicados.
 
 4. **Objetivo (~30 min): criar rotas protegidas de perfil**
-   - Descricao detalhada do objetivo: expor `POST /api/profile/me` e `GET /api/profile/me`.
-   - Justificacao: usar `/me` deixa claro que a operação é sobre o próprio utilizador.
-   - Como fazer (4.1): aplicar `requireAuth`.
-   - Como fazer (4.2): no controller, usar `req.user.id`.
-   - Ficheiro a rever: `server/src/middlewares/auth.middleware.js`.
-   - Ficheiro alvo: `server/src/routes/profile.routes.js`.
-   - Snippet de referencia: `router.post('/me', requireAuth, createMyProfileController);`.
-   - O que verificar: sem login devolve `401`.
+    - Descricao detalhada do objetivo: expor `POST /api/profile/me` e `GET /api/profile/me`.
+    - Justificacao: usar `/me` deixa claro que a operação é sobre o próprio utilizador.
+    - Como fazer (4.1): aplicar `requireAuth`.
+    - Como fazer (4.2): no controller, usar `req.user.id`.
+    - Ficheiro a rever: `server/src/middlewares/auth.middleware.js`.
+    - Ficheiro alvo: `server/src/routes/profile.routes.js`.
+    - Snippet de referencia: `router.post('/me', requireAuth, createMyProfileController);`.
+    - O que verificar: sem login devolve `401`.
 
 5. **Objetivo (~40 min): criar formulário React**
-   - Descricao detalhada do objetivo: permitir ao cliente preencher o perfil.
-   - Justificacao: a PAP deve demonstrar fluxo utilizável, não só API.
-   - Como fazer (5.1): criar inputs controlados para cada campo.
-   - Como fazer (5.2): usar select ou radio para valores fechados.
-   - Ficheiro a rever: `client/src/App.jsx`.
-   - Ficheiro alvo: `client/src/pages/ProfileSetupPage.jsx`.
-   - Snippet de referencia: `<select name="tipoDePele" value={form.tipoDePele}>`.
-   - O que verificar: o formulário mostra loading, erro e sucesso.
+    - Descricao detalhada do objetivo: permitir ao cliente preencher o perfil.
+    - Justificacao: a PAP deve demonstrar fluxo utilizável, não só API.
+    - Como fazer (5.1): criar inputs controlados para cada campo.
+    - Como fazer (5.2): usar select ou radio para valores fechados.
+    - Ficheiro a rever: `client/src/App.jsx`.
+    - Ficheiro alvo: `client/src/pages/ProfileSetupPage.jsx`.
+    - Snippet de referencia: `<select name="tipoDePele" value={form.tipoDePele}>`.
+    - O que verificar: o formulário mostra loading, erro e sucesso.
 
 6. **Objetivo (~30 min): preparar dados para fases futuras**
-   - Descricao detalhada do objetivo: garantir que o perfil é útil para recomendações sem antecipar IA.
-   - Justificacao: `MF1` e `MF2` vão usar estes campos como contexto.
-   - Como fazer (6.1): normalizar `objetivos` como array de strings curtas.
-   - Como fazer (6.2): documentar que alergias e restrições ficam fora.
-   - Ficheiro a rever: `docs/RF.md`.
-   - Ficheiro alvo: `server/src/services/profile.service.js`.
-   - Snippet de referencia: `objetivos: objetivos.map((item) => item.trim().toLowerCase())`.
-   - O que verificar: objetivos vazios ou duplicados são tratados.
+    - Descricao detalhada do objetivo: garantir que o perfil é útil para recomendações sem antecipar IA.
+    - Justificacao: `MF1` e `MF2` vão usar estes campos como contexto.
+    - Como fazer (6.1): normalizar `objetivos` como array de strings curtas.
+    - Como fazer (6.2): documentar que alergias e restrições ficam fora.
+    - Ficheiro a rever: `docs/RF.md`.
+    - Ficheiro alvo: `server/src/services/profile.service.js`.
+    - Snippet de referencia: `objetivos: objetivos.map((item) => item.trim().toLowerCase())`.
+    - O que verificar: objetivos vazios ou duplicados são tratados.
 
 7. **Objetivo (~45 min): validar negativos e handoff**
-   - Descricao detalhada do objetivo: provar que o perfil funciona e não quebra auth.
-   - Justificacao: perfil será dependência direta de upload e recomendações.
-   - Como fazer (7.1): testar criação válida e consulta.
-   - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
-   - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
-   - Ficheiro alvo: `server/tests/profile.test.js`.
-   - Snippet de referencia: `expect(response.status).toBe(409);`.
-   - O que verificar: evidence mostra perfil único por user.
+    - Descricao detalhada do objetivo: provar que o perfil funciona e não quebra auth.
+    - Justificacao: perfil será dependência direta de upload e recomendações.
+    - Como fazer (7.1): testar criação válida e consulta.
+    - Como fazer (7.2): Executar cenarios negativos obrigatorios (minimo 3) e registar resultados.
+    - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
+    - Ficheiro alvo: `server/tests/profile.test.js`.
+    - Snippet de referencia: `expect(response.status).toBe(409);`.
+    - O que verificar: evidence mostra perfil único por user.
 
 #### Checklist de validacao (DERIVADO):
 
@@ -239,40 +240,50 @@ A app não deve tratar estes dados como diagnóstico médico. O perfil ajuda rec
 - FOLLOW-UP: `BK-MF0-04` deve editar este perfil sem duplicar documento.
 
 ## Contexto do BK
+
 - Entrega alvo: implementar `Criação de perfil personalizado com nome, idade, tipo de pele, género e objetivos (ex: hidratar, antiacne)` com rastreabilidade direta ao requisito `RF03`.
 - Foco tecnico da macro: `Fundamentos e governance`.
 - Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
 
 ## Bloco pedagogico
+
 ### Objetivo
+
 Criar o perfil cosmético inicial, separando credenciais (`User`) de personalização (`Profile`).
 
 ### Pre-requisitos
+
 - Rever `RF03`.
 - Ter `User` de `BK-MF0-01`.
 - Usar `requireAuth` se `BK-MF0-02` já existir.
 
 ### Erros comuns
+
 - Guardar campos de perfil dentro de `User` sem critério.
 - Aceitar `userId` enviado pelo frontend.
 - Criar múltiplos perfis para a mesma conta.
 
 ### Check de compreensao
+
 - [ ] Sei explicar diferença entre `User` e `Profile`.
 - [ ] Sei justificar o índice único em `userId`.
 - [ ] Sei provar que outro user não lê este perfil.
 
 ### Tempo estimado
+
 - `M`: 2 a 4 horas.
 
 ## Bloco operacional
+
 ### Entrada
+
 - BK: `BK-MF0-03`
 - Requisito: `RF03`
 - Dependencias: `BK-MF0-01`
 - Artefactos: `RF.md`, `BACKLOG-MVP.md`, `MATRIZ-CANONICA-BK.md`
 
 ### Passos
+
 1. Confirmar campos do `RF03`.
 2. Criar modelo `Profile`.
 3. Criar validator de perfil.
@@ -283,40 +294,37 @@ Criar o perfil cosmético inicial, separando credenciais (`User`) de personaliza
 8. Executar cenarios negativos obrigatorios (minimo 3) e registar evidência.
 
 ### Cenarios negativos recomendados
+
 - Pedido sem sessão deve devolver `401`.
 - Idade ou tipo de pele inválidos devem devolver `400`.
 - Segundo perfil para o mesmo user deve devolver `409`.
 
 ### Validacao
+
 - [ ] Smoke: perfil válido é criado.
 - [ ] Negativos: minimo `3` cenarios com resultado controlado.
 - [ ] Tecnico: relação `User -> Profile` é única.
 - [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
 
 ### Matriz minima de testes por prioridade
+
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
 
 ### Handoff
+
 - Proximo BK recomendado: `BK-MF0-04`
 - O próximo BK deve atualizar este perfil, não criar outro.
 
 ## Snippet tecnico aplicavel
-```js
-const BK_ID = 'BK-MF0-03';
-const REQ_ID = 'RF03';
-const MIN_NEGATIVOS = 3;
 
-export function validarEvidenceBkMf003({ smokeOk, negativos, profile }) {
-  if (!smokeOk) throw new Error(`${BK_ID}/${REQ_ID}: smoke de perfil falhou`);
-  if (negativos < 3) throw new Error(`${BK_ID}/${REQ_ID}: negativos insuficientes`);
-  if (!profile?.userId) throw new Error(`${BK_ID}/${REQ_ID}: perfil sem userId`);
-  return { bkId: BK_ID, reqId: REQ_ID, minNegativos: MIN_NEGATIVOS, status: 'OK' };
-}
-```
+O codigo aplicavel deste BK-MF0-03 ja nao fica como anexo isolado. Para cumprir o contrato documental sem contrariar o formato tutorial, considera-se tecnico aplicavel o conjunto de blocos completos no `## Tutorial linear de implementacao`, sempre ligados a `BK-MF0-03` e `RF03`.
+
+Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia copiar uma funcao sem perceber ficheiro, imports, validacao, erro esperado e handoff. Por isso, o codigo foi integrado nos passos onde e usado.
 
 ## Criterios de aceite
+
 - Entrega funcional especifica de `Criação de perfil personalizado com nome, idade, tipo de pele, género e objetivos` validada contra `RF03`.
 - Cenarios negativos concluidos: minimo `3` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P0`).
@@ -324,14 +332,799 @@ export function validarEvidenceBkMf003({ smokeOk, negativos, profile }) {
 - Evidence pronta para revisao tecnica e defesa PAP.
 
 ## Evidence para PR/defesa
+
 - `pr`: `A preencher no fecho do BK`
 - `proof_tecnico`: `A preencher apos validacao`
 - `proof_negativos`: `A preencher apos testes negativos`
 - `proof_negocio`: perfil prepara contexto para personalização futura; análise IA e recomendações avançadas ficam fora da MF0.
 
 ## Proximo BK recomendado
+
 `BK-MF0-04`
 
+## Tutorial linear de implementacao
+
+### Passo 1 - Confirmar contrato, scope e riscos
+
+1. Objetivo simples do passo: confirmar o que este BK entrega, o que fica fora e que contratos dos BKs vizinhos nao podem ser quebrados.
+2. Ficheiros envolvidos:
+    - CRIAR: nenhum ficheiro de aplicacao neste passo.
+    - EDITAR: este guia BK, apenas para orientar a implementacao.
+    - LOCALIZACAO: ler esta secao antes de abrir o editor de codigo.
+    - REVER: RF/RNF indicados no header, backlog, matriz, MF-VIEWS e proximo BK.
+3. O que fazer: ler e respeitar as decisoes abaixo antes de implementar.
+4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; o codigo aparece nos passos seguintes, junto do ficheiro onde e usado.
+5. Explicacao didatica e detalhada: este passo evita que o aluno implemente uma funcionalidade correta isoladamente, mas incoerente com a app final. Primeiro confirma-se o contrato; so depois se escreve codigo.
+6. Como validar: confirmar que o header do BK, RF/RNF, dependencias e handoff continuam iguais aos documentos canonicos.
+7. Erro comum ou cenario negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendacoes/pagamentos antes da fase correta.
+
+**Scope-in deste passo:**
+
+- Criar um perfil por utilizador autenticado.
+- Guardar apenas os campos de `RF03`: `nome`, `idade`, `tipoDePele`, `genero` e `objetivos`.
+- Normalizar listas simples para que BKs futuros consigam usar os dados.
+- Impedir segundo perfil para o mesmo `userId`.
+- Criar UI simples de configuracao de perfil.
+
+**Scope-out deste passo:**
+
+- Fotografias ficam para `BK-MF0-04` e `BK-MF1-05`.
+- Alergias, ingredientes a evitar e restricoes medicas leves ficam para `BK-MF4-08`.
+- Analise facial, diagnostico, relatorios, simulacao e recomendacoes avancadas ficam fora da `MF0`.
+- O perfil nao deve fazer promessas clinicas nem substituir aconselhamento medico.
+
+### Passo 2 - Mapear ficheiros antes de codificar
+
+1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever codigo, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
+2. Ficheiros envolvidos:
+    - CRIAR:
+        - `server/src/models/profile.model.js`
+        - `server/src/validators/profile.validator.js`
+        - `server/src/services/profile.service.js`
+        - `server/src/controllers/profile.controller.js`
+        - `server/src/routes/profile.routes.js`
+        - `server/tests/profile.test.js`
+        - `client/src/pages/ProfileSetupPage.jsx`
+
+    - EDITAR:
+        - `server/src/app.js`
+        - `client/src/App.jsx`
+
+    - REVER:
+        - `server/src/middlewares/auth.middleware.js`, criado no `BK-MF0-02`.
+        - `docs/RF.md`, requisito `RF03`.
+        - `docs/planificacao/guias-bk/MF0/BK-MF0-04-possibilidade-de-editar-o-perfil-e-atualizar-fotografias-periodicamente.md`, porque vai editar este perfil.
+    - LOCALIZACAO: usar exatamente os caminhos listados; quando o ficheiro ja existir, editar o ficheiro existente em vez de criar outro com nome parecido.
+
+3. O que fazer: criar ou editar estes ficheiros pela ordem dos passos seguintes.
+4. Codigo completo, correto e integrado: este passo ainda nao tem codigo; ele prepara a lista para os passos de implementacao.
+5. Explicacao didatica e detalhada: mapear ficheiros antes de programar ensina separacao de responsabilidades e reduz erros de arquitetura.
+6. Como validar: verificar que cada caminho aparece uma unica vez e que os nomes batem com os imports dos passos seguintes.
+7. Erro comum ou cenario negativo: criar ficheiros duplicados, por exemplo outro controller com nome parecido, faz a app compilar parcialmente mas falhar no fluxo completo.
+
+### Passo 3 - Implementar codigo por ficheiro
+
+1. Objetivo simples do passo: escrever cada ficheiro no local certo, mantendo o contrato com os BKs anteriores e seguintes.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: os ficheiros aparecem um a um nos subpassos abaixo.
+    - LOCALIZACAO: cada subpasso indica o caminho completo do ficheiro.
+    - REVER: imports, exports, nomes das funcoes e contratos HTTP usados no handoff.
+3. O que fazer: seguir os subpassos na ordem apresentada; cada bloco de codigo deve ser colocado no ficheiro indicado.
+4. Codigo completo, correto e integrado: os blocos surgem imediatamente abaixo, junto do ficheiro onde sao usados.
+5. Explicacao didatica e detalhada: a ordem dos ficheiros acompanha a arquitetura da app, para o aluno perceber como dados entram, sao validados, passam pelo service e chegam ao frontend.
+6. Como validar: apos cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
+7. Erro comum ou cenario negativo: copiar apenas parte do codigo deixa o tutorial incoerente e quebra os passos posteriores.
+
+### Passo 4 - Criar ou editar `server/src/models/profile.model.js`
+
+1. Objetivo simples do passo: implementar o ficheiro `server/src/models/profile.model.js` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `server/src/models/profile.model.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/models/profile.model.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Criar este ficheiro em `server/src/models/profile.model.js`.
+
+```js
+import mongoose from "mongoose";
+
+const { Schema, model } = mongoose;
+
+export const SKIN_TYPES = ["oleosa", "seca", "mista", "normal", "sensivel"];
+export const GENDERS = [
+    "feminino",
+    "masculino",
+    "nao_binario",
+    "prefiro_nao_dizer",
+];
+
+const profileSchema = new Schema(
+    {
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            unique: true,
+            index: true,
+        },
+        nome: {
+            type: String,
+            required: true,
+            trim: true,
+            minlength: 2,
+            maxlength: 80,
+        },
+        idade: {
+            type: Number,
+            required: true,
+            min: 13,
+            max: 120,
+        },
+        tipoDePele: {
+            type: String,
+            required: true,
+            enum: SKIN_TYPES,
+        },
+        genero: {
+            type: String,
+            required: true,
+            enum: GENDERS,
+        },
+        objetivos: {
+            type: [String],
+            default: [],
+        },
+    },
+    { timestamps: true },
+);
+
+export const Profile = model("Profile", profileSchema);
+```
+
+5. Explicacao do codigo: `userId` liga o perfil a uma conta. O `unique: true` impede que a mesma conta tenha dois perfis.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 5 - Criar ou editar `server/src/validators/profile.validator.js`
+
+1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/profile.validator.js` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `server/src/validators/profile.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/validators/profile.validator.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Criar este ficheiro em `server/src/validators/profile.validator.js`.
+
+```js
+import { AppError } from "../middlewares/error.middleware.js";
+import { GENDERS, SKIN_TYPES } from "../models/profile.model.js";
+
+function normalizeText(value) {
+    return String(value ?? "").trim();
+}
+
+function normalizeList(value) {
+    if (!Array.isArray(value)) return [];
+
+    return [
+        ...new Set(
+            value
+                .map((item) => normalizeText(item).toLowerCase())
+                .filter(Boolean),
+        ),
+    ];
+}
+
+export function validateCreateProfileInput(body) {
+    const input = {
+        nome: normalizeText(body.nome),
+        idade: Number(body.idade),
+        tipoDePele: normalizeText(body.tipoDePele).toLowerCase(),
+        genero: normalizeText(body.genero).toLowerCase(),
+        objetivos: normalizeList(body.objetivos),
+    };
+
+    const errors = {};
+
+    if (input.nome.length < 2 || input.nome.length > 80) {
+        errors.nome = "Nome deve ter entre 2 e 80 caracteres";
+    }
+
+    if (
+        !Number.isInteger(input.idade) ||
+        input.idade < 13 ||
+        input.idade > 120
+    ) {
+        errors.idade = "Idade deve ser um numero inteiro entre 13 e 120";
+    }
+
+    if (!SKIN_TYPES.includes(input.tipoDePele)) {
+        errors.tipoDePele = `Tipo de pele deve ser um destes: ${SKIN_TYPES.join(", ")}`;
+    }
+
+    if (!GENDERS.includes(input.genero)) {
+        errors.genero = `Genero deve ser um destes: ${GENDERS.join(", ")}`;
+    }
+
+    if (input.objetivos.length === 0 || input.objetivos.length > 5) {
+        errors.objetivos = "Indica entre 1 e 5 objetivos";
+    }
+
+    if (Object.keys(errors).length > 0) {
+        throw new AppError(400, "Dados de perfil invalidos", errors);
+    }
+
+    return input;
+}
+```
+
+5. Explicacao do codigo: o validator transforma dados vindos do frontend em dados previsiveis. Isto ajuda recomendacoes futuras sem criar campos fora do RF.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 6 - Criar ou editar `server/src/services/profile.service.js`
+
+1. Objetivo simples do passo: implementar o ficheiro `server/src/services/profile.service.js` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `server/src/services/profile.service.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/services/profile.service.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Criar este ficheiro em `server/src/services/profile.service.js`.
+
+```js
+import { Profile } from "../models/profile.model.js";
+import { AppError } from "../middlewares/error.middleware.js";
+
+function toProfileResponse(profile) {
+    return {
+        id: profile._id.toString(),
+        userId: profile.userId.toString(),
+        nome: profile.nome,
+        idade: profile.idade,
+        tipoDePele: profile.tipoDePele,
+        genero: profile.genero,
+        objetivos: profile.objetivos,
+        createdAt: profile.createdAt,
+        updatedAt: profile.updatedAt,
+    };
+}
+
+export async function createMyProfile(userId, input) {
+    const existing = await Profile.findOne({ userId }).select("_id");
+
+    if (existing) {
+        throw new AppError(409, "Este utilizador ja tem perfil");
+    }
+
+    const profile = await Profile.create({
+        userId,
+        ...input,
+    });
+
+    return toProfileResponse(profile);
+}
+
+export async function getMyProfile(userId) {
+    const profile = await Profile.findOne({ userId });
+
+    if (!profile) {
+        throw new AppError(404, "Perfil ainda nao criado");
+    }
+
+    return toProfileResponse(profile);
+}
+```
+
+5. Explicacao do codigo: o service usa sempre `userId` vindo da sessao. O frontend nunca escolhe para quem esta a criar perfil.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 7 - Criar ou editar `server/src/controllers/profile.controller.js`
+
+1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/profile.controller.js` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `server/src/controllers/profile.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/controllers/profile.controller.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Criar este ficheiro em `server/src/controllers/profile.controller.js`.
+
+```js
+import { createMyProfile, getMyProfile } from "../services/profile.service.js";
+import { validateCreateProfileInput } from "../validators/profile.validator.js";
+
+export async function createMyProfileController(req, res, next) {
+    try {
+        const input = validateCreateProfileInput(req.body);
+        const profile = await createMyProfile(req.user.id, input);
+
+        return res.status(201).json({ profile });
+    } catch (err) {
+        return next(err);
+    }
+}
+
+export async function getMyProfileController(req, res, next) {
+    try {
+        const profile = await getMyProfile(req.user.id);
+
+        return res.status(200).json({ profile });
+    } catch (err) {
+        return next(err);
+    }
+}
+```
+
+5. Explicacao do codigo: o controller recebe o pedido autenticado e chama o service. A propriedade `req.user.id` vem do `requireAuth`.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 8 - Criar ou editar `server/src/routes/profile.routes.js`
+
+1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/profile.routes.js` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `server/src/routes/profile.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/routes/profile.routes.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Criar este ficheiro em `server/src/routes/profile.routes.js`.
+
+```js
+import { Router } from "express";
+import { requireAuth } from "../middlewares/auth.middleware.js";
+import {
+    createMyProfileController,
+    getMyProfileController,
+} from "../controllers/profile.controller.js";
+
+export const profileRoutes = Router();
+
+profileRoutes.get("/me", requireAuth, getMyProfileController);
+profileRoutes.post("/me", requireAuth, createMyProfileController);
+```
+
+5. Explicacao do codigo: a rota usa `/me` para reforcar que o perfil pertence ao utilizador autenticado, nao a um ID enviado pelo cliente.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 9 - Criar ou editar `server/src/app.js`
+
+1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `server/src/app.js`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Editar `server/src/app.js` e substituir pelo ficheiro completo abaixo, preservando autenticação do `BK-MF0-02` e montando o perfil neste BK.
+
+```js
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express from "express";
+import { env } from "./config/env.js";
+import { authRoutes } from "./routes/auth.routes.js";
+import { profileRoutes } from "./routes/profile.routes.js";
+import { errorMiddleware } from "./middlewares/error.middleware.js";
+
+export function createApp() {
+    const app = express();
+
+    app.use(cors({ origin: env.clientOrigin, credentials: true }));
+    app.use(express.json());
+    app.use(cookieParser());
+
+    app.get("/api/health", (req, res) => {
+        res.json({ status: "ok", app: "orelle" });
+    });
+
+    app.use("/api/auth", authRoutes);
+    app.use("/api/profile", profileRoutes);
+
+    app.use(errorMiddleware);
+
+    return app;
+}
+```
+
+5. Explicacao do codigo: o ficheiro continua a criar a app Express completa. O perfil entra depois de `/api/auth`, porque as rotas de perfil usam `requireAuth` e precisam da sessão já configurada no BK anterior.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 10 - Criar ou editar `client/src/pages/ProfileSetupPage.jsx`
+
+1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/ProfileSetupPage.jsx` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `client/src/pages/ProfileSetupPage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `client/src/pages/ProfileSetupPage.jsx`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Criar este ficheiro em `client/src/pages/ProfileSetupPage.jsx`.
+
+```jsx
+import { useState } from "react";
+import { apiRequest } from "../services/apiClient.js";
+
+const initialForm = {
+    nome: "",
+    idade: "",
+    tipoDePele: "mista",
+    genero: "prefiro_nao_dizer",
+    objetivosTexto: "hidratar",
+};
+
+export function ProfileSetupPage() {
+    const [form, setForm] = useState(initialForm);
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    function updateField(event) {
+        setForm((current) => ({
+            ...current,
+            [event.target.name]: event.target.value,
+        }));
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        setLoading(true);
+        setMessage("");
+
+        const objetivos = form.objetivosTexto
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+        try {
+            await apiRequest("/profile/me", {
+                method: "POST",
+                body: JSON.stringify({
+                    nome: form.nome,
+                    idade: Number(form.idade),
+                    tipoDePele: form.tipoDePele,
+                    genero: form.genero,
+                    objetivos,
+                }),
+            });
+
+            setMessage("Perfil criado com sucesso");
+        } catch (err) {
+            setMessage(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return (
+        <main>
+            <h1>Perfil Orélle</h1>
+            <form onSubmit={handleSubmit}>
+                <label>
+                    Nome
+                    <input
+                        name="nome"
+                        value={form.nome}
+                        onChange={updateField}
+                        required
+                    />
+                </label>
+
+                <label>
+                    Idade
+                    <input
+                        name="idade"
+                        type="number"
+                        min="13"
+                        max="120"
+                        value={form.idade}
+                        onChange={updateField}
+                        required
+                    />
+                </label>
+
+                <label>
+                    Tipo de pele
+                    <select
+                        name="tipoDePele"
+                        value={form.tipoDePele}
+                        onChange={updateField}
+                    >
+                        <option value="oleosa">Oleosa</option>
+                        <option value="seca">Seca</option>
+                        <option value="mista">Mista</option>
+                        <option value="normal">Normal</option>
+                        <option value="sensivel">Sensivel</option>
+                    </select>
+                </label>
+
+                <label>
+                    Genero
+                    <select
+                        name="genero"
+                        value={form.genero}
+                        onChange={updateField}
+                    >
+                        <option value="feminino">Feminino</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="nao_binario">Nao binario</option>
+                        <option value="prefiro_nao_dizer">
+                            Prefiro nao dizer
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Objetivos separados por virgula
+                    <input
+                        name="objetivosTexto"
+                        value={form.objetivosTexto}
+                        onChange={updateField}
+                    />
+                </label>
+
+                <button type="submit" disabled={loading}>
+                    {loading ? "A guardar..." : "Guardar perfil"}
+                </button>
+            </form>
+
+            {message && <p role="status">{message}</p>}
+        </main>
+    );
+}
+```
+
+5. Explicacao do codigo: a UI recolhe campos simples e transforma objetivos separados por virgula num array, que e o formato esperado pelo backend.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 11 - Criar ou editar `client/src/App.jsx`
+
+1. Objetivo simples do passo: implementar o ficheiro `client/src/App.jsx` no contrato deste BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: `client/src/App.jsx` conforme indicado na frase abaixo.
+    - LOCALIZACAO: `client/src/App.jsx`.
+    - REVER: imports, exports e ficheiros que este bloco referencia.
+3. O que fazer: usa o codigo completo abaixo; se o ficheiro ja existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
+4. Codigo completo, correto e integrado:
+
+Editar `client/src/App.jsx` para expor a pagina de perfil enquanto ainda nao ha routing final.
+
+```jsx
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { LoginPage } from "./pages/LoginPage.jsx";
+import { ProfileSetupPage } from "./pages/ProfileSetupPage.jsx";
+import { RegisterPage } from "./pages/RegisterPage.jsx";
+
+export function App() {
+    return (
+        <AuthProvider>
+            <RegisterPage />
+            <LoginPage />
+            <ProfileSetupPage />
+        </AuthProvider>
+    );
+}
+```
+
+5. Explicacao do codigo: por agora as paginas podem estar juntas para demonstracao. Navegacao completa pode ser refinada numa fase UI posterior.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 12 - Validar payloads e respostas esperadas
+
+1. Objetivo simples do passo: testar o contrato HTTP que a UI e os BKs seguintes vao usar.
+2. Ficheiros envolvidos:
+    - CRIAR: nenhum ficheiro novo.
+    - EDITAR: nenhum ficheiro neste passo, salvo se a resposta real nao bater com o contrato documentado.
+    - LOCALIZACAO: executar pedidos contra os endpoints implementados nos passos anteriores.
+    - REVER: routes, controllers, validators e services deste BK.
+3. O que fazer: usar os exemplos abaixo para confirmar pedidos validos, respostas de sucesso e erros esperados.
+4. Codigo completo, correto e integrado: os payloads abaixo fazem parte do contrato de API e devem bater com o codigo implementado.
+5. Explicacao didatica e detalhada: payloads mostram ao aluno como o frontend comunica com o backend e que mensagens a app deve apresentar.
+6. Como validar: executar os pedidos com cliente HTTP ou teste automatizado e comparar status code e JSON.
+7. Erro comum ou cenario negativo: mudar nomes de campos no backend sem atualizar frontend e testes cria erros dificeis de diagnosticar.
+
+Pedido valido:
+
+```http
+POST /api/profile/me
+Cookie: orelle_session=...
+Content-Type: application/json
+
+{
+  "nome": "Marta Silva",
+  "idade": 18,
+  "tipoDePele": "mista",
+  "genero": "feminino",
+  "objetivos": ["hidratar", "reduzir oleosidade"]
+}
+```
+
+Resposta `201`:
+
+```json
+{
+    "profile": {
+        "id": "66b000000000000000000001",
+        "userId": "66a000000000000000000001",
+        "nome": "Marta Silva",
+        "idade": 18,
+        "tipoDePele": "mista",
+        "genero": "feminino",
+        "objetivos": ["hidratar", "reduzir oleosidade"]
+    }
+}
+```
+
+Erro sem sessao `401`:
+
+```json
+{
+    "error": {
+        "message": "Autenticacao obrigatoria"
+    }
+}
+```
+
+Erro de perfil duplicado `409`:
+
+```json
+{
+    "error": {
+        "message": "Este utilizador ja tem perfil"
+    }
+}
+```
+
+### Passo 13 - Criar testes minimos
+
+1. Objetivo simples do passo: provar que o comportamento principal e os cenarios negativos funcionam antes de entregar o BK.
+2. Ficheiros envolvidos:
+    - CRIAR/EDITAR: ficheiro de teste indicado abaixo.
+    - LOCALIZACAO: pasta de testes do backend ou frontend indicada no proprio passo.
+    - REVER: validators, services, controllers e rotas usados pelo teste.
+3. O que fazer: criar o teste completo abaixo e correr a suite.
+4. Codigo completo, correto e integrado: o teste abaixo deve acompanhar o codigo real, nao ser apenas exemplo solto.
+5. Explicacao didatica e detalhada: testes ajudam o aluno a perceber o que significa terminar um BK: nao basta escrever codigo, e preciso provar o comportamento.
+6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
+7. Erro comum ou cenario negativo: testar apenas o caminho feliz deixa falhas de seguranca e validacao por descobrir.
+
+Criar este ficheiro em `server/tests/profile.test.js`.
+
+```js
+import { describe, expect, it, vi } from "vitest";
+import request from "supertest";
+import { createApp } from "../src/app.js";
+import { Profile } from "../src/models/profile.model.js";
+import { createSessionToken } from "../src/services/session.service.js";
+
+vi.mock("../src/models/profile.model.js", async () => {
+    const actual = await vi.importActual("../src/models/profile.model.js");
+    return {
+        ...actual,
+        Profile: {
+            findOne: vi.fn(),
+            create: vi.fn(),
+        },
+    };
+});
+
+describe("BK-MF0-03 / RF03 - perfil", () => {
+    it("cria perfil autenticado", async () => {
+        Profile.findOne.mockReturnValueOnce({
+            select: vi.fn().mockResolvedValue(null),
+        });
+        Profile.create.mockResolvedValueOnce({
+            _id: { toString: () => "profile-1" },
+            userId: { toString: () => "user-1" },
+            nome: "Marta Silva",
+            idade: 18,
+            tipoDePele: "mista",
+            genero: "feminino",
+            objetivos: ["hidratar"],
+        });
+
+        const token = createSessionToken({
+            id: "user-1",
+            email: "marta@orelle.test",
+            role: "cliente",
+        });
+
+        const response = await request(createApp())
+            .post("/api/profile/me")
+            .set("Cookie", [`orelle_session=${token}`])
+            .send({
+                nome: "Marta Silva",
+                idade: 18,
+                tipoDePele: "mista",
+                genero: "feminino",
+                objetivos: ["hidratar"],
+            });
+
+        expect(response.status).toBe(201);
+        expect(response.body.profile.userId).toBe("user-1");
+    });
+
+    it("bloqueia pedido sem sessao", async () => {
+        const response = await request(createApp())
+            .post("/api/profile/me")
+            .send({});
+
+        expect(response.status).toBe(401);
+    });
+
+    it("rejeita tipo de pele invalido", async () => {
+        const token = createSessionToken({
+            id: "user-1",
+            email: "marta@orelle.test",
+            role: "cliente",
+        });
+
+        const response = await request(createApp())
+            .post("/api/profile/me")
+            .set("Cookie", [`orelle_session=${token}`])
+            .send({
+                nome: "Marta Silva",
+                idade: 18,
+                tipoDePele: "diagnostico-medico",
+                genero: "feminino",
+                objetivos: ["hidratar"],
+            });
+
+        expect(response.status).toBe(400);
+    });
+});
+```
+
+5. Explicacao do codigo: os testes provam criacao autenticada, bloqueio sem sessao e rejeicao de dados fora do contrato.
+6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
+7. Erro comum ou cenario negativo: colocar este codigo noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+
+### Passo 14 - Confirmar bloqueios e decisoes antes do PR
+
+1. Objetivo simples do passo: identificar decisoes que nao podem ser inventadas durante a implementacao.
+2. Ficheiros envolvidos:
+    - CRIAR: nenhum ficheiro de aplicacao.
+    - EDITAR: apenas documentos canonicos se a decisao alterar contrato, scope ou politica.
+    - LOCALIZACAO: rever os pontos abaixo antes de abrir PR.
+    - REVER: README, RF, RNF, backlog, matriz e guias dependentes.
+3. O que fazer: se algum bloqueio se aplicar, parar a implementacao real e atualizar primeiro a fonte documental correta.
+4. Codigo completo, correto e integrado: este passo nao adiciona codigo; protege a coerencia do codigo ja escrito.
+5. Explicacao didatica e detalhada: alunos nao devem preencher lacunas com suposicoes, sobretudo quando ha dados sensiveis, roles ou contratos usados por outros BKs.
+6. Como validar: confirmar que nao ficou nenhuma decisao implicita no codigo.
+7. Erro comum ou cenario negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, seguranca ou o handoff de fases seguintes.
+
+Se a equipa quiser recolher alergias, doencas, medicamentos, fotografias ou diagnostico neste ecran, deve parar. Esses dados nao pertencem a `RF03` e exigem atualizacao documental noutros BKs (`BK-MF4-08`, `BK-MF1-05`, `BK-MF7-01`).
+
+### Evidence para PR/defesa
+
+- Criacao de perfil com resposta `201`.
+- Tentativa sem cookie com resposta `401`.
+- Tentativa com tipo de pele invalido com resposta `400`.
+- Screenshot da UI com feedback claro.
+- Nota de defesa: perfil prepara personalizacao futura, mas nao executa diagnostico medico, IA facial ou recomendacoes avancadas.
+
+### Handoff para BK-MF0-04
+
+O proximo BK deve editar este mesmo documento `Profile`, sem criar outro modelo paralelo e sem aceitar alterar `userId` ou `role`.
+
 ## Changelog
+
 - `2026-04-14`: guia normalizado para contrato canonico comum.
 - `2026-05-25`: guia refinado para perfil personalizado executável.
+- `2026-05-29`: tutorial linear integrado com modelo Profile, rotas protegidas, UI, payloads, testes e limites de scope.
+- `2026-05-29`: estrutura corrigida para tutorial linear integrado, com codigo, explicacao, validacao e negativo no passo onde sao usados.

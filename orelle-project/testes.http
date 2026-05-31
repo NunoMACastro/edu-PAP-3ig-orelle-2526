@@ -79,6 +79,9 @@ Erro sem sessao `401`:
 {
     "error": {
         "message": "Autenticacao obrigatoria"
+{
+    "error": {
+        "message": "Credenciais invalidas"
     }
 }
 ```
@@ -137,5 +140,15 @@ Tentativa de upload real bloqueada `403`:
 {
     "error": {
         "message": "Upload real de fotografia bloqueado neste BK; usar stub_url ate existir consentimento e storage seguro"
+
+
+{
+    "error": {
+        "message": "Autenticacao obrigatoria"
     }
 }
+
+
+Logout:
+POST http://127.0.0.1:5000/api/auth/logout 
+
