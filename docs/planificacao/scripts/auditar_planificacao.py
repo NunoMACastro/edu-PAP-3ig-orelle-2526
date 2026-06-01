@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 import re
 import json
+import sys
 from collections import Counter, defaultdict
 from datetime import date
 
@@ -29,6 +30,38 @@ NEG_POLICY = {"P0": 3, "P1": 2, "P2": 1}
 
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def normalize_for_contract(text: str) -> str:
+    replacements = str.maketrans(
+        {
+            "á": "a",
+            "à": "a",
+            "ã": "a",
+            "â": "a",
+            "é": "e",
+            "ê": "e",
+            "í": "i",
+            "ó": "o",
+            "õ": "o",
+            "ô": "o",
+            "ú": "u",
+            "ç": "c",
+            "Á": "A",
+            "À": "A",
+            "Ã": "A",
+            "Â": "A",
+            "É": "E",
+            "Ê": "E",
+            "Í": "I",
+            "Ó": "O",
+            "Õ": "O",
+            "Ô": "O",
+            "Ú": "U",
+            "Ç": "C",
+        }
+    )
+    return text.translate(replacements)
 
 
 def extract_codes(path: Path, prefix: str) -> list[str]:
@@ -148,6 +181,7 @@ def extract_macro_navigation_entries(backlog_text: str) -> list[dict[str, str]]:
 
 
 def has_required_blocks(text: str) -> bool:
+    normalized = normalize_for_contract(text)
     required = [
         "## Bloco pedagogico",
         "### Objetivo",
@@ -163,7 +197,7 @@ def has_required_blocks(text: str) -> bool:
         "## Criterios de aceite",
         "## Evidence para PR/defesa",
     ]
-    return all(section in text for section in required)
+    return all(section in normalized for section in required)
 
 
 def has_non_placeholder_snippet(text: str) -> bool:
@@ -174,25 +208,26 @@ def has_non_placeholder_snippet(text: str) -> bool:
 
 
 def extract_negative_policy_blocks(text: str) -> dict[str, int | None]:
+    normalized = normalize_for_contract(text)
     blocks: dict[str, int | None] = {
         "step_min": None,
         "validacao_min": None,
         "criterio_min": None,
         "snippet_guard_min": None,
     }
-    m_step = re.search(r"Executar cenarios negativos obrigatorios \(minimo (\d+)\)", text)
+    m_step = re.search(r"Executar cenarios negativos obrigatorios \(minimo (\d+)\)", normalized)
     if m_step:
         blocks["step_min"] = int(m_step.group(1))
 
-    m_valid = re.search(r"^- \[ \] Negativos:\s*minimo `?(\d+)`?\s+cenarios", text, flags=re.MULTILINE)
+    m_valid = re.search(r"^- \[ \] Negativos:\s*minimo `?(\d+)`?\s+cenarios", normalized, flags=re.MULTILINE)
     if m_valid:
         blocks["validacao_min"] = int(m_valid.group(1))
 
-    m_crit = re.search(r"Cenarios negativos concluidos:\s*minimo `?(\d+)`?", text)
+    m_crit = re.search(r"Cenarios negativos concluidos:\s*minimo `?(\d+)`?", normalized)
     if m_crit:
         blocks["criterio_min"] = int(m_crit.group(1))
 
-    m_snippet = re.search(r"negativos\s*<\s*(\d+)", text)
+    m_snippet = re.search(r"negativos\s*<\s*(\d+)", normalized)
     if m_snippet:
         blocks["snippet_guard_min"] = int(m_snippet.group(1))
     return blocks
@@ -494,9 +529,11 @@ def main() -> None:
         for patt in GENERIC_GUIDE_PATTERNS:
             if patt.search(text):
                 guide_content_issues.append({"bk_id": bk_id, "issue": f"generic_guide_pattern:{patt.pattern}"})
-        if "### Matriz minima de testes por prioridade" not in text:
+        normalized_text = normalize_for_contract(text)
+
+        if "### Matriz minima de testes por prioridade" not in normalized_text:
             guide_content_issues.append({"bk_id": bk_id, "issue": "missing_test_matrix_section"})
-        if "Evidencia de testes por camada" not in text:
+        if "Evidencia de testes por camada" not in normalized_text:
             guide_content_issues.append({"bk_id": bk_id, "issue": "missing_test_layer_acceptance"})
 
         prioridade = row["prioridade"]
@@ -694,6 +731,7 @@ def main() -> None:
     }
 
     print(json.dumps(result, indent=2, ensure_ascii=False))
+    sys.exit(0 if result["status"]["overall_pass"] else 1)
 
 
 if __name__ == "__main__":
