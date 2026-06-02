@@ -52,6 +52,7 @@ function makeCategory(overrides = {}) {
         name: "Limpeza",
         slug: "limpeza",
         description: "",
+        isActive: true,
         ...overrides,
     };
 }
@@ -89,6 +90,7 @@ describe("BK-MF0-08 / RF08 - categorias", () => {
         expect(response.status).toBe(200);
         expect(response.body.categories).toHaveLength(1);
         expect(response.body.categories[0].slug).toBe("limpeza");
+        expect(response.body.categories[0].isActive).toBe(true);
     });
 
     it("cria categoria por endpoint admin", async () => {
@@ -101,6 +103,7 @@ describe("BK-MF0-08 / RF08 - categorias", () => {
 
         expect(response.status).toBe(201);
         expect(response.body.category.slug).toBe("limpeza");
+        expect(response.body.category.isActive).toBe(true);
     });
 
     it("associa categorias existentes a produto existente", async () => {
@@ -138,6 +141,18 @@ describe("BK-MF0-08 / RF08 - categorias", () => {
             .send({ categoryIds: [categoryId] });
 
         expect(response.status).toBe(404);
+    });
+
+    it("rejeita productId malformado por endpoint", async () => {
+        const response = await request(createApp())
+            .patch("/api/admin/products/produto-invalido/categories")
+            .set("Cookie", [`orelle_session=${makeToken()}`])
+            .send({ categoryIds: [categoryId] });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.message).toBe("ID de produto invalido");
+        expect(Category.countDocuments).not.toHaveBeenCalled();
+        expect(Product.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
     it("bloqueia cliente em endpoints admin de categorias", async () => {

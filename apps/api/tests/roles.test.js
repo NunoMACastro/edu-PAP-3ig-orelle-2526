@@ -17,6 +17,9 @@ vi.mock("../src/models/user.model.js", () => ({
     },
 }));
 
+const targetUserId = "66e000000000000000000001";
+const missingUserId = "66e000000000000000000002";
+
 /**
  * Executa um middleware Express num teste unitario.
  *
@@ -60,7 +63,7 @@ describe("BK-MF0-05 / RF05 - roles", () => {
 
     it("admin altera role por endpoint", async () => {
         User.findByIdAndUpdate.mockResolvedValueOnce({
-            _id: { toString: () => "user-2" },
+            _id: { toString: () => targetUserId },
             email: "consultor@orelle.test",
             role: ROLES.CONSULTOR,
             updatedAt: new Date("2026-05-29T10:00:00.000Z"),
@@ -73,7 +76,7 @@ describe("BK-MF0-05 / RF05 - roles", () => {
         });
 
         const response = await request(createApp())
-            .patch("/api/admin/users/user-2/role")
+            .patch(`/api/admin/users/${targetUserId}/role`)
             .set("Cookie", [`orelle_session=${token}`])
             .send({ role: ROLES.CONSULTOR });
 
@@ -89,7 +92,7 @@ describe("BK-MF0-05 / RF05 - roles", () => {
         });
 
         const response = await request(createApp())
-            .patch("/api/admin/users/user-2/role")
+            .patch(`/api/admin/users/${targetUserId}/role`)
             .set("Cookie", [`orelle_session=${token}`])
             .send({ role: ROLES.CONSULTOR });
 
@@ -98,7 +101,7 @@ describe("BK-MF0-05 / RF05 - roles", () => {
 
     it("endpoint admin sem sessão devolve 401", async () => {
         const response = await request(createApp())
-            .patch("/api/admin/users/user-2/role")
+            .patch(`/api/admin/users/${targetUserId}/role`)
             .send({ role: ROLES.CONSULTOR });
 
         expect(response.status).toBe(401);
@@ -112,11 +115,28 @@ describe("BK-MF0-05 / RF05 - roles", () => {
         });
 
         const response = await request(createApp())
-            .patch("/api/admin/users/user-2/role")
+            .patch(`/api/admin/users/${targetUserId}/role`)
             .set("Cookie", [`orelle_session=${token}`])
             .send({ role: "moderador" });
 
         expect(response.status).toBe(400);
+    });
+
+    it("rejeita ID de utilizador malformado por endpoint", async () => {
+        const token = createSessionToken({
+            id: "admin-1",
+            email: "admin@orelle.test",
+            role: ROLES.ADMIN,
+        });
+
+        const response = await request(createApp())
+            .patch("/api/admin/users/user-invalido/role")
+            .set("Cookie", [`orelle_session=${token}`])
+            .send({ role: ROLES.CONSULTOR });
+
+        expect(response.status).toBe(400);
+        expect(response.body.error.message).toBe("ID de utilizador invalido");
+        expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
     });
 
     it("devolve 404 quando utilizador alvo nao existe", async () => {
@@ -129,7 +149,7 @@ describe("BK-MF0-05 / RF05 - roles", () => {
         });
 
         const response = await request(createApp())
-            .patch("/api/admin/users/user-404/role")
+            .patch(`/api/admin/users/${missingUserId}/role`)
             .set("Cookie", [`orelle_session=${token}`])
             .send({ role: ROLES.CONSULTOR });
 

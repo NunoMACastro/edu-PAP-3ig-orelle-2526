@@ -4,6 +4,7 @@
  * Implementa criacao, seed idempotente e associacao de categorias a produtos no
  * BK-MF0-08.
  */
+import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
 import { Category } from "../models/category.model.js";
 import { Product } from "../models/product.model.js";
@@ -13,7 +14,7 @@ import { Product } from "../models/product.model.js";
  *
  * @function toCategoryResponse
  * @param {object} category - Documento Mongoose ou mock equivalente.
- * @returns {{id: string, name: string, slug: string, description: string}} Categoria segura.
+ * @returns {{id: string, name: string, slug: string, description: string, isActive: boolean}} Categoria segura.
  */
 function toCategoryResponse(category) {
     return {
@@ -21,6 +22,7 @@ function toCategoryResponse(category) {
         name: category.name,
         slug: category.slug,
         description: category.description,
+        isActive: category.isActive ?? true,
     };
 }
 
@@ -93,6 +95,10 @@ export async function seedCategory(input) {
  * @throws {AppError} Quando alguma categoria ou produto nao existe.
  */
 export async function assignCategoriesToProduct(productId, categoryIds) {
+    if (!mongoose.isValidObjectId(productId)) {
+        throw new AppError(400, "ID de produto invalido");
+    }
+
     const found = await Category.countDocuments({ _id: { $in: categoryIds } });
 
     if (found !== categoryIds.length) {

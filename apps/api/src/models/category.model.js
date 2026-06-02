@@ -36,6 +36,10 @@ const categorySchema = new Schema(
             trim: true,
             maxlength: 300,
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
     },
     { timestamps: true },
 );

@@ -35,6 +35,10 @@ const userSchema = new Schema(
             enum: ROLE_VALUES,
             default: ROLES.CLIENTE,
         },
+        isActive: {
+            type: Boolean,
+            default: true,
+        },
     },
     { timestamps: true },
 );

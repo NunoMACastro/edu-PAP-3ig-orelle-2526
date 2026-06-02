@@ -4,6 +4,7 @@
  * Implementa a alteracao de role do BK-MF0-05, protegida pelas rotas admin e
  * limitada aos valores canonicos definidos em `roles.js`.
  */
+import mongoose from "mongoose";
 import { ROLE_VALUES } from "../constants/roles.js";
 import { AppError } from "../middlewares/error.middleware.js";
 import { User } from "../models/user.model.js";
@@ -36,6 +37,10 @@ function toSafeUser(user) {
 export async function updateUserRole({ targetUserId, role, actorUserId }) {
     if (!ROLE_VALUES.includes(role)) {
         throw new AppError(400, "Role invalida");
+    }
+
+    if (!mongoose.isValidObjectId(targetUserId)) {
+        throw new AppError(400, "ID de utilizador invalido");
     }
 
     if (targetUserId === actorUserId) {
