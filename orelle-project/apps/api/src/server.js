@@ -3,7 +3,7 @@ import { connectDB } from "./config/db.js";
 import { env } from "./config/env.js";
 import { createApp } from "./app.js";
 
-await connectDB();
+//await connectDB();
 
 const app = createApp();
 

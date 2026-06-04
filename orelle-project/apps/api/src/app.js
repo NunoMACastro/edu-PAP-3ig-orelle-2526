@@ -9,6 +9,8 @@ import { adminCategoriesRoutes } from "./routes/admin-categories.routes.js";
 import { preferencesRoutes } from "./routes/preferences.routes.js";
 import { profileRoutes } from "./routes/profile.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { catalogRoutes } from "./routes/catalog.routes.js";
+
 
 export function createApp() {
     const app = express();
@@ -23,6 +25,7 @@ export function createApp() {
 
     app.use("/api/auth", authRoutes);
     app.use("/api/profile", profileRoutes);
+    app.use("/api/catalog", catalogRoutes);
     app.use("/api/preferences", preferencesRoutes);
     app.use("/api/admin", adminUsersRoutes);
     app.use("/api/admin", adminProductsRoutes);
