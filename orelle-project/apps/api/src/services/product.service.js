@@ -1,6 +1,6 @@
 import { Product } from "../models/product.model.js";
 
-// 1. A tua função original (para a administração/criação de produtos)
+
 function toProductResponse(product) {
     return {
         id: product._id.toString(),
@@ -19,7 +19,7 @@ function toProductResponse(product) {
     };
 }
 
-// 2. A nova função de resposta pública (para o catálogo - esconde createdBy e timestamps)
+
 function toPublicProductResponse(product) {
     return {
         id: product._id.toString(),
@@ -39,7 +39,7 @@ function escapeRegexText(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// 3. A tua função original de criar produtos (continua intacta)
+
 export async function createProduct(input, adminUserId) {
     const product = await Product.create({
         ...input,
@@ -49,7 +49,7 @@ export async function createProduct(input, adminUserId) {
     return toProductResponse(product);
 }
 
-// 4. A nova função de listagem que o Controller estava desesperadamente a procurar!
+
 export async function listCatalogProducts(filters) {
     const query = {};
 
@@ -88,4 +88,36 @@ export async function listCatalogProducts(filters) {
         .limit(40);
 
     return products.map(toPublicProductResponse);
+}
+
+import { AppError } from "../middlewares/error.middleware.js";
+
+function toProductDetailResponse(product) {
+    return {
+        id: product._id.toString(),
+        name: product.name,
+        brandName: product.brandName,
+        description: product.description,
+        ingredientNames: product.ingredientNames,
+        skinTypes: product.skinTypes,
+        imageUrl: product.imageUrl,
+        priceCents: product.priceCents,
+        stock: product.stock,
+        categoryIds: product.categoryIds.map((id) => id.toString()),
+        reviewSummary: {
+            averageRating: 0,
+            totalReviews: 0,
+        },
+        relatedProducts: [],
+    };
+}
+
+export async function getCatalogProductDetails(productId) {
+    const product = await Product.findById(productId);
+
+    if (!product) {
+        throw new AppError(404, "Produto não encontrado");
+    }
+
+    return toProductDetailResponse(product);
 }

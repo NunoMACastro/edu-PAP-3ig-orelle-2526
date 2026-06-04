@@ -8,10 +8,15 @@ import { PreferencesPage } from "./pages/PreferencesPage.jsx";
 import { ProfileSetupPage } from "./pages/ProfileSetupPage.jsx";
 import { RegisterPage } from "./pages/RegisterPage.jsx";
 import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
+import { ProductDetailsPage } from "./pages/ProductDetailsPage.jsx";
+import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
+
 
 export function App() {
     return (
         <AuthProvider>
+            <ProductSearchPage />
+            <ProductDetailsPage />
             <ProductSearchPage />
             <RegisterPage />
             <LoginPage />
