@@ -12,7 +12,7 @@ import { ProductDetailsPage } from "./pages/ProductDetailsPage.jsx";
 import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
 import { ProductReviewPage } from "./pages/ProductReviewPage.jsx";
 import { RelatedProductsPage } from "./pages/RelatedProductsPage.jsx";
-
+import { FacePhotoUploadPage } from "./pages/FacePhotoUploadPage.jsx";
 export function App() {
     return (
         <AuthProvider>
@@ -21,6 +21,7 @@ export function App() {
             <ProductSearchPage />
             <ProductReviewPage />
             <RelatedProductsPage />
+            <FacePhotoUploadPage />
             <RegisterPage />
             <LoginPage />
             <ProfileSetupPage />

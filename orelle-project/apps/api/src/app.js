@@ -10,7 +10,7 @@ import { preferencesRoutes } from "./routes/preferences.routes.js";
 import { profileRoutes } from "./routes/profile.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { catalogRoutes } from "./routes/catalog.routes.js";
-
+import { facePhotoRoutes } from "./routes/face-photo.routes.js";
 
 export function createApp() {
     const app = express();
@@ -30,7 +30,7 @@ export function createApp() {
     app.use("/api/admin", adminUsersRoutes);
     app.use("/api/admin", adminProductsRoutes);
     app.use("/api/admin", adminCategoriesRoutes);
-
+    app.use("/api", facePhotoRoutes);
     app.use(errorMiddleware);
 
     return app;
