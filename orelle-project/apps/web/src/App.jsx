@@ -24,6 +24,7 @@ export function App() {
             <RelatedProductsPage />
             <FacePhotoUploadPage />
             <FaceAnalysisPage />
+            <FaceReportPage />
             <RegisterPage />
             <LoginPage />
             <ProfileSetupPage />
