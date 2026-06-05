@@ -11,7 +11,7 @@ import { profileRoutes } from "./routes/profile.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { catalogRoutes } from "./routes/catalog.routes.js";
 import { facePhotoRoutes } from "./routes/face-photo.routes.js";
-
+import { faceAnalysisRoutes } from "./routes/face-analysis.routes.js";
 export function createApp() {
     const app = express();
 
@@ -32,6 +32,7 @@ export function createApp() {
     app.use("/api/admin", adminCategoriesRoutes);
     app.use("/api", facePhotoRoutes);
     app.use(errorMiddleware);
+    app.use("/api", faceAnalysisRoutes);
 
     return app;
 }

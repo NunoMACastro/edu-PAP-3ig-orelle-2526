@@ -1,0 +1,60 @@
+import mongoose from "mongoose";
+
+const { Schema, model } = mongoose;
+
+const findingSchema = new Schema(
+    {
+        label: { type: String, required: true },
+        confidence: { type: Number, required: true, min: 0, max: 1 },
+        explanation: { type: String, required: true },
+    },
+    { _id: false },
+);
+
+const faceAnalysisSchema = new Schema(
+    {
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true,
+        },
+        photoIds: {
+            type: [Schema.Types.ObjectId],
+            ref: "FacePhoto",
+            required: true,
+        },
+        consentId: {
+            type: Schema.Types.ObjectId,
+            ref: "FaceConsent",
+            required: true,
+        },
+        providerName: {
+            type: String,
+            required: true,
+        },
+        findings: {
+            skinType: findingSchema,
+            acne: findingSchema,
+            manchas: findingSchema,
+            rugas: findingSchema,
+            oleosidade: findingSchema,
+        },
+        sources: {
+            type: [String],
+            required: true,
+        },
+        limitations: {
+            type: [String],
+            required: true,
+        },
+        status: {
+            type: String,
+            enum: ["completed", "failed"],
+            default: "completed",
+        },
+    },
+    { timestamps: true },
+);
+
+export const FaceAnalysis = model("FaceAnalysis", faceAnalysisSchema);
