@@ -13,6 +13,8 @@ import { catalogRoutes } from "./routes/catalog.routes.js";
 import { facePhotoRoutes } from "./routes/face-photo.routes.js";
 import { faceAnalysisRoutes } from "./routes/face-analysis.routes.js";
 import { faceReportRoutes } from "./routes/face-report.routes.js";
+import { skinHistoryRoutes } from "./routes/skin-history.routes.js";
+
 
 export function createApp() {
     const app = express();
@@ -36,5 +38,6 @@ export function createApp() {
     app.use(errorMiddleware);
     app.use("/api", faceAnalysisRoutes);
     app.use("/api", faceReportRoutes);
+    app.use("/api", skinHistoryRoutes);
     return app;
 }
