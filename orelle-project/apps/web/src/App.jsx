@@ -11,6 +11,7 @@ import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
 import { ProductDetailsPage } from "./pages/ProductDetailsPage.jsx";
 import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
 import { ProductReviewPage } from "./pages/ProductReviewPage.jsx";
+import { RelatedProductsPage } from "./pages/RelatedProductsPage.jsx";
 
 export function App() {
     return (
@@ -19,6 +20,7 @@ export function App() {
             <ProductDetailsPage />
             <ProductSearchPage />
             <ProductReviewPage />
+            <RelatedProductsPage />
             <RegisterPage />
             <LoginPage />
             <ProfileSetupPage />

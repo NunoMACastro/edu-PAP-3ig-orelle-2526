@@ -8,6 +8,8 @@ import {
     createProductReviewController,
     listProductReviewsController,
 } from "../controllers/review.controller.js";
+import { listRelatedProductsController } from "../controllers/related-products.controller.js";
+
 
 export const catalogRoutes = Router();
 
@@ -17,7 +19,10 @@ catalogRoutes.get(
     "/products/:productId/reviews",
     listProductReviewsController,
 );
-
+catalogRoutes.get(
+    "/products/:productId/related",
+    listRelatedProductsController,
+);
 catalogRoutes.post(
     "/products/:productId/reviews",
     requireAuth,
