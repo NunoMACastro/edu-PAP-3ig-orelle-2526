@@ -10,7 +10,7 @@ import { RegisterPage } from "./pages/RegisterPage.jsx";
 import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
 import { ProductDetailsPage } from "./pages/ProductDetailsPage.jsx";
 import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
-
+import { ProductReviewPage } from "./pages/ProductReviewPage.jsx";
 
 export function App() {
     return (
@@ -18,6 +18,7 @@ export function App() {
             <ProductSearchPage />
             <ProductDetailsPage />
             <ProductSearchPage />
+            <ProductReviewPage />
             <RegisterPage />
             <LoginPage />
             <ProfileSetupPage />

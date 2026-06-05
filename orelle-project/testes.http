@@ -152,3 +152,6 @@ Content-Type: application/json
 #         }
 #     }
 # }
+
+### Testar ID de Produto Inválido
+GET http://localhost:5000/api/catalog/products/abc
