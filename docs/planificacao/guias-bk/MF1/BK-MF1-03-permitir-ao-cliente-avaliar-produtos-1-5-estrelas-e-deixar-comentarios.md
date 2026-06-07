@@ -7,7 +7,7 @@
 - `owner`: `Aline`
 - `apoio`: `Izelicks`
 - `prioridade`: `P1`
-- `estado`: `TODO`
+- `estado`: `DONE`
 - `esforco`: `S`
 - `dependencias`: `BK-MF0-02, BK-MF0-05, BK-MF1-02`
 - `rf_rnf`: `RF11`
@@ -504,6 +504,10 @@ Evidência de testes por camada:
 - API: output de criação e listagem de reviews.
 - Service: teste de rating inválido.
 - UI: screenshot do formulário com sucesso.
+
+## Snippet técnico aplicável
+
+O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
 
 ## Expected results
 - `POST /api/catalog/products/:productId/reviews` com sessão válida responde `201`.

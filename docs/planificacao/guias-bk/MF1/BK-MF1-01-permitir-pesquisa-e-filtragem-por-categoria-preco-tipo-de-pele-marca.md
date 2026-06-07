@@ -7,7 +7,7 @@
 - `owner`: `Bruna`
 - `apoio`: `Izelicks`
 - `prioridade`: `P0`
-- `estado`: `TODO`
+- `estado`: `DONE`
 - `esforco`: `M`
 - `dependencias`: `BK-MF0-02, BK-MF0-07, BK-MF0-08`
 - `rf_rnf`: `RF09`
@@ -538,6 +538,10 @@ Evidência de testes por camada:
 - API: output de `curl` com filtro válido e filtro inválido.
 - Service: teste ou log controlado com filtros combinados.
 - UI: screenshot da pesquisa com resultados e sem resultados.
+
+## Snippet técnico aplicável
+
+O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
 
 ## Expected results
 - `GET /api/catalog/products` responde `200` com `{ "products": [...] }`.

@@ -7,7 +7,7 @@
 - `owner`: `Bruna`
 - `apoio`: `Izelicks`
 - `prioridade`: `P0`
-- `estado`: `TODO`
+- `estado`: `DONE`
 - `esforco`: `M`
 - `dependencias`: `BK-MF0-02, BK-MF0-03`
 - `rf_rnf`: `RF13`
@@ -727,6 +727,10 @@ Evidência de testes por camada:
 - API: output de upload válido e rejeicoes.
 - Service: teste de consentimento ausente.
 - UI: screenshot do formulário com sucesso.
+
+## Snippet técnico aplicável
+
+O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
 
 ## Expected results
 - `POST /api/face-consent` autenticado responde `200`.

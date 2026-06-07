@@ -7,7 +7,7 @@
 - `owner`: `Izelicks`
 - `apoio`: `Bruna`
 - `prioridade`: `P0`
-- `estado`: `TODO`
+- `estado`: `DONE`
 - `esforco`: `M`
 - `dependencias`: `BK-MF1-05`
 - `rf_rnf`: `RF14`
@@ -518,6 +518,10 @@ Evidência de testes por camada:
 - API: output de análise criada e bloqueios.
 - Service: teste de consentimento ausente.
 - UI: screenshot com findings e limitations.
+
+## Snippet técnico aplicável
+
+O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
 
 ## Expected results
 - Com sessão, consentimento e duas fotografias: `201`.

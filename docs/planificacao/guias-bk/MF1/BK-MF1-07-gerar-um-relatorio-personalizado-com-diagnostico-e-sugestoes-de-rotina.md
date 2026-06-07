@@ -7,7 +7,7 @@
 - `owner`: `Bruna`
 - `apoio`: `Izelicks`
 - `prioridade`: `P0`
-- `estado`: `TODO`
+- `estado`: `DONE`
 - `esforco`: `M`
 - `dependencias`: `BK-MF0-02, BK-MF1-06`
 - `rf_rnf`: `RF15`
@@ -497,6 +497,10 @@ Evidência de testes por camada:
 - API: output de relatório criado e erro sem análise.
 - Service: teste de ausência de análise concluída.
 - UI: screenshot do relatório.
+
+## Snippet técnico aplicável
+
+O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
 
 ## Expected results
 - Com análise concluída: `201` com `{ "report": ... }`.

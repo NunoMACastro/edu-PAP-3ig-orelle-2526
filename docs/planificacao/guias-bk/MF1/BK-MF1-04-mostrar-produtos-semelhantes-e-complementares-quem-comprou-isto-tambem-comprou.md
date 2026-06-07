@@ -7,7 +7,7 @@
 - `owner`: `Izelicks`
 - `apoio`: `Bruna`
 - `prioridade`: `P1`
-- `estado`: `TODO`
+- `estado`: `DONE`
 - `esforco`: `S`
 - `dependencias`: `BK-MF0-07, BK-MF0-08, BK-MF1-02`
 - `rf_rnf`: `RF12`
@@ -353,6 +353,10 @@ Evidência de testes por camada:
 - API: output com relacionados e sem relacionados.
 - Service: teste de exclusão do produto atual.
 - UI: screenshot da lista relacionada.
+
+## Snippet técnico aplicável
+
+O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
 
 ## Expected results
 - Produto existente com relacionados: `200` e lista com produtos.

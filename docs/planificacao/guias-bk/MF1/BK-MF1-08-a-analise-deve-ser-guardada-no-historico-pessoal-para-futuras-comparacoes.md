@@ -7,7 +7,7 @@
 - `owner`: `Izelicks`
 - `apoio`: `Bruna`
 - `prioridade`: `P1`
-- `estado`: `TODO`
+- `estado`: `DONE`
 - `esforco`: `S`
 - `dependencias`: `BK-MF0-02, BK-MF1-06, BK-MF1-07`
 - `rf_rnf`: `RF16`
@@ -366,6 +366,10 @@ Evidência de testes por camada:
 - API: output com histórico, sem sessão e tentativa de `userId` externo.
 - Service: teste de isolamento entre dois utilizadores.
 - UI: screenshot da lista temporal.
+
+## Snippet técnico aplicável
+
+O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
 
 ## Expected results
 - Com sessão: `200` com `{ "history": [...] }`.

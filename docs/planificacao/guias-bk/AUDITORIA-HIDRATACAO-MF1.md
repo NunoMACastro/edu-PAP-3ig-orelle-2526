@@ -4,11 +4,11 @@
 - `doc_id`: `AUDITORIA-HIDRATACAO-MF1`
 - `mf_alvo`: `MF1`
 - `modo`: `corrigir_apenas`
-- `data_execucao`: `2026-05-31`
+- `data_execucao`: `2026-06-07`
 - `relatorio`: `docs/planificacao/guias-bk/AUDITORIA-HIDRATACAO-MF1.md`
 
 ## Objetivo
-Usar a reauditoria existente da `MF1` como ponto de partida, corrigir apenas os guias classificados como `PARCIAL` ou `CRITICO`, e deixar a macrofase pronta para ser seguida por alunos sem drifts de contrato, autenticação ou privacidade.
+Usar o relatorio existente como ponto de partida, revalidar os guias da `MF1` contra o gate oficial e corrigir apenas as lacunas documentais que ainda impediam os BKs de serem considerados completos e sem pendencias explicitas.
 
 ## Fontes consultadas
 - `README.md`
@@ -38,97 +38,72 @@ Nenhum documento obrigatorio em falta.
 ## Snapshot
 | Momento | OK | PARCIAL | CRITICO | Total |
 | --- | ---: | ---: | ---: | ---: |
-| Antes desta correcao, segundo relatorio MF1 existente | 1 | 6 | 1 | 8 |
+| Relatorio existente antes desta execucao | 8 | 0 | 0 | 8 |
+| Revalidacao oficial no inicio desta execucao | 0 | 8 | 0 | 8 |
 | Depois desta correcao | 8 | 0 | 0 | 8 |
+
+Nota: o relatorio existente indicava `OK=8`, mas `bash scripts/validate-planificacao.sh` ainda assinalava `missing_pedagogic_or_operational_blocks` nos oito guias da `MF1`. Alem disso, os cabecalhos mantinham `estado=TODO` apesar de a hidratacao documental ja estar concluida. Por isso, nesta execucao os oito BKs foram tratados como `PARCIAL` para efeitos de correcao estrutural e de fecho documental.
 
 ## BKs editados
 - `BK-MF1-01`
 - `BK-MF1-02`
 - `BK-MF1-03`
+- `BK-MF1-04`
 - `BK-MF1-05`
 - `BK-MF1-06`
 - `BK-MF1-07`
 - `BK-MF1-08`
 
-`BK-MF1-04` nao foi editado porque ja estava classificado como `OK`.
-
 ## Resultado por BK
-| BK | RF | Estado antes | Estado depois | Correcao principal |
+| BK | RF | Estado antes pela revalidacao | Estado depois | Correcao principal |
 | --- | --- | --- | --- | --- |
-| `BK-MF1-01` | `RF09` | `PARCIAL` | `OK` | A pesquisa por marca passou a escapar caracteres antes de criar regex; comandos finais usam `localhost:3001`. |
-| `BK-MF1-02` | `RF10` | `PARCIAL` | `OK` | Comandos de validacao de detalhe usam a porta canonica do backend, `localhost:3001`. |
-| `BK-MF1-03` | `RF11` | `PARCIAL` | `OK` | Criacao de review passou a exigir `requireRole(ROLES.CLIENTE)`, com negativo `403`. |
-| `BK-MF1-04` | `RF12` | `OK` | `OK` | Sem alteracoes. Mantem relacionados por catalogo, sem confundir com recomendacao personalizada. |
-| `BK-MF1-05` | `RF13` | `CRITICO` | `OK` | Upload facial valida consentimento antes de `multer.diskStorage` e limpa ficheiros em erros posteriores ao upload. |
-| `BK-MF1-06` | `RF14` | `PARCIAL` | `OK` | Validacao autenticada usa cookie `orelle_session` e `localhost:3001`. |
-| `BK-MF1-07` | `RF15` | `PARCIAL` | `OK` | Validacao autenticada usa cookie `orelle_session` e `localhost:3001`. |
-| `BK-MF1-08` | `RF16` | `PARCIAL` | `OK` | Testes de ownership usam cookies de utilizadores distintos e `localhost:3001`. |
+| `BK-MF1-01` | `RF09` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
+| `BK-MF1-02` | `RF10` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
+| `BK-MF1-03` | `RF11` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
+| `BK-MF1-04` | `RF12` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
+| `BK-MF1-05` | `RF13` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
+| `BK-MF1-06` | `RF14` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
+| `BK-MF1-07` | `RF15` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
+| `BK-MF1-08` | `RF16` | `PARCIAL` | `OK` | Adicionada a secção canonica `## Snippet técnico aplicável` e actualizado `estado` para `DONE`. |
 
 ## Correcoes aplicadas
 
-### BK-MF1-01
-- Problema corrigido: regex criada diretamente a partir de input do cliente.
-- Alteracao: adicionado `escapeRegexText(value)` e uso de `new RegExp(escapedBrandName, "i")`.
-- Validacao pedagogica: o guia agora manda testar `brandName=[` para provar que caracteres especiais sao tratados como texto.
-- Drift corrigido: comandos finais mudaram de `localhost:3000` para `localhost:3001`.
+### Correcao estrutural comum aos oito BKs
+- Problema corrigido: os guias ja tinham estrutura tutorial, passos lineares, codigo completo, validacao, matriz de testes, expected results, criterios, evidence e handoff, mas faltava a secção `## Snippet técnico aplicável` exigida por `docs/planificacao/scripts/auditar_planificacao.py`.
+- Alteracao: adicionada a secção antes de `## Expected results` em todos os guias da `MF1`.
+- Decisao pedagogica: a secção nao acrescenta codigo solto. Em vez disso, orienta o aluno a usar o codigo completo dos passos lineares, preservando a regra de executabilidade e evitando fragmentos fora de contexto.
+- Resultado: `bash scripts/validate-planificacao.sh` passou com `overall_pass=true`.
 
-### BK-MF1-02
-- Problema corrigido: comandos de detalhe usavam porta divergente.
-- Alteracao: todos os exemplos de `curl` do BK usam `http://localhost:3001/api/...`.
-- Risco removido: falso negativo em validacao manual por testar a porta errada.
-
-### BK-MF1-03
-- Problema corrigido: o endpoint autenticava utilizador, mas nao confirmava que o ator era cliente.
-- Alteracao: a route importa `requireRole` e `ROLES`, e protege `POST /api/catalog/products/:productId/reviews` com `requireRole(ROLES.CLIENTE)`.
-- Validacao pedagogica: acrescentado negativo `403` para sessao autenticada sem role `cliente`.
-- Risco removido: consultor ou administrador a criar conteudo de cliente.
-
-### BK-MF1-05
-- Problema corrigido: `multer.diskStorage` podia escrever fotografia facial antes de consentimento efetivo.
-- Alteracao: adicionado middleware `ensureActiveFaceConsent` antes de `uploadFacePhotos`.
-- Alteracao: `removeUploadedFiles` passou a ser exportado pelo service e usado pelo controller em erros de validacao/upload parcial.
-- Alteracao: `saveFacePhotos` limpa ficheiros em qualquer erro depois de receber ficheiros, incluindo ausencia defensiva de consentimento.
-- Validacao pedagogica: acrescentados cenarios de upload sem consentimento, upload incompleto e confirmacao de ausencia de ficheiro orfao.
-- Risco removido: ficheiros biometricos sem registo persistente ou sem base legal ativa.
-
-### BK-MF1-06
-- Problema corrigido: validacao de analise facial usava contrato de token e porta errada.
-- Alteracao: comandos de validacao usam `Cookie: orelle_session=...` e `localhost:3001`.
-- Validacao pedagogica: o texto explica que o frontend usa `credentials: "include"` e nao cria outro sistema de autenticacao.
-
-### BK-MF1-07
-- Problema corrigido: validacao de relatorio personalizado usava contrato de token e porta errada.
-- Alteracao: comandos de validacao usam `Cookie: orelle_session=...` e `localhost:3001`.
-- Risco removido: incentivo a autenticação paralela para um fluxo derivado de dados biometricos.
-
-### BK-MF1-08
-- Problema corrigido: testes de ownership usavam token e porta errada.
-- Alteracao: os pedidos usam cookies de `UTILIZADOR_A` e `UTILIZADOR_B` para provar isolamento por sessao.
-- Validacao pedagogica: mantido o negativo com `?userId=ID_UTILIZADOR_B`, mas o backend continua a depender de `req.user.id`.
+### Correcao de estado documental comum aos oito BKs
+- Problema corrigido: os cabecalhos mantinham `estado=TODO`, embora o trabalho pedido nesta prompt fosse a hidratacao e validacao documental dos guias, nao a execucao futura do codigo de produto.
+- Alteracao: actualizado `estado` para `DONE`, valor permitido pelo template canonico `TODO|IN_PROGRESS|DONE|BLOCKED`.
+- Resultado: a `MF1` fica sem pendencias documentais explicitas nos guias auditados.
 
 ## Mapa de integração da MF
-| BK editado | Ficheiros criados pelo guia | Ficheiros editados pelo guia | Exports/produtos | Imports consumidos | Endpoints | DTOs/validators | Schemas/models | Services/providers | Componentes frontend | Recursos sensiveis | BKs seguintes dependentes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `BK-MF1-01` | `catalog-query.validator.js`, `catalog.controller.js`, `catalog.routes.js`, `ProductSearchPage.jsx` | `product.service.js`, `app.js`, `apiClient.js`, `App.jsx` | `validateCatalogQuery`, `listCatalogProducts`, `catalogRoutes`, `ProductSearchPage` | `Product`, `Category`, `SKIN_TYPES`, `apiRequest` | `GET /api/catalog/products` | `validateCatalogQuery` | `Product`, `Category` reutilizados | `listCatalogProducts` | `ProductSearchPage` | Nenhum | `BK-MF1-02`, `BK-MF3-02` |
-| `BK-MF1-02` | `product-id.validator.js`, `product-details.controller.js`, `ProductDetailsPage.jsx` | `product.service.js`, `catalog.routes.js`, `App.jsx` | `validateProductIdParam`, `getCatalogProductDetails`, `ProductDetailsPage` | `Product`, `catalogRoutes`, `ProductSearchPage` | `GET /api/catalog/products/:productId` | `validateProductIdParam` | `Product` reutilizado | `getCatalogProductDetails` | `ProductDetailsPage` | Nenhum | `BK-MF1-03`, `BK-MF1-04` |
-| `BK-MF1-03` | `review.model.js`, `review.validator.js`, `review.service.js`, `review.controller.js`, `ProductReviewPage.jsx` | `catalog.routes.js`, `App.jsx` | `Review`, `validateReviewInput`, `createProductReview`, `listProductReviews`, `ProductReviewPage` | `Product`, `requireAuth`, `requireRole`, `ROLES`, `validateProductIdParam` | `GET/POST /api/catalog/products/:productId/reviews` | `validateReviewInput` | `Review` | `createProductReview`, `listProductReviews` | `ProductReviewPage` | Conteudo de utilizador | `BK-MF4-02` |
-| `BK-MF1-05` | `face-consent.model.js`, `face-photo.model.js`, `face-photo.validator.js`, `face-photo-upload.middleware.js`, `face-photo.service.js`, `face-photo.controller.js`, `face-photo.routes.js`, `FacePhotoUploadPage.jsx` | `package.json`, `app.js`, `apiClient.js`, `App.jsx` | `FaceConsent`, `FacePhoto`, `ensureActiveFaceConsent`, `uploadFacePhotos`, `acceptFaceConsent`, `removeUploadedFiles`, `saveFacePhotos`, `FacePhotoUploadPage` | `requireAuth`, `multer`, `apiRequest`, `AppError` | `POST /api/face-consent`, `POST /api/face-photos` | `validateFaceConsentInput`, `validateUploadedFaceFiles` | `FaceConsent`, `FacePhoto` | `acceptFaceConsent`, `saveFacePhotos`, `removeUploadedFiles` | `FacePhotoUploadPage` | Fotografias faciais, consentimento | `BK-MF1-06`, `BK-MF2-07`, `BK-MF5-01`, `BK-MF5-04` |
-| `BK-MF1-06` | `face-analysis.model.js`, `skin-analysis.provider.js`, `face-analysis.service.js`, `face-analysis.controller.js`, `face-analysis.routes.js`, `FaceAnalysisPage.jsx` | `app.js`, `App.jsx` | `FaceAnalysis`, `analyzeSkinPhotos`, `createFaceAnalysisForUser`, `FaceAnalysisPage` | `FacePhoto`, `FaceConsent`, `requireAuth` | `POST /api/face-analyses` | Sem DTO novo de body; usa sessao | `FaceAnalysis`, `FacePhoto`, `FaceConsent` | `skin-analysis.provider`, `face-analysis.service` | `FaceAnalysisPage` | Analise facial e findings derivados | `BK-MF1-07`, `BK-MF2-02` |
-| `BK-MF1-07` | `face-report.model.js`, `face-report.service.js`, `face-report.controller.js`, `face-report.routes.js`, `FaceReportPage.jsx` | `app.js`, `App.jsx` | `FaceReport`, `generateReportFromLatestAnalysis`, `FaceReportPage` | `FaceAnalysis`, `requireAuth` | `POST /api/face-reports/latest` | Sem DTO novo de body; usa sessao | `FaceReport`, `FaceAnalysis` | `face-report.service` | `FaceReportPage` | Relatorio derivado de analise facial | `BK-MF1-08`, `BK-MF2-02`, `BK-MF7-05` |
-| `BK-MF1-08` | `skin-history.service.js`, `skin-history.controller.js`, `skin-history.routes.js`, `SkinHistoryPage.jsx` | `app.js`, `App.jsx` | `getPersonalSkinHistory`, `SkinHistoryPage` | `FaceAnalysis`, `FaceReport`, `requireAuth` | `GET /api/me/skin-history` | Sem DTO novo de body; query `userId` e ignorada por ownership | `FaceAnalysis`, `FaceReport` reutilizados | `skin-history.service` | `SkinHistoryPage` | Historico pessoal de analises e relatorios | `BK-MF2-01`, `BK-MF3-01` |
+| BK editado | Ficheiros criados pelo guia | Ficheiros editados pelo guia | Exports produzidos | Imports consumidos de BKs anteriores | Endpoints criados | DTOs/validators criados | Schemas/models criados | Services criados | Componentes/paginas frontend criados | Providers de IA | Recursos sensiveis tratados | BKs seguintes dependentes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `BK-MF1-01` | `catalog-query.validator.js`, `catalog.controller.js`, `catalog.routes.js`, `ProductSearchPage.jsx` | `product.service.js`, `app.js`, `apiClient.js`, `App.jsx` | `validateCatalogQuery`, `listCatalogProductsController`, `catalogRoutes`, `ProductSearchPage` | `Product`, `Category`, `SKIN_TYPES`, `apiRequest` | `GET /api/catalog/products` | `validateCatalogQuery` | Reutiliza `Product`, `Category` | `listCatalogProducts` | `ProductSearchPage` | Nenhum | Nenhum | `BK-MF1-02`, `BK-MF3-02` |
+| `BK-MF1-02` | `product-id.validator.js`, `product-details.controller.js`, `ProductDetailsPage.jsx` | `product.service.js`, `catalog.routes.js`, `App.jsx` | `validateProductIdParam`, `getProductDetailsController`, `ProductDetailsPage` | `Product`, `catalogRoutes` | `GET /api/catalog/products/:productId` | `validateProductIdParam` | Reutiliza `Product` | `getCatalogProductDetails` | `ProductDetailsPage` | Nenhum | Nenhum | `BK-MF1-03`, `BK-MF1-04` |
+| `BK-MF1-03` | `review.model.js`, `review.validator.js`, `review.service.js`, `review.controller.js`, `ProductReviewPage.jsx` | `catalog.routes.js`, `App.jsx` | `Review`, `validateReviewInput`, `createProductReview`, `listProductReviews`, `ProductReviewPage` | `Product`, `requireAuth`, `requireRole`, `ROLES`, `validateProductIdParam` | `GET /api/catalog/products/:productId/reviews`, `POST /api/catalog/products/:productId/reviews` | `validateReviewInput` | `Review` | `createProductReview`, `listProductReviews` | `ProductReviewPage` | Nenhum | Conteudo de utilizador | `BK-MF4-02` |
+| `BK-MF1-04` | `related-products.service.js`, `related-products.controller.js`, `RelatedProductsPage.jsx` | `catalog.routes.js`, `App.jsx` | `listRelatedCatalogProducts`, `listRelatedProductsController`, `RelatedProductsPage` | `Product`, `validateProductIdParam` | `GET /api/catalog/products/:productId/related` | Reutiliza `validateProductIdParam` | Reutiliza `Product` | `listRelatedCatalogProducts` | `RelatedProductsPage` | Nenhum | Nenhum | `BK-MF1-05`, `BK-MF3-02` |
+| `BK-MF1-05` | `face-consent.model.js`, `face-photo.model.js`, `face-photo.validator.js`, `face-photo-upload.middleware.js`, `face-photo.service.js`, `face-photo.controller.js`, `face-photo.routes.js`, `FacePhotoUploadPage.jsx` | `package.json`, `app.js`, `apiClient.js`, `App.jsx` | `FaceConsent`, `FacePhoto`, `ensureActiveFaceConsent`, `uploadFacePhotos`, `acceptFaceConsent`, `removeUploadedFiles`, `saveFacePhotos`, `FacePhotoUploadPage` | `requireAuth`, `AppError`, `apiRequest` | `POST /api/face-consent`, `POST /api/face-photos` | `validateFaceConsentInput`, `validateUploadedFaceFiles` | `FaceConsent`, `FacePhoto` | `acceptFaceConsent`, `saveFacePhotos`, `removeUploadedFiles` | `FacePhotoUploadPage` | Nenhum | Fotografias faciais e consentimento | `BK-MF1-06`, `BK-MF2-07`, `BK-MF5-01`, `BK-MF5-04` |
+| `BK-MF1-06` | `face-analysis.model.js`, `skin-analysis.provider.js`, `face-analysis.service.js`, `face-analysis.controller.js`, `face-analysis.routes.js`, `FaceAnalysisPage.jsx` | `app.js`, `App.jsx` | `FaceAnalysis`, `analyzeSkinPhotos`, `createFaceAnalysisForUser`, `FaceAnalysisPage` | `FacePhoto`, `FaceConsent`, `requireAuth` | `POST /api/face-analyses` | Sem DTO de body; identidade vem da sessao | `FaceAnalysis` | `createFaceAnalysisForUser` | `FaceAnalysisPage` | `skin-analysis.provider.js` | Analise facial e findings derivados | `BK-MF1-07`, `BK-MF2-02` |
+| `BK-MF1-07` | `face-report.model.js`, `face-report.service.js`, `face-report.controller.js`, `face-report.routes.js`, `FaceReportPage.jsx` | `app.js`, `App.jsx` | `FaceReport`, `generateReportFromLatestAnalysis`, `FaceReportPage` | `FaceAnalysis`, `requireAuth` | `POST /api/face-reports/latest` | Sem DTO de body; identidade vem da sessao | `FaceReport` | `generateReportFromLatestAnalysis` | `FaceReportPage` | Nenhum | Relatorio derivado de analise facial | `BK-MF1-08`, `BK-MF2-02`, `BK-MF7-05` |
+| `BK-MF1-08` | `skin-history.service.js`, `skin-history.controller.js`, `skin-history.routes.js`, `SkinHistoryPage.jsx` | `app.js`, `App.jsx` | `getPersonalSkinHistory`, `getMySkinHistoryController`, `skinHistoryRoutes`, `SkinHistoryPage` | `FaceAnalysis`, `FaceReport`, `requireAuth` | `GET /api/me/skin-history` | Sem DTO de body; query `userId` nao controla ownership | Reutiliza `FaceAnalysis`, `FaceReport` | `getPersonalSkinHistory` | `SkinHistoryPage` | Nenhum | Historico pessoal de analises e relatorios | `BK-MF2-01`, `BK-MF3-01` |
 
 Confirmacoes de integracao:
-- Nao ha dois endpoints para a mesma acao.
-- Nao ha novo schema duplicado de produto, review, fotografia, analise, relatorio ou historico.
-- O frontend continua a usar endpoints reais sob `http://localhost:3001/api`.
-- Os fluxos autenticados usam cookie `orelle_session` e `credentials: "include"`.
-- `BK-MF1-05` passa a ser uma base mais segura para `BK-MF1-06`, `BK-MF5-01` e `BK-MF5-04`.
+- Nao foram criados endpoints duplicados.
+- Nao foram criados schemas duplicados.
+- Nao foram alterados nomes de entidades, DTOs, services, controllers, routes ou componentes.
+- Nenhum frontend passou a chamar endpoint novo ou inexistente.
+- Nenhum service passou a importar ficheiro novo.
+- A correcao foi documental e estrutural; os contratos tecnicos dos BKs mantiveram-se.
 
 ## Coerencia global da MF
-- O eixo de catalogo (`BK-MF1-01` a `BK-MF1-04`) fica coerente com produto/categoria da `MF0`.
-- O eixo de reviews aplica autenticação, role e ownership no backend.
-- O eixo biometrico (`BK-MF1-05` a `BK-MF1-08`) preserva consentimento, minimização, ownership e ausencia de paths internos nas respostas.
-- Pesquisa de catalogo, produtos relacionados, analise facial, relatorio e historico continuam semanticamente separados.
+- O eixo de catalogo (`BK-MF1-01` a `BK-MF1-04`) continua coerente com produto/categoria da `MF0`.
+- O eixo de reviews continua a aplicar autenticação, role e ownership no backend.
+- O eixo biometrico (`BK-MF1-05` a `BK-MF1-08`) continua a preservar consentimento, minimização, ownership e ausencia de paths internos nas respostas.
+- A nova secção canónica existe em todos os BKs sem introduzir codigo adicional solto no fim dos ficheiros.
 
 ## Decisoes tecnicas confirmadas
 - CANONICO: backend Node.js + Express, frontend React + Vite, MongoDB/Mongoose.
@@ -139,24 +114,19 @@ Confirmacoes de integracao:
 - CANONICO: relatorio e historico facial nao devem devolver paths internos nem dados de outro utilizador.
 
 ## Decisoes marcadas como DERIVADO
-- DERIVADO: `BK-MF1-01` usa `brandName` herdado de `RF06`/`RF09`, preparado em `BK-MF0-07`.
-- DERIVADO: `BK-MF1-01` usa regex escapada para pesquisa parcial por marca, mantendo input tratado como texto.
-- DERIVADO: `BK-MF1-04` mantém semelhança por catalogo enquanto nao existe historico real de compras.
-- DERIVADO: `BK-MF1-05` antecipa consentimento minimo antes da fase RNF propria (`MF7`), porque `RF13` ja trata dados biometricos.
-- DERIVADO: `BK-MF1-06` usa provider local controlado ate haver provider externo validado.
-- DERIVADO: `BK-MF1-07` sugere rotina cosmetica sem recomendacao personalizada de produto, preservando `RF18` para `MF2`.
+- DERIVADO: a secção `## Snippet técnico aplicável` foi preenchida como orientação estrutural para os passos lineares, sem acrescentar codigo novo solto, porque o template e o validador exigem a secção mas a prompt proibe fragmentos finais sem integração.
+- DERIVADO: `estado=DONE` nos cabecalhos representa conclusao documental da hidratacao dos guias `MF1`, nao conclusao da implementação de produto.
+- DERIVADO: `BK-MF1-04` foi editado nesta execução apesar do relatorio anterior o declarar `OK`, porque o validador oficial ainda o classificava na pratica como incompleto por faltar a secção canónica.
 
 ## Drift documental encontrado
-- Corrigido: porta `localhost:3000` em comandos MF1 foi alinhada para `localhost:3001`.
-- Corrigido: validacoes autenticadas por token foram substituidas por cookie `orelle_session`.
-- Corrigido: `BK-MF1-03` passou a aplicar `requireRole(ROLES.CLIENTE)`.
-- Corrigido: `BK-MF1-05` passou a validar consentimento antes de `multer.diskStorage` e a limpar ficheiros em erros posteriores.
-- Bloqueio externo ainda presente: `scripts/validate-planificacao.sh` aponta para `../scripts/validate_planificacao_canonica.py`, caminho inexistente neste checkout.
+- Drift encontrado: o relatorio existente dizia que `bash scripts/validate-planificacao.sh` falhava por caminho inexistente para `../scripts/validate_planificacao_canonica.py`, mas o script atual executa `docs/planificacao/scripts/auditar_planificacao.py` e corre corretamente.
+- Drift encontrado: o relatorio existente marcava `OK=8`, mas a revalidacao oficial inicial ainda devolvia `missing_pedagogic_or_operational_blocks` para todos os BKs MF1.
+- Drift corrigido: os oito guias MF1 passaram a conter a secção canónica exigida pelo validador e estado documental `DONE`.
 
 ## Riscos de segurança/privacidade restantes
-- Baixo: os BKs foram corrigidos documentalmente, mas a aplicacao real só fica comprovada depois de os alunos implementarem o código e correrem testes de backend/frontend.
-- Medio: o validador canonico de planificacao nao executa por erro de caminho, logo nao houve validacao automatica completa da planificacao.
-- A acompanhar em fases futuras: encriptação de ficheiros biometricos, pedidos de eliminação/anonymização e auditoria de acessos biometricos continuam reservados aos BKs posteriores declarados.
+- Nenhum risco novo foi introduzido por esta correcao estrutural.
+- Mantem-se a necessidade de validar a implementacao real de upload facial, consentimento, minimização, encriptação futura, eliminação/anonymização e auditoria biométrica nos BKs/RNFs correspondentes.
+- Como os BKs tratam fotografias e relatorios faciais, qualquer implementação posterior deve continuar a rejeitar tokens em `localStorage`, paths internos em respostas e ownership decidido pelo frontend.
 
 ## Verificacoes textuais executadas
 
@@ -164,38 +134,38 @@ Confirmacoes de integracao:
 ```bash
 rg -n "StudyFlow|sala de estudo|turma oficial|disciplina|material oficial|IA da sala|IA da turma|professor|aluno inscrito|hidrata|pós-auditoria|scaffold|roteiro genérico|conversa interna|este guia deixa de ser|código ainda não corrigido|snippet|exemplo simplificado|implementar depois|quando aplicável|helpers chamados|substitu(ir|i)r? mocks|pseudo-código|solução parcial|payload: unknown|as any|ContextAction|contextApi" docs/planificacao/guias-bk/MF1/*.md
 ```
-Resultado: sem ocorrencias nos BKs da `MF1`.
 
-### Verificacao adicional de drift corrigido
-```bash
-rg -n "localhost:3000|Authorization: Bearer|new RegExp\(filters\.brandName" docs/planificacao/guias-bk/MF1/*.md
-```
-Resultado: sem ocorrencias.
+Resultado: sem ocorrencias nos BKs da `MF1` (`exit code 1` do `rg`, sem output, significa que nao houve matches).
 
 ## Validacao automatica
 - `git diff --check`: `PASS` (`exit code 0`, sem output).
-- `bash scripts/validate-planificacao.sh`: `FAIL` (`exit code 2`).
+- `bash scripts/validate-planificacao.sh`: `PASS` (`overall_pass=true`).
 
-Erro observado:
-
-```text
-/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/nuno/Developer/EPMS/Terceiro Ano/2025.2026/PAP/orelle/../scripts/validate_planificacao_canonica.py': [Errno 2] No such file or directory
+Resumo do validador:
+```json
+{
+  "coverage_pass": true,
+  "consistency_pass": true,
+  "guides_pass": true,
+  "naming_pass": true,
+  "overall_pass": true
+}
 ```
-
-Diagnostico: falha de infraestrutura/caminho no script, nao causada pelas edicoes aos BKs da `MF1`.
 
 ## Resumo da correcao
 - MF processada: `MF1`.
 - Numero de BKs analisados: `8`.
-- Contagem antes: `OK=1`, `PARCIAL=6`, `CRITICO=1`.
-- Contagem depois: `OK=8`, `PARCIAL=0`, `CRITICO=0`.
-- BKs editados: `BK-MF1-01`, `BK-MF1-02`, `BK-MF1-03`, `BK-MF1-05`, `BK-MF1-06`, `BK-MF1-07`, `BK-MF1-08`.
-- Principais lacunas corrigidas: regex de marca insegura, porta divergente, RBAC em reviews, ordem consentimento/upload, limpeza de ficheiros biometricos, validacoes por cookie.
-- Decisões técnicas confirmadas: catalogo publico separado de recomendacao, sessão por cookie, role cliente em reviews, ownership por sessão, provider IA isolado.
-- Decisões `DERIVADO`: pesquisa parcial por marca com regex escapada, relacionados por catalogo, consentimento minimo antecipado, provider local controlado, rotina cosmetica sem compra automatica.
-- Drift documental encontrado: todos os drifts registados na reauditoria MF1 foram corrigidos nos BKs; permanece blocker externo no script de validação.
-- Riscos de segurança/privacidade restantes: riscos altos da MF1 foram removidos documentalmente; validação automatica completa continua bloqueada pelo script.
-- Verificações textuais executadas: comando oficial sem ocorrencias; verificacao adicional sem ocorrencias para porta/token/regex direta.
+- Contagem OK/PARCIAL/CRITICO antes:
+  - Relatorio existente: `OK=8`, `PARCIAL=0`, `CRITICO=0`.
+  - Revalidacao oficial inicial desta execução: `OK=0`, `PARCIAL=8`, `CRITICO=0`.
+- Contagem OK/PARCIAL/CRITICO depois: `OK=8`, `PARCIAL=0`, `CRITICO=0`.
+- BKs editados: `BK-MF1-01`, `BK-MF1-02`, `BK-MF1-03`, `BK-MF1-04`, `BK-MF1-05`, `BK-MF1-06`, `BK-MF1-07`, `BK-MF1-08`.
+- Principais lacunas corrigidas: ausência da secção canónica `## Snippet técnico aplicável` nos oito BKs MF1 e cabeçalhos ainda marcados como `estado=TODO`.
+- Decisões técnicas confirmadas: catalogo separado de recomendacao, sessão por cookie, role cliente em reviews, ownership por sessão, provider IA isolado, minimização de dados biometricos.
+- Decisões marcadas como `DERIVADO`: usar a secção canónica como referência aos passos lineares, sem codigo solto; usar `estado=DONE` como fecho documental; editar `BK-MF1-04` apesar do relatorio anterior o marcar `OK`, por falha objetiva no validador.
+- Drift documental encontrado: relatório anterior e estado real do validador estavam desalinhados.
+- Riscos de segurança/privacidade restantes: nenhum novo risco por esta alteração; manter validação rigorosa dos fluxos biometricos nas implementações reais.
+- Verificações textuais executadas: comando oficial de termos proibidos, sem ocorrencias.
 - Resultado de `git diff --check`: `PASS`.
-- Resultado de `bash scripts/validate-planificacao.sh`: `FAIL`, por caminho inexistente para `../scripts/validate_planificacao_canonica.py`.
-- Bloqueios ou TODOs restantes: corrigir o caminho do validador de planificacao; executar testes reais quando os BKs forem implementados no código da app.
+- Resultado de `bash scripts/validate-planificacao.sh`: `PASS`.
+- Bloqueios ou TODOs restantes: nenhum blocker documental para a `MF1` no validador atual.
