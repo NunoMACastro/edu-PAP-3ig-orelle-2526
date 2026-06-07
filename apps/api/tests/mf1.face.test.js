@@ -97,38 +97,38 @@ function makePhoto(kind, id, storageKey = `/tmp/${kind}.png`) {
 function makeAnalysis(overrides = {}) {
     return {
         _id: { toString: () => analysisId },
-        providerName: "local-fallback-skin-analysis-v1",
+        providerName: "local-skin-analysis-v1",
         findings: {
             skinType: {
-                label: "nao_conclusivo",
-                confidence: 0.25,
-                explanation: "x",
+                label: "mista",
+                confidence: 0.55,
+                explanation: "Estimativa cosmetica inicial.",
             },
             acne: {
-                label: "nao_conclusivo",
-                confidence: 0.25,
-                explanation: "x",
+                label: "baixo",
+                confidence: 0.5,
+                explanation: "Sinal cosmetico conservador.",
             },
             manchas: {
-                label: "nao_conclusivo",
-                confidence: 0.25,
-                explanation: "x",
+                label: "baixo",
+                confidence: 0.48,
+                explanation: "Sinal cosmetico conservador.",
             },
             rugas: {
-                label: "nao_conclusivo",
-                confidence: 0.25,
-                explanation: "x",
+                label: "baixo",
+                confidence: 0.47,
+                explanation: "Sinal cosmetico conservador.",
             },
             oleosidade: {
-                label: "nao_conclusivo",
-                confidence: 0.25,
-                explanation: "x",
+                label: "moderada",
+                confidence: 0.53,
+                explanation: "Estimativa cosmetica inicial.",
             },
         },
         sources: ["fotografia_frontal", "fotografia_perfil"],
         limitations: [
             "Não é diagnóstico médico.",
-            "Provider local fallback: valida pré-condições, mas não interpreta píxeis da imagem.",
+            "Resultado de provider local controlado com confiança baixa a moderada.",
         ],
         status: "completed",
         createdAt: new Date("2026-06-01T10:00:00.000Z"),
@@ -294,21 +294,27 @@ describe("MF1 - fluxo facial", () => {
         expect(response.body.photos[0].storageKey).toBeUndefined();
     });
 
-    it("mantem provider local fallback honesto e inconclusivo", async () => {
+    it("mantem provider local controlado com sinais cosmeticos", async () => {
         const analysis = await analyzeSkinPhotos({
             frontalPhoto: makePhoto("frontal", frontalId),
             perfilPhoto: makePhoto("perfil", perfilId),
         });
 
-        expect(analysis.providerName).toBe(
-            "local-fallback-skin-analysis-v1",
-        );
-        expect(analysis.findings.skinType.label).toBe("nao_conclusivo");
-        expect(analysis.findings.oleosidade.confidence).toBeLessThanOrEqual(
-            0.25,
+        expect(analysis.providerName).toBe("local-skin-analysis-v1");
+        expect(analysis.findings.skinType.label).toBe("mista");
+        expect(analysis.findings.acne.label).toBe("baixo");
+        expect(analysis.findings.oleosidade.label).toBe("moderada");
+        expect(analysis.findings.oleosidade.confidence).toBeGreaterThanOrEqual(
+            0.45,
         );
         expect(analysis.limitations.join(" ")).toContain(
-            "não interpreta píxeis",
+            "provider local controlado",
+        );
+        expect(Object.values(analysis.findings)).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ label: "mista" }),
+                expect.objectContaining({ label: "moderada" }),
+            ]),
         );
     });
 
@@ -328,21 +334,24 @@ describe("MF1 - fluxo facial", () => {
 
         expect(response.status).toBe(201);
         expect(response.body.analysis.providerName).toBe(
-            "local-fallback-skin-analysis-v1",
+            "local-skin-analysis-v1",
         );
         expect(response.body.analysis.limitations.join(" ")).toContain(
             "diagnóstico médico",
         );
         expect(FaceAnalysis.create).toHaveBeenCalledWith(
             expect.objectContaining({
-                providerName: "local-fallback-skin-analysis-v1",
+                providerName: "local-skin-analysis-v1",
                 findings: expect.objectContaining({
                     skinType: expect.objectContaining({
-                        label: "nao_conclusivo",
+                        label: "mista",
+                    }),
+                    oleosidade: expect.objectContaining({
+                        label: "moderada",
                     }),
                 }),
                 limitations: expect.arrayContaining([
-                    expect.stringContaining("não interpreta píxeis"),
+                    expect.stringContaining("provider local controlado"),
                 ]),
             }),
         );

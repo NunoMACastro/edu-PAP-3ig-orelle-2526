@@ -187,7 +187,7 @@ describe("MF1 - catalogo, reviews e relacionados", () => {
         );
 
         expect(response.status).toBe(200);
-        expect(response.body.relatedProducts[0].id).toBe(relatedProductId);
+        expect(response.body.products[0].id).toBe(relatedProductId);
         expect(Product.find).toHaveBeenCalledWith(
             expect.objectContaining({
                 _id: { $ne: expect.anything() },

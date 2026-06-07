@@ -12,14 +12,14 @@ import { validateProductIdParam } from "../validators/product-id.validator.js";
  * @param {import("express").Request} req - Pedido com `productId`.
  * @param {import("express").Response} res - Resposta Express.
  * @param {import("express").NextFunction} next - Proximo middleware.
- * @returns {Promise<import("express").Response|void>} Resposta com `relatedProducts`.
+ * @returns {Promise<import("express").Response|void>} Resposta com `products`.
  */
 export async function listRelatedProductsController(req, res, next) {
     try {
         const productId = validateProductIdParam(req.params);
-        const relatedProducts = await listRelatedCatalogProducts(productId);
+        const products = await listRelatedCatalogProducts(productId);
 
-        return res.status(200).json({ relatedProducts });
+        return res.status(200).json({ products });
     } catch (err) {
         return next(err);
     }

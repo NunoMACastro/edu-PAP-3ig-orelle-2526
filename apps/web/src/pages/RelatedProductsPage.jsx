@@ -34,8 +34,8 @@ export function RelatedProductsPage() {
             const data = await apiRequest(
                 `/catalog/products/${productId}/related`,
             );
-            setProducts(data.relatedProducts);
-            setStatus(data.relatedProducts.length === 0 ? "empty" : "success");
+            setProducts(data.products);
+            setStatus(data.products.length === 0 ? "empty" : "success");
         } catch (err) {
             setError(err.message);
             setStatus("error");
