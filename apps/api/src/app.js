@@ -21,7 +21,7 @@ import { profileRoutes } from "./routes/profile.routes.js";
 import { skinHistoryRoutes } from "./routes/skin-history.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { skinEvolutionRoutes } from "./routes/skin-evolution.routes.js";
-
+import { recommendationRoutes } from "./routes/recommendation.routes.js";
 /**
  * Cria e configura uma instancia Express da API Orélle.
  *
@@ -53,6 +53,7 @@ export function createApp() {
     app.use("/api/admin", adminCategoriesRoutes);
     app.use("/api", skinEvolutionRoutes);
     app.use(errorMiddleware);
+    app.use("/api", recommendationRoutes);
 
     return app;
 }
