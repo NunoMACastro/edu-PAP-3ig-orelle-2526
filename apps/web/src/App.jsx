@@ -22,7 +22,7 @@ import { RelatedProductsPage } from "./pages/RelatedProductsPage.jsx";
 import { RegisterPage } from "./pages/RegisterPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
-
+import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
@@ -48,6 +48,7 @@ function AppContent() {
             <FaceAnalysisPage />
             <FaceReportPage />
             <SkinHistoryPage />
+            <SkinEvolutionPage />
             {isAdmin && (
                 <>
                     <AdminProductCreatePage />
