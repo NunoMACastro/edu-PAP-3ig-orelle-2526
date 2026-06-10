@@ -52,6 +52,7 @@ export function createApp() {
     app.use("/api/admin", adminProductsRoutes);
     app.use("/api/admin", adminCategoriesRoutes);
     app.use("/api", skinEvolutionRoutes);
+    app.use("/api", recommendationRoutes);
     app.use(errorMiddleware);
     app.use("/api", recommendationRoutes);
 
