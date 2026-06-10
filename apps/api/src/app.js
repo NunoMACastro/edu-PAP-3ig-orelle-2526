@@ -24,6 +24,7 @@ import { skinEvolutionRoutes } from "./routes/skin-evolution.routes.js";
 import { recommendationRoutes } from "./routes/recommendation.routes.js";
 import { dailyRoutineRoutes } from "./routes/daily-routine.routes.js";
 import { recommendationReviewRoutes } from "./routes/recommendation-review.routes.js";
+import { makeupSimulationRoutes } from "./routes/makeup-simulation.routes.js";
 
 /**
  * Cria e configura uma instancia Express da API Orélle.
@@ -58,6 +59,7 @@ export function createApp() {
     app.use("/api", recommendationRoutes);
     app.use("/api", dailyRoutineRoutes);
     app.use("/api", recommendationReviewRoutes);
+    app.use("/api", makeupSimulationRoutes);
     app.use(errorMiddleware);
 
     return app;
