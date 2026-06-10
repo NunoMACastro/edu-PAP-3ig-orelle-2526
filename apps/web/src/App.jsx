@@ -23,6 +23,7 @@ import { RegisterPage } from "./pages/RegisterPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
+import { DailyRoutinePage } from "./pages/DailyRoutinePage.jsx";
 
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
@@ -50,7 +51,7 @@ function AppContent() {
             <FaceReportPage />
             <SkinHistoryPage />
             <SkinEvolutionPage />
-            <ProductRecommendationsPage />
+            <DailyRoutinePage />
             {isAdmin && (
                 <>
                     <AdminProductCreatePage />
