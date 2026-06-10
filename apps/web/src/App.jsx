@@ -27,6 +27,8 @@ import { ProductRecommendationsPage } from "./pages/ProductRecommendationsPage.j
 import { DailyRoutinePage } from "./pages/DailyRoutinePage.jsx";
 import { ConsultantRecommendationReviewPage } from "./pages/ConsultantRecommendationReviewPage.jsx";
 import { MakeupSimulationPage } from "./pages/MakeupSimulationPage.jsx";
+import { BeforeAfterVisualizationPage } from "./pages/BeforeAfterVisualizationPage.jsx";
+
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
@@ -56,6 +58,7 @@ function AppContent() {
             <ProductRecommendationsPage />
             <DailyRoutinePage />
             <ConsultantRecommendationReviewPage />
+            <BeforeAfterVisualizationPage />
             <MakeupSimulationPage />
             {isAdmin && (
                 <>
