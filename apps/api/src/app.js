@@ -57,6 +57,7 @@ export function createApp() {
     app.use("/api", recommendationRoutes);
     app.use("/api", dailyRoutineRoutes);
     app.use(errorMiddleware);
+    app.use("/api", recommendationRoutes);
 
     return app;
 }
