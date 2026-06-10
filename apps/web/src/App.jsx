@@ -25,6 +25,7 @@ import { useAuth } from "./context/AuthContext.jsx";
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { ProductRecommendationsPage } from "./pages/ProductRecommendationsPage.jsx";
 import { DailyRoutinePage } from "./pages/DailyRoutinePage.jsx";
+import { ConsultantRecommendationReviewPage } from "./pages/ConsultantRecommendationReviewPage.jsx";
 
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
@@ -54,6 +55,7 @@ function AppContent() {
             <SkinEvolutionPage />
             <ProductRecommendationsPage />
             <DailyRoutinePage />
+            <ConsultantRecommendationReviewPage />
             {isAdmin && (
                 <>
                     <AdminProductCreatePage />
