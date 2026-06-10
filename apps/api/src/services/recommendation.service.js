@@ -214,3 +214,26 @@ export async function listMyRecommendations(userId) {
         ),
     };
 }
+
+export async function submitRecommendationFeedback(userId, recommendationId, input) {
+    const recommendation = await ProductRecommendation.findOne({
+        _id: recommendationId,
+        userId,
+    }).populate("productId", "name brandName imageUrl priceCents stock");
+
+    if (!recommendation) {
+        throw new AppError(404, "Recomendação não encontrada");
+    }
+
+    recommendation.feedback = {
+        value: input.value,
+        submittedAt: new Date(),
+    };
+
+    recommendation.status = input.value === "util" ? "accepted" : "dismissed";
+    await recommendation.save();
+
+    return {
+        recommendation: toRecommendationDto(recommendation, recommendation.productId),
+    };
+}

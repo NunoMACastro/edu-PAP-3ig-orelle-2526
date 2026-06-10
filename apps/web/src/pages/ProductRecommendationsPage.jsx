@@ -29,7 +29,29 @@ export function ProductRecommendationsPage() {
             setStatus("error");
         }
     }
+    async function submitFeedback(recommendationId, value) {
+        setStatus("loading");
+        setError("");
 
+        try {
+            const data = await apiRequest(`/api/recommendations/${recommendationId}/feedback`, {
+                method: "POST",
+                body: JSON.stringify({ value }),
+            });
+
+            setRecommendations((current) =>
+                current.map((recommendation) =>
+                    recommendation.id === recommendationId
+                        ? data.recommendation
+                        : recommendation,
+            ),
+        );
+            setStatus("success");
+        } catch (err) {
+            setError(err.message);
+            setStatus("error");
+        }
+    }
     useEffect(() => {
         loadRecommendations().catch((err) => {
             setError(err.message);
@@ -59,6 +81,15 @@ export function ProductRecommendationsPage() {
                             <RecommendationReasonList reasonCodes={recommendation.reasonCodes} />
                             <p>Score: {Math.round(recommendation.score * 100)}%</p>
                             <p>Preço: {(recommendation.product.priceCents / 100).toFixed(2)} €</p>
+                            <button type="button" onClick={() => submitFeedback(recommendation.id, "util")}>
+                                Útil
+                            </button>
+                            <button type="button" onClick={() => submitFeedback(recommendation.id, "nao_relevante")}>
+                                Não relevante
+                            </button>
+                            {recommendation.feedback?.value && (
+                                <p>Feedback registado: {recommendation.feedback.value.replace("_", " ")}</p>
+                )}
                         </article>
                     ))}
 
