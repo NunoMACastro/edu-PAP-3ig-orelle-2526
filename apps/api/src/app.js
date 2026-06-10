@@ -54,6 +54,7 @@ export function createApp() {
     app.use("/api", skinEvolutionRoutes);
     app.use("/api", recommendationRoutes);
     app.use(errorMiddleware);
+    app.use("/api", recommendationRoutes);
 
     return app;
 }

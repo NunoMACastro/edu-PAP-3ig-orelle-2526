@@ -56,7 +56,6 @@ export function ProductRecommendationsPage() {
                             <h2>{recommendation.product.name}</h2>
                             <p>{recommendation.product.brandName}</p>
                             <p>{recommendation.explanation}</p>
-                            <RecommendationReasonList reasonCodes={recommendation.reasonCodes} />
                             <p>Score: {Math.round(recommendation.score * 100)}%</p>
                             <p>Preço: {(recommendation.product.priceCents / 100).toFixed(2)} €</p>
                         </article>
@@ -72,18 +71,5 @@ export function ProductRecommendationsPage() {
                 </div>
             )}
         </section>
-    );
-}
-function RecommendationReasonList({ reasonCodes }) {
-    if (!reasonCodes?.length) {
-        return <p>Motivo indisponível.</p>;
-    }
-
-    return (
-        <ul aria-label="Motivos da recomendação">
-            {reasonCodes.map((code) => (
-                <li key={code}>{code.replaceAll("_", " ")}</li>
-            ))}
-        </ul>
     );
 }
