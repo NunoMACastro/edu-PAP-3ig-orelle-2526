@@ -3,6 +3,7 @@ import { requireAuth } from "../middlewares/auth.middleware.js";
 import {
     generateRecommendationsController,
     listMyRecommendationsController,
+    submitRecommendationFeedbackController,
 } from "../controllers/recommendation.controller.js";
 
 export const recommendationRoutes = Router();
@@ -14,7 +15,7 @@ recommendationRoutes.get(
 );
 
 recommendationRoutes.post(
-    "/recommendations/generate",
+    "/recommendations/:recommendationId/feedback",
     requireAuth,
-    generateRecommendationsController,
+    submitRecommendationFeedbackController,
 );
