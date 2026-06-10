@@ -23,7 +23,7 @@ import { RegisterPage } from "./pages/RegisterPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
-import { ProductRecommendationsPage } from "./pages/ProductRecommendationsPage.jsx";
+
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *

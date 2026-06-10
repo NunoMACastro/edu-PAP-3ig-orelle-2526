@@ -3,6 +3,7 @@ import { FaceAnalysis } from "../models/face-analysis.model.js";
 import { FaceReport } from "../models/face-report.model.js";
 import { Product } from "../models/product.model.js";
 import { ProductRecommendation } from "../models/product-recommendation.model.js";
+import { buildRecommendationReason } from "./recommendation-reason.service.js";
 
 const POSITIVE_STOCK_LIMIT = 50;
 const MAX_RECOMMENDATIONS = 5;
@@ -153,7 +154,7 @@ export async function generateRecommendationsForUser(userId) {
             product,
             ranking: calculateProductScore(product, analysis),
         }))
-        .filter(({ ranking }) => ranking.reasonCodes.length > 0 && ranking.score > 0)
+        .filter(({ ranking }) => ranking.reasonCodes.length > 0 && ranking.sourceSignals.length > 0)
         .sort((a, b) => b.ranking.score - a.ranking.score)
         .slice(0, MAX_RECOMMENDATIONS);
 
@@ -163,7 +164,7 @@ export async function generateRecommendationsForUser(userId) {
 
     const recommendations = await Promise.all(
         rankedProducts.map(async ({ product, ranking }) => {
-            const explanation = buildExplanation(product, analysis, ranking.reasonCodes);
+            const reason = buildRecommendationReason({ analysis, product, ranking });
 
             return ProductRecommendation.findOneAndUpdate(
                 {
@@ -175,9 +176,9 @@ export async function generateRecommendationsForUser(userId) {
                     $set: {
                         reportId: report._id,
                         score: ranking.score,
-                        reasonCodes: ranking.reasonCodes,
-                        explanation,
-                        sourceSignals: ranking.sourceSignals,
+                        reasonCodes: reason.reasonCodes,
+                        explanation: reason.explanation,
+                        sourceSignals: reason.sourceSignals,
                         status: "active",
                     },
                     $setOnInsert: {
