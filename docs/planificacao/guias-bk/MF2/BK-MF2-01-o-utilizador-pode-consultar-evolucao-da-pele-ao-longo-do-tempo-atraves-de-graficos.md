@@ -81,11 +81,11 @@ Para privacidade, o gráfico não precisa de fotografias nem de identificadores 
 - REVER: `server/src/models/face-analysis.model.js`
 - REVER: `client/src/services/apiClient.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF17` com código final, integrado e seguro.
 
-### Pré-requisitos
+### Pre-requisitos
 - Confirmar que `FaceAnalysis` existe desde `BK-MF1-06`.
 - Confirmar que a app já usa `requireAuth`.
 - Confirmar que o frontend usa `credentials: "include"` no cliente API.
@@ -96,7 +96,7 @@ Implementar `RF17` com código final, integrado e seguro.
 - Devolver documentos Mongoose completos.
 - Apresentar pontuações cosméticas como diagnóstico.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei explicar porque a API usa `req.user.id`.
 - [ ] Sei dizer que campos não podem sair na resposta.
 - [ ] Sei testar o pedido sem sessão.
@@ -118,17 +118,17 @@ Implementar `RF17` com código final, integrado e seguro.
 5. Criar página com gráfico.
 6. Executar cenários negativos obrigatórios (mínimo 1).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Pedido sem sessão deve devolver `401`.
 - Utilizador sem análises concluídas deve receber lista vazia e estado `empty`.
 
-### Validação
+### Validacao
 - [ ] Smoke: `GET /api/me/skin-evolution` devolve `200` com sessão válida.
 - [ ] Negativos: mínimo `1` cenários com resultado controlado.
 - [ ] Segurança: resposta não inclui `photoIds`, `consentId` nem `storageKey`.
 - [ ] UI: página mostra estados `loading`, `error`, `empty` e `success`.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -458,7 +458,10 @@ curl -i http://localhost:3001/api/me/skin-evolution -H "Cookie: orelle_session=C
 - `GET /api/me/skin-evolution` com análises concluídas devolve `200` com pontos ordenados por data.
 - A página mostra gráfico SVG quando existem pontos e não mostra dados biométricos internos.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF17` concluída.
 - Cenários negativos concluídos: mínimo `1`.
 - Evidência de testes por camada conforme prioridade `P2`.

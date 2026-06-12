@@ -84,11 +84,11 @@ Este BK prepara alertas futuros de rotina. Para isso, cada passo precisa de `per
 - EDITAR: `client/src/App.jsx`
 - REVER: `server/src/models/product-recommendation.model.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF21` sem inventar compras antes da fase correta.
 
-### Pré-requisitos
+### Pre-requisitos
 - Ter recomendações geradas.
 - Ter pelo menos duas recomendações válidas para preencher manhã e noite.
 - Ter feedback opcional de recomendações.
@@ -100,7 +100,7 @@ Implementar `RF21` sem inventar compras antes da fase correta.
 - Criar rotina no frontend.
 - Misturar rotina com checkout.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei explicar a decisão `DERIVADO`.
 - [ ] Sei indicar a origem `recommendations`.
 - [ ] Sei testar utilizador sem recomendações válidas.
@@ -123,19 +123,19 @@ Implementar `RF21` sem inventar compras antes da fase correta.
 6. Criar página React.
 7. Executar cenários negativos obrigatórios (mínimo 2).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Pedido sem sessão devolve `401`.
 - Utilizador sem recomendações válidas devolve `400`.
 - Utilizador com só uma recomendação válida devolve `400`.
 - Recomendações `dismissed` não entram na rotina.
 
-### Validação
+### Validacao
 - [ ] Smoke: rotina gerada com passos de manhã e noite.
 - [ ] Negativos: mínimo `2` cenários com resultado controlado.
 - [ ] Segurança: rotina pertence ao próprio utilizador.
 - [ ] Drift: origem da rotina fica explícita.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -585,7 +585,10 @@ rg -n "Cart|Order|Payment|Checkout" server/src/services/daily-routine.service.js
 - Utilizador com pelo menos duas recomendações válidas recebe `201` com rotina.
 - `GET /api/me/daily-routine` devolve `200` com rotina ou `routine: null`.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF21` concluída com origem explícita.
 - Cenários negativos concluídos: mínimo `2`.
 - Evidência de testes por camada conforme prioridade `P1`.

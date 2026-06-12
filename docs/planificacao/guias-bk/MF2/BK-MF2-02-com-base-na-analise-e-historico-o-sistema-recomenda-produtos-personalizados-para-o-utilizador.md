@@ -88,11 +88,11 @@ Em IA e recomendação, explicabilidade significa indicar por que motivo um prod
 - REVER: `server/src/models/face-analysis.model.js`
 - REVER: `server/src/models/face-report.model.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF18` com recomendação segura, explicável e integrada.
 
-### Pré-requisitos
+### Pre-requisitos
 - Confirmar que há produtos com stock positivo.
 - Confirmar que o utilizador tem análise concluída.
 - Confirmar que existe relatório gerado a partir da análise.
@@ -103,7 +103,7 @@ Implementar `RF18` com recomendação segura, explicável e integrada.
 - Devolver documento completo de `Product`.
 - Criar carrinho dentro do service de recomendação.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei explicar por que a recomendação precisa de análise, relatório e produto.
 - [ ] Sei indicar o endpoint de geração.
 - [ ] Sei listar três cenários negativos `P0`.
@@ -126,19 +126,19 @@ Implementar `RF18` com recomendação segura, explicável e integrada.
 6. Criar página React.
 7. Executar cenários negativos obrigatórios (mínimo 3).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Pedido sem sessão deve devolver `401`.
 - Utilizador sem análise ou relatório deve devolver `400`.
 - Catálogo sem produtos compatíveis deve devolver `404`.
 - A recomendação não deve criar carrinho, encomenda ou pagamento.
 
-### Validação
+### Validacao
 - [ ] Smoke: gerar recomendações com análise, relatório e produtos compatíveis.
 - [ ] Negativos: mínimo `3` cenários com resultado controlado.
 - [ ] Segurança: resposta sem fotografia, consentimento, paths internos ou documentos completos.
 - [ ] Produto: preço e stock vêm do backend, não do browser.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -739,7 +739,10 @@ rg -n "cart|checkout|order|payment|encomenda" server/src/services/recommendation
 - Com dados completos devolve `201` com 3 a 5 recomendações.
 - `GET /api/recommendations` devolve `200` com recomendações do próprio utilizador.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF18` concluída.
 - Cenários negativos concluídos: mínimo `3`.
 - Evidência de testes por camada conforme prioridade `P0`.

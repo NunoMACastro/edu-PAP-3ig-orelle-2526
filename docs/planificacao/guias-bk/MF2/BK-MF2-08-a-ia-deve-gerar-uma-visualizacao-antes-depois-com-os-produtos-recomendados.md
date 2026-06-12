@@ -89,11 +89,11 @@ O frontend não escolhe recomendações. O service procura recomendações ativa
 - REVER: `server/src/models/makeup-simulation.model.js`
 - REVER: `server/src/models/product-recommendation.model.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF24` a partir de uma simulação existente e segura.
 
-### Pré-requisitos
+### Pre-requisitos
 - Ter simulação criada em `BK-MF2-07`.
 - Ter recomendações geradas.
 - Ter consentimento ativo.
@@ -104,7 +104,7 @@ Implementar `RF24` a partir de uma simulação existente e segura.
 - Devolver fotografia privada.
 - Confundir visualização imediata com comparação de 30 dias.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei explicar diferença entre `RF23` e `RF24`.
 - [ ] Sei indicar por que o service revalida consentimento.
 - [ ] Sei testar `simulationId` de outro utilizador.
@@ -128,18 +128,18 @@ Implementar `RF24` a partir de uma simulação existente e segura.
 7. Registar route e página.
 8. Executar cenários negativos obrigatórios (mínimo 2).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Pedido sem sessão devolve `401`.
 - Consentimento revogado devolve `403`.
 - `simulationId` de outro utilizador devolve `404`.
 - Sem recomendações válidas devolve `400`.
 
-### Validação
+### Validacao
 - [ ] Smoke: visualização criada com simulação e recomendações.
 - [ ] Negativos: mínimo `2` cenários com resultado controlado.
 - [ ] Segurança: DTO não expõe fotografia nem consentimento.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -552,7 +552,10 @@ curl -i -X POST http://localhost:3001/api/before-after-visualizations -H "Cookie
 - Sem recomendações válidas devolve `400`.
 - Com dados válidos devolve `201` com painéis antes/depois.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF24` concluída.
 - Cenários negativos concluídos: mínimo `2`.
 - Evidência de testes por camada conforme prioridade `P1`.

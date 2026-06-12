@@ -89,11 +89,11 @@ O registo de revisão guarda `consultantId` e `clientUserId`. Isto prepara rastr
 - REVER: `server/src/middlewares/auth.middleware.js`
 - REVER: `server/src/middlewares/role.middleware.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF22` com role, validação e minimização de dados.
 
-### Pré-requisitos
+### Pre-requisitos
 - Confirmar roles canónicas da MF0.
 - Ter recomendações geradas.
 - Saber que cliente não pode rever recomendações.
@@ -104,7 +104,7 @@ Implementar `RF22` com role, validação e minimização de dados.
 - Permitir status livre.
 - Atualizar recomendação sem registar quem reviu.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei explicar por que a route usa duas proteções.
 - [ ] Sei listar os dados que não devem aparecer no DTO.
 - [ ] Sei testar cliente autenticado com `403`.
@@ -127,17 +127,17 @@ Implementar `RF22` com role, validação e minimização de dados.
 6. Registar route e página.
 7. Executar cenários negativos obrigatórios (mínimo 1).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Cliente autenticado deve receber `403`.
 - Status inválido deve devolver `400`.
 - Recomendação inexistente deve devolver `404`.
 
-### Validação
+### Validacao
 - [ ] Smoke: consultor revê recomendação existente.
 - [ ] Negativos: mínimo `1` cenários com resultado controlado.
 - [ ] Segurança: DTO não expõe fotografia, análise completa ou consentimento.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -570,7 +570,10 @@ curl -i -X POST http://localhost:3001/api/consultant/recommendations/64f00000000
 - Recomendação inexistente recebe `404`.
 - DTO não inclui análise completa, relatório completo, fotografia ou consentimento.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF22` concluída.
 - Cenários negativos concluídos: mínimo `1`.
 - Evidência de testes por camada conforme prioridade `P2`.

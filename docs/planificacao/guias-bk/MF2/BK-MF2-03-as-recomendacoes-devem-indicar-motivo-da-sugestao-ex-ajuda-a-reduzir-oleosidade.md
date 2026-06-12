@@ -80,11 +80,11 @@ Também é importante separar explicação curta de justificativa técnica. `rea
 - EDITAR: `client/src/pages/ProductRecommendationsPage.jsx`
 - REVER: `server/src/models/product-recommendation.model.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF19` sem duplicar endpoints nem quebrar `RF18`.
 
-### Pré-requisitos
+### Pre-requisitos
 - Ler o modelo `ProductRecommendation`.
 - Confirmar que `generateRecommendationsForUser` já persiste `reasonCodes` e `explanation`.
 - Confirmar que a UI já lista recomendações.
@@ -95,7 +95,7 @@ Implementar `RF19` sem duplicar endpoints nem quebrar `RF18`.
 - Usar labels internas sem texto compreensível.
 - Revelar detalhes sensíveis da análise no texto público.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei distinguir `reasonCodes` de `explanation`.
 - [ ] Sei explicar por que o motivo nasce no backend.
 - [ ] Sei testar recomendação sem motivo.
@@ -117,16 +117,16 @@ Implementar `RF19` sem duplicar endpoints nem quebrar `RF18`.
 5. Criar teste unitário dos motivos.
 6. Executar cenários negativos obrigatórios (mínimo 2).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Recomendação sem motivo deve falhar em validação de modelo.
 - Produto sem compatibilidade suficiente não deve gerar explicação vaga.
 
-### Validação
+### Validacao
 - [ ] Smoke: cada recomendação devolve `reasonCodes` e `explanation`.
 - [ ] Negativos: mínimo `2` cenários com resultado controlado.
 - [ ] Segurança: a explicação não devolve fotografia, consentimento ou path.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -479,7 +479,10 @@ curl -i -X POST http://localhost:3001/api/recommendations/generate -H "Cookie: o
 - Produto apenas disponível em stock não gera motivo cosmético.
 - A página mostra motivo textual e lista de códigos.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF19` concluída.
 - Cenários negativos concluídos: mínimo `2`.
 - Evidência de testes por camada conforme prioridade `P1`.

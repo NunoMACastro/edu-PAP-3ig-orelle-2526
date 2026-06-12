@@ -81,11 +81,11 @@ Este feedback pode alimentar métricas futuras, como taxa de recomendações út
 - EDITAR: `client/src/pages/ProductRecommendationsPage.jsx`
 - REVER: `server/src/models/product-recommendation.model.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF20` como registo seguro de feedback.
 
-### Pré-requisitos
+### Pre-requisitos
 - Ter recomendações geradas.
 - Saber o ID público da recomendação.
 - Ter sessão ativa.
@@ -96,7 +96,7 @@ Implementar `RF20` como registo seguro de feedback.
 - Criar endpoint sem `requireAuth`.
 - Prometer treino automático sem esse fluxo existir.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei indicar os dois valores aceites.
 - [ ] Sei explicar por que o service filtra `_id` e `userId`.
 - [ ] Sei testar recomendação de outro utilizador.
@@ -118,17 +118,17 @@ Implementar `RF20` como registo seguro de feedback.
 5. Atualizar UI.
 6. Executar cenários negativos obrigatórios (mínimo 1).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Pedido sem sessão devolve `401`.
 - Valor fora da enum devolve `400`.
 - Recomendação de outro utilizador devolve `404`.
 
-### Validação
+### Validacao
 - [ ] Smoke: feedback `util` atualiza recomendação.
 - [ ] Negativos: mínimo `1` cenários com resultado controlado.
 - [ ] Segurança: não é possível marcar recomendação de outro utilizador.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -362,7 +362,10 @@ curl -i -X POST http://localhost:3001/api/recommendations/ID_DE_OUTRO_UTILIZADOR
 - Valor inválido devolve `400`.
 - Recomendação de outro utilizador devolve `404`.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF20` concluída.
 - Cenários negativos concluídos: mínimo `1`.
 - Evidência de testes por camada conforme prioridade `P2`.

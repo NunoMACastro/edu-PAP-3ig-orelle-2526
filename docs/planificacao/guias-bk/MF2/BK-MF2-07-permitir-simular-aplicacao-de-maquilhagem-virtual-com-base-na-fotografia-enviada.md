@@ -88,11 +88,11 @@ A simulação deste BK é baseline: cria painéis de antes/depois e uma descriç
 - EDITAR: `client/src/App.jsx`
 - REVER: `server/src/middlewares/face-photo-upload.middleware.js`
 
-## Bloco pedagógico
+## Bloco pedagogico
 ### Objetivo
 Implementar `RF23` com consentimento, fotografia frontal e produto real.
 
-### Pré-requisitos
+### Pre-requisitos
 - Ter consentimento facial ativo.
 - Ter fotografia frontal ativa.
 - Ter produto com stock positivo.
@@ -103,7 +103,7 @@ Implementar `RF23` com consentimento, fotografia frontal e produto real.
 - Criar simulação sem consentimento.
 - Usar produto inexistente ou sem stock.
 
-### Check de compreensão
+### Check de compreensao
 - [ ] Sei explicar por que a route usa `ensureActiveFaceConsent`.
 - [ ] Sei listar o que não pode sair no DTO.
 - [ ] Sei testar utilizador sem consentimento.
@@ -127,18 +127,18 @@ Implementar `RF23` com consentimento, fotografia frontal e produto real.
 7. Registar route e página.
 8. Executar cenários negativos obrigatórios (mínimo 1).
 
-### Cenários negativos recomendados
+### Cenarios negativos recomendados
 - Sem sessão devolve `401`.
 - Sem consentimento ativo devolve `403`.
 - Sem fotografia frontal ativa devolve `400`.
 - Produto inexistente ou sem stock devolve `404`.
 
-### Validação
+### Validacao
 - [ ] Smoke: gerar simulação com consentimento, fotografia e produto.
 - [ ] Negativos: mínimo `1` cenários com resultado controlado.
 - [ ] Segurança: DTO não inclui `storageKey`, `facePhotoId` nem `consentId`.
 
-### Matriz mínima de testes por prioridade
+### Matriz minima de testes por prioridade
 - `P0`: unit + integration + e2e + 3 negativos.
 - `P1`: unit/integration + 2 negativos.
 - `P2`: teste focal + 1 negativo.
@@ -551,7 +551,10 @@ curl -i -X POST http://localhost:3001/api/makeup-simulations -H "Cookie: orelle_
 - Produto inexistente ou sem stock devolve `404`.
 - Com dados válidos devolve `201` com `simulation.preview`.
 
-## Critérios de aceite
+## Snippet tecnico aplicavel
+Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
+
+## Criterios de aceite
 - Entrega funcional de `RF23` concluída.
 - Cenários negativos concluídos: mínimo `1`.
 - Evidência de testes por camada conforme prioridade `P2`.
