@@ -62,7 +62,7 @@
 ## KPI minimos por sprint
 - `% BK planeados concluidos >= 85%`.
 - `% BK com smoke/negativos/evidence completos >= 90%`.
-- `% BK com snippet coerente com `bk_id` e `rf_rnf` = 100%`.
+- `% BK com codigo tecnico aplicavel coerente com `bk_id` e `rf_rnf` = 100%`.
 - `% esforço em core dual (CORE-IA + CORE-COM + CORE-HIBRIDO) >= 70%`.
 
 ## Artefactos obrigatorios

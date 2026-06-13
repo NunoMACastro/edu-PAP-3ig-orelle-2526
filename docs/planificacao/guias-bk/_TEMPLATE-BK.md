@@ -41,9 +41,9 @@
 - `P2`: teste focal + 1 negativo
 ### Handoff
 
-## Snippet tecnico aplicavel
+## Codigo tecnico aplicavel
 ```ts
-// snippet obrigatoriamente ligado a `bk_id` e `rf_rnf`
+// codigo obrigatoriamente integrado nos passos e ligado a `bk_id` e `rf_rnf`
 // deve refletir o dominio (CORE-IA, CORE-COM, CORE-HIBRIDO ou SUPORTE)
 ```
 

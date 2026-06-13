@@ -22,7 +22,7 @@ Campos obrigatorios: `bk_id`, `owner`, `prioridade`, `estado`, `esforco`, `depen
 - `P0`: minimo `8` passos e `3` cenarios negativos.
 - `P1`: minimo `6` passos e `2` cenarios negativos.
 - `P2`: minimo `6` passos e `1` cenario negativo.
-- Snippet tecnico obrigatoriamente ligado a `bk_id` e `rf_rnf`.
+- Codigo tecnico aplicavel obrigatoriamente integrado nos passos do guia e ligado a `bk_id` e `rf_rnf`.
 
 ## Legenda
 - Prioridade: `P0` (critico), `P1` (importante), `P2` (melhoria).

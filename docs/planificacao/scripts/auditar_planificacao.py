@@ -25,6 +25,7 @@ GENERIC_GUIDE_PATTERNS = [
     re.compile(r"BK entregue no scope definido, sem quebrar dependencias\\.", re.IGNORECASE),
     re.compile(r"ligacao entre recomendacao e evento comercial comprovada em evidencia\\.", re.IGNORECASE),
 ]
+CODE_BLOCK_RE = re.compile(r"```[a-zA-Z0-9_-]*\n(.*?)```", re.DOTALL)
 NEG_POLICY = {"P0": 3, "P1": 2, "P2": 1}
 
 
@@ -181,6 +182,7 @@ def extract_macro_navigation_entries(backlog_text: str) -> list[dict[str, str]]:
 
 
 def has_required_blocks(text: str) -> bool:
+    """Validate the mandatory didactic and operational sections for BK guides."""
     normalized = normalize_for_contract(text)
     required = [
         "## Bloco pedagogico",
@@ -193,18 +195,25 @@ def has_required_blocks(text: str) -> bool:
         "### Passos",
         "### Validacao",
         "### Handoff",
-        "## Snippet tecnico aplicavel",
         "## Criterios de aceite",
         "## Evidence para PR/defesa",
     ]
     return all(section in normalized for section in required)
 
 
-def has_non_placeholder_snippet(text: str) -> bool:
-    banned = ["Adicionar aqui", "placeholder", "TODO snippet", "Trecho real e aplicavel", "Snippets de codigo (evolucao)"]
-    if any(b in text for b in banned):
+def has_applicable_code_block(text: str) -> bool:
+    """Validate that a guide contains concrete fenced code without placeholder markers."""
+    banned = [
+        "Adicionar aqui",
+        "placeholder",
+        "TODO snippet",
+        "Trecho real e aplicavel",
+        "Snippets de codigo (evolucao)",
+    ]
+    normalized = normalize_for_contract(text).casefold()
+    if any(normalize_for_contract(marker).casefold() in normalized for marker in banned):
         return False
-    return re.search(r"```[a-zA-Z0-9]*\n.+?```", text, flags=re.DOTALL) is not None
+    return any(block.strip() for block in CODE_BLOCK_RE.findall(text))
 
 
 def extract_negative_policy_blocks(text: str) -> dict[str, int | None]:
@@ -213,7 +222,7 @@ def extract_negative_policy_blocks(text: str) -> dict[str, int | None]:
         "step_min": None,
         "validacao_min": None,
         "criterio_min": None,
-        "snippet_guard_min": None,
+        "code_guard_min": None,
     }
     m_step = re.search(r"Executar cenarios negativos obrigatorios \(minimo (\d+)\)", normalized)
     if m_step:
@@ -227,9 +236,9 @@ def extract_negative_policy_blocks(text: str) -> dict[str, int | None]:
     if m_crit:
         blocks["criterio_min"] = int(m_crit.group(1))
 
-    m_snippet = re.search(r"negativos\s*<\s*(\d+)", normalized)
-    if m_snippet:
-        blocks["snippet_guard_min"] = int(m_snippet.group(1))
+    m_code_guard = re.search(r"negativos\s*<\s*(\d+)", normalized)
+    if m_code_guard:
+        blocks["code_guard_min"] = int(m_code_guard.group(1))
     return blocks
 
 
@@ -524,8 +533,8 @@ def main() -> None:
         if not has_required_blocks(text):
             guide_content_issues.append({"bk_id": bk_id, "issue": "missing_pedagogic_or_operational_blocks"})
 
-        if not has_non_placeholder_snippet(text):
-            guide_content_issues.append({"bk_id": bk_id, "issue": "missing_or_placeholder_snippet"})
+        if not has_applicable_code_block(text):
+            guide_content_issues.append({"bk_id": bk_id, "issue": "missing_or_placeholder_code_block"})
         for patt in GENERIC_GUIDE_PATTERNS:
             if patt.search(text):
                 guide_content_issues.append({"bk_id": bk_id, "issue": f"generic_guide_pattern:{patt.pattern}"})
@@ -562,12 +571,12 @@ def main() -> None:
                         }
                     )
 
-            snippet_actual = neg_blocks["snippet_guard_min"]
-            if snippet_actual is not None and snippet_actual != expected_neg:
+            code_guard_actual = neg_blocks["code_guard_min"]
+            if code_guard_actual is not None and code_guard_actual != expected_neg:
                 guide_content_issues.append(
                     {
                         "bk_id": bk_id,
-                        "issue": f"negative_policy_snippet_mismatch(expected={expected_neg},actual={snippet_actual})",
+                        "issue": f"negative_policy_code_guard_mismatch(expected={expected_neg},actual={code_guard_actual})",
                     }
                 )
 
