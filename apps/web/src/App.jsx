@@ -31,6 +31,7 @@ import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import { SkinComparisonPage } from "./pages/SkinComparisonPage.jsx";
 import { CartPage } from "./pages/CartPage.jsx";
+import { PurchaseHistoryPage } from "./pages/PurchaseHistoryPage.jsx";
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
@@ -70,6 +71,7 @@ function AppContent() {
             )}
             <SkinComparisonPage />
             <CartPage />
+            <PurchaseHistoryPage />
             {isAdmin && (
                 <>
                     <AdminProductCreatePage />
