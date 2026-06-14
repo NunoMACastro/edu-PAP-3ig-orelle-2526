@@ -29,7 +29,8 @@ import { RegisterPage } from "./pages/RegisterPage.jsx";
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
-
+import { SkinComparisonPage } from "./pages/SkinComparisonPage.jsx";
+import { CartPage } from "./pages/CartPage.jsx";
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
@@ -67,6 +68,8 @@ function AppContent() {
             {canReviewRecommendations && (
                 <ConsultantRecommendationReviewPage recommendations={recommendations} />
             )}
+            <SkinComparisonPage />
+            <CartPage />
             {isAdmin && (
                 <>
                     <AdminProductCreatePage />
