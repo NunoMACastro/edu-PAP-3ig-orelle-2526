@@ -65,9 +65,6 @@ export function PurchaseHistoryPage() {
         }
     }
 
-        loadOrders();
-    }, []);
-
     if (status === "loading") return <p>A carregar histórico...</p>;
     if (status === "error") return <p role="alert">{error}</p>;
 
