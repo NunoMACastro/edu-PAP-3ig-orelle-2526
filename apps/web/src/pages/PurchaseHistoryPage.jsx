@@ -12,22 +12,25 @@ function euros(cents) {
 }
 
 /**
+ * Página de histórico com ação de recompra para adicionar produtos ao carrinho.
+ * @returns {JSX.Element} Interface de histórico e recompra.
  * Página que mostra o histórico de compras do cliente autenticado.
  * @returns {JSX.Element} Interface do histórico pessoal.
  */
 export function PurchaseHistoryPage() {
     const [orders, setOrders] = useState([]);
     const [status, setStatus] = useState("loading");
+    const [reorderingOrderId, setReorderingOrderId] = useState("");
+    const [notice, setNotice] = useState("");
     const [error, setError] = useState("");
 
     useEffect(() => {
         /**
-         * Carrega encomendas pessoais sem enviar userId no pedido.
+         * Carrega as encomendas do próprio cliente.
          * @returns {Promise<void>}
          */
         async function loadOrders() {
             try {
-                // A rota /me usa a sessão; não há seleção de utilizador no browser.
                 const data = await apiRequest("/me/orders", { credentials: "include" });
                 setOrders(data.orders);
                 setStatus("success");
@@ -36,6 +39,39 @@ export function PurchaseHistoryPage() {
                 setStatus("error");
             }
         }
+
+        loadOrders();
+    }, []);
+
+    /**
+     * Pede ao backend para recriar no carrinho os produtos disponíveis da encomenda.
+     * @param {string} orderId - Encomenda antiga do cliente.
+     * @returns {Promise<void>}
+     */
+    async function reorder(orderId) {
+        setError("");
+        setNotice("");
+        setReorderingOrderId(orderId);
+
+        try {
+            // Esta ação não paga nem cria encomenda; apenas atualiza o carrinho.
+            const data = await apiRequest(`/me/orders/${orderId}/reorder`, {
+                method: "POST",
+                credentials: "include",
+            });
+            const skippedCount = Array.isArray(data.skipped) ? data.skipped.length : 0;
+            setNotice(
+                skippedCount === 0
+                    ? "Produtos adicionados ao carrinho."
+                    : `Produtos disponíveis adicionados. ${skippedCount} produto(s) não foram adicionados.`,
+            );
+        } catch (err) {
+            setError(err.message || "Não foi possível recomprar.");
+        } finally {
+            setReorderingOrderId("");
+        }
+    }
+
         loadOrders();
     }, []);
 
@@ -45,6 +81,8 @@ export function PurchaseHistoryPage() {
     return (
         <main>
             <h1>Histórico de compras</h1>
+            {notice ? <p>{notice}</p> : null}
+            {error ? <p role="alert">{error}</p> : null}
             {orders.length === 0 ? (
                 <p>Ainda não existem compras.</p>
             ) : (
@@ -60,6 +98,13 @@ export function PurchaseHistoryPage() {
                                 </li>
                             ))}
                         </ul>
+                        <button
+                            type="button"
+                            onClick={() => reorder(order.id)}
+                            disabled={reorderingOrderId === order.id}
+                        >
+                            {reorderingOrderId === order.id ? "A adicionar..." : "Recomprar"}
+                        </button>
                     </article>
                 ))
             )}
