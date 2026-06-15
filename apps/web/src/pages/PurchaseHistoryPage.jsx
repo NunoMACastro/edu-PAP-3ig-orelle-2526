@@ -1,4 +1,3 @@
-// client/src/pages/PurchaseHistoryPage.jsx
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -11,12 +10,6 @@ function euros(cents) {
     return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(cents / 100);
 }
 
-/**
- * Página de histórico com ação de recompra para adicionar produtos ao carrinho.
- * @returns {JSX.Element} Interface de histórico e recompra.
- * Página que mostra o histórico de compras do cliente autenticado.
- * @returns {JSX.Element} Interface do histórico pessoal.
- */
 export function PurchaseHistoryPage() {
     const [orders, setOrders] = useState([]);
     const [status, setStatus] = useState("loading");
