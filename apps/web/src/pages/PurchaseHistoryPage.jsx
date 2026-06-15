@@ -10,10 +10,6 @@ function euros(cents) {
     return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(cents / 100);
 }
 
-/**
- * Página de histórico com ação de recompra para adicionar produtos ao carrinho.
- * @returns {JSX.Element} Interface de histórico e recompra.
- */
 export function PurchaseHistoryPage() {
     const [orders, setOrders] = useState([]);
     const [status, setStatus] = useState("loading");
@@ -28,7 +24,6 @@ export function PurchaseHistoryPage() {
          */
         async function loadOrders() {
             try {
-                // A rota /me usa a sessão; não há seleção de utilizador no browser.
                 const data = await apiRequest("/me/orders", { credentials: "include" });
                 setOrders(data.orders);
                 setStatus("success");
