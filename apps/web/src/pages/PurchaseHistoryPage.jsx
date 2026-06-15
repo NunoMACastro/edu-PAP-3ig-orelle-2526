@@ -28,6 +28,7 @@ export function PurchaseHistoryPage() {
          */
         async function loadOrders() {
             try {
+                // A rota /me usa a sessão; não há seleção de utilizador no browser.
                 const data = await apiRequest("/me/orders", { credentials: "include" });
                 setOrders(data.orders);
                 setStatus("success");
@@ -68,6 +69,9 @@ export function PurchaseHistoryPage() {
             setReorderingOrderId("");
         }
     }
+
+        loadOrders();
+    }, []);
 
     if (status === "loading") return <p>A carregar histórico...</p>;
     if (status === "error") return <p role="alert">{error}</p>;
