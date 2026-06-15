@@ -89,11 +89,29 @@ export async function checkoutMyCart(userId, { paymentMethod }) {
 }
 
 /**
- * Lista as encomendas do cliente autenticado para histórico pessoal.
+ * Lista o histórico de encomendas do cliente autenticado com um DTO minimizado.
  * @param {string} userId - ID vindo da sessão autenticada.
- * @returns {Promise<Array<object>>} Encomendas ordenadas da mais recente para a mais antiga.
+ * @returns {Promise<Array<{ id: string, createdAt: Date, totalCents: number, orderStatus: string, paymentStatus: string, items: Array<object> }>>}
  */
 export async function listMyOrders(userId) {
-    const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(50);
-    return orders.map(serializeOrder);
+    // O filtro por userId garante que cada cliente vê apenas as suas encomendas.
+    const orders = await Order.find({ userId })
+        .select("items totalCents orderStatus payment.status createdAt")
+        .sort({ createdAt: -1 })
+        .limit(50);
+
+    return orders.map((order) => ({
+        id: order._id.toString(),
+        createdAt: order.createdAt,
+        totalCents: order.totalCents,
+        orderStatus: order.orderStatus,
+        paymentStatus: order.payment.status,
+        items: order.items.map((item) => ({
+            productId: item.productId.toString(),
+            name: item.name,
+            quantity: item.quantity,
+            unitPriceCents: item.unitPriceCents,
+            lineTotalCents: item.lineTotalCents,
+        })),
+    }));
 }

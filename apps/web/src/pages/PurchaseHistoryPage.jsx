@@ -1,3 +1,4 @@
+// client/src/pages/PurchaseHistoryPage.jsx
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -13,6 +14,8 @@ function euros(cents) {
 /**
  * Página de histórico com ação de recompra para adicionar produtos ao carrinho.
  * @returns {JSX.Element} Interface de histórico e recompra.
+ * Página que mostra o histórico de compras do cliente autenticado.
+ * @returns {JSX.Element} Interface do histórico pessoal.
  */
 export function PurchaseHistoryPage() {
     const [orders, setOrders] = useState([]);
@@ -68,6 +71,9 @@ export function PurchaseHistoryPage() {
             setReorderingOrderId("");
         }
     }
+
+        loadOrders();
+    }, []);
 
     if (status === "loading") return <p>A carregar histórico...</p>;
     if (status === "error") return <p role="alert">{error}</p>;
