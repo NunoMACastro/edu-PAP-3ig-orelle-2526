@@ -1,6 +1,11 @@
-# BK-MF*-** - Titulo do BK
+# BK-MF*-** - Titulo claro do BK
+
+> Template obrigatorio para guias BK Orelle.
+> Usa como modelo estrutural BKs hidratados completos, especialmente o padrao de tutorial tecnico linear com codigo, explicacao, validacao, negativos, evidence e handoff.
+> Nao removas secoes. Se uma seccao nao se aplicar, escreve "Nao aplicavel" e justifica.
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF*-**`
 - `bk_id`: `BK-MF*-**`
 - `macro`: `MF*`
@@ -14,47 +19,163 @@
 - `fase_documental`: `Fase 1|Fase 2|Fase 3`
 - `sprint`: `Sxx|Sxx-Syy`
 - `core_or_reforco`: `Core|Reforco`
+- `classe_core_dual`: `CORE-IA|CORE-COM|CORE-HIBRIDO|SUPORTE`
+- `eixo_primario`: `...`
+- `kpi_primario`: `...`
+- `kpi_secundario`: `...`
 - `proximo_bk`: `BK-...|-`
 - `guia_path`: `docs/planificacao/guias-bk/MF*/BK-MF*-**-slug-semantico.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `YYYY-MM-DD`
 
-## Contexto do BK
-- Entrega alvo e requisito.
-- Foco tecnico da macro.
-- Regra de governanca de metadados.
+#### Objetivo
 
-## Bloco pedagogico
-### Objetivo
-### Pre-requisitos
-### Erros comuns
-### Check de compreensao
-### Tempo estimado
+Explica, em 2 a 4 paragrafos, o que o aluno vai construir neste BK e que resultado observavel fica na app.
 
-## Bloco operacional
-### Entrada
-### Passos
-### Cenarios negativos recomendados
-### Validacao
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos
-- `P1`: unit/integration + 2 negativos
-- `P2`: teste focal + 1 negativo
-### Handoff
+#### Importancia
 
-## Codigo tecnico aplicavel
+Explica porque este BK existe na Orelle, que RF/RNF cumpre, que risco de privacidade/comercio/IA resolve e que BKs seguintes ficam desbloqueados.
+
+#### Scope-in
+
+- Lista fechada do que este BK implementa, corrige ou prepara.
+- Incluir backend, frontend, dados, consentimento, IA, comercio, testes e evidence quando aplicavel.
+
+#### Scope-out
+
+- Lista fechada do que este BK nao implementa.
+- Nao antecipar diagnostico medico, garantias clinicas, treino externo de imagens, pagamentos reais ou integracoes externas sem contrato documental.
+
+#### Estado antes e depois
+
+- Estado antes: que contratos, ficheiros ou funcionalidades ja existem.
+- Estado depois: que novo contrato fica implementavel e validavel.
+
+#### Pre-requisitos
+
+- RF/RNF aplicaveis.
+- BKs anteriores obrigatorios.
+- Documentos canonicos a consultar, incluindo `CORE-DUAL-CONTRATO.md` e `ANEXO-CORE-DUAL-BK.md` quando aplicavel.
+- Ficheiros reais em `real_dev/api` e `real_dev/web`, se existirem.
+
+#### Glossario
+
+- Termos de dominio Orelle usados no BK.
+- Termos tecnicos que o aluno precisa de compreender antes de copiar codigo.
+
+#### Conceitos teoricos essenciais
+
+Explica a teoria minima para o aluno perceber o raciocinio: consentimento, dados biometricos, fotografias, perfil cosmetico, recomendacao, alergias/restricoes, carrinho, encomendas, pagamentos, consultores, ownership, privacidade e limites da IA.
+
+#### Arquitetura do BK
+
+- Endpoint(s):
+- Modelo/schema:
+- Service(s):
+- Controller/route:
+- Guard/middleware:
+- Cliente API:
+- Pagina/componente:
+- Testes:
+- Handoff para o proximo BK:
+
+#### Ficheiros a criar/editar/rever
+
+- CRIAR: `real_dev/api/...`
+- EDITAR: `real_dev/api/...`
+- CRIAR: `real_dev/web/...`
+- EDITAR: `real_dev/web/...`
+- REVER: `docs/planificacao/guias-bk/MF*/BK-...md`
+
+#### Tutorial tecnico linear
+
+Cada passo deve ser executavel por ordem. O aluno nao deve precisar de adivinhar imports, helpers, DTOs, services, componentes, rotas, testes ou comandos.
+
+Regra obrigatoria para passos com codigo:
+
+- Todo bloco de codigo deve estar completo para o contexto do BK.
+- Depois de cada bloco de codigo deve existir `Explicacao do codigo`.
+- Bloco com 8 ou mais linhas nao vazias: pelo menos 1 comentario didatico dentro do codigo.
+- Bloco com 20 ou mais linhas nao vazias: pelo menos 2 comentarios didaticos dentro do codigo.
+- Mesmo com menos de 8 linhas, e obrigatorio comentario didatico se houver autenticacao, ownership, consentimento, validacao, upload, async, queries, estado React, testes, logs, dados biometricos, pagamentos, checkout, IA/recomendacao ou regra de dominio Orelle.
+- Comentario didatico explica intencao, contrato, risco evitado ou invariante. Nao repete a sintaxe.
+
+### Passo 1 - Nome claro
+
+1. Objetivo funcional do passo no contexto da app.
+
+Texto especifico: o que este passo entrega na Orelle.
+
+2. Ficheiros envolvidos.
+
+- CRIAR/EDITAR/REVER: `caminho/exato`
+- LOCALIZACAO: modulo, pasta ou bloco onde a alteracao entra.
+
+3. Instrucoes do que fazer.
+
+Explica a ordem de trabalho e as decisoes `CANONICO`, `DERIVADO` ou `TODO (BLOCKER)`.
+
+4. Codigo completo, correto e integrado com a app final.
+
 ```ts
-// codigo obrigatoriamente integrado nos passos e ligado a `bk_id` e `rf_rnf`
-// deve refletir o dominio (CORE-IA, CORE-COM, CORE-HIBRIDO ou SUPORTE)
+// Codigo real ou "Sem codigo neste passo."
 ```
 
-## Criterios de aceite
-- incluir thresholds mensuraveis (latencia, consistencia de estado, cobertura de negativos, etc.)
-- `P0`: minimo 3 cenarios negativos concretos
-- `P1`: minimo 2 cenarios negativos concretos
-- `P2`: minimo 1 cenario negativo concreto
-## Evidence para PR/defesa
-- `proof_tecnico`: evidencias tecnicas verificaveis
-- `proof_negativos`: resultado dos cenarios negativos
+5. Explicacao do codigo.
+
+Deve cobrir:
+
+- o que o codigo faz;
+- porque existe neste BK;
+- que contrato tecnico, RF/RNF, criterio de aceite ou handoff cumpre;
+- que ficheiros ou BKs anteriores usa;
+- que ficheiros ou BKs seguintes prepara;
+- que dados entram e saem;
+- que validacoes e regras de seguranca/ownership/consentimento/role/permissao aplica;
+- que erro comum, bug, duplicacao, vulnerabilidade ou incoerencia evita;
+- como testar;
+- que partes o aluno pode adaptar com seguranca e que partes nao deve alterar.
+
+6. Validacao do passo.
+
+- Comando, request/response, screenshot ou verificacao objetiva.
+- Resultado esperado.
+
+7. Cenario negativo/erro esperado.
+
+- Erro que deve acontecer.
+- Codigo HTTP, mensagem, estado UI ou assert esperado.
+
+### Passo 2 - Nome claro
+
+Repetir exatamente a estrutura do Passo 1.
+
+#### Criterios de aceite
+
+- Criterios mensuraveis, ligados a RF/RNF e aos passos.
+- `P0`: unit + integration/e2e + 3 negativos concretos.
+- `P1`: unit/integration + 2 negativos concretos.
+- `P2`: teste focal + 1 negativo concreto.
+- Para `CORE-*`, incluir evidence tecnica e evidence de impacto no eixo core dual.
+
+#### Validacao final
+
+- Executar validadores reais de `real_dev/api/package.json` e `real_dev/web/package.json`.
+- Executar smoke principal.
+- Executar negativos de sessao ausente, acesso cruzado, falta de consentimento, input invalido e permissao insuficiente quando aplicavel.
+
+#### Evidence para PR/defesa
+
+- `pr`: referencia do PR/commit ou pacote de entrega.
+- `proof_tecnico`: request/response, screenshot ou log controlado do fluxo principal.
+- `proof_negativos`: cenarios negativos executados.
+- `proof_privacidade`: evidencia de consentimento, ownership, minimizacao ou ausencia de dados sensiveis em logs.
 - `proof_negocio`: evidencia de impacto no eixo core dual quando `classe_core_dual != SUPORTE`; para `SUPORTE`, usar evidencia operacional.
-## Proximo BK recomendado
-## Changelog
+
+#### Handoff
+
+- O que este BK entrega ao proximo BK.
+- Campos, endpoints, componentes, estados, permissao, payloads e riscos restantes.
+
+#### Changelog
+
+- `YYYY-MM-DD`: alteracao feita e motivo.
