@@ -1,12 +1,14 @@
+// real_dev/web/src/App.jsx
 /**
- * Composicao principal do frontend real_dev.
+ * Composicao principal do frontend real_dev (MF0 a MF4).
  *
  * Os guias ainda nao introduzem routing final. Por isso, o App expoe todas as
  * paginas criadas pelos BKs implementados em sequencia, exatamente para
  * facilitar smoke testing manual de cada fluxo.
  */
 import React, { useState } from "react";
-import { AuthProvider } from "./context/AuthContext.jsx";
+import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
+import { AdminUsersPage } from "./pages/AdminUsersPage.jsx"; // -> NOVO: Importado para o MF4
 import { AdminCategoriesPage } from "./pages/AdminCategoriesPage.jsx";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage.jsx";
 import { AdminProductCreatePage } from "./pages/AdminProductCreatePage.jsx";
@@ -34,13 +36,12 @@ import { SkinComparisonPage } from "./pages/SkinComparisonPage.jsx";
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { StockAdminPage } from "./pages/StockAdminPage.jsx";
-import { useAuth } from "./context/AuthContext.jsx";
 
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
  * @function AppContent
- * @returns {JSX.Element} Paginas MF0-MF2, com controlos admin visiveis apenas para admin.
+ * @returns {JSX.Element} Paginas MF0-MF4, com controlos admin visiveis apenas para admin.
  */
 function AppContent() {
     const { user } = useAuth();
@@ -65,6 +66,7 @@ function AppContent() {
             </header>
 
             <div className="page-stack">
+                {/* Páginas do fluxo de cliente e consultor */}
                 <RegisterPage />
                 <LoginPage />
                 <ProfileSetupPage />
@@ -91,13 +93,20 @@ function AppContent() {
                 <CartPage />
                 <CheckoutPage />
                 <PurchaseHistoryPage />
+                
                 {canReviewRecommendations && (
                     <ConsultantRecommendationReviewPage
                         recommendations={recommendations}
                     />
                 )}
+
+                {/* Páginas do Painel Administrativo */}
                 {isAdmin && (
                     <>
+                        {/* A página de utilizadores entra aqui para o painel admin. 
+                            Nota: Esta condição visual melhora a experiência, mas a segurança 
+                            real é validada pelas barreiras das rotas `/api/admin` no backend. */}
+                        <AdminUsersPage />
                         <AdminProductCreatePage />
                         <AdminCategoriesPage />
                         <AdminDashboardPage />
@@ -115,7 +124,7 @@ function AppContent() {
  * @function App
  * @returns {JSX.Element} Aplicacao React com contexto de autenticacao.
  */
-export function App() {
+export default function App() {
     return (
         <AuthProvider>
             <AppContent />
