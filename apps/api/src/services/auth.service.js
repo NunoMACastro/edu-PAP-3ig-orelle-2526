@@ -1,11 +1,11 @@
 /**
- * Servico de autenticacao da MF0.
+ * Servico de autenticacao da MF0 e MF4.
  *
- * Este ficheiro junta o registo do BK-MF0-01 com o login do BK-MF0-02. A regra
- * de seguranca principal e nunca devolver `password` nem `passwordHash`.
+ * Este ficheiro junta o registo com o login, aplicando as regras de segurança
+ * e validação de estado de conta administrativo (ativo, suspenso ou eliminado).
  */
 import bcrypt from "bcryptjs";
-import { User } from "../models/user.model.js";
+import { ACCOUNT_STATUSES, User } from "../models/user.model.js";
 import { AppError } from "../middlewares/error.middleware.js";
 
 /**
@@ -22,6 +22,20 @@ function toSafeUser(user) {
         role: user.role,
         createdAt: user.createdAt,
     };
+}
+
+/**
+ * Confirma se a conta pode autenticar-se.
+ *
+ * @function ensureUserCanAuthenticate
+ * @param {{isActive: boolean, accountStatus?: string}} user - Utilizador obtido da base de dados.
+ * @returns {void}
+ * @throws {AppError} Quando a conta foi suspensa ou eliminada.
+ */
+function ensureUserCanAuthenticate(user) {
+    if (!user.isActive || user.accountStatus !== ACCOUNT_STATUSES.ACTIVE) {
+        throw new AppError(403, "Conta inativa. Contacta a equipa Orélle.");
+    }
 }
 
 /**
@@ -47,25 +61,29 @@ export async function registerUser({ email, password }) {
 }
 
 /**
- * Autentica um utilizador por email/password.
+ * Autentica um utilizador por email/password, validando o estado administrativo.
  *
  * @async
  * @function loginUser
  * @param {{email: string, password: string}} input - Credenciais validadas.
  * @returns {Promise<{id: string, email: string, role: string, createdAt: Date|undefined}>} Utilizador autenticado.
- * @throws {AppError} Quando email ou password nao correspondem.
+ * @throws {AppError} Quando email, password nao correspondem ou conta está bloqueada.
  */
 export async function loginUser({ email, password }) {
+    // Agora pedimos também o "isActive" e o "accountStatus" na query
     const user = await User.findOne({ email }).select(
-        "+passwordHash email role createdAt",
+        "+passwordHash email role createdAt isActive accountStatus",
     );
 
-    // A mensagem e igual para email inexistente e password errada para evitar
-    // enumeracao de contas.
+    // Mensagem genérica para evitar enumeração de contas
     if (!user) {
         throw new AppError(401, "Credenciais invalidas");
     }
 
+    // 1. Validar se o utilizador não está suspenso ou eliminado antes de validar a password
+    ensureUserCanAuthenticate(user);
+
+    // 2. Validar a password
     const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordMatches) {
