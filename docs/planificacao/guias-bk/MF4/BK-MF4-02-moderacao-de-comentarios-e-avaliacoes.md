@@ -71,16 +71,16 @@ O backend deve guardar o motivo da ação. Isto ajuda a defesa PAP e prepara `BK
 - `app.js` e `App.jsx`: registam backend e frontend.
 
 #### Ficheiros a criar/editar/rever
-- EDITAR: `real_dev/api/src/models/review.model.js`
-- CRIAR: `real_dev/api/src/validators/admin-review.validator.js`
-- CRIAR: `real_dev/api/src/services/admin-review.service.js`
-- CRIAR: `real_dev/api/src/controllers/admin-review.controller.js`
-- CRIAR: `real_dev/api/src/routes/admin-review.routes.js`
-- EDITAR: `real_dev/api/src/app.js`
-- CRIAR: `real_dev/web/src/pages/AdminReviewsPage.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- REVER: `real_dev/api/src/services/review.service.js`
-- REVER: `real_dev/api/src/services/product.service.js`
+- EDITAR: `apps/api/src/models/review.model.js`
+- CRIAR: `apps/api/src/validators/admin-review.validator.js`
+- CRIAR: `apps/api/src/services/admin-review.service.js`
+- CRIAR: `apps/api/src/controllers/admin-review.controller.js`
+- CRIAR: `apps/api/src/routes/admin-review.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/AdminReviewsPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/services/review.service.js`
+- REVER: `apps/api/src/services/product.service.js`
 
 #### Tutorial técnico linear
 ### Passo 1 - Confirmar contrato de moderação
@@ -91,7 +91,7 @@ manter `RF34` limitado a moderação de reviews de produto.
 2. Ficheiros envolvidos:
    - REVER: `docs/RF.md`
    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
-   - REVER: `real_dev/api/src/models/review.model.js`
+   - REVER: `apps/api/src/models/review.model.js`
    - LOCALIZAÇÃO: `RF34`, `BK-MF4-02` e schema `Review`.
 3. Instruções do que fazer.
 
@@ -118,7 +118,7 @@ dois modelos para o mesmo conceito geram contagens e páginas públicas inconsis
 
 saber quem moderou e porquê.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/api/src/models/review.model.js`
+   - EDITAR: `apps/api/src/models/review.model.js`
    - LOCALIZAÇÃO: dentro de `reviewSchema`.
 3. Instruções do que fazer.
 
@@ -126,7 +126,7 @@ manter `status` e adicionar campos opcionais de moderação.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/review.model.js
+// apps/api/src/models/review.model.js
 const reviewSchema = new Schema(
     {
         productId: {
@@ -200,7 +200,7 @@ tornar `moderationReason` obrigatório quebraria reviews antigas.
 
 rejeitar estados ou motivos inválidos antes do service.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/validators/admin-review.validator.js`
+   - CRIAR: `apps/api/src/validators/admin-review.validator.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -208,7 +208,7 @@ aceitar apenas `published` ou `hidden` e motivo curto.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/validators/admin-review.validator.js
+// apps/api/src/validators/admin-review.validator.js
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
 
@@ -264,7 +264,7 @@ aceitar qualquer string permitiria estados que o catálogo não sabe filtrar.
 
 listar todas as reviews e alterar apenas visibilidade.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/services/admin-review.service.js`
+   - CRIAR: `apps/api/src/services/admin-review.service.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -272,7 +272,7 @@ criar DTO seguro e funções admin.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/admin-review.service.js
+// apps/api/src/services/admin-review.service.js
 import { AppError } from "../middlewares/error.middleware.js";
 import { Review } from "../models/review.model.js";
 
@@ -357,16 +357,16 @@ devolver email do autor não é necessário para moderação inicial e aumenta e
 
 expor endpoints admin.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/controllers/admin-review.controller.js`
-   - CRIAR: `real_dev/api/src/routes/admin-review.routes.js`
-   - EDITAR: `real_dev/api/src/app.js`
+   - CRIAR: `apps/api/src/controllers/admin-review.controller.js`
+   - CRIAR: `apps/api/src/routes/admin-review.routes.js`
+   - EDITAR: `apps/api/src/app.js`
 3. Instruções do que fazer.
 
 criar `GET /api/admin/reviews` e `PATCH /api/admin/reviews/:reviewId`.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/controllers/admin-review.controller.js
+// apps/api/src/controllers/admin-review.controller.js
 import {
     listAdminReviews,
     moderateReview,
@@ -406,7 +406,7 @@ export async function moderateReviewController(req, res, next) {
 ```
 
 ```js
-// real_dev/api/src/routes/admin-review.routes.js
+// apps/api/src/routes/admin-review.routes.js
 import { Router } from "express";
 import { ROLES } from "../constants/roles.js";
 import { requireAuth } from "../middlewares/auth.middleware.js";
@@ -428,7 +428,7 @@ adminReviewRoutes.patch("/reviews/:reviewId", requireAuth, requireRole(ROLES.ADM
 ```
 
 ```js
-// real_dev/api/src/app.js
+// apps/api/src/app.js
 import { adminReviewRoutes } from "./routes/admin-review.routes.js";
 
 app.use("/api/admin", adminReviewRoutes);
@@ -450,15 +450,15 @@ expor `PATCH /api/reviews/:id` sem prefixo admin pode confundir com review do cl
 
 permitir revisão manual das reviews.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/web/src/pages/AdminReviewsPage.jsx`
-   - EDITAR: `real_dev/web/src/App.jsx`
+   - CRIAR: `apps/web/src/pages/AdminReviewsPage.jsx`
+   - EDITAR: `apps/web/src/App.jsx`
 3. Instruções do que fazer.
 
 listar reviews, recolher motivo e enviar ação.
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/pages/AdminReviewsPage.jsx
+// apps/web/src/pages/AdminReviewsPage.jsx
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -566,15 +566,15 @@ a UI permitir editar `rating` quebraria a confiança do comentário original.
 
 provar que a moderação está protegida e não altera a opinião.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `real_dev/api/tests/mf4.admin-reviews.test.js`
-   - REVER: `real_dev/api/src/services/review.service.js`
+   - CRIAR/EDITAR: `apps/api/tests/mf4.admin-reviews.test.js`
+   - REVER: `apps/api/src/services/review.service.js`
 3. Instruções do que fazer.
 
 testar autorização, status inválido e ocultação na listagem pública.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf4.admin-reviews.test.js
+// apps/api/tests/mf4.admin-reviews.test.js
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { validateReviewModerationInput } from "../src/validators/admin-review.validator.js";
 import { moderateReview } from "../src/services/admin-review.service.js";
@@ -668,7 +668,7 @@ describe("BK-MF4-02 admin review moderation", () => {
 Os testes estão escritos para provar a fronteira do BK. O validator rejeita estados que não existem no contrato, e o service é testado para garantir que só os campos de moderação entram no update. O detalhe mais importante é o `not.toHaveProperty("rating")` e `not.toHaveProperty("comment")`: estes asserts ensinam que um teste também pode proteger o que não deve acontecer. Isso é especialmente útil em moderação, onde alterar demais seria uma quebra de confiança.
 6. Validação do passo.
 
-executar `npm --prefix real_dev/api test` e confirmar também os `403` nas routes admin.
+executar `npm --prefix apps/api test` e confirmar também os `403` nas routes admin.
 7. Cenário negativo/erro esperado.
 
 não testar a listagem pública pode deixar reviews ocultas visíveis.

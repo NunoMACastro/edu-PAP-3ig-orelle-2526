@@ -76,19 +76,19 @@ Como não existe contrato de email/push neste ponto, a solução interna é sufi
 - `app.js` e `App.jsx`: integração.
 
 #### Ficheiros a criar/editar/rever
-- CRIAR: `real_dev/api/src/models/notification.model.js`
-- CRIAR: `real_dev/api/src/validators/notification.validator.js`
-- CRIAR: `real_dev/api/src/services/notification.service.js`
-- CRIAR: `real_dev/api/src/controllers/notification.controller.js`
-- CRIAR: `real_dev/api/src/routes/notification.routes.js`
-- EDITAR: `real_dev/api/src/app.js`
-- CRIAR: `real_dev/web/src/pages/NotificationsPage.jsx`
-- CRIAR: `real_dev/web/src/pages/AdminNotificationsPage.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- REVER: `real_dev/api/src/models/order.model.js`
-- EDITAR: `real_dev/api/src/services/order.service.js`
-- REVER: `real_dev/api/src/models/product.model.js`
-- REVER: `real_dev/api/src/models/user.model.js`
+- CRIAR: `apps/api/src/models/notification.model.js`
+- CRIAR: `apps/api/src/validators/notification.validator.js`
+- CRIAR: `apps/api/src/services/notification.service.js`
+- CRIAR: `apps/api/src/controllers/notification.controller.js`
+- CRIAR: `apps/api/src/routes/notification.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/NotificationsPage.jsx`
+- CRIAR: `apps/web/src/pages/AdminNotificationsPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/order.model.js`
+- EDITAR: `apps/api/src/services/order.service.js`
+- REVER: `apps/api/src/models/product.model.js`
+- REVER: `apps/api/src/models/user.model.js`
 
 #### Tutorial técnico linear
 ### Passo 1 - Confirmar canais de notificação
@@ -99,7 +99,7 @@ limitar este BK a notificações internas.
 2. Ficheiros envolvidos:
    - REVER: `docs/RF.md`
    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
-   - REVER: `real_dev/api/src/models/order.model.js`
+   - REVER: `apps/api/src/models/order.model.js`
    - LOCALIZAÇÃO: `RF36`, `BK-MF4-04`.
 3. Instruções do que fazer.
 
@@ -126,7 +126,7 @@ prometer email real sem provider seguro cria dívida e risco de privacidade.
 
 persistir mensagens internas com ownership.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/models/notification.model.js`
+   - CRIAR: `apps/api/src/models/notification.model.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -134,7 +134,7 @@ criar schema com `userId`, tipo, título, mensagem e estado de leitura.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/notification.model.js
+// apps/api/src/models/notification.model.js
 import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
@@ -227,7 +227,7 @@ guardar o objeto `Order` inteiro dentro da notificação expõe dados além da f
 
 impedir mensagens inválidas ou gigantes.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/validators/notification.validator.js`
+   - CRIAR: `apps/api/src/validators/notification.validator.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -235,7 +235,7 @@ validar campanhas admin e IDs.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/validators/notification.validator.js
+// apps/api/src/validators/notification.validator.js
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
 import { NOTIFICATION_TYPES } from "../models/notification.model.js";
@@ -306,7 +306,7 @@ aceitar `order_status` no body admin permitiria inventar estado de encomenda sem
 
 criar notificações com ownership correto.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/services/notification.service.js`
+   - CRIAR: `apps/api/src/services/notification.service.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -314,7 +314,7 @@ listar inbox, marcar como lida, criar campanhas e estado de encomenda.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/notification.service.js
+// apps/api/src/services/notification.service.js
 import { AppError } from "../middlewares/error.middleware.js";
 import { Notification, NOTIFICATION_TYPES } from "../models/notification.model.js";
 import { Order } from "../models/order.model.js";
@@ -461,16 +461,16 @@ receber `userId` no body para estado de encomenda permitiria enviar mensagem a o
 
 expor inbox do cliente e ações admin.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/controllers/notification.controller.js`
-   - CRIAR: `real_dev/api/src/routes/notification.routes.js`
-   - EDITAR: `real_dev/api/src/app.js`
+   - CRIAR: `apps/api/src/controllers/notification.controller.js`
+   - CRIAR: `apps/api/src/routes/notification.routes.js`
+   - EDITAR: `apps/api/src/app.js`
 3. Instruções do que fazer.
 
 criar endpoints de cliente e admin.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/controllers/notification.controller.js
+// apps/api/src/controllers/notification.controller.js
 import {
     createCampaignNotification,
     listMyNotifications,
@@ -530,7 +530,7 @@ export async function createCampaignNotificationController(req, res, next) {
 ```
 
 ```js
-// real_dev/api/src/routes/notification.routes.js
+// apps/api/src/routes/notification.routes.js
 import { Router } from "express";
 import { ROLES } from "../constants/roles.js";
 import {
@@ -563,7 +563,7 @@ notificationRoutes.post(
 ```
 
 ```js
-// real_dev/api/src/app.js
+// apps/api/src/app.js
 import { notificationRoutes } from "./routes/notification.routes.js";
 
 app.use("/api", notificationRoutes);
@@ -585,16 +585,16 @@ criar `GET /api/notifications?userId=...` permite enumeração de notificações
 
 permitir uso visível por cliente e admin.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/web/src/pages/NotificationsPage.jsx`
-   - CRIAR: `real_dev/web/src/pages/AdminNotificationsPage.jsx`
-   - EDITAR: `real_dev/web/src/App.jsx`
+   - CRIAR: `apps/web/src/pages/NotificationsPage.jsx`
+   - CRIAR: `apps/web/src/pages/AdminNotificationsPage.jsx`
+   - EDITAR: `apps/web/src/App.jsx`
 3. Instruções do que fazer.
 
 listar inbox e criar campanhas.
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/pages/NotificationsPage.jsx
+// apps/web/src/pages/NotificationsPage.jsx
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -650,7 +650,7 @@ export function NotificationsPage() {
 ```
 
 ```jsx
-// real_dev/web/src/pages/AdminNotificationsPage.jsx
+// apps/web/src/pages/AdminNotificationsPage.jsx
 import React, { useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -732,9 +732,9 @@ usar canais externos na UI sem backend correspondente confunde o scope e a valid
 
 alterar o estado logístico no backend e criar notificação para o dono real da encomenda.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/api/src/services/order.service.js`
-   - REVER: `real_dev/api/src/models/order.model.js`
-   - REVER: `real_dev/api/src/services/notification.service.js`
+   - EDITAR: `apps/api/src/services/order.service.js`
+   - REVER: `apps/api/src/models/order.model.js`
+   - REVER: `apps/api/src/services/notification.service.js`
    - LOCALIZAÇÃO: imports do ficheiro e função `updateOrderStatusAndNotify`.
 3. Instruções do que fazer.
 
@@ -742,7 +742,7 @@ adicionar uma função de service que valida o novo estado, actualiza a encomend
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/order.service.js
+// apps/api/src/services/order.service.js
 import { AppError } from "../middlewares/error.middleware.js";
 import { Order, ORDER_STATUS } from "../models/order.model.js";
 import { createOrderStatusNotification } from "./notification.service.js";
@@ -800,7 +800,7 @@ criar notificação de encomenda para todos os utilizadores expõe informação 
 
 provar autorização, ownership e minimização.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `real_dev/api/tests/mf4.notifications.test.js`
+   - CRIAR/EDITAR: `apps/api/tests/mf4.notifications.test.js`
    - REVER: respostas JSON das routes.
 3. Instruções do que fazer.
 
@@ -808,7 +808,7 @@ testar cliente/admin, notificação de outro utilizador, mensagem inválida e al
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf4.notifications.test.js
+// apps/api/tests/mf4.notifications.test.js
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { validateCampaignNotificationInput } from "../src/validators/notification.validator.js";
 import {

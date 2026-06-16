@@ -73,16 +73,16 @@ Para manter o BK executável sem introduzir agendador distribuído, a regra fica
 - `notification.service.js`: contrato consumido para criar notificações.
 
 #### Ficheiros a criar/editar/rever
-- CRIAR: `real_dev/api/src/models/routine-alert-preference.model.js`
-- CRIAR: `real_dev/api/src/validators/routine-alert.validator.js`
-- CRIAR: `real_dev/api/src/services/routine-alert.service.js`
-- CRIAR: `real_dev/api/src/controllers/routine-alert.controller.js`
-- CRIAR: `real_dev/api/src/routes/routine-alert.routes.js`
-- EDITAR: `real_dev/api/src/app.js`
-- CRIAR: `real_dev/web/src/pages/RoutineAlertsPage.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- REVER: `real_dev/api/src/models/daily-routine.model.js`
-- REVER: `real_dev/api/src/models/notification.model.js`
+- CRIAR: `apps/api/src/models/routine-alert-preference.model.js`
+- CRIAR: `apps/api/src/validators/routine-alert.validator.js`
+- CRIAR: `apps/api/src/services/routine-alert.service.js`
+- CRIAR: `apps/api/src/controllers/routine-alert.controller.js`
+- CRIAR: `apps/api/src/routes/routine-alert.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/RoutineAlertsPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/daily-routine.model.js`
+- REVER: `apps/api/src/models/notification.model.js`
 
 #### Tutorial técnico linear
 ### Passo 1 - Confirmar contrato de alertas
@@ -119,7 +119,7 @@ recalcular rotina dentro do alerta mistura responsabilidades e torna o fluxo dif
 
 guardar horários e estado por utilizador.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/models/routine-alert-preference.model.js`
+   - CRIAR: `apps/api/src/models/routine-alert-preference.model.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -127,7 +127,7 @@ criar schema único por `userId`.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/routine-alert-preference.model.js
+// apps/api/src/models/routine-alert-preference.model.js
 import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
@@ -204,7 +204,7 @@ guardar várias preferências por utilizador cria alertas contraditórios.
 
 normalizar checkboxes e horários.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/validators/routine-alert.validator.js`
+   - CRIAR: `apps/api/src/validators/routine-alert.validator.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -212,7 +212,7 @@ validar `HH:mm`, booleanos e o `now` ISO opcional da execução admin.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/validators/routine-alert.validator.js
+// apps/api/src/validators/routine-alert.validator.js
 import { AppError } from "../middlewares/error.middleware.js";
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -293,7 +293,7 @@ confiar no input do browser permite payloads inválidos por API direta.
 
 guardar preferências e criar notificações no momento devido.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/services/routine-alert.service.js`
+   - CRIAR: `apps/api/src/services/routine-alert.service.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -301,7 +301,7 @@ criar `get`, `update` e `createDueRoutineAlerts`.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/routine-alert.service.js
+// apps/api/src/services/routine-alert.service.js
 import { AppError } from "../middlewares/error.middleware.js";
 import { DailyRoutine } from "../models/daily-routine.model.js";
 import { Notification, NOTIFICATION_TYPES } from "../models/notification.model.js";
@@ -424,16 +424,16 @@ criar alertas sem rotina gera mensagens vazias e confusas.
 
 expor preferências ao utilizador.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/controllers/routine-alert.controller.js`
-   - CRIAR: `real_dev/api/src/routes/routine-alert.routes.js`
-   - EDITAR: `real_dev/api/src/app.js`
+   - CRIAR: `apps/api/src/controllers/routine-alert.controller.js`
+   - CRIAR: `apps/api/src/routes/routine-alert.routes.js`
+   - EDITAR: `apps/api/src/app.js`
 3. Instruções do que fazer.
 
 criar `GET` e `PUT /api/me/routine-alerts` e `POST /api/admin/routine-alerts/run`.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/controllers/routine-alert.controller.js
+// apps/api/src/controllers/routine-alert.controller.js
 import {
     createDueRoutineAlerts,
     getMyRoutineAlertPreference,
@@ -478,7 +478,7 @@ export async function runDueRoutineAlertsController(req, res, next) {
 ```
 
 ```js
-// real_dev/api/src/routes/routine-alert.routes.js
+// apps/api/src/routes/routine-alert.routes.js
 import { Router } from "express";
 import { ROLES } from "../constants/roles.js";
 import {
@@ -519,15 +519,15 @@ aceitar `now` inválido deve devolver `400`, e executar a rota duas vezes com o 
 
 permitir ao utilizador ligar/desligar alertas.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/web/src/pages/RoutineAlertsPage.jsx`
-   - EDITAR: `real_dev/web/src/App.jsx`
+   - CRIAR: `apps/web/src/pages/RoutineAlertsPage.jsx`
+   - EDITAR: `apps/web/src/App.jsx`
 3. Instruções do que fazer.
 
 criar formulário com manhã e noite.
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/pages/RoutineAlertsPage.jsx
+// apps/web/src/pages/RoutineAlertsPage.jsx
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -622,15 +622,15 @@ dizer ao utilizador que a rotina garante resultados seria uma claim indevida.
 
 provar validação, idempotência e dependência de rotina.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `real_dev/api/tests/mf4.routine-alerts.test.js`
-   - REVER: `real_dev/api/src/services/routine-alert.service.js`
+   - CRIAR/EDITAR: `apps/api/tests/mf4.routine-alerts.test.js`
+   - REVER: `apps/api/src/services/routine-alert.service.js`
 3. Instruções do que fazer.
 
 testar horário inválido, sem rotina, duplicação e execução admin protegida.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf4.routine-alerts.test.js
+// apps/api/tests/mf4.routine-alerts.test.js
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { validateRoutineAlertPreferenceInput } from "../src/validators/routine-alert.validator.js";
 import { createDueRoutineAlerts } from "../src/services/routine-alert.service.js";

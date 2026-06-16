@@ -73,15 +73,15 @@ Comparação de ingredientes deve ser normalizada: minúsculas, espaços aparado
 - Testes: cobrem normalização e bloqueio.
 
 #### Ficheiros a criar/editar/rever
-- EDITAR: `real_dev/api/src/models/profile.model.js`
-- EDITAR: `real_dev/api/src/validators/profile.validator.js`
-- EDITAR: `real_dev/api/src/services/profile.service.js`
-- CRIAR: `real_dev/api/src/services/recommendation-restrictions.service.js`
-- EDITAR: `real_dev/api/src/services/recommendation.service.js`
-- EDITAR: `real_dev/web/src/pages/EditProfilePage.jsx`
-- EDITAR: `real_dev/web/src/pages/ProductRecommendationsPage.jsx`
-- CRIAR/EDITAR: `real_dev/api/tests/mf4.restrictions.test.js`
-- REVER: `real_dev/api/src/models/product.model.js`
+- EDITAR: `apps/api/src/models/profile.model.js`
+- EDITAR: `apps/api/src/validators/profile.validator.js`
+- EDITAR: `apps/api/src/services/profile.service.js`
+- CRIAR: `apps/api/src/services/recommendation-restrictions.service.js`
+- EDITAR: `apps/api/src/services/recommendation.service.js`
+- EDITAR: `apps/web/src/pages/EditProfilePage.jsx`
+- EDITAR: `apps/web/src/pages/ProductRecommendationsPage.jsx`
+- CRIAR/EDITAR: `apps/api/tests/mf4.restrictions.test.js`
+- REVER: `apps/api/src/models/product.model.js`
 
 #### Tutorial técnico linear
 ### Passo 1 - Confirmar contrato de RF40
@@ -92,7 +92,7 @@ garantir que restrições bloqueiam recomendações, não apenas aparecem no per
 2. Ficheiros envolvidos:
    - REVER: `docs/RF.md`
    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
-   - REVER: `real_dev/api/src/services/recommendation.service.js`
+   - REVER: `apps/api/src/services/recommendation.service.js`
 3. Instruções do que fazer.
 
 identificar ponto de ranking antes de persistir recomendações.
@@ -118,7 +118,7 @@ filtrar só no frontend permite que a API continue a recomendar produto bloquead
 
 persistir listas de restrições.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/api/src/models/profile.model.js`
+   - EDITAR: `apps/api/src/models/profile.model.js`
    - LOCALIZAÇÃO: dentro de `profileSchema`.
 3. Instruções do que fazer.
 
@@ -126,7 +126,7 @@ adicionar arrays simples de strings normalizadas.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/profile.model.js
+// apps/api/src/models/profile.model.js
 const profileSchema = new Schema(
     {
         // Ownership: cada perfil pertence a uma única conta.
@@ -214,15 +214,15 @@ tornar restrições obrigatórias quebraria utilizadores já existentes.
 
 normalizar listas e devolvê-las no DTO.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/api/src/validators/profile.validator.js`
-   - EDITAR: `real_dev/api/src/services/profile.service.js`
+   - EDITAR: `apps/api/src/validators/profile.validator.js`
+   - EDITAR: `apps/api/src/services/profile.service.js`
 3. Instruções do que fazer.
 
 reutilizar `validateCreateProfileInput` e `validateUpdateProfileInput`, acrescentando helpers de restrições e os campos novos no DTO.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/validators/profile.validator.js
+// apps/api/src/validators/profile.validator.js
 /**
  * Validadores de perfil personalizado.
  *
@@ -462,7 +462,7 @@ export function validateUpdateProfileInput(body) {
 ```
 
 ```js
-// real_dev/api/src/services/profile.service.js
+// apps/api/src/services/profile.service.js
 /**
  * Converte um perfil Mongoose numa resposta JSON estável.
  *
@@ -508,7 +508,7 @@ aceitar strings gigantes pode poluir perfil e UI.
 
 isolar regra de compatibilidade em função testável.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/services/recommendation-restrictions.service.js`
+   - CRIAR: `apps/api/src/services/recommendation-restrictions.service.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -516,7 +516,7 @@ comparar ingredientes do produto com regras do perfil.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/recommendation-restrictions.service.js
+// apps/api/src/services/recommendation-restrictions.service.js
 /**
  * Normaliza texto para comparação de ingredientes.
  *
@@ -590,7 +590,7 @@ usar `includes` parcial pode bloquear ingredientes indevidamente, como `oil` den
 
 impedir persistência de recomendações incompatíveis.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/api/src/services/recommendation.service.js`
+   - EDITAR: `apps/api/src/services/recommendation.service.js`
    - LOCALIZAÇÃO: dentro de `generateRecommendationsForUser`.
 3. Instruções do que fazer.
 
@@ -598,7 +598,7 @@ carregar `Profile` e filtrar antes do ranking.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/recommendation.service.js
+// apps/api/src/services/recommendation.service.js
 import { Profile } from "../models/profile.model.js";
 import { getProductRestrictionConflict } from "./recommendation-restrictions.service.js";
 
@@ -700,15 +700,15 @@ filtrar depois do `.slice(0, 5)` pode deixar menos de 3 produtos compatíveis se
 
 recolher restrições e explicar limitações ao utilizador.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/web/src/pages/EditProfilePage.jsx`
-   - EDITAR: `real_dev/web/src/pages/ProductRecommendationsPage.jsx`
+   - EDITAR: `apps/web/src/pages/EditProfilePage.jsx`
+   - EDITAR: `apps/web/src/pages/ProductRecommendationsPage.jsx`
 3. Instruções do que fazer.
 
 adicionar campos de texto separados por vírgula e mostrar limitações.
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/pages/EditProfilePage.jsx
+// apps/web/src/pages/EditProfilePage.jsx
 /**
  * Página de edição de perfil com restrições declarativas do RF40.
  */
@@ -962,7 +962,7 @@ export function EditProfilePage() {
 ```
 
 ```jsx
-// real_dev/web/src/pages/ProductRecommendationsPage.jsx
+// apps/web/src/pages/ProductRecommendationsPage.jsx
 /**
  * Página de recomendações personalizadas com limitações visíveis.
  */
@@ -1132,15 +1132,15 @@ esconder limitações ao utilizador reduz transparência da recomendação.
 
 provar que restrições bloqueiam produtos.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/tests/mf4.restrictions.test.js`
-   - REVER: `real_dev/api/src/services/recommendation-restrictions.service.js`
+   - CRIAR: `apps/api/tests/mf4.restrictions.test.js`
+   - REVER: `apps/api/src/services/recommendation-restrictions.service.js`
 3. Instruções do que fazer.
 
 testar conflito por alergia e ingrediente a evitar.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf4.restrictions.test.js
+// apps/api/tests/mf4.restrictions.test.js
 import { describe, expect, it } from "vitest";
 import { validateUpdateProfileInput } from "../src/validators/profile.validator.js";
 import { getProductRestrictionConflict } from "../src/services/recommendation-restrictions.service.js";
@@ -1198,15 +1198,15 @@ testar apenas o formulário não prova que o motor de recomendação respeita re
 
 provar o fluxo completo `perfil -> recomendação`.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/tests/mf4.restrictions.integration.test.js`
-   - REVER: `real_dev/api/tests/mf2.integration.test.js`
+   - CRIAR: `apps/api/tests/mf4.restrictions.integration.test.js`
+   - REVER: `apps/api/tests/mf2.integration.test.js`
 3. Instruções do que fazer.
 
 criar cenário executável com produto incompatível no catálogo de teste e confirmar que não aparece na resposta final.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf4.restrictions.integration.test.js
+// apps/api/tests/mf4.restrictions.integration.test.js
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FaceAnalysis } from "../src/models/face-analysis.model.js";
 import { FaceReport } from "../src/models/face-report.model.js";
@@ -1344,7 +1344,7 @@ describe("BK-MF4-08 recommendation integration", () => {
 o teste de integração mantém o produto incompatível dentro do catálogo de teste para provar que o filtro está no service, não no fixture. O produto com retinol desaparece da resposta final e também não é enviado para `ProductRecommendation.findOneAndUpdate`. Assim os alunos veem a regra completa: perfil declara restrição, catálogo contém produto bloqueado, backend remove antes de persistir e antes de devolver ao cliente.
 6. Validação do passo.
 
-executar `npm --prefix real_dev/api test` e confirmar que a resposta final contém apenas produtos compatíveis.
+executar `npm --prefix apps/api test` e confirmar que a resposta final contém apenas produtos compatíveis.
 7. Cenário negativo/erro esperado.
 
 remover produto do catálogo no teste não prova que o filtro funciona.

@@ -72,16 +72,16 @@ Relatórios de IA podem conter dados derivados de análise facial. Neste BK, exp
 - `app.js` e `App.jsx`: ligam backend/frontend.
 
 #### Ficheiros a criar/editar/rever
-- CRIAR: `real_dev/api/src/validators/admin-export.validator.js`
-- CRIAR: `real_dev/api/src/services/admin-export.service.js`
-- CRIAR: `real_dev/api/src/controllers/admin-export.controller.js`
-- CRIAR: `real_dev/api/src/routes/admin-export.routes.js`
-- EDITAR: `real_dev/api/src/app.js`
-- CRIAR: `real_dev/web/src/pages/AdminExportsPage.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- REVER: `real_dev/api/src/models/order.model.js`
-- REVER: `real_dev/api/src/models/face-report.model.js`
-- REVER: `real_dev/api/src/models/user.model.js`
+- CRIAR: `apps/api/src/validators/admin-export.validator.js`
+- CRIAR: `apps/api/src/services/admin-export.service.js`
+- CRIAR: `apps/api/src/controllers/admin-export.controller.js`
+- CRIAR: `apps/api/src/routes/admin-export.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/AdminExportsPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/order.model.js`
+- REVER: `apps/api/src/models/face-report.model.js`
+- REVER: `apps/api/src/models/user.model.js`
 
 #### Tutorial técnico linear
 ### Passo 1 - Confirmar contrato de exportação
@@ -119,7 +119,7 @@ prometer exportação visual avançada sem contrato cria risco de atraso e drift
 
 aceitar só datasets e formatos previstos.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/validators/admin-export.validator.js`
+   - CRIAR: `apps/api/src/validators/admin-export.validator.js`
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
@@ -127,7 +127,7 @@ validar params e query.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/validators/admin-export.validator.js
+// apps/api/src/validators/admin-export.validator.js
 import { AppError } from "../middlewares/error.middleware.js";
 
 const DATASETS = ["sales", "ai-reports", "users"];
@@ -174,7 +174,7 @@ aceitar nome de coleção por query abre risco de exposição de dados.
 
 gerar ficheiros sem dependência nova.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/services/admin-export.service.js`
+   - CRIAR: `apps/api/src/services/admin-export.service.js`
    - LOCALIZAÇÃO: início do ficheiro.
 3. Instruções do que fazer.
 
@@ -182,7 +182,7 @@ criar `buildCsv` e `buildTextPdf`.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/admin-export.service.js
+// apps/api/src/services/admin-export.service.js
 import { FaceReport } from "../models/face-report.model.js";
 import { Order, PAYMENT_STATUS } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
@@ -278,7 +278,7 @@ gerar CSV sem escaping permite quebrar colunas com vírgulas ou aspas.
 
 criar linhas exportáveis sem documentos completos.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/api/src/services/admin-export.service.js`
+   - EDITAR: `apps/api/src/services/admin-export.service.js`
    - LOCALIZAÇÃO: após os helpers.
 3. Instruções do que fazer.
 
@@ -366,8 +366,8 @@ usar `find({})` sem `.select(...)` pode exportar campos privados por acidente.
 
 devolver buffer, tipo e nome de ficheiro.
 2. Ficheiros envolvidos:
-   - EDITAR: `real_dev/api/src/services/admin-export.service.js`
-   - CRIAR: `real_dev/api/src/controllers/admin-export.controller.js`
+   - EDITAR: `apps/api/src/services/admin-export.service.js`
+   - CRIAR: `apps/api/src/controllers/admin-export.controller.js`
 3. Instruções do que fazer.
 
 criar `buildAdminExport` e controller com headers corretos.
@@ -406,7 +406,7 @@ export async function buildAdminExport(input) {
 ```
 
 ```js
-// real_dev/api/src/controllers/admin-export.controller.js
+// apps/api/src/controllers/admin-export.controller.js
 import { buildAdminExport } from "../services/admin-export.service.js";
 import { validateAdminExportRequest } from "../validators/admin-export.validator.js";
 
@@ -446,17 +446,17 @@ devolver JSON em vez de ficheiro não cumpre o fluxo de exportação.
 
 permitir download a partir da UI admin.
 2. Ficheiros envolvidos:
-   - CRIAR: `real_dev/api/src/routes/admin-export.routes.js`
-   - EDITAR: `real_dev/api/src/app.js`
-   - CRIAR: `real_dev/web/src/pages/AdminExportsPage.jsx`
-   - EDITAR: `real_dev/web/src/App.jsx`
+   - CRIAR: `apps/api/src/routes/admin-export.routes.js`
+   - EDITAR: `apps/api/src/app.js`
+   - CRIAR: `apps/web/src/pages/AdminExportsPage.jsx`
+   - EDITAR: `apps/web/src/App.jsx`
 3. Instruções do que fazer.
 
 proteger route e criar links de download.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/routes/admin-export.routes.js
+// apps/api/src/routes/admin-export.routes.js
 import { Router } from "express";
 import { ROLES } from "../constants/roles.js";
 import { downloadAdminExportController } from "../controllers/admin-export.controller.js";
@@ -479,7 +479,7 @@ adminExportRoutes.get(
 ```
 
 ```jsx
-// real_dev/web/src/pages/AdminExportsPage.jsx
+// apps/web/src/pages/AdminExportsPage.jsx
 import React from "react";
 
 const API_BASE_URL =
@@ -535,7 +535,7 @@ criar exportação no frontend com dados já carregados pode misturar permissõe
 
 provar segurança e formato.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `real_dev/api/tests/mf4.admin-exports.test.js`
+   - CRIAR/EDITAR: `apps/api/tests/mf4.admin-exports.test.js`
    - REVER: ficheiros descarregados de teste.
 3. Instruções do que fazer.
 
@@ -543,7 +543,7 @@ testar autorização, validação e ausência de campos proibidos.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf4.admin-exports.test.js
+// apps/api/tests/mf4.admin-exports.test.js
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { validateAdminExportRequest } from "../src/validators/admin-export.validator.js";
 import { buildAdminExport } from "../src/services/admin-export.service.js";
