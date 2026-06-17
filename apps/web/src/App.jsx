@@ -36,7 +36,7 @@ import { SkinComparisonPage } from "./pages/SkinComparisonPage.jsx";
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { StockAdminPage } from "./pages/StockAdminPage.jsx";
-
+import { AdminReviewsPage } from "./pages/AdminReviewsPage.jsx";
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
@@ -106,6 +106,8 @@ function AppContent() {
                         {/* A página de utilizadores entra aqui para o painel admin. 
                             Nota: Esta condição visual melhora a experiência, mas a segurança 
                             real é validada pelas barreiras das rotas `/api/admin` no backend. */}
+
+                        <AdminReviewsPage />
                         <AdminUsersPage />
                         <AdminProductCreatePage />
                         <AdminCategoriesPage />
