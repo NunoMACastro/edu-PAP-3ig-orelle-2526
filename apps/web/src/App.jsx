@@ -37,6 +37,8 @@ import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { StockAdminPage } from "./pages/StockAdminPage.jsx";
 import { AdminReviewsPage } from "./pages/AdminReviewsPage.jsx";
+import { AdminExportsPage } from "./pages/AdminExportsPage.jsx";
+
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
