@@ -24,7 +24,7 @@
 
 #### Objetivo
 
-Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orélle, usando tokens CSS, um hook React e um controlo acessível de tema no frontend `real_dev/web`.
+Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orélle, usando tokens CSS, um hook React e um controlo acessível de tema no frontend `apps/web`.
 
 #### Importância
 
@@ -33,8 +33,8 @@ Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orél
 #### Scope-in
 
 - Definir tokens CSS para os temas `light`, `dark` e `contrast`.
-- Criar `useThemePreference` em `real_dev/web`.
-- Criar `ThemeControls` em `real_dev/web`.
+- Criar `useThemePreference` em `apps/web`.
+- Criar `ThemeControls` em `apps/web`.
 - Aplicar o tema no atributo `data-theme` do elemento HTML raiz.
 - Integrar os controlos de tema no header da aplicação.
 - Validar contraste visual em botões, inputs, mensagens e cartões.
@@ -56,11 +56,11 @@ Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orél
 
 #### Pre-requisitos
 
-- `BK-MF5-05`: estrutura responsive base em `real_dev/web`.
+- `BK-MF5-05`: estrutura responsive base em `apps/web`.
 - `BK-MF5-06`: tokens visuais, tipografia e estética da marca.
 - `BK-MF5-07`: mensagens e botões com feedback acessível.
-- `real_dev/web/src/App.jsx`: shell principal do frontend.
-- `real_dev/web/src/styles.css`: CSS global da aplicação.
+- `apps/web/src/App.jsx`: shell principal do frontend.
+- `apps/web/src/styles.css`: CSS global da aplicação.
 - `RNF04`: modo escuro e contraste ajustado.
 
 #### Glossário
@@ -87,22 +87,22 @@ Alto contraste não é o mesmo que modo escuro. Modo escuro reduz luminosidade; 
 
 #### Arquitetura do BK
 
-- `real_dev/web/src/styles.css`: define tokens por `:root`, `[data-theme="light"]`, `[data-theme="dark"]` e `[data-theme="contrast"]`.
-- `real_dev/web/src/hooks/useThemePreference.js`: calcula tema inicial, aplica `data-theme` e valida escolhas permitidas.
-- `real_dev/web/src/components/ThemeControls.jsx`: apresenta botões acessíveis para escolher tema.
-- `real_dev/web/src/App.jsx`: coloca os controlos de tema no header sem alterar sessão, roles ou páginas.
+- `apps/web/src/styles.css`: define tokens por `:root`, `[data-theme="light"]`, `[data-theme="dark"]` e `[data-theme="contrast"]`.
+- `apps/web/src/hooks/useThemePreference.js`: calcula tema inicial, aplica `data-theme` e valida escolhas permitidas.
+- `apps/web/src/components/ThemeControls.jsx`: apresenta botões acessíveis para escolher tema.
+- `apps/web/src/App.jsx`: coloca os controlos de tema no header sem alterar sessão, roles ou páginas.
 - `BK-MF6-01`: deve medir performance depois desta alteração sem desfazer o sistema de temas.
 
 #### Ficheiros a criar/editar/rever
 
-- EDITAR: `real_dev/web/src/styles.css`
-- CRIAR: `real_dev/web/src/hooks/useThemePreference.js`
-- CRIAR: `real_dev/web/src/components/ThemeControls.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- REVER: `real_dev/web/src/components/FeedbackMessage.jsx`
-- REVER: `real_dev/web/src/pages/RegisterPage.jsx`
-- REVER: `real_dev/web/src/pages/FacePhotoUploadPage.jsx`
-- REVER: `real_dev/web/package.json`
+- EDITAR: `apps/web/src/styles.css`
+- CRIAR: `apps/web/src/hooks/useThemePreference.js`
+- CRIAR: `apps/web/src/components/ThemeControls.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/web/src/components/FeedbackMessage.jsx`
+- REVER: `apps/web/src/pages/RegisterPage.jsx`
+- REVER: `apps/web/src/pages/FacePhotoUploadPage.jsx`
+- REVER: `apps/web/package.json`
 - REVER: `docs/RNF.md`
 - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
 - REVER: `docs/planificacao/backlogs/ANEXO-RNF-PARA-BKS.md`
@@ -150,7 +150,7 @@ Uma alteração que use o tema para guardar identidade, token, role ou consentim
 Permitir que a mesma UI mude aparência através de `data-theme`, sem duplicar componentes.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/styles.css`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: perto do bloco `:root`, preservando tokens criados nos BKs anteriores.
 
 3. Instruções do que fazer.
@@ -160,7 +160,7 @@ Atualiza os tokens globais e acrescenta blocos para `dark` e `contrast`. Mantém
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 :root,
 [data-theme="light"] {
     color-scheme: light;
@@ -261,17 +261,17 @@ Se um input continuar com fundo claro e texto claro no modo escuro, falta ligar 
 Controlar o tema ativo no frontend sem tocar em sessão, API ou backend.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/web/src/hooks/useThemePreference.js`
+    - CRIAR: `apps/web/src/hooks/useThemePreference.js`
     - LOCALIZAÇÃO: ficheiro completo.
 
 3. Instruções do que fazer.
 
-Cria a pasta `real_dev/web/src/hooks` se ainda não existir. Depois cria o hook abaixo. O tema inicial pode respeitar a preferência escura do sistema, mas a escolha do utilizador fica apenas no estado React e no DOM.
+Cria a pasta `apps/web/src/hooks` se ainda não existir. Depois cria o hook abaixo. O tema inicial pode respeitar a preferência escura do sistema, mas a escolha do utilizador fica apenas no estado React e no DOM.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/web/src/hooks/useThemePreference.js
+// apps/web/src/hooks/useThemePreference.js
 import { useCallback, useEffect, useState } from "react";
 
 export const THEMES = Object.freeze(["light", "dark", "contrast"]);
@@ -392,7 +392,7 @@ Um tema inválido como `danger` não pode ficar aplicado no DOM como valor final
 Dar ao utilizador uma forma visível e acessível de alternar entre os três temas.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/web/src/components/ThemeControls.jsx`
+    - CRIAR: `apps/web/src/components/ThemeControls.jsx`
     - LOCALIZAÇÃO: ficheiro completo.
 
 3. Instruções do que fazer.
@@ -402,7 +402,7 @@ Cria `ThemeControls.jsx` na pasta de componentes. Usa botões com `aria-pressed`
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/components/ThemeControls.jsx
+// apps/web/src/components/ThemeControls.jsx
 import { useThemePreference } from "../hooks/useThemePreference.js";
 
 const THEME_LABELS = Object.freeze({
@@ -464,7 +464,7 @@ Se o botão ativo só for distinguido por cor e não tiver `aria-pressed`, o con
 Garantir que os controlos de tema, cartões, mensagens e inputs mantêm leitura estável nos três temas.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/styles.css`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: junto das regras de header, cartões e feedback.
 
 3. Instruções do que fazer.
@@ -474,7 +474,7 @@ Acrescenta estes estilos depois das regras de `.app-header` e mantém as regras 
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 .app-header__actions {
     align-items: flex-end;
     display: flex;
@@ -568,7 +568,7 @@ Se o botão de contraste ficar visualmente ativo mas a label desaparecer por fal
 Mostrar os controlos de tema no header principal sem alterar a sequência de páginas nem as condições por role.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/App.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: imports e bloco `<header className="app-header">`.
 
 3. Instruções do que fazer.
@@ -578,7 +578,7 @@ Adiciona o import de `ThemeControls` e ajusta apenas o header. Mantém `AuthProv
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/App.jsx
+// apps/web/src/App.jsx
 import { ThemeControls } from "./components/ThemeControls.jsx";
 
 /**
@@ -599,7 +599,7 @@ function AppContent() {
         <div className="app-shell">
             <header className="app-header">
                 <div>
-                    <p className="app-kicker">real_dev</p>
+                    <p className="app-kicker">Experiência Orélle</p>
                     <h1>Orélle</h1>
                 </div>
 
@@ -690,11 +690,11 @@ Uma integração que remova `useAuth`, apague páginas ou mostre páginas admin 
 Provar que o BK compila, que os três temas são testáveis e que o cenário negativo mínimo de `P2` foi executado.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/package.json`
-    - REVER: `real_dev/web/src/App.jsx`
-    - REVER: `real_dev/web/src/styles.css`
-    - REVER: `real_dev/web/src/hooks/useThemePreference.js`
-    - REVER: `real_dev/web/src/components/ThemeControls.jsx`
+    - REVER: `apps/web/package.json`
+    - REVER: `apps/web/src/App.jsx`
+    - REVER: `apps/web/src/styles.css`
+    - REVER: `apps/web/src/hooks/useThemePreference.js`
+    - REVER: `apps/web/src/components/ThemeControls.jsx`
 
 3. Instruções do que fazer.
 
@@ -703,7 +703,7 @@ Executar cenários negativos obrigatórios (mínimo 1). O cenário negativo obri
 4. Código completo, correto e integrado com a app final.
 
 ```bash
-npm --prefix real_dev/web run build
+npm --prefix apps/web run build
 bash scripts/validate-planificacao.sh
 ```
 
@@ -715,7 +715,7 @@ O primeiro comando valida o frontend Vite no root operativo. O segundo comando v
 
 Confirma estes pontos:
 
-- `npm --prefix real_dev/web run build` termina sem erro.
+- `npm --prefix apps/web run build` termina sem erro.
 - `ThemeControls` aparece no header.
 - `light`, `dark` e `contrast` alteram `data-theme`.
 - Inputs, botões, mensagens e cartões continuam legíveis.
@@ -728,7 +728,7 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 
 #### Expected results
 
-- A aplicação compila em `real_dev/web`.
+- A aplicação compila em `apps/web`.
 - O header mostra controlos `Claro`, `Escuro` e `Contraste`.
 - O tema ativo é refletido em `document.documentElement.dataset.theme`.
 - Inputs, botões, mensagens, cartões e foco mantêm legibilidade.
@@ -737,11 +737,11 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 
 #### Critérios de aceite
 
-- `real_dev/web/src/hooks/useThemePreference.js` existe e valida temas permitidos.
-- `real_dev/web/src/components/ThemeControls.jsx` existe e usa `aria-pressed`.
-- `real_dev/web/src/styles.css` define tokens para `light`, `dark` e `contrast`.
-- `real_dev/web/src/App.jsx` integra `ThemeControls` no header.
-- `npm --prefix real_dev/web run build` passa.
+- `apps/web/src/hooks/useThemePreference.js` existe e valida temas permitidos.
+- `apps/web/src/components/ThemeControls.jsx` existe e usa `aria-pressed`.
+- `apps/web/src/styles.css` define tokens para `light`, `dark` e `contrast`.
+- `apps/web/src/App.jsx` integra `ThemeControls` no header.
+- `npm --prefix apps/web run build` passa.
 - `bash scripts/validate-planificacao.sh` foi executado e o resultado ficou registado.
 - Cenários negativos concluídos: mínimo `1`.
 - Evidência de testes por camada registada para static/build, UI manual e negativo.
@@ -755,7 +755,7 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 | --- | --- | ---: | --- |
 | `P2` | Build do frontend, teste visual dos três temas e validação de tema inválido | 1 | Output do build, screenshot ou descrição visual, resultado do negativo e resultado do validador |
 
-- [ ] Build: `npm --prefix real_dev/web run build`.
+- [ ] Build: `npm --prefix apps/web run build`.
 - [ ] Static/doc: `bash scripts/validate-planificacao.sh`.
 - [ ] UI manual: alternar `Claro`, `Escuro` e `Contraste`.
 - [ ] Acessibilidade: confirmar foco por teclado e `aria-pressed`.
@@ -766,7 +766,7 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 
 Evidência de testes por camada:
 
-- Static/build: output do `npm --prefix real_dev/web run build`.
+- Static/build: output do `npm --prefix apps/web run build`.
 - Documental: output de `bash scripts/validate-planificacao.sh`.
 - UI manual: registo dos três temas testados em desktop e mobile.
 - Acessibilidade: confirmação de foco visível e `aria-pressed`.
@@ -781,4 +781,4 @@ Evidência de testes por camada:
 
 #### Changelog
 
-- `2026-06-20`: corrigido o guia para `real_dev/web`, formalizada a matriz `P2`, acrescentados negativos obrigatórios e reforçados comentários didáticos nos blocos de código.
+- `2026-06-20`: corrigido o guia para `apps/web`, formalizada a matriz `P2`, acrescentados negativos obrigatórios e reforçados comentários didáticos nos blocos de código.

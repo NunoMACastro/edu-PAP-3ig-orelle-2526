@@ -101,20 +101,20 @@ Este BK é `CORE-HIBRIDO`: protege confiança no fluxo de análise/recomendaçã
 
 #### Ficheiros a criar/editar/rever
 
-- CRIAR: `real_dev/api/src/models/biometric-data-request.model.js`
-- EDITAR: `real_dev/api/src/models/face-photo.model.js`
-- EDITAR: `real_dev/api/src/models/face-report.model.js`
-- CRIAR: `real_dev/api/src/validators/biometric-data-request.validator.js`
-- CRIAR: `real_dev/api/src/services/biometric-data-request.service.js`
-- CRIAR: `real_dev/api/src/controllers/biometric-data-request.controller.js`
-- CRIAR: `real_dev/api/src/routes/biometric-data-request.routes.js`
-- EDITAR: `real_dev/api/src/app.js`
-- CRIAR: `real_dev/web/src/pages/BiometricDataRequestsAdminPage.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- CRIAR: `real_dev/api/tests/mf5.biometric-data-requests.test.js`
-- REVER: `real_dev/api/src/middlewares/auth.middleware.js`
-- REVER: `real_dev/api/src/middlewares/role.middleware.js`
-- REVER: `real_dev/web/src/services/apiClient.js`
+- CRIAR: `apps/api/src/models/biometric-data-request.model.js`
+- EDITAR: `apps/api/src/models/face-photo.model.js`
+- EDITAR: `apps/api/src/models/face-report.model.js`
+- CRIAR: `apps/api/src/validators/biometric-data-request.validator.js`
+- CRIAR: `apps/api/src/services/biometric-data-request.service.js`
+- CRIAR: `apps/api/src/controllers/biometric-data-request.controller.js`
+- CRIAR: `apps/api/src/routes/biometric-data-request.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/BiometricDataRequestsAdminPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- CRIAR: `apps/api/tests/mf5.biometric-data-requests.test.js`
+- REVER: `apps/api/src/middlewares/auth.middleware.js`
+- REVER: `apps/api/src/middlewares/role.middleware.js`
+- REVER: `apps/web/src/services/apiClient.js`
 
 #### Tutorial técnico linear
 
@@ -160,7 +160,7 @@ Se o guia misturar eliminação de conta com eliminação de fotografias, o pain
 Guardar cada pedido com ownership, tipo de ação, recursos pedidos, estado e decisão do revisor.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/src/models/biometric-data-request.model.js`
+    - CRIAR: `apps/api/src/models/biometric-data-request.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 
 3. Instruções do que fazer.
@@ -170,7 +170,7 @@ Cria um modelo Mongoose dedicado. Usa `requesterId` a partir da sessão no servi
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/biometric-data-request.model.js
+// apps/api/src/models/biometric-data-request.model.js
 import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
@@ -289,8 +289,8 @@ Guardar `storageKey` ou texto completo de relatório neste modelo aumentaria o i
 Permitir que fotografias e relatórios distingam recurso ativo, eliminado e anonymizado sem criar modelos duplicados.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/api/src/models/face-photo.model.js`
-    - EDITAR: `real_dev/api/src/models/face-report.model.js`
+    - EDITAR: `apps/api/src/models/face-photo.model.js`
+    - EDITAR: `apps/api/src/models/face-report.model.js`
     - LOCALIZAÇÃO: campos `status` e `privacyStatus`.
 
 3. Instruções do que fazer.
@@ -300,7 +300,7 @@ No `FacePhoto`, acrescenta o estado `anonymized`. No `FaceReport`, acrescenta `p
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/face-photo.model.js
+// apps/api/src/models/face-photo.model.js
 status: {
     type: String,
     enum: ["active", "deleted", "anonymized"],
@@ -309,7 +309,7 @@ status: {
 ```
 
 ```js
-// real_dev/api/src/models/face-report.model.js
+// apps/api/src/models/face-report.model.js
 privacyStatus: {
     type: String,
     enum: ["active", "deleted", "anonymized"],
@@ -337,8 +337,8 @@ Se o relatório não tiver estado próprio, `delete/reports` e `anonymize/report
 Permitir que o cliente autenticado crie pedido sobre os próprios dados, com input normalizado e sem escolher o dono do pedido.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/src/validators/biometric-data-request.validator.js`
-    - CRIAR: `real_dev/api/src/services/biometric-data-request.service.js`
+    - CRIAR: `apps/api/src/validators/biometric-data-request.validator.js`
+    - CRIAR: `apps/api/src/services/biometric-data-request.service.js`
     - LOCALIZAÇÃO: funções `validateCreateBiometricDataRequestInput`, `createMyBiometricDataRequest`, `listBiometricDataRequestsForReview` e `toBiometricDataRequestResponse`.
 
 3. Instruções do que fazer.
@@ -348,7 +348,7 @@ Valida `action`, `resources` e `reason`. No service, usa sempre `userId` recebid
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/validators/biometric-data-request.validator.js
+// apps/api/src/validators/biometric-data-request.validator.js
 import { AppError } from "../middlewares/error.middleware.js";
 import {
     BIOMETRIC_REQUEST_ACTIONS,
@@ -397,7 +397,7 @@ export function validateCreateBiometricDataRequestInput(body = {}) {
 ```
 
 ```js
-// real_dev/api/src/services/biometric-data-request.service.js
+// apps/api/src/services/biometric-data-request.service.js
 import { AppError } from "../middlewares/error.middleware.js";
 import {
     BIOMETRIC_REQUEST_ACTIONS,
@@ -485,8 +485,8 @@ Enviar `{ "requesterId": "outro-utilizador" }` no body não deve alterar o dono 
 Garantir que o pedido aprovado respeita a ação escolhida pelo cliente e não trata `delete` e `anonymize` como sinónimos.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/api/src/validators/biometric-data-request.validator.js`
-    - EDITAR: `real_dev/api/src/services/biometric-data-request.service.js`
+    - EDITAR: `apps/api/src/validators/biometric-data-request.validator.js`
+    - EDITAR: `apps/api/src/services/biometric-data-request.service.js`
     - LOCALIZAÇÃO: funções `validateBiometricDataRequestDecisionInput`, `applyApprovedBiometricDataRequest` e `decideBiometricDataRequest`.
 
 3. Instruções do que fazer.
@@ -496,7 +496,7 @@ Acrescenta validação de decisão. No service, ramifica primeiro por `request.a
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/validators/biometric-data-request.validator.js
+// apps/api/src/validators/biometric-data-request.validator.js
 /**
  * Valida a decisão tomada por consultor/admin.
  *
@@ -522,7 +522,7 @@ export function validateBiometricDataRequestDecisionInput(body = {}) {
 ```
 
 ```js
-// real_dev/api/src/services/biometric-data-request.service.js
+// apps/api/src/services/biometric-data-request.service.js
 /**
  * Aplica eliminação lógica aos recursos selecionados.
  *
@@ -678,9 +678,9 @@ Tentar aprovar novamente um pedido `completed` deve devolver `409`.
 Expor o fluxo por HTTP com autenticação, role e respostas minimizadas.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/src/controllers/biometric-data-request.controller.js`
-    - CRIAR: `real_dev/api/src/routes/biometric-data-request.routes.js`
-    - EDITAR: `real_dev/api/src/app.js`
+    - CRIAR: `apps/api/src/controllers/biometric-data-request.controller.js`
+    - CRIAR: `apps/api/src/routes/biometric-data-request.routes.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: ficheiros completos e montagem antes de `errorMiddleware`.
 
 3. Instruções do que fazer.
@@ -690,7 +690,7 @@ Regista `POST /api/me/biometric-data-requests`, `GET /api/admin/biometric-data-r
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/controllers/biometric-data-request.controller.js
+// apps/api/src/controllers/biometric-data-request.controller.js
 import {
     validateBiometricDataRequestDecisionInput,
     validateCreateBiometricDataRequestInput,
@@ -770,7 +770,7 @@ export async function decideBiometricDataRequestController(req, res, next) {
 ```
 
 ```js
-// real_dev/api/src/routes/biometric-data-request.routes.js
+// apps/api/src/routes/biometric-data-request.routes.js
 import { Router } from "express";
 import { ROLES } from "../constants/roles.js";
 import {
@@ -810,7 +810,7 @@ biometricDataRequestRoutes.patch(
 ```
 
 ```js
-// real_dev/api/src/app.js
+// apps/api/src/app.js
 import { biometricDataRequestRoutes } from "./routes/biometric-data-request.routes.js";
 
 // Dentro de createApp(), junto das restantes rotas montadas em /api.
@@ -836,8 +836,8 @@ Sem cookie de sessão, criação, listagem e decisão devem devolver `401`.
 Permitir que consultores/admins consultem pedidos e tomem decisão sem ver dados biométricos brutos.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/web/src/pages/BiometricDataRequestsAdminPage.jsx`
-    - EDITAR: `real_dev/web/src/App.jsx`
+    - CRIAR: `apps/web/src/pages/BiometricDataRequestsAdminPage.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: componente completo, imports e zona `canReviewRecommendations`.
 
 3. Instruções do que fazer.
@@ -847,7 +847,7 @@ Cria página com estados `loading`, `empty`, `error` e `success`. Usa `apiReques
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/pages/BiometricDataRequestsAdminPage.jsx
+// apps/web/src/pages/BiometricDataRequestsAdminPage.jsx
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -957,7 +957,7 @@ export function BiometricDataRequestsAdminPage() {
 ```
 
 ```jsx
-// real_dev/web/src/App.jsx
+// apps/web/src/App.jsx
 import { BiometricDataRequestsAdminPage } from "./pages/BiometricDataRequestsAdminPage.jsx";
 
 /**
@@ -993,7 +993,7 @@ Se a API devolver `403`, a UI deve mostrar mensagem segura e não deve revelar d
 Provar que criação, listagem, decisão e efeitos de privacidade cumprem ownership, roles e minimização.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/tests/mf5.biometric-data-requests.test.js`
+    - CRIAR: `apps/api/tests/mf5.biometric-data-requests.test.js`
     - LOCALIZAÇÃO: ficheiro completo de testes de integração.
 
 3. Instruções do que fazer.
@@ -1009,7 +1009,7 @@ Executar cenários negativos obrigatórios (mínimo 3):
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf5.biometric-data-requests.test.js
+// apps/api/tests/mf5.biometric-data-requests.test.js
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app.js";
@@ -1161,7 +1161,7 @@ Os testes usam cookie de sessão para reproduzir a autenticação real. O primei
 
 6. Validação do passo.
 
-Executa `npm --prefix real_dev/api test`. Se os ficheiros ainda não estiverem criados no código real, estes testes servem como contrato de implementação do BK e devem passar quando o aluno aplicar os passos.
+Executa `npm --prefix apps/api test`. Se os ficheiros ainda não estiverem criados no código real, estes testes servem como contrato de implementação do BK e devem passar quando o aluno aplicar os passos.
 
 7. Cenário negativo/erro esperado.
 
@@ -1195,8 +1195,8 @@ Sem cookie de sessão, criação, listagem e decisão devem devolver `401`.
 
 - `rg` não encontra linguagem interna nem termos de implementação temporária neste BK.
 - A pesquisa de paths históricos neste ficheiro não deve devolver ocorrências.
-- `npm --prefix real_dev/api test` deve passar quando os ficheiros forem implementados.
-- `npm --prefix real_dev/web run build` deve passar após integrar a página no `App.jsx`.
+- `npm --prefix apps/api test` deve passar quando os ficheiros forem implementados.
+- `npm --prefix apps/web run build` deve passar após integrar a página no `App.jsx`.
 - Testar manualmente cliente sem sessão, cliente autenticado, consultor e administrador.
 - [ ] Negativos: minimo `3` cenarios controlados com `400`, `401`, `403` ou `409`.
 
@@ -1225,4 +1225,4 @@ Sem cookie de sessão, criação, listagem e decisão devem devolver `401`.
 
 #### Changelog
 
-- `2026-06-19`: guia corrigido para `real_dev`, 8 passos, semântica explícita `delete/anonymize`, estados de privacidade em fotografias/relatórios, painel React, testes negativos e evidence `CORE-HIBRIDO`.
+- `2026-06-19`: guia corrigido para `apps`, 8 passos, semântica explícita `delete/anonymize`, estados de privacidade em fotografias/relatórios, painel React, testes negativos e evidence `CORE-HIBRIDO`.

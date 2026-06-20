@@ -84,11 +84,11 @@ Sem biblioteca de UI, o CSS global deve definir regras comuns para botões, inpu
 
 #### Ficheiros a criar/editar/rever
 
-- EDITAR: `real_dev/web/src/App.jsx`
-- EDITAR: `real_dev/web/src/styles.css`
-- REVER: `real_dev/web/src/services/apiClient.js`
-- REVER: páginas em `real_dev/web/src/pages/*.jsx`
-- REVER: `real_dev/web/package.json`
+- EDITAR: `apps/web/src/App.jsx`
+- EDITAR: `apps/web/src/styles.css`
+- REVER: `apps/web/src/services/apiClient.js`
+- REVER: páginas em `apps/web/src/pages/*.jsx`
+- REVER: `apps/web/package.json`
 
 #### Tutorial técnico linear
 
@@ -99,7 +99,7 @@ Sem biblioteca de UI, o CSS global deve definir regras comuns para botões, inpu
 Separar visualmente fluxos de cliente, consultor e administrador sem criar routing novo.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/src/App.jsx`
+    - REVER: `apps/web/src/App.jsx`
     - REVER: `docs/planificacao/backlogs/MF-VIEWS.md`
     - LOCALIZAÇÃO: componente `AppContent`.
 
@@ -132,7 +132,7 @@ Mostrar painéis admin a clientes confunde a experiência e pode sugerir acesso 
 Criar grupos visuais sem alterar lógica de autenticação.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/App.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: função `AppContent`.
 
 3. Instruções do que fazer.
@@ -142,7 +142,7 @@ Mantém os imports já existentes, acrescenta `SectionGroup` e liga as páginas 
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/App.jsx
+// apps/web/src/App.jsx
 // Estes imports vêm dos BKs anteriores da MF5 e tornam a navegação responsiva capaz de mostrar os fluxos de privacidade no grupo correto.
 import { BiometricAuditPage } from "./pages/BiometricAuditPage.jsx";
 import { BiometricDataRequestsAdminPage } from "./pages/BiometricDataRequestsAdminPage.jsx";
@@ -181,7 +181,7 @@ function AppContent() {
         <div className="app-shell">
             <header className="app-header">
                 <div>
-                    <p className="app-kicker">real_dev</p>
+                    <p className="app-kicker">Experiência Orélle</p>
                     <h1>Orélle</h1>
                 </div>
                 {user && <p className="session-pill">{user.email} · {user.role}</p>}
@@ -264,7 +264,7 @@ Remover `isAdmin` ou `canReview` pode tornar visíveis painéis que o utilizador
 Garantir que header, grelhas, formulários e cartões funcionam em desktop e mobile.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/styles.css`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: regras de layout e media query.
 
 3. Instruções do que fazer.
@@ -274,7 +274,7 @@ Atualiza o CSS global com `section-group`, `section-grid`, larguras máximas e b
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 .app-shell {
     width: min(1180px, calc(100% - 2rem));
     margin: 0 auto;
@@ -373,8 +373,8 @@ Usar largura fixa em pixels nos cartões pode criar scroll horizontal em telemó
 Garantir que loading, erro, vazio e sucesso aparecem de forma consistente.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/src/pages/*.jsx`
-    - EDITAR: `real_dev/web/src/styles.css`
+    - REVER: `apps/web/src/pages/*.jsx`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: seletores `[role="alert"]`, `[role="status"]`, listas e artigos.
 
 3. Instruções do que fazer.
@@ -384,7 +384,7 @@ Confirma que mensagens de erro usam `role="alert"` e progresso usa `role="status
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 /* Alertas ficam visualmente fortes e semanticamente claros para erros que o aluno ou utilizador precisa de resolver. */
 [role="alert"] {
     border-left: 0.35rem solid var(--wine);
@@ -435,9 +435,9 @@ Mostrar erros técnicos crus na UI enfraquece segurança e torna a experiência 
 Confirmar que a UI compila e é utilizável em larguras diferentes.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/package.json`
-    - REVER: `real_dev/web/src/App.jsx`
-    - REVER: `real_dev/web/src/styles.css`
+    - REVER: `apps/web/package.json`
+    - REVER: `apps/web/src/App.jsx`
+    - REVER: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: script `build`.
 
 3. Instruções do que fazer.
@@ -447,7 +447,7 @@ Executa build Vite e abre a app em largura desktop e mobile. Executar cenários 
 4. Código completo, correto e integrado com a app final.
 
 ```bash
-npm --prefix real_dev/web run build
+npm --prefix apps/web run build
 ```
 
 5. Explicação do código.
@@ -469,8 +469,8 @@ Build a passar não prova que a UI está legível; por isso a inspeção visual 
 Separar a validação mobile dos formulários, listas e cartões para evitar que a responsividade fique reduzida a uma observação genérica no build.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/src/pages/*.jsx`
-    - REVER: `real_dev/web/src/styles.css`
+    - REVER: `apps/web/src/pages/*.jsx`
+    - REVER: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: formulários, listas, artigos, cartões e mensagens dentro dos grupos criados em `AppContent`.
 
 3. Instruções do que fazer.
@@ -502,9 +502,9 @@ Se uma lista de relatórios ou produtos rebentar o cartão em mobile, a correç�
 Garantir que a reorganização visual não cria a ideia errada de que esconder uma secção no frontend substitui autorização no backend.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/src/App.jsx`
-    - REVER: `real_dev/api/src/middlewares`
-    - REVER: `real_dev/api/src/routes`
+    - REVER: `apps/web/src/App.jsx`
+    - REVER: `apps/api/src/middlewares`
+    - REVER: `apps/api/src/routes`
     - LOCALIZAÇÃO: gates `isAdmin`, `canReviewRecommendations` e routes protegidas por autenticação/role.
 
 3. Instruções do que fazer.
@@ -536,9 +536,9 @@ Se removeres o gate visual e um cliente vir uma página admin, o backend ainda d
 Fechar o BK P0 com evidência suficiente para defesa, cobrindo build, integração visual, smoke manual/e2e responsivo e negativos.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/package.json`
-    - REVER: `real_dev/web/src/App.jsx`
-    - REVER: `real_dev/web/src/styles.css`
+    - REVER: `apps/web/package.json`
+    - REVER: `apps/web/src/App.jsx`
+    - REVER: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: comandos e notas de validação anexadas à PR ou defesa.
 
 3. Instruções do que fazer.
@@ -548,7 +548,7 @@ Guarda evidência de quatro camadas: build Vite, inspeção desktop, inspeção 
 4. Código completo, correto e integrado com a app final.
 
 ```bash
-npm --prefix real_dev/web run build
+npm --prefix apps/web run build
 ```
 
 5. Explicação do código.
@@ -583,10 +583,10 @@ Se só existir uma captura desktop, a evidência está incompleta. A correção 
 
 #### Validação final
 
-- Executar `npm --prefix real_dev/web run build` ou equivalente no root usado.
+- Executar `npm --prefix apps/web run build` ou equivalente no root usado.
 - Testar largura desktop e largura mobile.
 - Confirmar que botões não ficam sobrepostos.
-- [ ] Build: `npm --prefix real_dev/web run build` termina sem erro.
+- [ ] Build: `npm --prefix apps/web run build` termina sem erro.
 - [ ] Integração visual: grupos de cliente, consultoria e administração aparecem com as páginas esperadas depois de aplicar os BKs anteriores da MF5.
 - [ ] E2E ou smoke visual: desktop e mobile não têm scroll horizontal nem texto sobreposto.
 - [ ] Negativos: mínimo `3` cenários com resultado controlado.
@@ -615,5 +615,5 @@ Se só existir uma captura desktop, a evidência está incompleta. A correção 
 
 - `2026-06-20`: acrescentados campos core dual no header, passos 6 a 8 e matriz mínima de testes P0 para fechar a granularidade de responsividade, roles e evidence por camada.
 - `2026-06-19`: comentários didáticos reforçados nos blocos CSS longos e matriz mínima de testes integrada na validação final.
-- `2026-06-19`: paths alinhados para `real_dev/web`, origem das páginas biométricas clarificada e matriz mínima de testes P0 adicionada.
+- `2026-06-19`: paths alinhados para `apps/web`, origem das páginas biométricas clarificada e matriz mínima de testes P0 adicionada.
 - `2026-06-18`: guia reescrito para RNF01 com organização de `App.jsx`, CSS responsivo, estados visuais e validação desktop/mobile.

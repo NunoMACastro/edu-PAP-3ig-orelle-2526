@@ -24,7 +24,7 @@
 
 #### Objetivo
 
-Neste BK vais consolidar a linguagem visual da Orélle no frontend `real_dev/web`, criando tokens de marca, estados de interação e pequenas classes reutilizáveis para que a aplicação mantenha cores suaves, tipografia moderna e leitura consistente.
+Neste BK vais consolidar a linguagem visual da Orélle no frontend `apps/web`, criando tokens de marca, estados de interação e pequenas classes reutilizáveis para que a aplicação mantenha cores suaves, tipografia moderna e leitura consistente.
 
 #### Importância
 
@@ -33,7 +33,7 @@ Design consistente não é decoração. Numa aplicação de cosmética, a interf
 #### Scope-in
 
 - Definir tokens CSS semânticos para cor, superfície, texto, borda, sombra, foco e estados da marca.
-- Manter compatibilidade com os tokens já usados em `real_dev/web/src/styles.css`.
+- Manter compatibilidade com os tokens já usados em `apps/web/src/styles.css`.
 - Uniformizar botões, inputs, foco, alertas e mensagens de estado.
 - Criar classes reutilizáveis para painéis, métricas e estados visuais.
 - Preservar o layout responsivo criado no `BK-MF5-05`.
@@ -57,8 +57,8 @@ Design consistente não é decoração. Numa aplicação de cosmética, a interf
 
 - `BK-MF5-05`: shell responsiva, grelha base e organização visual por grupos.
 - `RNF02`: design coerente com estética da marca, cores suaves e tipografia moderna.
-- `real_dev/web/src/styles.css` existente.
-- `real_dev/web/package.json` com script `build`.
+- `apps/web/src/styles.css` existente.
+- `apps/web/package.json` com script `build`.
 - Conhecimentos básicos de CSS custom properties, estados de foco e inspeção visual em browser.
 
 #### Glossário
@@ -89,7 +89,7 @@ Evidence visual não substitui build. O build confirma que Vite consegue compila
 
 #### Arquitetura do BK
 
-- `real_dev/web/src/styles.css`: recebe tokens semânticos, aliases de compatibilidade, estados de interação e classes reutilizáveis.
+- `apps/web/src/styles.css`: recebe tokens semânticos, aliases de compatibilidade, estados de interação e classes reutilizáveis.
 - Páginas React existentes: continuam a usar a estrutura criada no `BK-MF5-05`; este BK não exige alterar JSX para funcionar.
 - `BK-MF5-07`: passa a poder reutilizar os tokens para mensagens claras e feedback acessível.
 - `BK-MF5-08`: passa a ter uma base de tokens estável para modo escuro e contraste ajustado.
@@ -97,10 +97,10 @@ Evidence visual não substitui build. O build confirma que Vite consegue compila
 
 #### Ficheiros a criar/editar/rever
 
-- EDITAR: `real_dev/web/src/styles.css`
-- REVER: `real_dev/web/src/App.jsx`
-- REVER: `real_dev/web/src/pages/*.jsx`
-- REVER: `real_dev/web/package.json`
+- EDITAR: `apps/web/src/styles.css`
+- REVER: `apps/web/src/App.jsx`
+- REVER: `apps/web/src/pages/*.jsx`
+- REVER: `apps/web/package.json`
 - REVER: `docs/RNF.md`
 - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
 - REVER: `docs/planificacao/backlogs/ANEXO-RNF-PARA-BKS.md`
@@ -136,7 +136,7 @@ Não há código porque a primeira decisão é documental. O RNF orienta aparên
 
 6. Validação do passo.
 
-Consegues explicar por que este BK edita `real_dev/web/src/styles.css`, preserva o trabalho do `BK-MF5-05` e prepara `BK-MF5-07`.
+Consegues explicar por que este BK edita `apps/web/src/styles.css`, preserva o trabalho do `BK-MF5-05` e prepara `BK-MF5-07`.
 
 7. Cenário negativo/erro esperado.
 
@@ -149,7 +149,7 @@ Se usares este BK para alterar regras de recomendação, auditoria biométrica o
 Criar uma base visual reutilizável sem quebrar seletores que ainda usam os tokens antigos.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/styles.css`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: substituir o bloco `:root` atual.
 
 3. Instruções do que fazer.
@@ -159,7 +159,7 @@ Substitui o bloco `:root` pelo código abaixo. Mantém tokens novos com nomes se
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 :root {
     color-scheme: light;
     font-family:
@@ -222,7 +222,7 @@ Remove temporariamente a linha `--bordo: var(--brand-primary);` e observa que se
 Tornar interações previsíveis e legíveis, usando os tokens definidos no passo anterior.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/styles.css`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: substituir os seletores `button`, `button:hover:not(:disabled)`, `button:disabled`, `input`, `select`, `textarea`, estados `:focus`, `.app-kicker`, `.session-pill`, `main > h1::before`, `section > h1::before`, `[role="alert"]` e `[role="status"]`.
 
 3. Instruções do que fazer.
@@ -232,7 +232,7 @@ Atualiza os seletores abaixo para usarem tokens `--brand-*`. Não mudes classes 
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 button {
     min-height: 2.65rem;
     border: 0;
@@ -357,7 +357,7 @@ Remove temporariamente o `box-shadow` dos campos em foco e tenta navegar por tec
 Oferecer padrões reutilizáveis para painéis de destaque, faixas de métricas e estados visuais sem criar uma classe para cada página.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/styles.css`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: acrescentar as classes depois do bloco `article` e antes das listas, para ficarem perto dos estilos de superfície.
 
 3. Instruções do que fazer.
@@ -367,7 +367,7 @@ Acrescenta o código abaixo. Usa estas classes em páginas que precisem de desta
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 .brand-panel {
     border: 1px solid var(--line);
     border-radius: 0.5rem;
@@ -426,9 +426,9 @@ Cria mentalmente uma classe como `.checkout-red-button`. O erro é a classe fica
 Confirmar que a marca compila, mantém leitura confortável e não altera comportamento funcional.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/src/styles.css`
-    - REVER: `real_dev/web/package.json`
-    - REVER: `real_dev/web/src/App.jsx`
+    - REVER: `apps/web/src/styles.css`
+    - REVER: `apps/web/package.json`
+    - REVER: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: script `build` e interface em desktop/mobile.
 
 3. Instruções do que fazer.
@@ -438,12 +438,12 @@ Executa o build do frontend real. Depois faz inspeção visual em desktop e mobi
 4. Código completo, correto e integrado com a app final.
 
 ```bash
-npm --prefix real_dev/web run build
+npm --prefix apps/web run build
 ```
 
 5. Explicação do código.
 
-O comando usa o root operativo desta PAP, `real_dev/web`. O build confirma que Vite consegue compilar a app depois das alterações de CSS. Ele não mede contraste sozinho; por isso a inspeção visual continua obrigatória.
+O comando usa o root operativo desta PAP, `apps/web`. O build confirma que Vite consegue compilar a app depois das alterações de CSS. Ele não mede contraste sozinho; por isso a inspeção visual continua obrigatória.
 
 O primeiro negativo é remover o halo de foco e confirmar que a navegação por teclado fica pior. O segundo negativo é remover um alias como `--bordo` e confirmar que seletores antigos podem perder cor. Estes testes ensinam por que o BK mantém foco visível e aliases.
 
@@ -462,7 +462,7 @@ Se a paleta ficar suave demais, o texto secundário ou as mensagens de alerta po
 Garantir que os tokens deste BK continuam úteis para `BK-MF5-07` e `BK-MF5-08`, sem obrigar os próximos guias a recriar cores, estados ou classes de marca.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/src/styles.css`
+    - REVER: `apps/web/src/styles.css`
     - REVER: `docs/planificacao/guias-bk/MF5/BK-MF5-07-mensagens-claras-icones-acessiveis-e-feedback-imediato-em-formularios.md`
     - REVER: `docs/planificacao/guias-bk/MF5/BK-MF5-08-modo-escuro-e-contraste-ajustado.md`
     - LOCALIZAÇÃO: tokens `--brand-*`, `--focus-ring`, `--shadow-soft`, classes `.brand-panel`, `.metric-strip` e `.status-chip`.
@@ -491,7 +491,7 @@ Se `BK-MF5-08` precisar de criar uma segunda variável para a mesma cor primári
 
 #### Expected results
 
-- `real_dev/web/src/styles.css` tem tokens semânticos de marca em `:root`.
+- `apps/web/src/styles.css` tem tokens semânticos de marca em `:root`.
 - Tokens antigos continuam definidos como aliases para evitar regressões.
 - Botões, inputs, foco, títulos, alertas e mensagens de estado usam tokens consistentes.
 - `.brand-panel`, `.metric-strip` e `.status-chip` ficam disponíveis para os BKs seguintes.
@@ -504,7 +504,7 @@ Se `BK-MF5-08` precisar de criar uma segunda variável para a mesma cor primári
 #### Critérios de aceite
 
 - Não existem dependências novas.
-- Todos os paths deste BK apontam para `real_dev/web`.
+- Todos os paths deste BK apontam para `apps/web`.
 - `styles.css` define `--brand-primary`, `--brand-primary-strong`, `--brand-accent`, `--brand-depth`, `--brand-blush`, `--brand-powder`, `--focus-ring` e `--shadow-soft`.
 - `styles.css` mantém aliases para `--bordo`, `--bordo-dark`, `--wine`, `--plum`, `--blush`, `--powder` e `--shadow`.
 - Estados de foco e disabled são visíveis.
@@ -517,7 +517,7 @@ Se `BK-MF5-08` precisar de criar uma segunda variável para a mesma cor primári
 ### Matriz mínima de testes por prioridade
 
 - `P1`: build frontend, inspeção visual desktop/mobile, foco por teclado e 2 negativos.
-- [ ] Build: `npm --prefix real_dev/web run build` termina sem erro.
+- [ ] Build: `npm --prefix apps/web run build` termina sem erro.
 - [ ] Foco: campos `input`, `select` e `textarea` mostram halo visível.
 - [ ] Botões: ativo, hover e disabled são distinguíveis.
 - [ ] Mensagens: `role="alert"` e `role="status"` ficam legíveis.
@@ -533,7 +533,7 @@ Erros comuns a evitar:
 
 #### Evidence para PR/defesa
 
-- Output de `npm --prefix real_dev/web run build`.
+- Output de `npm --prefix apps/web run build`.
 - Captura de ecrã de formulário com foco visível.
 - Captura de ecrã de painel com `.status-chip` ou `.brand-panel`.
 - Nota curta de revisão de contraste em desktop e mobile.
@@ -546,4 +546,4 @@ Erros comuns a evitar:
 #### Changelog
 
 - `2026-06-20`: acrescentados campos core dual no header e passo 6 para fechar a granularidade P1 e o handoff visual para feedback/tema.
-- `2026-06-20`: guia corrigido para `real_dev/web`, tokens compatíveis com o CSS real, comentários didáticos nos blocos CSS, validação por build do frontend real, matriz mínima de testes e acentuação corrigida.
+- `2026-06-20`: guia corrigido para `apps/web`, tokens compatíveis com o CSS real, comentários didáticos nos blocos CSS, validação por build do frontend real, matriz mínima de testes e acentuação corrigida.

@@ -89,16 +89,16 @@ O backend é o único local fiável para auditar. Se a UI registasse eventos soz
 
 #### Ficheiros a criar/editar/rever
 
-- CRIAR: `real_dev/api/src/models/biometric-access-log.model.js`
-- CRIAR: `real_dev/api/src/services/biometric-audit.service.js`
-- CRIAR: `real_dev/api/src/controllers/biometric-audit.controller.js`
-- CRIAR: `real_dev/api/src/routes/biometric-audit.routes.js`
-- EDITAR: `real_dev/api/src/services/biometric-data-request.service.js`
-- EDITAR: `real_dev/api/src/controllers/biometric-data-request.controller.js`
-- EDITAR: `real_dev/api/src/app.js`
-- CRIAR: `real_dev/web/src/pages/BiometricAuditPage.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- CRIAR: `real_dev/api/tests/mf5.biometric-audit.test.js`
+- CRIAR: `apps/api/src/models/biometric-access-log.model.js`
+- CRIAR: `apps/api/src/services/biometric-audit.service.js`
+- CRIAR: `apps/api/src/controllers/biometric-audit.controller.js`
+- CRIAR: `apps/api/src/routes/biometric-audit.routes.js`
+- EDITAR: `apps/api/src/services/biometric-data-request.service.js`
+- EDITAR: `apps/api/src/controllers/biometric-data-request.controller.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/BiometricAuditPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- CRIAR: `apps/api/tests/mf5.biometric-audit.test.js`
 
 #### Tutorial técnico linear
 
@@ -143,8 +143,8 @@ Auditar apenas erros não permite perceber acessos bem-sucedidos indevidos.
 Persistir eventos minimizados e calcular alerta por volume de acessos.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/src/models/biometric-access-log.model.js`
-    - CRIAR: `real_dev/api/src/services/biometric-audit.service.js`
+    - CRIAR: `apps/api/src/models/biometric-access-log.model.js`
+    - CRIAR: `apps/api/src/services/biometric-audit.service.js`
     - LOCALIZAÇÃO: ficheiros completos.
 
 3. Instruções do que fazer.
@@ -154,7 +154,7 @@ Cria o model sem campos de imagem, path ou relatório completo. No service, limi
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/biometric-access-log.model.js
+// apps/api/src/models/biometric-access-log.model.js
 import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
@@ -244,7 +244,7 @@ export const BiometricAccessLog = model(
 ```
 
 ```js
-// real_dev/api/src/services/biometric-audit.service.js
+// apps/api/src/services/biometric-audit.service.js
 import {
     BIOMETRIC_AUDIT_ACTIONS,
     BIOMETRIC_AUDIT_RESULTS,
@@ -364,8 +364,8 @@ Guardar `cosmeticSummary` ou `storageKey` no log transformaria a auditoria num n
 Registar quando consultor/admin lista ou decide pedidos de dados biométricos.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/api/src/services/biometric-data-request.service.js`
-    - EDITAR: `real_dev/api/src/controllers/biometric-data-request.controller.js`
+    - EDITAR: `apps/api/src/services/biometric-data-request.service.js`
+    - EDITAR: `apps/api/src/controllers/biometric-data-request.controller.js`
     - LOCALIZAÇÃO: chamadas a `listBiometricDataRequestsForReview` e `decideBiometricDataRequest`.
 
 3. Instruções do que fazer.
@@ -375,7 +375,7 @@ Passa ator autenticado para o service e chama `recordBiometricAccess` depois de 
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/biometric-data-request.service.js
+// apps/api/src/services/biometric-data-request.service.js
 import {
     BIOMETRIC_AUDIT_ACTIONS,
     recordBiometricAccess,
@@ -408,7 +408,7 @@ export async function listBiometricDataRequestsForReview(actor) {
 ```
 
 ```js
-// real_dev/api/src/services/biometric-data-request.service.js
+// apps/api/src/services/biometric-data-request.service.js
 /**
  * Decide pedido pendente e regista auditoria da decisão.
  *
@@ -481,7 +481,7 @@ export async function decideBiometricDataRequest(requestId, actor, input) {
 ```
 
 ```js
-// real_dev/api/src/controllers/biometric-data-request.controller.js
+// apps/api/src/controllers/biometric-data-request.controller.js
 /**
  * Lista pedidos biométricos para consultor/admin.
  *
@@ -548,11 +548,11 @@ Se a auditoria for chamada antes da autorização por role, pode registar evento
 Permitir que administradores vejam eventos e alertas biométricos minimizados.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/src/controllers/biometric-audit.controller.js`
-    - CRIAR: `real_dev/api/src/routes/biometric-audit.routes.js`
-    - EDITAR: `real_dev/api/src/app.js`
-    - CRIAR: `real_dev/web/src/pages/BiometricAuditPage.jsx`
-    - EDITAR: `real_dev/web/src/App.jsx`
+    - CRIAR: `apps/api/src/controllers/biometric-audit.controller.js`
+    - CRIAR: `apps/api/src/routes/biometric-audit.routes.js`
+    - EDITAR: `apps/api/src/app.js`
+    - CRIAR: `apps/web/src/pages/BiometricAuditPage.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: ficheiros completos.
 
 3. Instruções do que fazer.
@@ -562,7 +562,7 @@ Protege a leitura de auditoria apenas para `administrador`. O consultor pode ger
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/controllers/biometric-audit.controller.js
+// apps/api/src/controllers/biometric-audit.controller.js
 import {
     listBiometricAuditAlerts,
     listBiometricAuditLogs,
@@ -612,7 +612,7 @@ export async function listBiometricAuditAlertsController(req, res, next) {
 ```
 
 ```js
-// real_dev/api/src/routes/biometric-audit.routes.js
+// apps/api/src/routes/biometric-audit.routes.js
 import { Router } from "express";
 import {
     listBiometricAuditAlertsController,
@@ -647,7 +647,7 @@ biometricAuditRoutes.get(
 ```
 
 ```js
-// real_dev/api/src/app.js
+// apps/api/src/app.js
 import { biometricAuditRoutes } from "./routes/biometric-audit.routes.js";
 
 /**
@@ -662,7 +662,7 @@ app.use("/api/admin", biometricAuditRoutes);
 ```
 
 ```jsx
-// real_dev/web/src/pages/BiometricAuditPage.jsx
+// apps/web/src/pages/BiometricAuditPage.jsx
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -737,7 +737,7 @@ export function BiometricAuditPage() {
 ```
 
 ```jsx
-// real_dev/web/src/App.jsx
+// apps/web/src/App.jsx
 import { BiometricAuditPage } from "./pages/BiometricAuditPage.jsx";
 
 /**
@@ -776,9 +776,9 @@ Uma resposta que inclua `cosmeticSummary`, `storageKey` ou dados completos do re
 Provar que a auditoria cumpre `RF44` sem transformar logs, alertas ou UI administrativa numa cópia de dados biométricos sensíveis.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/api/src/services/biometric-audit.service.js`
-    - REVER: `real_dev/api/src/controllers/biometric-audit.controller.js`
-    - REVER: `real_dev/web/src/pages/BiometricAuditPage.jsx`
+    - REVER: `apps/api/src/services/biometric-audit.service.js`
+    - REVER: `apps/api/src/controllers/biometric-audit.controller.js`
+    - REVER: `apps/web/src/pages/BiometricAuditPage.jsx`
     - LOCALIZAÇÃO: DTOs devolvidos por `toAuditLogDto`, `listBiometricAccessLogs`, `listBiometricAccessAlerts` e renderização da página.
 
 3. Instruções do que fazer.
@@ -788,7 +788,7 @@ Confirma que cada resposta contém apenas metadados auditáveis: identificador d
 4. Código completo, correto e integrado com a app final.
 
 ```bash
-rg -n "storageKey|cosmeticSummary|passwordHash|orelle_session|cookie|token" real_dev/api/src/services/biometric-audit.service.js real_dev/api/src/controllers/biometric-audit.controller.js real_dev/web/src/pages/BiometricAuditPage.jsx
+rg -n "storageKey|cosmeticSummary|passwordHash|orelle_session|cookie|token" apps/api/src/services/biometric-audit.service.js apps/api/src/controllers/biometric-audit.controller.js apps/web/src/pages/BiometricAuditPage.jsx
 ```
 
 5. Explicação do código.
@@ -810,7 +810,7 @@ Se `BiometricAuditPage` renderizar `storageKey` ou `cosmeticSummary`, a correç�
 Garantir que os acessos são registados, os alertas aparecem e a consulta é restrita.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/tests/mf5.biometric-audit.test.js`
+    - CRIAR: `apps/api/tests/mf5.biometric-audit.test.js`
     - LOCALIZAÇÃO: ficheiro completo de testes.
 
 3. Instruções do que fazer.
@@ -820,7 +820,7 @@ Testa criação de evento, alerta por volume, listagem administrativa minimizada
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf5.biometric-audit.test.js
+// apps/api/tests/mf5.biometric-audit.test.js
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app.js";
@@ -1019,7 +1019,7 @@ O teste valida o contrato central: guardar metadados sem copiar dados biométric
 
 6. Validação do passo.
 
-Executa `npm --prefix real_dev/api test` e confirma que há pelo menos: evento com `alertRaised=true`, `200` para administrador, `403` para consultor e ausência de `storageKey`/`cosmeticSummary` na resposta HTTP.
+Executa `npm --prefix apps/api test` e confirma que há pelo menos: evento com `alertRaised=true`, `200` para administrador, `403` para consultor e ausência de `storageKey`/`cosmeticSummary` na resposta HTTP.
 
 7. Cenário negativo/erro esperado.
 
@@ -1047,7 +1047,7 @@ Se `JSON.stringify(log)` contiver texto de relatório, o teste deve falhar.
 
 - Confirmar que `recordBiometricAccess` é chamado nos services que tratam pedidos biométricos.
 - Confirmar que `BiometricAccessLog` não guarda dados biométricos brutos.
-- Executar `npm --prefix real_dev/api test`.
+- Executar `npm --prefix apps/api test`.
 - Executar `rg -n 'apps/(api|web)' docs/planificacao/guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md` e confirmar que não há resultados.
 - [ ] Negativos: minimo `2` cenarios controlados com `403` e ausência de dados sensíveis na resposta.
 

@@ -32,8 +32,8 @@ Neste BK vais criar um padrão reutilizável de feedback para formulários da Or
 
 #### Scope-in
 
-- Criar o componente `FeedbackMessage` em `real_dev/web`.
-- Criar o componente `SubmitButton` em `real_dev/web`.
+- Criar o componente `FeedbackMessage` em `apps/web`.
+- Criar o componente `SubmitButton` em `apps/web`.
 - Criar estilos reutilizáveis para feedback, ícones textuais e botões ocupados.
 - Aplicar o padrão em `RegisterPage.jsx`.
 - Aplicar o padrão em `FacePhotoUploadPage.jsx`, porque é um formulário sensível com consentimento e fotografias.
@@ -57,12 +57,12 @@ Neste BK vais criar um padrão reutilizável de feedback para formulários da Or
 
 #### Pre-requisitos
 
-- `BK-MF5-05`: estrutura responsiva e grelha base em `real_dev/web`.
+- `BK-MF5-05`: estrutura responsiva e grelha base em `apps/web`.
 - `BK-MF5-06`: tokens visuais `--brand-*`, `--surface-*`, `--line`, `--ink`, `--focus-ring` e estados de foco.
-- `real_dev/web/src/services/apiClient.js`: cliente HTTP com `credentials: "include"` para preservar a sessão por cookie HttpOnly.
-- `real_dev/web/src/pages/RegisterPage.jsx`: formulário de registo criado em MF0.
-- `real_dev/web/src/pages/FacePhotoUploadPage.jsx`: formulário de consentimento e upload facial criado em MF1.
-- `real_dev/web/package.json`: frontend React + Vite com script `build`.
+- `apps/web/src/services/apiClient.js`: cliente HTTP com `credentials: "include"` para preservar a sessão por cookie HttpOnly.
+- `apps/web/src/pages/RegisterPage.jsx`: formulário de registo criado em MF0.
+- `apps/web/src/pages/FacePhotoUploadPage.jsx`: formulário de consentimento e upload facial criado em MF1.
+- `apps/web/package.json`: frontend React + Vite com script `build`.
 - `RNF03`: mensagens claras, ícones acessíveis e feedback imediato em formulários.
 
 #### Glossário
@@ -94,25 +94,25 @@ Mensagens seguras protegem a aplicação. A UI não deve mostrar stack traces, p
 
 #### Arquitetura do BK
 
-- `real_dev/web/src/components/FeedbackMessage.jsx`: recebe tipo e conteúdo, calcula role acessível e mostra label textual.
-- `real_dev/web/src/components/SubmitButton.jsx`: recebe `isBusy`, bloqueia duplo envio e anuncia estado ocupado.
-- `real_dev/web/src/styles.css`: adiciona estilos para mensagens, ícones textuais, foco e botão ocupado.
-- `real_dev/web/src/pages/RegisterPage.jsx`: integra os componentes num formulário simples de conta.
-- `real_dev/web/src/pages/FacePhotoUploadPage.jsx`: integra os componentes num formulário sensível com consentimento e fotografias.
-- `real_dev/web/scripts/check-mf5-feedback.mjs`: valida por smoke/static que os componentes, estilos e integrações existem.
-- `real_dev/web/package.json`: adiciona o script `smoke:mf5-feedback`.
+- `apps/web/src/components/FeedbackMessage.jsx`: recebe tipo e conteúdo, calcula role acessível e mostra label textual.
+- `apps/web/src/components/SubmitButton.jsx`: recebe `isBusy`, bloqueia duplo envio e anuncia estado ocupado.
+- `apps/web/src/styles.css`: adiciona estilos para mensagens, ícones textuais, foco e botão ocupado.
+- `apps/web/src/pages/RegisterPage.jsx`: integra os componentes num formulário simples de conta.
+- `apps/web/src/pages/FacePhotoUploadPage.jsx`: integra os componentes num formulário sensível com consentimento e fotografias.
+- `apps/web/scripts/check-mf5-feedback.mjs`: valida por smoke/static que os componentes, estilos e integrações existem.
+- `apps/web/package.json`: adiciona o script `smoke:mf5-feedback`.
 - `BK-MF5-08`: reutiliza os componentes e classes deste BK ao aplicar modo escuro e contraste ajustado.
 
 #### Ficheiros a criar/editar/rever
 
-- CRIAR: `real_dev/web/src/components/FeedbackMessage.jsx`
-- CRIAR: `real_dev/web/src/components/SubmitButton.jsx`
-- EDITAR: `real_dev/web/src/styles.css`
-- EDITAR: `real_dev/web/src/pages/RegisterPage.jsx`
-- EDITAR: `real_dev/web/src/pages/FacePhotoUploadPage.jsx`
-- CRIAR: `real_dev/web/scripts/check-mf5-feedback.mjs`
-- EDITAR: `real_dev/web/package.json`
-- REVER: `real_dev/web/src/services/apiClient.js`
+- CRIAR: `apps/web/src/components/FeedbackMessage.jsx`
+- CRIAR: `apps/web/src/components/SubmitButton.jsx`
+- EDITAR: `apps/web/src/styles.css`
+- EDITAR: `apps/web/src/pages/RegisterPage.jsx`
+- EDITAR: `apps/web/src/pages/FacePhotoUploadPage.jsx`
+- CRIAR: `apps/web/scripts/check-mf5-feedback.mjs`
+- EDITAR: `apps/web/package.json`
+- REVER: `apps/web/src/services/apiClient.js`
 - REVER: `docs/RNF.md`
 - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
 - REVER: `docs/planificacao/backlogs/ANEXO-RNF-PARA-BKS.md`
@@ -164,17 +164,17 @@ Mensagem como "falhou" deve ser rejeitada, porque não explica o que aconteceu n
 Criar uma peça reutilizável para mostrar mensagens seguras, legíveis e acessíveis em qualquer formulário.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/web/src/components/FeedbackMessage.jsx`
+    - CRIAR: `apps/web/src/components/FeedbackMessage.jsx`
     - LOCALIZAÇÃO: ficheiro completo.
 
 3. Instruções do que fazer.
 
-Cria a pasta `real_dev/web/src/components` se ainda não existir. Depois cria `FeedbackMessage.jsx` com o código abaixo.
+Cria a pasta `apps/web/src/components` se ainda não existir. Depois cria `FeedbackMessage.jsx` com o código abaixo.
 
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/components/FeedbackMessage.jsx
+// apps/web/src/components/FeedbackMessage.jsx
 const FEEDBACK_CONFIG = Object.freeze({
     error: {
         label: "Erro",
@@ -258,7 +258,7 @@ Se a mensagem depender apenas de cor vermelha, o feedback falha para utilizadore
 Criar um botão de submissão que mostra estado ocupado e evita duplo envio durante chamadas à API.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/web/src/components/SubmitButton.jsx`
+    - CRIAR: `apps/web/src/components/SubmitButton.jsx`
     - LOCALIZAÇÃO: ficheiro completo.
 
 3. Instruções do que fazer.
@@ -268,7 +268,7 @@ Cria `SubmitButton.jsx` na mesma pasta de componentes. Usa `isBusy` para indicar
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/components/SubmitButton.jsx
+// apps/web/src/components/SubmitButton.jsx
 /**
  * Botão de submissão com estado ocupado e proteção contra duplo envio.
  *
@@ -324,7 +324,7 @@ Sem estado ocupado, o utilizador pode clicar várias vezes e criar pedidos repet
 Dar uma apresentação visual consistente aos componentes sem depender apenas da cor.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/styles.css`
+    - EDITAR: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: adicionar no fim das regras de estados visuais criadas em `BK-MF5-06`.
 
 3. Instruções do que fazer.
@@ -334,7 +334,7 @@ Acrescenta o bloco abaixo ao CSS global. Ele usa tokens de `BK-MF5-06`, por isso
 4. Código completo, correto e integrado com a app final.
 
 ```css
-/* real_dev/web/src/styles.css */
+/* apps/web/src/styles.css */
 .feedback {
     align-items: flex-start;
     border: 1px solid var(--line);
@@ -445,7 +445,7 @@ Uma mensagem com path interno ou stack trace deve ser trocada por texto seguro a
 Integrar os componentes num formulário simples e real, sem mudar o contrato da API de registo.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/pages/RegisterPage.jsx`
+    - EDITAR: `apps/web/src/pages/RegisterPage.jsx`
     - LOCALIZAÇÃO: ficheiro completo.
 
 3. Instruções do que fazer.
@@ -455,7 +455,7 @@ Substitui o conteúdo de `RegisterPage.jsx` pelo código abaixo. Mantém `apiReq
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/pages/RegisterPage.jsx
+// apps/web/src/pages/RegisterPage.jsx
 /**
  * Página de registo do BK-MF0-01 com feedback acessível do BK-MF5-07.
  */
@@ -588,7 +588,7 @@ Se o botão não ficar desativado em `loading`, o utilizador pode duplicar o ped
 Aplicar o mesmo padrão num formulário sensível, onde consentimento e fotografias exigem mensagens claras e seguras.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/web/src/pages/FacePhotoUploadPage.jsx`
+    - EDITAR: `apps/web/src/pages/FacePhotoUploadPage.jsx`
     - LOCALIZAÇÃO: ficheiro completo.
 
 3. Instruções do que fazer.
@@ -598,7 +598,7 @@ Substitui o conteúdo de `FacePhotoUploadPage.jsx` pelo código abaixo. Mantém 
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
-// real_dev/web/src/pages/FacePhotoUploadPage.jsx
+// apps/web/src/pages/FacePhotoUploadPage.jsx
 /**
  * Página de consentimento e upload facial MF1 com feedback acessível MF5.
  */
@@ -748,18 +748,18 @@ Se a UI mostrar o path local ou interno da fotografia numa mensagem de erro, a m
 Criar uma verificação rápida para garantir que os componentes, estilos e integrações essenciais foram adicionados ao frontend real.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/web/scripts/check-mf5-feedback.mjs`
-    - EDITAR: `real_dev/web/package.json`
+    - CRIAR: `apps/web/scripts/check-mf5-feedback.mjs`
+    - EDITAR: `apps/web/package.json`
     - LOCALIZAÇÃO: ficheiro de script completo e bloco `scripts` do package.
 
 3. Instruções do que fazer.
 
-Cria a pasta `real_dev/web/scripts` se ainda não existir. Depois cria o script abaixo e acrescenta apenas a entrada `smoke:mf5-feedback` ao objeto `scripts` existente em `package.json`, mantendo os scripts atuais sem alterações.
+Cria a pasta `apps/web/scripts` se ainda não existir. Depois cria o script abaixo e acrescenta apenas a entrada `smoke:mf5-feedback` ao objeto `scripts` existente em `package.json`, mantendo os scripts atuais sem alterações.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/web/scripts/check-mf5-feedback.mjs
+// apps/web/scripts/check-mf5-feedback.mjs
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -825,13 +825,13 @@ console.log("BK-MF5-07 feedback smoke: PASS");
 
 5. Explicação do código.
 
-O script lê cinco ficheiros esperados e confirma fragmentos mínimos: roles acessíveis, `aria-busy`, componentes integrados nas páginas e classes CSS. A entrada é a lista `checks`; a saída é `BK-MF5-07 feedback smoke: PASS` ou um erro com o ficheiro e fragmento em falta. A alteração ao `package.json` é deliberadamente focalizada: só adiciona o novo script dentro de `scripts`, sem reescrever dependências, versão ou configuração Vite. Esta abordagem evita dependências novas porque `real_dev/web/package.json` ainda não tem test runner frontend.
+O script lê cinco ficheiros esperados e confirma fragmentos mínimos: roles acessíveis, `aria-busy`, componentes integrados nas páginas e classes CSS. A entrada é a lista `checks`; a saída é `BK-MF5-07 feedback smoke: PASS` ou um erro com o ficheiro e fragmento em falta. A alteração ao `package.json` é deliberadamente focalizada: só adiciona o novo script dentro de `scripts`, sem reescrever dependências, versão ou configuração Vite. Esta abordagem evita dependências novas porque `apps/web/package.json` ainda não tem test runner frontend.
 
 O script não substitui teste visual nem E2E, mas fecha uma camada de integração leve para este BK. Ele prova que o aluno criou os ficheiros no root correto, integrou componentes em formulários reais e adicionou CSS. Ao adaptar o script, podes acrescentar ficheiros, mas não deves remover as verificações de `role`, `aria-live`, `disabled`, `aria-busy` e integração com `apiRequest`.
 
 6. Validação do passo.
 
-Depois de criares os ficheiros, executa `npm --prefix real_dev/web run smoke:mf5-feedback`. O comando deve terminar com `BK-MF5-07 feedback smoke: PASS`.
+Depois de criares os ficheiros, executa `npm --prefix apps/web run smoke:mf5-feedback`. O comando deve terminar com `BK-MF5-07 feedback smoke: PASS`.
 
 7. Cenário negativo/erro esperado.
 
@@ -844,12 +844,12 @@ Se `SubmitButton.jsx` não tiver `aria-busy={isBusy}`, o script deve falhar e in
 Fechar o BK com evidência técnica, visual e pedagógica adequada a uma prioridade `P0`.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/web/package.json`
-    - REVER: `real_dev/web/src/components/FeedbackMessage.jsx`
-    - REVER: `real_dev/web/src/components/SubmitButton.jsx`
-    - REVER: `real_dev/web/src/pages/RegisterPage.jsx`
-    - REVER: `real_dev/web/src/pages/FacePhotoUploadPage.jsx`
-    - REVER: `real_dev/web/src/styles.css`
+    - REVER: `apps/web/package.json`
+    - REVER: `apps/web/src/components/FeedbackMessage.jsx`
+    - REVER: `apps/web/src/components/SubmitButton.jsx`
+    - REVER: `apps/web/src/pages/RegisterPage.jsx`
+    - REVER: `apps/web/src/pages/FacePhotoUploadPage.jsx`
+    - REVER: `apps/web/src/styles.css`
     - LOCALIZAÇÃO: comandos e evidência final do BK.
 
 3. Instruções do que fazer.
@@ -859,13 +859,13 @@ Executa as validações abaixo e guarda a evidência para PR/defesa. Executar ce
 4. Código completo, correto e integrado com a app final.
 
 ```bash
-npm --prefix real_dev/web run build
-npm --prefix real_dev/web run smoke:mf5-feedback
+npm --prefix apps/web run build
+npm --prefix apps/web run smoke:mf5-feedback
 ```
 
 5. Explicação do código.
 
-O primeiro comando confirma que Vite compila JSX e CSS depois da criação dos componentes. O segundo comando confirma que os ficheiros essenciais existem no root `real_dev/web` e que contêm fragmentos mínimos de acessibilidade, estado ocupado e integração. Estes comandos cumprem a camada de build e smoke da matriz P0.
+O primeiro comando confirma que Vite compila JSX e CSS depois da criação dos componentes. O segundo comando confirma que os ficheiros essenciais existem no root `apps/web` e que contêm fragmentos mínimos de acessibilidade, estado ocupado e integração. Estes comandos cumprem a camada de build e smoke da matriz P0.
 
 Os testes manuais completam a evidência: no registo, testa sucesso, erro e duplo clique; no upload facial, testa falta de consentimento, falta de fotografia frontal e falta de fotografia de perfil. As entradas são ações do utilizador; as saídas esperadas são mensagens claras, sem detalhes internos e com botão ocupado quando há chamada à API.
 
@@ -879,26 +879,26 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 
 #### Expected results
 
-- `FeedbackMessage` existe em `real_dev/web/src/components/FeedbackMessage.jsx`.
-- `SubmitButton` existe em `real_dev/web/src/components/SubmitButton.jsx`.
+- `FeedbackMessage` existe em `apps/web/src/components/FeedbackMessage.jsx`.
+- `SubmitButton` existe em `apps/web/src/components/SubmitButton.jsx`.
 - `RegisterPage.jsx` usa `FeedbackMessage`, `SubmitButton` e mantém `apiRequest("/auth/register")`.
 - `FacePhotoUploadPage.jsx` usa `FeedbackMessage`, `SubmitButton`, consentimento e `FormData`.
 - `styles.css` contém `.feedback`, modificadores por tipo, `.feedback__icon`, `.feedback__label`, `.submit-button` e `.button--busy`.
-- `npm --prefix real_dev/web run build` termina sem erro.
-- `npm --prefix real_dev/web run smoke:mf5-feedback` termina com `BK-MF5-07 feedback smoke: PASS`.
+- `npm --prefix apps/web run build` termina sem erro.
+- `npm --prefix apps/web run smoke:mf5-feedback` termina com `BK-MF5-07 feedback smoke: PASS`.
 - Mensagens de erro usam `role="alert"` e mensagens de sucesso/informação usam `role="status"`.
 - Erros técnicos continuam protegidos por `apiRequest` e backend; a UI não expõe detalhes internos.
 
 #### Critérios de aceite
 
-- O guia usa apenas paths `real_dev/web` para frontend operativo.
+- O guia usa apenas paths `apps/web` para frontend operativo.
 - Existe evidência de que `RNF03` foi cumprido em pelo menos dois formulários reais.
 - `FeedbackMessage` tem label textual, role acessível, `aria-live` e ícone decorativo.
 - `SubmitButton` bloqueia duplo submit com `disabled` e anuncia estado com `aria-busy`.
 - O CSS não depende apenas de cor: há label, ícone textual e layout de mensagem.
 - `RegisterPage.jsx` mantém validação HTML5 e chamada ao backend.
 - `FacePhotoUploadPage.jsx` mantém consentimento antes do envio de fotografias.
-- Evidência de testes por camada: unit/static por `check-mf5-feedback.mjs`, integration/smoke por `npm --prefix real_dev/web run smoke:mf5-feedback`, E2E/manual por submissão válida, inválida e duplo clique no browser.
+- Evidência de testes por camada: unit/static por `check-mf5-feedback.mjs`, integration/smoke por `npm --prefix apps/web run smoke:mf5-feedback`, E2E/manual por submissão válida, inválida e duplo clique no browser.
 - Cenários negativos concluídos: mínimo `3` com resultado controlado.
 
 #### Validação final
@@ -911,8 +911,8 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 | `P1` | unit/static + integration/smoke | 2 | build, smoke e negativos relevantes |
 | `P2` | smoke ou validação manual guiada | 1 | nota de validação e negativo essencial |
 
-- [ ] Build: `npm --prefix real_dev/web run build`.
-- [ ] Smoke: `npm --prefix real_dev/web run smoke:mf5-feedback`.
+- [ ] Build: `npm --prefix apps/web run build`.
+- [ ] Smoke: `npm --prefix apps/web run smoke:mf5-feedback`.
 - [ ] Unit/static: o script confirma componentes, roles, estado ocupado e CSS.
 - [ ] Integration/smoke: o script confirma integração em `RegisterPage.jsx` e `FacePhotoUploadPage.jsx`.
 - [ ] E2E/manual: testar registo válido, registo inválido, duplo clique, upload sem consentimento e upload com duas fotografias.
@@ -921,8 +921,8 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 
 #### Evidence para PR/defesa
 
-- Output de `npm --prefix real_dev/web run build`.
-- Output de `npm --prefix real_dev/web run smoke:mf5-feedback`.
+- Output de `npm --prefix apps/web run build`.
+- Output de `npm --prefix apps/web run smoke:mf5-feedback`.
 - Captura de erro de registo com `role="alert"`.
 - Captura de sucesso de registo ou nota de ambiente se a API não estiver disponível.
 - Captura de upload facial bloqueado sem consentimento.
@@ -936,4 +936,4 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 #### Changelog
 
 - `2026-06-18`: guia reescrito para RNF03 com componentes de feedback, botão ocupado, CSS de mensagens e exemplo integrado em formulário.
-- `2026-06-20`: paths corrigidos para `real_dev/web`, 8 passos P0 adicionados, comentários didáticos incluídos nos blocos de código, explicações expandidas, integração em formulário sensível, smoke sem dependências novas, matriz mínima de testes acrescentada e bloco `package.json` focalizado no script novo.
+- `2026-06-20`: paths corrigidos para `apps/web`, 8 passos P0 adicionados, comentários didáticos incluídos nos blocos de código, explicações expandidas, integração em formulário sensível, smoke sem dependências novas, matriz mínima de testes acrescentada e bloco `package.json` focalizado no script novo.
