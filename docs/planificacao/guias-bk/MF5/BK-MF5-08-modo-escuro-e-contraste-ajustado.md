@@ -14,6 +14,10 @@
 - `fase_documental`: `Fase 2`
 - `sprint`: `S09-S10`
 - `core_or_reforco`: `Core`
+- `classe_core_dual`: `CORE-HIBRIDO`
+- `eixo_primario`: `ConfiancaConversao`
+- `kpi_primario`: `add_to_cart_recomendado`
+- `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF6-01`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-08-modo-escuro-e-contraste-ajustado.md`
 - `last_updated`: `2026-06-20`

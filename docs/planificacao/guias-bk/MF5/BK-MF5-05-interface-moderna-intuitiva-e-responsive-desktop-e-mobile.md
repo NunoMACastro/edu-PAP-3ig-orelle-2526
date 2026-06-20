@@ -14,9 +14,13 @@
 - `fase_documental`: `Fase 2`
 - `sprint`: `S09-S10`
 - `core_or_reforco`: `Reforco`
+- `classe_core_dual`: `CORE-HIBRIDO`
+- `eixo_primario`: `ConfiancaConversao`
+- `kpi_primario`: `add_to_cart_recomendado`
+- `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md`
-- `last_updated`: `2026-06-19`
+- `last_updated`: `2026-06-20`
 
 #### Objetivo
 
@@ -458,6 +462,107 @@ Build sem erro, sem scroll horizontal em mobile e sem texto sobreposto.
 
 Build a passar não prova que a UI está legível; por isso a inspeção visual continua obrigatória.
 
+### Passo 6 - Validar formulários e listas em largura mobile
+
+1. Objetivo funcional do passo no contexto da app.
+
+Separar a validação mobile dos formulários, listas e cartões para evitar que a responsividade fique reduzida a uma observação genérica no build.
+
+2. Ficheiros envolvidos:
+    - REVER: `real_dev/web/src/pages/*.jsx`
+    - REVER: `real_dev/web/src/styles.css`
+    - LOCALIZAÇÃO: formulários, listas, artigos, cartões e mensagens dentro dos grupos criados em `AppContent`.
+
+3. Instruções do que fazer.
+
+Abre a app numa largura próxima de `375px` e percorre formulários de conta, perfil, fotografias, carrinho, pedidos biométricos e painéis administrativos disponíveis no estado atual do projeto. Confirma que cada input ocupa largura suficiente, que botões não se sobrepõem e que listas longas quebram linha sem criar scroll horizontal.
+
+4. Código completo, correto e integrado com a app final.
+
+```text
+Sem código neste passo.
+```
+
+5. Explicação do código.
+
+Este passo é de validação visual e pedagógica. O código já foi escrito nos passos anteriores; aqui o aluno aprende a procurar problemas que o compilador não encontra, como texto a sair do cartão, botões lado a lado em ecrãs estreitos ou listas que obrigam o utilizador a fazer scroll horizontal.
+
+6. Validação do passo.
+
+Regista uma nota com a largura testada, os ecrãs revistos e o resultado observado. A evidência mínima é confirmar que não há scroll horizontal, texto sobreposto ou botão inacessível.
+
+7. Cenário negativo/erro esperado.
+
+Se uma lista de relatórios ou produtos rebentar o cartão em mobile, a correção esperada é ajustar `min-width: 0`, `overflow-wrap` ou a grelha, não esconder conteúdo.
+
+### Passo 7 - Confirmar visibilidade por role sem depender da UI
+
+1. Objetivo funcional do passo no contexto da app.
+
+Garantir que a reorganização visual não cria a ideia errada de que esconder uma secção no frontend substitui autorização no backend.
+
+2. Ficheiros envolvidos:
+    - REVER: `real_dev/web/src/App.jsx`
+    - REVER: `real_dev/api/src/middlewares`
+    - REVER: `real_dev/api/src/routes`
+    - LOCALIZAÇÃO: gates `isAdmin`, `canReviewRecommendations` e routes protegidas por autenticação/role.
+
+3. Instruções do que fazer.
+
+Confirma que clientes não vêem painéis administrativos, consultores vêem apenas áreas permitidas e administradores vêem os painéis de gestão. Depois verifica que os endpoints sensíveis continuam protegidos no backend, porque a UI apenas reduz confusão de navegação.
+
+4. Código completo, correto e integrado com a app final.
+
+```text
+Sem código neste passo.
+```
+
+5. Explicação do código.
+
+Não há código novo porque a regra já existe nos BKs anteriores: o frontend melhora experiência, mas não decide segurança. Este passo ensina a diferença entre visibilidade e autorização. Mesmo que uma página admin fique escondida, uma chamada direta ao endpoint tem de continuar bloqueada pelo backend quando a role não permite acesso.
+
+6. Validação do passo.
+
+Compara a UI em sessão de cliente, consultor e administrador. Regista que a visibilidade muda, mas que a autorização real permanece nas routes e middlewares da API.
+
+7. Cenário negativo/erro esperado.
+
+Se removeres o gate visual e um cliente vir uma página admin, o backend ainda deve devolver `401` ou `403` nas chamadas protegidas. Se devolver `200`, o problema é de segurança backend e não de CSS.
+
+### Passo 8 - Registar evidence responsiva por camada
+
+1. Objetivo funcional do passo no contexto da app.
+
+Fechar o BK P0 com evidência suficiente para defesa, cobrindo build, integração visual, smoke manual/e2e responsivo e negativos.
+
+2. Ficheiros envolvidos:
+    - REVER: `real_dev/web/package.json`
+    - REVER: `real_dev/web/src/App.jsx`
+    - REVER: `real_dev/web/src/styles.css`
+    - LOCALIZAÇÃO: comandos e notas de validação anexadas à PR ou defesa.
+
+3. Instruções do que fazer.
+
+Guarda evidência de quatro camadas: build Vite, inspeção desktop, inspeção mobile e três negativos controlados. Os negativos mínimos são: mobile estreito sem scroll horizontal, cliente sem grupo admin e erro visual sem detalhes técnicos internos.
+
+4. Código completo, correto e integrado com a app final.
+
+```bash
+npm --prefix real_dev/web run build
+```
+
+5. Explicação do código.
+
+O comando valida a camada técnica do frontend, enquanto as notas e capturas validam comportamento visual. A evidência por camada evita que um BK P0 seja marcado como concluído apenas porque "parece funcionar" numa largura de ecrã.
+
+6. Validação do passo.
+
+A PR ou defesa deve incluir output do build, captura desktop, captura mobile e lista dos três negativos com resultado esperado e observado.
+
+7. Cenário negativo/erro esperado.
+
+Se só existir uma captura desktop, a evidência está incompleta. A correção é acrescentar mobile e negativos, porque `RNF01` exige desktop e mobile.
+
 #### Expected results
 
 - Interface com grupos visuais claros.
@@ -465,6 +570,7 @@ Build a passar não prova que a UI está legível; por isso a inspeção visual 
 - Mobile em uma coluna, sem scroll horizontal.
 - Formulários e botões legíveis em ecrãs pequenos.
 - Estados `loading`, `error`, `empty` e `success` visíveis e consistentes.
+- Evidence responsiva separada por build, desktop, mobile e negativos.
 
 #### Critérios de aceite
 
@@ -472,6 +578,7 @@ Build a passar não prova que a UI está legível; por isso a inspeção visual 
 - `styles.css` define grelha responsiva e breakpoint mobile.
 - Não são criadas dependências novas.
 - Não há alteração de endpoints nem payloads.
+- O guia tem 8 passos, com validação separada de formulários/listas mobile, visibilidade por role e evidence por camada.
 - Cenários negativos concluídos: mínimo `3` com resultado controlado.
 
 #### Validação final
@@ -484,6 +591,14 @@ Build a passar não prova que a UI está legível; por isso a inspeção visual 
 - [ ] E2E ou smoke visual: desktop e mobile não têm scroll horizontal nem texto sobreposto.
 - [ ] Negativos: mínimo `3` cenários com resultado controlado.
 - [ ] Evidência de testes por camada: build, integração visual, smoke/E2E responsivo e negativos ficam registados na PR ou defesa.
+
+### Matriz mínima de testes por prioridade
+
+| Prioridade | Camadas obrigatórias | Evidência esperada |
+| --- | --- | --- |
+| `P0` | Build frontend + integração visual + smoke/E2E responsivo + 3 negativos | Output do build, captura desktop, captura mobile, nota de role visibility e lista dos três negativos controlados. |
+| `P1` | Revisão de formulários/listas em mobile | Confirmação de que inputs, listas e cartões não criam scroll horizontal nem texto sobreposto. |
+| `P2` | Revisão de regressão visual | Confirmação de que `BK-MF5-06`, `BK-MF5-07` e `BK-MF5-08` podem reutilizar a estrutura sem reescrever o layout. |
 
 #### Evidence para PR/defesa
 
@@ -498,6 +613,7 @@ Build a passar não prova que a UI está legível; por isso a inspeção visual 
 
 #### Changelog
 
+- `2026-06-20`: acrescentados campos core dual no header, passos 6 a 8 e matriz mínima de testes P0 para fechar a granularidade de responsividade, roles e evidence por camada.
 - `2026-06-19`: comentários didáticos reforçados nos blocos CSS longos e matriz mínima de testes integrada na validação final.
 - `2026-06-19`: paths alinhados para `real_dev/web`, origem das páginas biométricas clarificada e matriz mínima de testes P0 adicionada.
 - `2026-06-18`: guia reescrito para RNF01 com organização de `App.jsx`, CSS responsivo, estados visuais e validação desktop/mobile.

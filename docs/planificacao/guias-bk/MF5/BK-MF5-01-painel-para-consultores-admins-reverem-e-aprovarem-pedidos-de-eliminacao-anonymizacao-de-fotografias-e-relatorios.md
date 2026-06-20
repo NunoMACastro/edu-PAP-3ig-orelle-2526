@@ -14,9 +14,13 @@
 - `fase_documental`: `Fase 2`
 - `sprint`: `S09-S10`
 - `core_or_reforco`: `Reforco`
+- `classe_core_dual`: `CORE-HIBRIDO`
+- `eixo_primario`: `ConfiancaConversao`
+- `kpi_primario`: `add_to_cart_recomendado`
+- `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-04`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md`
-- `last_updated`: `2026-06-19`
+- `last_updated`: `2026-06-20`
 
 #### Objetivo
 

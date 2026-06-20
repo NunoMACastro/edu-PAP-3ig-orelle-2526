@@ -14,6 +14,10 @@
 - `fase_documental`: `Fase 2`
 - `sprint`: `S09-S10`
 - `core_or_reforco`: `Core`
+- `classe_core_dual`: `CORE-HIBRIDO`
+- `eixo_primario`: `ConfiancaConversao`
+- `kpi_primario`: `add_to_cart_recomendado`
+- `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-07`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-06-design-coerente-com-estetica-da-marca-cores-suaves-tipografia-moderna.md`
 - `last_updated`: `2026-06-20`
@@ -451,6 +455,40 @@ O build deve terminar sem erro. Na inspeção visual, botões devem continuar le
 
 Se a paleta ficar suave demais, o texto secundário ou as mensagens de alerta podem parecer bonitos mas difíceis de ler. O erro esperado é contraste insuficiente; a correção é ajustar tokens, não criar cores soltas em cada página.
 
+### Passo 6 - Confirmar compatibilidade com feedback e temas seguintes
+
+1. Objetivo funcional do passo no contexto da app.
+
+Garantir que os tokens deste BK continuam úteis para `BK-MF5-07` e `BK-MF5-08`, sem obrigar os próximos guias a recriar cores, estados ou classes de marca.
+
+2. Ficheiros envolvidos:
+    - REVER: `real_dev/web/src/styles.css`
+    - REVER: `docs/planificacao/guias-bk/MF5/BK-MF5-07-mensagens-claras-icones-acessiveis-e-feedback-imediato-em-formularios.md`
+    - REVER: `docs/planificacao/guias-bk/MF5/BK-MF5-08-modo-escuro-e-contraste-ajustado.md`
+    - LOCALIZAÇÃO: tokens `--brand-*`, `--focus-ring`, `--shadow-soft`, classes `.brand-panel`, `.metric-strip` e `.status-chip`.
+
+3. Instruções do que fazer.
+
+Confirma que mensagens de feedback podem usar `--brand-primary`, `--brand-blush` e `--focus-ring`, e que o modo escuro pode trocar valores dos tokens sem alterar nomes de classes. Regista também que as classes reutilizáveis não dependem de uma página específica.
+
+4. Código completo, correto e integrado com a app final.
+
+```text
+Sem código neste passo.
+```
+
+5. Explicação do código.
+
+Não há código novo porque este passo valida a fronteira entre BKs. A decisão importante é manter nomes semânticos e estáveis. Se `BK-MF5-07` e `BK-MF5-08` conseguirem reutilizar tokens em vez de criar estilos paralelos, a marca fica coerente e o aluno não precisa de refazer CSS.
+
+6. Validação do passo.
+
+Consegues apontar que tokens serão usados por mensagens, foco, chips de estado, modo escuro e contraste ajustado. A validação passa quando os próximos BKs têm handoff claro e não precisam de inventar outra paleta.
+
+7. Cenário negativo/erro esperado.
+
+Se `BK-MF5-08` precisar de criar uma segunda variável para a mesma cor primária, o erro esperado é duplicação de contrato visual. A correção é reutilizar o token semântico já criado neste BK.
+
 #### Expected results
 
 - `real_dev/web/src/styles.css` tem tokens semânticos de marca em `:root`.
@@ -461,6 +499,7 @@ Se a paleta ficar suave demais, o texto secundário ou as mensagens de alerta po
 - Texto primário, texto secundário e estados visuais ficam legíveis.
 - O layout responsivo do `BK-MF5-05` continua intacto.
 - `BK-MF5-07` consegue reutilizar os tokens para mensagens e feedback.
+- `BK-MF5-08` consegue reutilizar os mesmos tokens para modo escuro e contraste ajustado.
 
 #### Critérios de aceite
 
@@ -470,6 +509,7 @@ Se a paleta ficar suave demais, o texto secundário ou as mensagens de alerta po
 - `styles.css` mantém aliases para `--bordo`, `--bordo-dark`, `--wine`, `--plum`, `--blush`, `--powder` e `--shadow`.
 - Estados de foco e disabled são visíveis.
 - A marca não altera permissões, endpoints, payloads, sessão ou regras de negócio.
+- O guia tem 6 passos, com compatibilidade explícita para feedback acessível e temas seguintes.
 - Cenários negativos concluídos: mínimo `2` com resultado controlado.
 
 #### Validação final
@@ -505,4 +545,5 @@ Erros comuns a evitar:
 
 #### Changelog
 
+- `2026-06-20`: acrescentados campos core dual no header e passo 6 para fechar a granularidade P1 e o handoff visual para feedback/tema.
 - `2026-06-20`: guia corrigido para `real_dev/web`, tokens compatíveis com o CSS real, comentários didáticos nos blocos CSS, validação por build do frontend real, matriz mínima de testes e acentuação corrigida.

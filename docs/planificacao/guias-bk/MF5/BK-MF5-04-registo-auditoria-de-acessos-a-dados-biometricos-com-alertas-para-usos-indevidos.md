@@ -14,9 +14,13 @@
 - `fase_documental`: `Fase 2`
 - `sprint`: `S09-S10`
 - `core_or_reforco`: `Core`
+- `classe_core_dual`: `CORE-HIBRIDO`
+- `eixo_primario`: `ConfiancaConversao`
+- `kpi_primario`: `add_to_cart_recomendado`
+- `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-05`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md`
-- `last_updated`: `2026-06-18`
+- `last_updated`: `2026-06-20`
 
 #### Objetivo
 
@@ -765,7 +769,41 @@ Administrador recebe `200` nos endpoints. Consultor recebe `403` ao tentar consu
 
 Uma resposta que inclua `cosmeticSummary`, `storageKey` ou dados completos do relatório deve ser rejeitada em revisão.
 
-### Passo 5 - Testar auditoria e alertas
+### Passo 5 - Confirmar minimização dos DTOs de auditoria
+
+1. Objetivo funcional do passo no contexto da app.
+
+Provar que a auditoria cumpre `RF44` sem transformar logs, alertas ou UI administrativa numa cópia de dados biométricos sensíveis.
+
+2. Ficheiros envolvidos:
+    - REVER: `real_dev/api/src/services/biometric-audit.service.js`
+    - REVER: `real_dev/api/src/controllers/biometric-audit.controller.js`
+    - REVER: `real_dev/web/src/pages/BiometricAuditPage.jsx`
+    - LOCALIZAÇÃO: DTOs devolvidos por `toAuditLogDto`, `listBiometricAccessLogs`, `listBiometricAccessAlerts` e renderização da página.
+
+3. Instruções do que fazer.
+
+Confirma que cada resposta contém apenas metadados auditáveis: identificador do evento, ator, role, utilizador afetado, ação, tipo de recurso, resultado, motivo controlado, estado de alerta e data. Não devolvas fotografia, `storageKey`, path interno, relatório completo, cookies, tokens, `passwordHash` ou resumo cosmético.
+
+4. Código completo, correto e integrado com a app final.
+
+```bash
+rg -n "storageKey|cosmeticSummary|passwordHash|orelle_session|cookie|token" real_dev/api/src/services/biometric-audit.service.js real_dev/api/src/controllers/biometric-audit.controller.js real_dev/web/src/pages/BiometricAuditPage.jsx
+```
+
+5. Explicação do código.
+
+Este comando é uma verificação estática da fronteira de minimização. Ele não substitui os testes HTTP, mas ajuda a encontrar regressões óbvias antes de executar a suite. Se aparecer uma ocorrência, o aluno deve confirmar se é comentário defensivo, teste negativo ou fuga real. Em respostas de produção, estes campos não podem sair porque `RF44` exige auditoria de acesso, não exposição dos dados auditados.
+
+6. Validação do passo.
+
+A pesquisa não deve encontrar campos sensíveis nos DTOs de resposta nem na página de auditoria. Ocorrências em testes negativos são aceitáveis apenas quando provam que esses campos não chegam à resposta final.
+
+7. Cenário negativo/erro esperado.
+
+Se `BiometricAuditPage` renderizar `storageKey` ou `cosmeticSummary`, a correção esperada é remover o campo do DTO/service e manter só metadados auditáveis.
+
+### Passo 6 - Testar auditoria e alertas
 
 1. Objetivo funcional do passo no contexto da app.
 
@@ -1001,6 +1039,7 @@ Se `JSON.stringify(log)` contiver texto de relatório, o teste deve falhar.
 - Evento identifica ator, role, sujeito, ação, recurso e resultado.
 - Alertas são calculados por volume recente do ator.
 - Auditoria completa é visível apenas a administrador.
+- O guia tem 6 passos, com minimização de DTOs separada dos testes HTTP.
 - Cenarios negativos concluidos: minimo `2` com resultado controlado.
 - Evidência de testes por camada inclui service, HTTP admin, autorização e minimização de resposta.
 
@@ -1033,4 +1072,5 @@ Se `JSON.stringify(log)` contiver texto de relatório, o teste deve falhar.
 
 #### Changelog
 
+- `2026-06-20`: acrescentados campos core dual no header e passo 5 autónomo para minimização de DTOs, fechando a granularidade P1 do guia.
 - `2026-06-18`: guia reescrito para RF44 com modelo de auditoria, service de alertas, integração com pedidos biométricos, endpoints admin, UI e testes.

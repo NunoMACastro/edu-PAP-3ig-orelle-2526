@@ -14,6 +14,10 @@
 - `fase_documental`: `Fase 2`
 - `sprint`: `S09-S10`
 - `core_or_reforco`: `Reforco`
+- `classe_core_dual`: `CORE-HIBRIDO`
+- `eixo_primario`: `ConfiancaConversao`
+- `kpi_primario`: `add_to_cart_recomendado`
+- `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-08`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-07-mensagens-claras-icones-acessiveis-e-feedback-imediato-em-formularios.md`
 - `last_updated`: `2026-06-20`
@@ -750,7 +754,7 @@ Criar uma verificação rápida para garantir que os componentes, estilos e inte
 
 3. Instruções do que fazer.
 
-Cria a pasta `real_dev/web/scripts` se ainda não existir. Depois cria o script abaixo e acrescenta `smoke:mf5-feedback` ao `package.json`.
+Cria a pasta `real_dev/web/scripts` se ainda não existir. Depois cria o script abaixo e acrescenta apenas a entrada `smoke:mf5-feedback` ao objeto `scripts` existente em `package.json`, mantendo os scripts atuais sem alterações.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -815,29 +819,13 @@ console.log("BK-MF5-07 feedback smoke: PASS");
 
 ```json
 {
-    "name": "orelle-web",
-    "version": "0.1.0",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "dev": "vite --host 127.0.0.1",
-        "build": "vite build",
-        "preview": "vite preview",
-        "smoke:mf2": "node scripts/smoke-mf2-recommendations.mjs",
-        "smoke:mf5-feedback": "node scripts/check-mf5-feedback.mjs"
-    },
-    "dependencies": {
-        "@vitejs/plugin-react": "^4.3.1",
-        "vite": "^5.3.5",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1"
-    }
+    "smoke:mf5-feedback": "node scripts/check-mf5-feedback.mjs"
 }
 ```
 
 5. Explicação do código.
 
-O script lê cinco ficheiros esperados e confirma fragmentos mínimos: roles acessíveis, `aria-busy`, componentes integrados nas páginas e classes CSS. A entrada é a lista `checks`; a saída é `BK-MF5-07 feedback smoke: PASS` ou um erro com o ficheiro e fragmento em falta. Esta abordagem evita dependências novas porque `real_dev/web/package.json` ainda não tem test runner frontend.
+O script lê cinco ficheiros esperados e confirma fragmentos mínimos: roles acessíveis, `aria-busy`, componentes integrados nas páginas e classes CSS. A entrada é a lista `checks`; a saída é `BK-MF5-07 feedback smoke: PASS` ou um erro com o ficheiro e fragmento em falta. A alteração ao `package.json` é deliberadamente focalizada: só adiciona o novo script dentro de `scripts`, sem reescrever dependências, versão ou configuração Vite. Esta abordagem evita dependências novas porque `real_dev/web/package.json` ainda não tem test runner frontend.
 
 O script não substitui teste visual nem E2E, mas fecha uma camada de integração leve para este BK. Ele prova que o aluno criou os ficheiros no root correto, integrou componentes em formulários reais e adicionou CSS. Ao adaptar o script, podes acrescentar ficheiros, mas não deves remover as verificações de `role`, `aria-live`, `disabled`, `aria-busy` e integração com `apiRequest`.
 
@@ -948,4 +936,4 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 #### Changelog
 
 - `2026-06-18`: guia reescrito para RNF03 com componentes de feedback, botão ocupado, CSS de mensagens e exemplo integrado em formulário.
-- `2026-06-20`: paths corrigidos para `real_dev/web`, 8 passos P0 adicionados, comentários didáticos incluídos nos blocos de código, explicações expandidas, integração em formulário sensível, smoke sem dependências novas e matriz mínima de testes acrescentada.
+- `2026-06-20`: paths corrigidos para `real_dev/web`, 8 passos P0 adicionados, comentários didáticos incluídos nos blocos de código, explicações expandidas, integração em formulário sensível, smoke sem dependências novas, matriz mínima de testes acrescentada e bloco `package.json` focalizado no script novo.
