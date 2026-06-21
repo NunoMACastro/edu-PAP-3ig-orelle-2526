@@ -5,12 +5,48 @@ import { AppError } from "../middlewares/error.middleware.js";
 import { Cart } from "../models/cart.model.js";
 import { Order, ORDER_STATUS } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
+import { createOrderStatusNotification } from "./notification.service.js";
 import { clearCart } from "./cart.service.js";
 import {
     assertPaymentGatewayReady,
     createPaymentSession,
 } from "../providers/payment.provider.js";
 
+/**
+ * Atualiza o estado logístico de uma encomenda e emite notificação interna.
+ *
+ * @async
+ * @function updateOrderStatusAndNotify
+ * @param {string} orderId - ID da encomenda.
+ * @param {string} nextStatus - Estado permitido em `ORDER_STATUS`.
+ * @returns {Promise<object>} DTO da encomenda atualizada.
+ * @throws {AppError} Quando o estado é inválido ou a encomenda não existe.
+ */
+export async function updateOrderStatusAndNotify(orderId, nextStatus) {
+    const allowedStatuses = Object.values(ORDER_STATUS);
+
+    if (!allowedStatuses.includes(nextStatus)) {
+        throw new AppError(400, "Estado de encomenda invalido");
+    }
+
+    // Procuramos a encomenda real para usar o estado e o dono guardados no backend.
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        throw new AppError(404, "Encomenda nao encontrada");
+    }
+
+    if (order.status === nextStatus) {
+        return toOrderResponse(order);
+    }
+
+    order.status = nextStatus;
+    await order.save();
+    // A notificação é uma consequência da alteração persistida.
+    await createOrderStatusNotification(order._id);
+
+    return toOrderResponse(order);
+}
 /**
  * Converte encomenda para DTO publico.
  *

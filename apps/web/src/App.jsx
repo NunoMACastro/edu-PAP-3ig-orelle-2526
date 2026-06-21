@@ -1,19 +1,17 @@
+
 /**
- * Composicao principal do frontend real_dev.
+ * Composicao principal do frontend real_dev (MF0 a MF4).
  *
  * Os guias ainda nao introduzem routing final. Por isso, o App expoe todas as
  * paginas criadas pelos BKs implementados em sequencia, exatamente para
  * facilitar smoke testing manual de cada fluxo.
  */
 import React, { useState } from "react";
-import { AuthProvider } from "./context/AuthContext.jsx";
+import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
+import { AdminUsersPage } from "./pages/AdminUsersPage.jsx"; // -> NOVO: Importado para o MF4
 import { AdminCategoriesPage } from "./pages/AdminCategoriesPage.jsx";
 import { AdminDashboardPage } from "./pages/AdminDashboardPage.jsx";
-import { AdminExportsPage } from "./pages/AdminExportsPage.jsx";
-import { AdminNotificationsPage } from "./pages/AdminNotificationsPage.jsx";
 import { AdminProductCreatePage } from "./pages/AdminProductCreatePage.jsx";
-import { AdminReviewsPage } from "./pages/AdminReviewsPage.jsx";
-import { AdminUsersPage } from "./pages/AdminUsersPage.jsx";
 import { BeforeAfterVisualizationPage } from "./pages/BeforeAfterVisualizationPage.jsx";
 import { CartPage } from "./pages/CartPage.jsx";
 import { CheckoutPage } from "./pages/CheckoutPage.jsx";
@@ -32,21 +30,19 @@ import { ProductReviewPage } from "./pages/ProductReviewPage.jsx";
 import { ProductSearchPage } from "./pages/ProductSearchPage.jsx";
 import { ProfileSetupPage } from "./pages/ProfileSetupPage.jsx";
 import { PurchaseHistoryPage } from "./pages/PurchaseHistoryPage.jsx";
-import { NotificationsPage } from "./pages/NotificationsPage.jsx";
 import { RelatedProductsPage } from "./pages/RelatedProductsPage.jsx";
 import { RegisterPage } from "./pages/RegisterPage.jsx";
-import { RoutineAlertsPage } from "./pages/RoutineAlertsPage.jsx";
 import { SkinComparisonPage } from "./pages/SkinComparisonPage.jsx";
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { StockAdminPage } from "./pages/StockAdminPage.jsx";
-import { useAuth } from "./context/AuthContext.jsx";
-
+import { NotificationsPage } from "./pages/NotificationsPage.jsx";
+import { AdminNotificationsPage } from "./pages/AdminNotificationsPage.jsx";
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
  *
  * @function AppContent
- * @returns {JSX.Element} Paginas MF0-MF2, com controlos admin visiveis apenas para admin.
+ * @returns {JSX.Element} Paginas MF0-MF4, com controlos admin visiveis apenas para admin.
  */
 function AppContent() {
     const { user } = useAuth();
@@ -71,6 +67,7 @@ function AppContent() {
             </header>
 
             <div className="page-stack">
+                {/* Páginas do fluxo de cliente e consultor */}
                 <RegisterPage />
                 <LoginPage />
                 <ProfileSetupPage />
@@ -98,20 +95,22 @@ function AppContent() {
                 <CheckoutPage />
                 <PurchaseHistoryPage />
                 <NotificationsPage />
-                <RoutineAlertsPage />
                 {canReviewRecommendations && (
                     <ConsultantRecommendationReviewPage
                         recommendations={recommendations}
                     />
                 )}
+
+                {/* Páginas do Painel Administrativo */}
                 {isAdmin && (
                     <>
+                        {/* A página de utilizadores entra aqui para o painel admin. 
+                            Nota: Esta condição visual melhora a experiência, mas a segurança 
+                            real é validada pelas barreiras das rotas `/api/admin` no backend. */}
+                        <AdminNotificationsPage />  
+                        <AdminUsersPage />
                         <AdminProductCreatePage />
                         <AdminCategoriesPage />
-                        <AdminUsersPage />
-                        <AdminReviewsPage />
-                        <AdminExportsPage />
-                        <AdminNotificationsPage />
                         <AdminDashboardPage />
                         <StockAdminPage />
                     </>
@@ -127,7 +126,7 @@ function AppContent() {
  * @function App
  * @returns {JSX.Element} Aplicacao React com contexto de autenticacao.
  */
-export function App() {
+export default function App() {
     return (
         <AuthProvider>
             <AppContent />
