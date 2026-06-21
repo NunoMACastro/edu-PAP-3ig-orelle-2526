@@ -37,6 +37,7 @@ import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { StockAdminPage } from "./pages/StockAdminPage.jsx";
 import { NotificationsPage } from "./pages/NotificationsPage.jsx";
+import { RoutineAlertsPage } from "./pages/RoutineAlertsPage.jsx";
 import { AdminNotificationsPage } from "./pages/AdminNotificationsPage.jsx";
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
@@ -94,6 +95,7 @@ function AppContent() {
                 <CartPage />
                 <CheckoutPage />
                 <PurchaseHistoryPage />
+                <RoutineAlertsPage />
                 <NotificationsPage />
                 {canReviewRecommendations && (
                     <ConsultantRecommendationReviewPage

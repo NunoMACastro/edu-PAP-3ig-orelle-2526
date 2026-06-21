@@ -31,3 +31,4 @@ routineAlertRoutes.post(
     requireRole(ROLES.ADMIN),
     runRoutineAlertsController,
 );
+
