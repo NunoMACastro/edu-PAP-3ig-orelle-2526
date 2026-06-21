@@ -36,7 +36,7 @@ import { skinHistoryRoutes } from "./routes/skin-history.routes.js";
 import { stockRoutes } from "./routes/stock.routes.js";
 import { routineAlertRoutes } from "./routes/routine-alert.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
-
+import { biometricDataRequestRoutes } from "./routes/biometric-data-request.routes.js";
 /**
  * Cria e configura uma instancia Express da API Orélle.
  *
@@ -82,6 +82,7 @@ export function createApp() {
     app.use("/api/admin", adminCategoriesRoutes);
     app.use("/api/admin", adminDashboardRoutes);
     app.use("/api/admin", stockRoutes);
+    app.use("/api", biometricDataRequestRoutes);
 
     app.use(errorMiddleware);
 

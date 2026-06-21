@@ -41,6 +41,8 @@ import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { StockAdminPage } from "./pages/StockAdminPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import { BiometricDataRequestsAdminPage } from "./pages/BiometricDataRequestsAdminPage.jsx";
+
 
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
@@ -100,10 +102,11 @@ function AppContent() {
                 <NotificationsPage />
                 <RoutineAlertsPage />
                 {canReviewRecommendations && (
-                    <ConsultantRecommendationReviewPage
-                        recommendations={recommendations}
-                    />
-                )}
+    <>
+        <ConsultantRecommendationReviewPage recommendations={recommendations} />
+        <BiometricDataRequestsAdminPage />
+    </>
+)}
                 {isAdmin && (
                     <>
                         <AdminProductCreatePage />
