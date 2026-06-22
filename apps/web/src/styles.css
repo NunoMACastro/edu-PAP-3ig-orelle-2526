@@ -258,6 +258,17 @@ article > ul {
         margin-left: 0;
     }
 }
+.feedback {
+    align-items: flex-start;
+    border: 1px solid var(--line);
+    border-left-width: 0.35rem;
+    border-radius: 0.65rem;
+    display: flex;
+    gap: 0.65rem;
+    margin: 0.85rem 0;
+    padding: 0.8rem 0.9rem;
+    overflow-wrap: anywhere;
+}
 }
 /* Alertas ficam visualmente fortes e semanticamente claros para erros que o aluno ou utilizador precisa de resolver. */
     [role="alert"] {
@@ -268,23 +279,78 @@ article > ul {
         background: var(--blush);
     }
 
-/* Estados informativos usam role="status" para comunicar progresso sem parecerem erros bloqueantes. */
-    [role="status"],
-        main > p:not([role]),
-        section > p:not([role]) {
-        border-radius: 0.5rem;
-        padding: 0.7rem 0.85rem;
-        color: var(--bordo-dark);
-        background: rgb(255 240 242 / 72%);
-    }
+.feedback__icon {
+    align-items: center;
+    border-radius: 999px;
+    display: inline-flex;
+    flex: 0 0 1.45rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    height: 1.45rem;
+    justify-content: center;
+    margin-top: 0.1rem;
+}
 
-/* Listas em grelha evitam cartões demasiado estreitos e preservam leitura em catálogos, relatórios e painéis. */
-    main > ul,
-    section > ul,
-    article > ul {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-        gap: 0.75rem;
-        padding: 0;
-        list-style: none;
-    }   
+.feedback__body {
+    min-width: 0;
+}
+
+.feedback__label {
+    color: var(--ink);
+    font-weight: 800;
+}
+
+/* Cada modificador combina cor, label e ícone para que a mensagem não dependa só da cor. */
+.feedback--error {
+    background: var(--brand-blush);
+    border-left-color: var(--brand-primary);
+    color: var(--brand-primary-strong);
+}
+
+.feedback--error .feedback__icon {
+    background: var(--brand-primary);
+    color: var(--surface);
+}
+
+.feedback--success {
+    background: #eefaf4;
+    border-left-color: #2f7d5b;
+    color: #1f5d42;
+}
+
+.feedback--success .feedback__icon {
+    background: #2f7d5b;
+    color: #ffffff;
+}
+
+.feedback--warning {
+    background: #fff6e8;
+    border-left-color: #a46316;
+    color: #6f430e;
+}
+
+.feedback--warning .feedback__icon {
+    background: #a46316;
+    color: #ffffff;
+}
+
+.feedback--info {
+    background: var(--surface-soft);
+    border-left-color: var(--brand-accent);
+    color: var(--brand-depth);
+}
+
+.feedback--info .feedback__icon {
+    background: var(--brand-accent);
+    color: var(--surface);
+}
+
+.submit-button {
+    min-height: 2.75rem;
+}
+
+/* Cursor e opacidade deixam claro que a submissão já está em curso. */
+.button--busy {
+    cursor: progress;
+    opacity: 0.78;
+}

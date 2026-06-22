@@ -1,14 +1,13 @@
-/**
- * Pagina de consentimento e upload facial MF1.
- */
 import { useState } from "react";
+import { FeedbackMessage } from "../components/FeedbackMessage.jsx";
+import { SubmitButton } from "../components/SubmitButton.jsx";
 import { apiRequest } from "../services/apiClient.js";
 
 /**
  * Envia consentimento e duas fotografias por FormData.
  *
  * @function FacePhotoUploadPage
- * @returns {JSX.Element} Formulario de upload facial.
+ * @returns {JSX.Element} Formulário de upload facial com feedback seguro.
  */
 export function FacePhotoUploadPage() {
     const [accepted, setAccepted] = useState(false);
@@ -18,15 +17,22 @@ export function FacePhotoUploadPage() {
     const [message, setMessage] = useState("");
 
     /**
-     * Aceita consentimento e envia fotos.
+     * Aceita consentimento e envia fotografias para a API.
      *
      * @async
      * @function handleSubmit
-     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulario.
+     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulário.
      * @returns {Promise<void>}
      */
     async function handleSubmit(event) {
         event.preventDefault();
+        // Sem consentimento e duas fotografias, o formulário não deve iniciar o fluxo sensível.
+        if (!accepted || !frontal || !perfil) {
+            setStatus("error");
+            setMessage("Aceita o consentimento e escolhe as duas fotografias.");
+            return;
+        }
+
         setStatus("loading");
         setMessage("");
 
@@ -43,23 +49,32 @@ export function FacePhotoUploadPage() {
             formData.append("frontal", frontal);
             formData.append("perfil", perfil);
 
+            // O apiRequest deteta FormData e evita forçar Content-Type errado no upload.
             const data = await apiRequest("/face-photos", {
                 method: "POST",
                 body: formData,
             });
 
             setStatus("success");
-            setMessage(`${data.photos.length} fotografias guardadas.`);
+            setMessage(`${data.photos.length} fotografias guardadas com segurança.`);
         } catch (err) {
+            // A UI mostra uma mensagem controlada e não expõe paths, cookies ou detalhes dos ficheiros.
             setStatus("error");
             setMessage(err.message);
         }
     }
 
+    const isBusy = status === "loading";
+    const isSubmitDisabled = !accepted || !frontal || !perfil || isBusy;
+    const feedbackType = status === "error" ? "error" : "success";
+
     return (
         <section>
             <h1>Fotografias para análise facial</h1>
-            <form onSubmit={handleSubmit}>
+            <form
+                aria-describedby={message ? "face-photo-feedback" : undefined}
+                onSubmit={handleSubmit}
+            >
                 <label>
                     <input
                         type="checkbox"
@@ -68,6 +83,7 @@ export function FacePhotoUploadPage() {
                     />
                     Aceito o tratamento destas fotografias para análise facial cosmética.
                 </label>
+
                 <label>
                     Fotografia frontal
                     <input
@@ -78,6 +94,7 @@ export function FacePhotoUploadPage() {
                         }
                     />
                 </label>
+
                 <label>
                     Fotografia de perfil
                     <input
@@ -88,18 +105,19 @@ export function FacePhotoUploadPage() {
                         }
                     />
                 </label>
-                <button
-                    type="submit"
-                    disabled={!accepted || !frontal || !perfil || status === "loading"}
+
+                <SubmitButton
+                    isBusy={isBusy}
+                    busyText="A enviar fotografias..."
+                    disabled={isSubmitDisabled}
                 >
-                    {status === "loading" ? "A enviar..." : "Enviar fotografias"}
-                </button>
+                    Enviar fotografias
+                </SubmitButton>
             </form>
-            {message && (
-                <p role={status === "error" ? "alert" : "status"}>
-                    {message}
-                </p>
-            )}
+
+            <FeedbackMessage id="face-photo-feedback" type={feedbackType}>
+                {message}
+            </FeedbackMessage>
         </section>
     );
 }
