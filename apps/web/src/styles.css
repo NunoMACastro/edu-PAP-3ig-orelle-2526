@@ -232,6 +232,7 @@ article > ul {
    RESPONSIVIDADE (MEDIA QUERIES)
    ========================================== */
 
+/* Este breakpoint muda estrutura, não apenas tamanho, para preservar toque e leitura. */
 @media (max-width: 860px) {
     .app-shell {
         width: min(100% - 1rem, 42rem);
