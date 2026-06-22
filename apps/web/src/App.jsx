@@ -43,7 +43,7 @@ import { StockAdminPage } from "./pages/StockAdminPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import { BiometricDataRequestsAdminPage } from "./pages/BiometricDataRequestsAdminPage.jsx";
 import { BiometricAuditPage } from "./pages/BiometricAuditPage.jsx";
-
+import { ThemeControls } from "./components/ThemeControls.jsx";
 /**
  * Agrupa páginas por responsabilidade visual sem criar router.
  *
@@ -76,14 +76,24 @@ function AppContent() {
 
     return (
         <div className="app-shell">
-            <header className="app-header">
+             <header className="app-header">
                 <div>
                     <p className="app-kicker">Experiência Orélle</p>
                     <h1>Orélle</h1>
                 </div>
-                {user && <p className="session-pill">{user.email} · {user.role}</p>}
-            </header>
 
+                <div className="app-header__actions">
+                    {/* O tema é visual; a sessão continua a vir do AuthContext. */}
+                    <ThemeControls />
+
+                    {user && (
+                        <p className="session-pill">
+                            {/* Email e role mantêm a mesma origem e não são guardados pelo tema. */}
+                            {user.email} · {user.role}
+                        </p>
+                    )}
+                </div>
+            </header>
             <SectionGroup title="Conta e experiência do cliente">
                 <RegisterPage />
                 <LoginPage />

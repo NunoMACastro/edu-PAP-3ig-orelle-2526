@@ -1,4 +1,82 @@
 /* apps/web/src/styles.css */
+:root,
+[data-theme="light"] {
+    color-scheme: light;
+    --surface: #ffffff;
+    --surface-soft: #fff5f4;
+    --ink: #2f1f25;
+    --muted: #725e65;
+    --line: #ecd6dc;
+    --bordo: #7a1f35;
+    --bordo-dark: #541424;
+    --wine: #9a2f49;
+    --plum: #5c3147;
+    --blush: #fff0f2;
+    --powder: #f3e4e8;
+    --focus-ring: rgb(154 47 73 / 16%);
+    --shadow: 0 18px 42px rgb(122 31 53 / 12%);
+    --app-background: linear-gradient(135deg, #fff8f5 0%, #fff0f2 55%, #f8eef3 100%);
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+    --surface: #21171c;
+    --surface-soft: #171014;
+    --ink: #fff7fa;
+    --muted: #dcc2cc;
+    --line: #5f4251;
+    --bordo: #f2a0b6;
+    --bordo-dark: #ffd2dd;
+    --wine: #ffb3c7;
+    --plum: #f0c1d1;
+    --blush: #321f29;
+    --powder: #432c37;
+    --focus-ring: rgb(255 179 199 / 34%);
+    --shadow: 0 18px 42px rgb(0 0 0 / 30%);
+    --app-background: linear-gradient(135deg, #140d11 0%, #21151c 58%, #2f1d28 100%);
+}
+
+[data-theme="contrast"] {
+    color-scheme: light;
+    --surface: #ffffff;
+    --surface-soft: #f6f6f6;
+    --ink: #111111;
+    --muted: #242424;
+    --line: #111111;
+    --bordo: #000000;
+    --bordo-dark: #333333;
+    --wine: #005fcc;
+    --plum: #003a7a;
+    --blush: #ffffff;
+    --powder: #f0f0f0;
+    --focus-ring: rgb(0 95 204 / 42%);
+    --shadow: none;
+    --app-background: #ffffff;
+}
+
+body {
+    color: var(--ink);
+    background: var(--app-background);
+}
+
+input,
+select,
+textarea {
+    /* Inputs herdam os tokens para não ficarem claros dentro do modo escuro. */
+    color: var(--ink);
+    background: var(--surface);
+    border-color: var(--line);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    /* O foco precisa de sobreviver aos três temas, sobretudo no modo de contraste. */
+    outline: 3px solid transparent;
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
 :root {
     color-scheme: light;
     font-family:
@@ -169,6 +247,76 @@ section > h1::before {
     border-bottom: 1px solid rgb(122 31 53 / 14%);
 }
 
+.app-header__actions {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.theme-controls {
+    align-items: center;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.theme-controls__button {
+    border: 1px solid var(--line);
+    box-shadow: none;
+    min-height: 2.25rem;
+    padding: 0.45rem 0.65rem;
+    color: var(--ink);
+    background: var(--surface);
+}
+
+.theme-controls__button:hover {
+    background: var(--blush);
+    box-shadow: none;
+    transform: none;
+}
+
+.theme-controls__button[aria-pressed="true"] {
+    /* O estado ativo tem texto, borda e fundo próprios para não depender apenas da cor. */
+    border-color: var(--wine);
+    color: var(--surface);
+    background: var(--bordo);
+}
+
+.session-pill,
+.page-stack > main,
+.page-stack > section {
+    /* Superfícies principais passam a responder ao tema ativo. */
+    border-color: var(--line);
+    color: var(--ink);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+.feedback,
+.feedback__label,
+main > h1,
+section > h1,
+h2,
+h3 {
+    color: var(--ink);
+}
+
+@media (max-width: 720px) {
+    .app-header,
+    .app-header__actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .theme-controls {
+        width: 100%;
+    }
+
+    .theme-controls__button {
+        flex: 1 1 6rem;
+    }
+}
 .section-group {
     margin-bottom: 1.25rem;
 }
