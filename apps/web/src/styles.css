@@ -269,6 +269,15 @@ article > ul {
     padding: 0.8rem 0.9rem;
     overflow-wrap: anywhere;
 }
+}
+/* Alertas ficam visualmente fortes e semanticamente claros para erros que o aluno ou utilizador precisa de resolver. */
+    [role="alert"] {
+        border-left: 0.35rem solid var(--wine);
+        border-radius: 0.5rem;
+        padding: 0.75rem 0.85rem;
+        color: var(--bordo-dark);
+        background: var(--blush);
+    }
 
 .feedback__icon {
     align-items: center;
