@@ -42,7 +42,7 @@ import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
 import { StockAdminPage } from "./pages/StockAdminPage.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import { BiometricDataRequestsAdminPage } from "./pages/BiometricDataRequestsAdminPage.jsx";
-
+import { BiometricAuditPage } from "./pages/BiometricAuditPage.jsx";
 
 /**
  * Conteudo da aplicacao com acesso ao estado autenticado.
@@ -117,6 +117,7 @@ function AppContent() {
                         <AdminNotificationsPage />
                         <AdminDashboardPage />
                         <StockAdminPage />
+                        <BiometricAuditPage />
                     </>
                 )}
             </div>
