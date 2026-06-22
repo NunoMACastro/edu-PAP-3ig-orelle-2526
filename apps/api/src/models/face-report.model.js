@@ -54,6 +54,13 @@ const faceReportSchema = new Schema(
             type: [String],
             required: true,
         },
+        // apps/api/src/models/face-report.model.js
+privacyStatus: {
+    type: String,
+    enum: ["active", "deleted", "anonymized"],
+    default: "active",
+    index: true,
+},
     },
     { timestamps: true },
 );

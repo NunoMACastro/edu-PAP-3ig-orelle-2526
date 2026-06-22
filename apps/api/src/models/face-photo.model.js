@@ -49,6 +49,12 @@ const facePhotoSchema = new Schema(
             enum: ["active", "deleted"],
             default: "active",
         },
+        // apps/api/src/models/face-photo.model.js
+status: {
+    type: String,
+    enum: ["active", "deleted", "anonymized"],
+    default: "active",
+},
     },
     { timestamps: true },
 );
@@ -61,3 +67,5 @@ facePhotoSchema.index({ userId: 1, kind: 1, createdAt: -1 });
  * @type {import("mongoose").Model}
  */
 export const FacePhoto = model("FacePhoto", facePhotoSchema);
+
+
