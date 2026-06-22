@@ -7,7 +7,8 @@
         "dev": "vite --host 127.0.0.1",
         "build": "vite build",
         "preview": "vite preview",
-        "smoke:mf2": "node scripts/smoke-mf2-recommendations.mjs"
+        "smoke:mf2": "node scripts/smoke-mf2-recommendations.mjs",
+        "smoke:mf5-feedback": "node scripts/check-mf5-feedback.mjs"
     },
     "dependencies": {
         "@vitejs/plugin-react": "^4.3.1",

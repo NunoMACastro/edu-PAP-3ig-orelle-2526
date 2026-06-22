@@ -1,14 +1,16 @@
 /**
- * Pagina de registo do BK-MF0-01.
+ * Página de registo do BK-MF0-01 com feedback acessível do BK-MF5-07.
  */
 import { useState } from "react";
+import { FeedbackMessage } from "../components/FeedbackMessage.jsx";
+import { SubmitButton } from "../components/SubmitButton.jsx";
 import { apiRequest } from "../services/apiClient.js";
 
 /**
- * Formulario de registo com email e password.
+ * Formulário de registo com email, palavra-passe e feedback imediato.
  *
  * @function RegisterPage
- * @returns {JSX.Element} UI de registo e mensagem de feedback.
+ * @returns {JSX.Element} UI de registo com mensagens seguras e botão ocupado.
  */
 export function RegisterPage() {
     const [form, setForm] = useState({ email: "", password: "" });
@@ -16,7 +18,7 @@ export function RegisterPage() {
     const [message, setMessage] = useState("");
 
     /**
-     * Atualiza um campo do formulario.
+     * Atualiza um campo do formulário sem alterar os restantes.
      *
      * @function updateField
      * @param {import("react").ChangeEvent<HTMLInputElement>} event - Evento do input.
@@ -30,37 +32,45 @@ export function RegisterPage() {
     }
 
     /**
-     * Submete o registo para a API.
+     * Submete o registo para a API e traduz o resultado para feedback de UI.
      *
      * @async
      * @function handleSubmit
-     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulario.
+     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulário.
      * @returns {Promise<void>}
      */
     async function handleSubmit(event) {
         event.preventDefault();
+        // O estado loading limpa mensagens antigas e bloqueia novo submit até a API responder.
         setStatus("loading");
         setMessage("");
 
         try {
-            const data = await apiRequest("/auth/register", {
+            await apiRequest("/auth/register", {
                 method: "POST",
                 body: JSON.stringify(form),
             });
 
             setStatus("success");
-            setMessage(`Conta criada para ${data.user.email}`);
+            setMessage("Conta criada. Já podes iniciar sessão.");
             setForm({ email: "", password: "" });
         } catch (err) {
+            // A mensagem vem do apiRequest/backend; não exibimos objetos técnicos nem detalhes internos.
             setStatus("error");
             setMessage(err.message);
         }
     }
 
+    const isBusy = status === "loading";
+    const feedbackType = status === "error" ? "error" : "success";
+
     return (
         <main>
             <h1>Registo Orélle</h1>
-            <form onSubmit={handleSubmit}>
+            <form
+                aria-describedby={message ? "register-feedback" : undefined}
+                onSubmit={handleSubmit}
+            >
                 <label>
                     Email
                     <input
@@ -74,7 +84,7 @@ export function RegisterPage() {
                 </label>
 
                 <label>
-                    Password
+                    Palavra-passe
                     <input
                         name="password"
                         type="password"
@@ -86,14 +96,14 @@ export function RegisterPage() {
                     />
                 </label>
 
-                <button type="submit" disabled={status === "loading"}>
-                    {status === "loading" ? "A criar..." : "Criar conta"}
-                </button>
+                <SubmitButton isBusy={isBusy} busyText="A criar conta...">
+                    Criar conta
+                </SubmitButton>
             </form>
 
-            {message && (
-                <p role={status === "error" ? "alert" : "status"}>{message}</p>
-            )}
+            <FeedbackMessage id="register-feedback" type={feedbackType}>
+                {message}
+            </FeedbackMessage>
         </main>
     );
 }
