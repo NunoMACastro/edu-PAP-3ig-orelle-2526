@@ -1,3 +1,158 @@
+/* apps/web/src/styles.css */
+:root {
+    color-scheme: light;
+    font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #2f1f25;
+    background: #fff8f5;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+
+    /* Estes tokens descrevem intenção visual, não páginas específicas. */
+    --surface: #ffffff;
+    --surface-soft: #fff5f4;
+    --ink: #2f1f25;
+    --muted: #725e65;
+    --line: #ecd6dc;
+    --brand-primary: #7a1f35;
+    --brand-primary-strong: #541424;
+    --brand-accent: #9a2f49;
+    --brand-depth: #5c3147;
+    --brand-blush: #fff0f2;
+    --brand-powder: #f3e4e8;
+    --focus-ring: rgb(154 47 73 / 18%);
+    --shadow-soft: 0 18px 42px rgb(122 31 53 / 12%);
+
+    /* Os aliases preservam o CSS criado nos BKs anteriores até todos os seletores serem migrados. */
+    --bordo: var(--brand-primary);
+    --bordo-dark: var(--brand-primary-strong);
+    --wine: var(--brand-accent);
+    --plum: var(--brand-depth);
+    --blush: var(--brand-blush);
+    --powder: var(--brand-powder);
+    --shadow: var(--shadow-soft);
+}
+
+
+button {
+    min-height: 2.65rem;
+    border: 0;
+    border-radius: 0.5rem;
+    padding: 0.7rem 1rem;
+    color: #ffffff;
+    background: var(--brand-primary);
+    box-shadow: 0 10px 20px rgb(122 31 53 / 20%);
+    cursor: pointer;
+    transition:
+        transform 160ms ease,
+        box-shadow 160ms ease,
+        background-color 160ms ease;
+}
+
+button:hover:not(:disabled) {
+    background: var(--brand-primary-strong);
+    box-shadow: 0 14px 26px rgb(122 31 53 / 26%);
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+    box-shadow: none;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    padding: 0.72rem 0.8rem;
+    color: var(--ink);
+    background: var(--surface);
+    outline: none;
+    transition:
+        border-color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.app-kicker {
+    margin: 0 0 0.45rem;
+    color: var(--brand-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.session-pill {
+    max-width: 100%;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    color: var(--brand-primary-strong);
+    background: rgb(255 255 255 / 74%);
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+main > h1::before,
+section > h1::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 0.55rem;
+    height: 1.6rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--brand-accent), var(--brand-depth));
+}
+
+
+.brand-panel {
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--surface), var(--surface-soft));
+    box-shadow: var(--shadow-soft);
+}
+
+.metric-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.metric-strip > * {
+    min-width: 0;
+}
+
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.28rem 0.6rem;
+    color: var(--brand-primary-strong);
+    background: var(--brand-blush);
+    font-size: 0.86rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
 .app-shell {
     width: min(1180px, calc(100% - 2rem));
     margin: 0 auto;
@@ -23,14 +178,12 @@
     font-size: 1.05rem;
 }
 
-/* A grelha fluida evita criar regras por página e mantém cada painel legível em desktop. */
 .section-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
     gap: 1rem;
 }
 
-/* min-width: 0 impede que textos, tabelas ou formulários largos forcem scroll horizontal no mobile. */
 .section-grid > main,
 .section-grid > section {
     min-width: 0;
@@ -41,7 +194,6 @@
     box-shadow: var(--shadow);
 }
 
-/* Os formulários começam em duas colunas para aproveitar desktop sem perder a adaptação mobile. */
 form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -49,7 +201,37 @@ form {
     align-items: end;
 }
 
-/* Este breakpoint muda estrutura, não apenas tamanho, para preservar toque e leitura. */
+[role="alert"] {
+    border-left: 0.35rem solid var(--brand-accent);
+    border-radius: 0.5rem;
+    padding: 0.75rem 0.85rem;
+    color: var(--brand-primary-strong);
+    background: var(--brand-blush);
+}
+
+[role="status"],
+main > p:not([role]),
+section > p:not([role]) {
+    border-radius: 0.5rem;
+    padding: 0.7rem 0.85rem;
+    color: var(--brand-primary-strong);
+    background: rgb(255 240 242 / 72%);
+}
+
+main > ul,
+section > ul,
+article > ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+}
+
+/* ==========================================
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================== */
+
 @media (max-width: 860px) {
     .app-shell {
         width: min(100% - 1rem, 42rem);
@@ -75,32 +257,3 @@ form {
         margin-left: 0;
     }
 }
-/* Alertas ficam visualmente fortes e semanticamente claros para erros que o aluno ou utilizador precisa de resolver. */
-    [role="alert"] {
-        border-left: 0.35rem solid var(--wine);
-        border-radius: 0.5rem;
-        padding: 0.75rem 0.85rem;
-        color: var(--bordo-dark);
-        background: var(--blush);
-    }
-
-/* Estados informativos usam role="status" para comunicar progresso sem parecerem erros bloqueantes. */
-    [role="status"],
-        main > p:not([role]),
-        section > p:not([role]) {
-        border-radius: 0.5rem;
-        padding: 0.7rem 0.85rem;
-        color: var(--bordo-dark);
-        background: rgb(255 240 242 / 72%);
-    }
-
-/* Listas em grelha evitam cartões demasiado estreitos e preservam leitura em catálogos, relatórios e painéis. */
-    main > ul,
-    section > ul,
-    article > ul {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-        gap: 0.75rem;
-        padding: 0;
-        list-style: none;
-    }   
