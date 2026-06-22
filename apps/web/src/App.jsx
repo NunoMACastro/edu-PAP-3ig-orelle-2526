@@ -45,10 +45,26 @@ import { BiometricDataRequestsAdminPage } from "./pages/BiometricDataRequestsAdm
 import { BiometricAuditPage } from "./pages/BiometricAuditPage.jsx";
 
 /**
- * Conteudo da aplicacao com acesso ao estado autenticado.
+ * Agrupa páginas por responsabilidade visual sem criar router.
+ *
+ * @function SectionGroup
+ * @param {{title: string, children: React.ReactNode}} props - Título e conteúdo.
+ * @returns {JSX.Element} Secção responsiva.
+ */
+function SectionGroup({ title, children }) {
+    return (
+        <section className="section-group">
+            <h2>{title}</h2>
+            <div className="section-grid">{children}</div>
+        </section>
+    );
+}
+
+/**
+ * Conteúdo principal com zonas de cliente, consultoria e administração.
  *
  * @function AppContent
- * @returns {JSX.Element} Paginas MF0-MF2, com controlos admin visiveis apenas para admin.
+ * @returns {JSX.Element} Interface principal responsiva sem regressão das páginas já existentes.
  */
 function AppContent() {
     const { user } = useAuth();
@@ -62,17 +78,13 @@ function AppContent() {
         <div className="app-shell">
             <header className="app-header">
                 <div>
-                    <p className="app-kicker">real_dev</p>
+                    <p className="app-kicker">Experiência Orélle</p>
                     <h1>Orélle</h1>
                 </div>
-                {user && (
-                    <p className="session-pill">
-                        {user.email} · {user.role}
-                    </p>
-                )}
+                {user && <p className="session-pill">{user.email} · {user.role}</p>}
             </header>
 
-            <div className="page-stack">
+            <SectionGroup title="Conta e experiência do cliente">
                 <RegisterPage />
                 <LoginPage />
                 <ProfileSetupPage />
@@ -101,40 +113,30 @@ function AppContent() {
                 <PurchaseHistoryPage />
                 <NotificationsPage />
                 <RoutineAlertsPage />
-                {canReviewRecommendations && (
-    <>
-        <ConsultantRecommendationReviewPage recommendations={recommendations} />
-        <BiometricDataRequestsAdminPage />
-    </>
-)}
-                {isAdmin && (
-                    <>
-                        <AdminProductCreatePage />
-                        <AdminCategoriesPage />
-                        <AdminUsersPage />
-                        <AdminReviewsPage />
-                        <AdminExportsPage />
-                        <AdminNotificationsPage />
-                        <AdminDashboardPage />
-                        <StockAdminPage />
-                        <BiometricAuditPage />
-                    </>
-                )}
-            </div>
-        </div>
-    );
-}
+            </SectionGroup>
 
-/**
- * Renderiza a aplicacao real_dev.
- *
- * @function App
- * @returns {JSX.Element} Aplicacao React com contexto de autenticacao.
- */
-export function App() {
-    return (
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
+            {canReviewRecommendations && (
+                <SectionGroup title="Consultoria e privacidade">
+                    <ConsultantRecommendationReviewPage
+                        recommendations={recommendations}
+                    />
+                    <BiometricDataRequestsAdminPage />
+                </SectionGroup>
+            )}
+
+            {isAdmin && (
+                <SectionGroup title="Administração">
+                    <AdminProductCreatePage />
+                    <AdminCategoriesPage />
+                    <AdminUsersPage />
+                    <AdminReviewsPage />
+                    <AdminExportsPage />
+                    <AdminNotificationsPage />
+                    <AdminDashboardPage />
+                    <StockAdminPage />
+                    <BiometricAuditPage />
+                </SectionGroup>
+            )}
+        </div>
     );
 }
