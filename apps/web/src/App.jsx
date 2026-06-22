@@ -61,6 +61,22 @@ function SectionGroup({ title, children }) {
 }
 
 /**
+ * Agrupa páginas por responsabilidade visual sem criar router.
+ *
+ * @function SectionGroup
+ * @param {{title: string, children: React.ReactNode}} props - Título e conteúdo.
+ * @returns {JSX.Element} Secção responsiva.
+ */
+function SectionGroup({ title, children }) {
+    return (
+        <section className="section-group">
+            <h2>{title}</h2>
+            <div className="section-grid">{children}</div>
+        </section>
+    );
+}
+
+/**
  * Conteúdo principal com zonas de cliente, consultoria e administração.
  *
  * @function AppContent

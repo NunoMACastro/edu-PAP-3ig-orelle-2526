@@ -342,6 +342,43 @@ h3 {
     box-shadow: var(--shadow);
 }
 
+}
+
+.app-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgb(122 31 53 / 14%);
+}
+
+.section-group {
+    margin-bottom: 1.25rem;
+}
+
+.section-group > h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.05rem;
+}
+
+.section-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    gap: 1rem;
+}
+
+.section-grid > main,
+.section-grid > section {
+    min-width: 0;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    padding: 1.1rem;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
 form {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -380,6 +417,7 @@ article > ul {
    RESPONSIVIDADE (MEDIA QUERIES)
    ========================================== */
 
+/* Este breakpoint muda estrutura, não apenas tamanho, para preservar toque e leitura. */
 @media (max-width: 860px) {
     .app-shell {
         width: min(100% - 1rem, 42rem);
@@ -492,3 +530,33 @@ article > ul {
     cursor: progress;
     opacity: 0.78;
 }
+}
+/* Alertas ficam visualmente fortes e semanticamente claros para erros que o aluno ou utilizador precisa de resolver. */
+    [role="alert"] {
+        border-left: 0.35rem solid var(--wine);
+        border-radius: 0.5rem;
+        padding: 0.75rem 0.85rem;
+        color: var(--bordo-dark);
+        background: var(--blush);
+    }
+
+/* Estados informativos usam role="status" para comunicar progresso sem parecerem erros bloqueantes. */
+    [role="status"],
+        main > p:not([role]),
+        section > p:not([role]) {
+        border-radius: 0.5rem;
+        padding: 0.7rem 0.85rem;
+        color: var(--bordo-dark);
+        background: rgb(255 240 242 / 72%);
+    }
+
+/* Listas em grelha evitam cartões demasiado estreitos e preservam leitura em catálogos, relatórios e painéis. */
+    main > ul,
+    section > ul,
+    article > ul {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+        gap: 0.75rem;
+        padding: 0;
+        list-style: none;
+    }   
