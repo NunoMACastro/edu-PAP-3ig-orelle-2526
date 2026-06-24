@@ -20,7 +20,7 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md`
-- `last_updated`: `2026-06-20`
+- `last_updated`: `2026-06-22`
 
 #### Objetivo
 
@@ -74,6 +74,57 @@ Responsividade não é apenas reduzir o tamanho da letra. A interface deve mudar
 Uma app operacional não deve parecer uma landing page. A Orélle precisa de painéis repetidos, formulários e listas que suportem uso real por cliente, consultor e administrador.
 
 Sem biblioteca de UI, o CSS global deve definir regras comuns para botões, inputs, cartões e grids. Isto reduz repetição nos componentes e ajuda a manter consistência nas próximas MF.
+
+## Bloco pedagogico
+
+### Objetivo
+
+Compreender como organizar a interface da Orélle por papel e tornar os formulários, listas e painéis utilizáveis em desktop e mobile sem alterar regras de negócio.
+
+### Pre-requisitos
+
+- Saber importar páginas React já existentes.
+- Conhecer o cliente API com sessão por cookie.
+- Perceber o papel de `App.jsx` como composição temporária sem router completo.
+- Conhecer os fluxos de cliente, consultor e administrador já criados.
+
+### Erros comuns
+
+- Usar CSS responsivo para esconder funcionalidades em vez de organizar a experiência.
+- Mostrar painéis administrativos a clientes só porque o backend bloqueia depois.
+- Criar landing page em vez de melhorar a app real.
+- Quebrar checkboxes, radios ou botões ao aplicar regras globais demasiado amplas.
+
+### Check de compreensao
+
+Consegues explicar que a UI pode agrupar páginas por role, mas a autorização real continua no backend? Consegues indicar como a grelha deve mudar entre desktop e mobile?
+
+## Bloco operacional
+
+### Entrada
+
+- Páginas React das MF anteriores.
+- `App.jsx`, `styles.css` e cliente API existentes.
+- Requisitos de `RNF01` para interface moderna, intuitiva e responsiva.
+
+### Passos
+
+1. Mapear páginas por fluxo de cliente, consultoria e administração.
+2. Criar grupos visuais sem introduzir router novo.
+3. Rever CSS global para grelhas fluidas e inputs seguros.
+4. Garantir que formulários e listas não rebentam em mobile.
+5. Validar build e pelo menos 3 negativos de layout/responsividade.
+
+### Validacao
+
+- Build Vite passa sem imports partidos.
+- Secções de cliente, consultoria e administração ficam visualmente separadas.
+- Mobile usa uma coluna e mantém botões/inputs legíveis.
+- [ ] Negativos: minimo `3` cenarios controlados de overflow, role visual e formulário compacto.
+
+### Handoff
+
+`BK-MF5-06`, `BK-MF5-07` e `BK-MF5-08` reutilizam esta base visual para tokens de marca, feedback e temas sem reescrever a estrutura da app.
 
 #### Arquitetura do BK
 
@@ -572,7 +623,7 @@ Se só existir uma captura desktop, a evidência está incompleta. A correção 
 - Estados `loading`, `error`, `empty` e `success` visíveis e consistentes.
 - Evidence responsiva separada por build, desktop, mobile e negativos.
 
-#### Critérios de aceite
+## Criterios de aceite
 
 - `App.jsx` preserva gates de consultor/admin.
 - `styles.css` define grelha responsiva e breakpoint mobile.
@@ -600,7 +651,7 @@ Se só existir uma captura desktop, a evidência está incompleta. A correção 
 | `P1` | Revisão de formulários/listas em mobile | Confirmação de que inputs, listas e cartões não criam scroll horizontal nem texto sobreposto. |
 | `P2` | Revisão de regressão visual | Confirmação de que `BK-MF5-06`, `BK-MF5-07` e `BK-MF5-08` podem reutilizar a estrutura sem reescrever o layout. |
 
-#### Evidence para PR/defesa
+## Evidence para PR/defesa
 
 - Output do build Vite.
 - Captura desktop.

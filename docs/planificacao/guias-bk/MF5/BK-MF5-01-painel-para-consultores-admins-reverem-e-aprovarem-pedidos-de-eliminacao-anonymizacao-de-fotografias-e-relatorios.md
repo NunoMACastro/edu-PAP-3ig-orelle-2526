@@ -20,7 +20,7 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-04`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md`
-- `last_updated`: `2026-06-20`
+- `last_updated`: `2026-06-22`
 
 #### Objetivo
 
@@ -84,6 +84,58 @@ A diferença entre `delete` e `anonymize` tem de existir no service. Para fotogr
 O painel administrativo não é uma galeria. O revisor vê metadados suficientes para decidir: ação pedida, recursos, estado, motivo, datas e dono técnico. Fotografias, `storageKey`, caminhos internos, cookies e relatório completo não entram na resposta.
 
 Este BK é `CORE-HIBRIDO`: protege confiança no fluxo de análise/recomendação e reduz abandono do utilizador antes de voltar ao comércio. A evidence deve provar tanto o comportamento técnico como a confiança operacional associada aos KPIs `add_to_cart_recomendado` e `retencao_fluxo_ia_30d`.
+
+## Bloco pedagogico
+
+### Objetivo
+
+Compreender como a Orélle permite ao cliente criar um pedido de eliminação ou anonymização de dados biométricos, mantendo a decisão final no backend e no painel de consultor/admin.
+
+### Pre-requisitos
+
+- Saber como a sessão HttpOnly identifica o utilizador autenticado.
+- Saber distinguir role de cliente, consultor e administrador.
+- Conhecer os modelos `FacePhoto` e `FaceReport` criados nas MF anteriores.
+- Perceber a diferença entre eliminação lógica e anonymização mínima.
+
+### Erros comuns
+
+- Aceitar `requesterId` vindo do frontend em vez de usar a sessão autenticada.
+- Mostrar fotografias, `storageKey`, paths internos ou relatório completo no painel de revisão.
+- Tratar `delete` e `anonymize` como se tivessem o mesmo efeito técnico.
+- Permitir que um pedido já decidido seja decidido novamente.
+
+### Check de compreensao
+
+Consegues explicar porque é que o cliente cria o pedido, mas só consultor/admin o decide? Consegues indicar que dados podem aparecer no painel e que dados nunca devem sair na resposta?
+
+## Bloco operacional
+
+### Entrada
+
+- Guias e contratos de `RF41`, `BK-MF1-05`, `BK-MF1-07` e `BK-MF5-04`.
+- Código real de sessão, roles, modelos faciais e cliente API.
+- Pedido frontend com `action`, `resources` e `reason`, sem ownership enviado pela UI.
+
+### Passos
+
+1. Confirmar o contrato de `RF41` e os recursos abrangidos.
+2. Criar ou rever o modelo de pedido biométrico.
+3. Validar criação, listagem e decisão no backend.
+4. Integrar o painel de revisão e a UI de criação de pedido no frontend real.
+5. Cobrir pelo menos 3 cenários negativos de sessão, role, input ou estado.
+6. Revalidar build, testes API e pesquisa estática de dados sensíveis.
+
+### Validacao
+
+- `POST /api/me/biometric-data-requests` cria pedido com sessão de cliente.
+- `GET /api/admin/biometric-data-requests` é acessível apenas a consultor/admin.
+- `PATCH /api/admin/biometric-data-requests/:requestId/decision` decide apenas pedidos pendentes.
+- [ ] Negativos: minimo `3` cenarios controlados com `400`, `401`, `403` ou `409`.
+
+### Handoff
+
+`BK-MF5-04` deve auditar listagem e decisão destes pedidos. `MF6` deve conseguir medir desempenho sem alterar o contrato de payload nem enfraquecer minimização de dados biométricos.
 
 #### Arquitetura do BK
 
@@ -1179,7 +1231,7 @@ Sem cookie de sessão, criação, listagem e decisão devem devolver `401`.
 - Cliente em rota administrativa recebe `403`.
 - Respostas não incluem `storageKey`, imagem, path interno ou relatório completo.
 
-#### Critérios de aceite
+## Criterios de aceite
 
 - Pedido criado usa `requesterId` da sessão autenticada.
 - Consultor/admin consegue listar e decidir pedidos.
@@ -1208,7 +1260,7 @@ Sem cookie de sessão, criação, listagem e decisão devem devolver `401`.
 | `P1` | Integration + negativos de role | `403` para cliente e `401` sem sessão. |
 | `P2` | Smoke manual e revisão de strings | Sem paths internos ou conteúdo biométrico no painel. |
 
-#### Evidence para PR/defesa
+## Evidence para PR/defesa
 
 - Output do pedido criado com estado `pending`.
 - Output de teste que mostra `403` para cliente no painel.

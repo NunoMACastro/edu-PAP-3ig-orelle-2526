@@ -20,7 +20,7 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-08`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-07-mensagens-claras-icones-acessiveis-e-feedback-imediato-em-formularios.md`
-- `last_updated`: `2026-06-20`
+- `last_updated`: `2026-06-22`
 
 #### Objetivo
 
@@ -91,6 +91,58 @@ Estado ocupado evita duplicação. Em registo, checkout, upload ou privacidade, 
 Mensagens seguras protegem a aplicação. A UI não deve mostrar stack traces, paths internos, nomes de coleções, cookies, tokens, fotografias ou relatórios. O `apiRequest` já transforma erros HTTP em mensagens controladas; este BK mantém essa fronteira e ensina a não expor detalhes sensíveis no componente.
 
 `DERIVADO`: os nomes `FeedbackMessage`, `SubmitButton`, `feedback--error`, `feedback--success`, `feedback--warning`, `feedback--info` e `button--busy` são decisões técnicas mínimas para cumprir `RNF03` sem introduzir dependências novas.
+
+## Bloco pedagogico
+
+### Objetivo
+
+Compreender como criar feedback claro, acessível e imediato em formulários sem expor detalhes técnicos ou substituir validação backend.
+
+### Pre-requisitos
+
+- Conhecer os formulários de registo e upload facial.
+- Saber a diferença entre `role="alert"` e `role="status"`.
+- Conhecer os tokens visuais criados em `BK-MF5-06`.
+- Perceber que dados biométricos e pessoais exigem mensagens seguras.
+
+### Erros comuns
+
+- Mostrar mensagens vagas como "falhou" sem próximo passo.
+- Depender apenas da cor para comunicar erro ou sucesso.
+- Expor stack trace, path interno, token, cookie ou detalhes de fotografia.
+- Remover validação backend porque a UI já bloqueia o botão.
+
+### Check de compreensao
+
+Consegues indicar que tipo de feedback deve usar `alert` e qual deve usar `status`? Consegues escrever uma mensagem de erro útil sem expor detalhes internos?
+
+## Bloco operacional
+
+### Entrada
+
+- Formulários existentes em `RegisterPage.jsx` e `FacePhotoUploadPage.jsx`.
+- CSS base e tokens visuais da MF5.
+- Cliente API que devolve mensagens seguras.
+
+### Passos
+
+1. Definir tipos de mensagem e roles acessíveis.
+2. Criar `FeedbackMessage`.
+3. Criar `SubmitButton` com `disabled` e `aria-busy`.
+4. Aplicar os componentes a formulários reais.
+5. Criar smoke estático sem dependências novas.
+6. Validar pelo menos 3 negativos de mensagem, duplo envio e campos obrigatórios.
+
+### Validacao
+
+- Formulários usam feedback consistente.
+- Botão ocupado bloqueia duplo envio.
+- Mensagens não expõem dados sensíveis.
+- [ ] Negativos: minimo `3` cenarios controlados para erro recuperável, envio duplicado e falta de consentimento/campo.
+
+### Handoff
+
+`BK-MF5-08` deve garantir que estes mesmos estados continuam legíveis em modo escuro e alto contraste.
 
 #### Arquitetura do BK
 
@@ -889,7 +941,7 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 - Mensagens de erro usam `role="alert"` e mensagens de sucesso/informação usam `role="status"`.
 - Erros técnicos continuam protegidos por `apiRequest` e backend; a UI não expõe detalhes internos.
 
-#### Critérios de aceite
+## Criterios de aceite
 
 - O guia usa apenas paths `apps/web` para frontend operativo.
 - Existe evidência de que `RNF03` foi cumprido em pelo menos dois formulários reais.
@@ -919,7 +971,7 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 - [ ] Negativos: mínimo `3` cenários com resultado controlado.
 - [ ] Segurança: confirmar que nenhuma mensagem mostra paths internos, cookies, tokens, fotografias, relatórios ou detalhes de base de dados.
 
-#### Evidence para PR/defesa
+## Evidence para PR/defesa
 
 - Output de `npm --prefix apps/web run build`.
 - Output de `npm --prefix apps/web run smoke:mf5-feedback`.

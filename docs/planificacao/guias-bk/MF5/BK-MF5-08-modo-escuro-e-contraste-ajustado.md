@@ -20,7 +20,7 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF6-01`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-08-modo-escuro-e-contraste-ajustado.md`
-- `last_updated`: `2026-06-20`
+- `last_updated`: `2026-06-22`
 
 #### Objetivo
 
@@ -84,6 +84,74 @@ Alto contraste não é o mesmo que modo escuro. Modo escuro reduz luminosidade; 
 `data-theme` é uma fronteira simples entre React e CSS. React decide o tema ativo; CSS responde a esse atributo com tokens diferentes. Esta solução evita dependências novas e mantém a app fácil de testar.
 
 `DERIVADO`: os nomes `useThemePreference`, `ThemeControls`, `light`, `dark`, `contrast`, `.theme-controls` e `.theme-controls__button` são decisões técnicas mínimas para cumprir `RNF04` dentro do frontend atual.
+
+## Bloco pedagogico
+
+### Objetivo
+
+Compreender como aplicar `RNF04` na interface da Orélle através de temas visuais seguros e acessíveis. O aluno deve perceber que modo claro, modo escuro e alto contraste são variações da mesma interface, não três aplicações diferentes nem três árvores de componentes duplicadas.
+
+Este BK também ensina uma fronteira importante: tema é preferência visual local. Não deve guardar sessão, role, token, consentimento, fotografia, relatório, recomendação, checkout ou qualquer dado pessoal. React escolhe o tema ativo; CSS aplica os tokens; a API continua fora deste contrato.
+
+### Pre-requisitos
+
+- Ter o `BK-MF5-05` concluído, porque a shell responsiva precisa de existir antes de testar tema em desktop/mobile.
+- Ter o `BK-MF5-06` concluído, porque os tokens de marca e foco são a base para alternar tema sem duplicar CSS.
+- Ter o `BK-MF5-07` concluído, porque mensagens, botões e feedback devem continuar legíveis nos três temas.
+- Saber localizar `apps/web/src/App.jsx`, `apps/web/src/styles.css` e `apps/web/package.json`.
+- Saber executar `npm --prefix apps/web run build` e registar evidência de validação.
+
+### Erros comuns
+
+- Usar `localStorage`, cookies ou backend para guardar a preferência visual antes de existir contrato explícito de persistência.
+- Criar classes duplicadas para cada tema em vez de trocar tokens por `data-theme`.
+- Fazer alto contraste como se fosse apenas modo escuro, deixando texto secundário, foco ou botões pouco visíveis.
+- Remover gates de role ao mexer no header da aplicação.
+- Validar só o build e não testar os três temas, foco por teclado e cenário negativo de tema inválido.
+
+### Check de compreensao
+
+- Consegues explicar a diferença entre modo escuro e alto contraste?
+- Consegues indicar por que `data-theme` é suficiente para ligar React e CSS neste BK?
+- Consegues justificar por que o tema não deve transportar autenticação, consentimento, fotografia ou relatório?
+- Consegues demonstrar que `normalizeTheme("danger")` volta a `light`?
+- Consegues testar `Claro`, `Escuro` e `Contraste` sem alterar endpoints, roles ou páginas?
+
+## Bloco operacional
+
+### Entrada
+
+- Ficheiro principal de estilos: `apps/web/src/styles.css`.
+- Hook novo: `apps/web/src/hooks/useThemePreference.js`.
+- Componente novo: `apps/web/src/components/ThemeControls.jsx`.
+- Integração React: `apps/web/src/App.jsx`.
+- Contrato canónico: `RNF04`, `BK-MF5-08`, handoff de `BK-MF5-06` e `BK-MF5-07`.
+- Em execução privada, se a prompt declarar `IMPLEMENTATION_ROOT=real_dev`, remapear os caminhos operacionais para `real_dev/web` apenas no relatório técnico; o guia de aluno continua a publicar `apps/web`.
+
+### Passos
+
+1. Confirmar que `RNF04` é visual e não altera API, sessão, roles ou dados sensíveis.
+2. Criar tokens `light`, `dark` e `contrast` em `styles.css`, preservando aliases visuais existentes.
+3. Criar `useThemePreference` com lista fechada `["light", "dark", "contrast"]`, `normalizeTheme` e aplicação de `document.documentElement.dataset.theme`.
+4. Criar `ThemeControls` com botões textuais, `type="button"` e `aria-pressed`.
+5. Integrar `ThemeControls` no header de `App.jsx` sem alterar `AuthProvider`, `useAuth`, `isAdmin`, `canReviewRecommendations` ou a ordem das páginas.
+6. Validar que botões, inputs, cartões, mensagens e foco usam tokens nos três temas.
+7. Executar cenarios negativos obrigatorios (minimo 1): tentar aplicar tema inválido, como `danger`, e confirmar que o resultado volta a `light`.
+8. Executar build, inspeção visual desktop/mobile e validação documental.
+
+### Validacao
+
+- [ ] Build: `npm --prefix apps/web run build` termina sem erro.
+- [ ] UI: botões `Claro`, `Escuro` e `Contraste` aparecem no header.
+- [ ] DOM: alternar tema altera `document.documentElement.dataset.theme`.
+- [ ] Acessibilidade: o botão ativo tem `aria-pressed` e foco por teclado visível.
+- [ ] Contraste: inputs, botões, cartões, alertas e feedback ficam legíveis nos três temas.
+- [ ] Negativos: minimo `1` cenarios com resultado observado e corrigido.
+- [ ] Segurança: a preferência visual não guarda sessão, role, token, consentimento, fotografia, relatório ou dados pessoais.
+
+### Handoff
+
+`BK-MF6-01` deve medir performance com os três temas disponíveis, sem desfazer tokens nem controlos. Futuras melhorias visuais devem reutilizar `data-theme`, `useThemePreference`, `ThemeControls` e os tokens existentes, em vez de criar uma segunda solução paralela.
 
 #### Arquitetura do BK
 
@@ -735,7 +803,7 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 - Não há alteração de endpoints, sessão, roles, consentimento, fotografias ou relatórios.
 - `BK-MF6-01` pode medir performance sem desfazer o sistema de temas.
 
-#### Critérios de aceite
+## Criterios de aceite
 
 - `apps/web/src/hooks/useThemePreference.js` existe e valida temas permitidos.
 - `apps/web/src/components/ThemeControls.jsx` existe e usa `aria-pressed`.
@@ -762,7 +830,7 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 - [ ] Negativos: mínimo `1` cenários com resultado controlado.
 - [ ] Sem regressão: sessão, roles e páginas continuam com o mesmo comportamento.
 
-#### Evidence para PR/defesa
+## Evidence para PR/defesa
 
 Evidência de testes por camada:
 
@@ -781,4 +849,5 @@ Evidência de testes por camada:
 
 #### Changelog
 
+- `2026-06-22`: acrescentados `Bloco pedagogico`, `Bloco operacional`, `Criterios de aceite` e `Evidence para PR/defesa` no formato esperado pelo validador canónico, sem alterar o contrato funcional do BK.
 - `2026-06-20`: corrigido o guia para `apps/web`, formalizada a matriz `P2`, acrescentados negativos obrigatórios e reforçados comentários didáticos nos blocos de código.

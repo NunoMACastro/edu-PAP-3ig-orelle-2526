@@ -61,6 +61,17 @@ Design consistente não é decoração. Numa aplicação de cosmética, a interf
 - `apps/web/package.json` com script `build`.
 - Conhecimentos básicos de CSS custom properties, estados de foco e inspeção visual em browser.
 
+#### Política de paths para aluno e validação real_dev
+
+Este guia é um documento canónico de aluno, por isso mantém `apps/web` como raiz publicada de implementação. Quando uma prompt operacional do professor indicar `IMPLEMENTATION_ROOT=real_dev`, aplica o mesmo contrato técnico por remapeamento controlado:
+
+| Contexto | Raiz a usar | Exemplo |
+| --- | --- | --- |
+| Guia entregue aos alunos | `apps/web` | `apps/web/src/styles.css` |
+| Auditoria/correção operacional privada | `real_dev/web` | `real_dev/web/src/styles.css` |
+
+Não edites `apps/web` durante uma execução operacional que declare `IMPLEMENTATION_ROOT=real_dev`. Nessa situação, usa o guia como contrato e executa os comandos equivalentes em `real_dev/web`, registando no relatório técnico que o path foi remapeado.
+
 #### Glossário
 
 - Token visual: variável CSS reutilizável para representar uma decisão visual, como cor principal, fundo, borda ou sombra.
@@ -86,6 +97,71 @@ Contraste e foco fazem parte da usabilidade. Uma paleta suave pode ser agradáve
 Evidence visual não substitui build. O build confirma que Vite consegue compilar CSS e JSX; a inspeção visual confirma se o resultado é legível. As duas validações são necessárias porque um CSS pode compilar e ainda assim ter contraste fraco.
 
 `DERIVADO`: os nomes `--brand-primary`, `--brand-accent`, `.brand-panel`, `.metric-strip` e `.status-chip` são decisões técnicas mínimas para aplicar `RNF02` sem introduzir dependências novas nem alterar contratos funcionais.
+
+## Bloco pedagogico
+
+### Objetivo
+
+Compreender como transformar `RNF02` numa linguagem visual consistente, sem confundir design com lógica de negócio. O aluno deve perceber que tokens CSS são contratos visuais reutilizáveis: uma variável como `--brand-primary` representa uma decisão de marca e pode ser consumida por botões, foco, estados e mensagens sem duplicar valores hexadecimais em cada página.
+
+Este BK também ensina compatibilidade incremental. Como a app já usa tokens antigos, os aliases preservam os BKs anteriores enquanto a nova nomenclatura semântica prepara `BK-MF5-07` e `BK-MF5-08`.
+
+### Pre-requisitos
+
+- Saber localizar o CSS global em `apps/web/src/styles.css`.
+- Saber correr o build do frontend com `npm --prefix apps/web run build`.
+- Ter o `BK-MF5-05` concluído, porque este BK não recria a shell responsiva.
+- Confirmar `RNF02` em `docs/RNF.md` e o mapeamento `BK-MF5-06` nos anexos de RNF.
+- Distinguir path canónico de aluno (`apps/web`) de path operacional privado (`real_dev/web`) quando uma prompt de auditoria/correção assim o declarar.
+
+### Erros comuns
+
+- Substituir todos os tokens antigos de uma vez e remover aliases, criando regressões em seletores já existentes.
+- Escolher cores bonitas mas sem contraste suficiente para texto, botões, alertas ou foco por teclado.
+- Usar este BK para mudar autenticação, autorização, checkout, recomendações ou dados biométricos.
+- Instalar uma biblioteca visual sem contrato documental e sem necessidade real.
+- Validar apenas o build e não verificar foco, desktop/mobile e cenários negativos.
+
+### Check de compreensao
+
+- Consegues explicar a diferença entre um token visual novo e um alias de compatibilidade?
+- Consegues justificar por que `BK-MF5-06` não altera endpoints, roles, cookies, payloads ou regras de negócio?
+- Consegues indicar que tokens serão reutilizados por `BK-MF5-07` para feedback e por `BK-MF5-08` para tema/contraste?
+- Consegues executar o mesmo contrato em `real_dev/web` quando a prompt operacional pedir `IMPLEMENTATION_ROOT=real_dev`, sem mudar o guia de aluno?
+
+## Bloco operacional
+
+### Entrada
+
+- Ficheiro principal: `apps/web/src/styles.css`.
+- Ficheiros de revisão: `apps/web/src/App.jsx`, `apps/web/src/pages/*.jsx` e `apps/web/package.json`.
+- Contrato canónico: `RNF02`, `BK-MF5-06`, handoff de `BK-MF5-05` e handoff para `BK-MF5-07`/`BK-MF5-08`.
+- Em validação privada, remapear `apps/web` para `real_dev/web` apenas quando a prompt operacional declarar `IMPLEMENTATION_ROOT=real_dev`.
+
+### Passos
+
+1. Confirmar `RNF02` e o objetivo visual do BK.
+2. Rever `styles.css` e listar tokens existentes, sobretudo `--bordo`, `--wine`, `--plum`, `--blush`, `--powder` e `--shadow`.
+3. Criar tokens semânticos `--brand-*`, `--focus-ring` e `--shadow-soft`.
+4. Manter aliases antigos apontados para os tokens novos.
+5. Atualizar botões, campos, foco, títulos, alertas e mensagens para consumirem tokens.
+6. Criar `.brand-panel`, `.metric-strip` e `.status-chip`.
+7. Executar cenarios negativos obrigatorios (minimo 2): remover temporariamente um alias antigo e remover temporariamente o halo de foco, confirmando a regressão esperada antes de repor a correção.
+8. Executar build e inspeção visual desktop/mobile.
+
+### Validacao
+
+- [ ] Build: `npm --prefix apps/web run build` termina sem erro.
+- [ ] Foco: campos `input`, `select` e `textarea` mostram halo visível.
+- [ ] Botões: ativo, hover e disabled são distinguíveis.
+- [ ] Mensagens: `role="alert"` e `role="status"` ficam legíveis.
+- [ ] Compatibilidade: tokens antigos continuam definidos como aliases.
+- [ ] Negativos: mínimo `2` cenários com resultado observado e corrigido.
+- [ ] Remapeamento: se a execução usar `real_dev/web`, o relatório técnico explicita que o guia canónico continua a publicar `apps/web`.
+
+### Handoff
+
+`BK-MF5-07` deve reutilizar os tokens e classes deste BK para mensagens claras, feedback imediato, estados de erro/sucesso e foco acessível. `BK-MF5-08` deve trocar valores dos mesmos tokens para modo escuro/contraste ajustado, sem duplicar classes nem criar uma segunda paleta paralela.
 
 #### Arquitetura do BK
 
