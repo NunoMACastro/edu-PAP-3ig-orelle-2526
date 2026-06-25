@@ -723,3 +723,49 @@ section > p:not([role]) {
         margin-left: 0;
     }
 }
+.page-stack > .mf6-page-measure {
+    min-width: 0;
+    border: 1px solid rgb(236 214 220 / 92%);
+    border-radius: 0.5rem;
+    padding: 1.2rem;
+    background: rgb(255 255 255 / 88%);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+}
+
+.mf6-page-measure:nth-child(6),
+.mf6-page-measure:nth-child(n + 11) {
+    grid-column: 1 / -1;
+}
+
+.mf6-page-measure__content > main,
+.mf6-page-measure__content > section {
+    /* A página interna mantém a sua semântica, mas o cartão visual fica no wrapper medido. */
+    border: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+
+.mf6-performance {
+    margin: 0 0 0.85rem;
+    border: 1px solid var(--line);
+    border-left-width: 0.35rem;
+    border-radius: 0.5rem;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+}
+
+.mf6-performance--ok {
+    border-left-color: #2f7d51;
+    color: #24583c;
+    background: #eefaf2;
+}
+
+.mf6-performance--slow {
+    /* O aviso lento é claro, mas não bloqueia o fluxo principal do cliente. */
+    border-left-color: var(--wine);
+    color: var(--bordo-dark);
+    background: var(--blush);
+}
