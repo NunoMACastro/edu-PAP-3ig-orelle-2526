@@ -80,3 +80,26 @@ export async function apiDownload(path, options = {}) {
 
     return response;
 }
+const configuredApiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
+
+/**
+ * Valida a URL pública da API no frontend.
+ *
+ * @function resolveApiBaseUrl
+ * @param {string} value - URL configurada.
+ * @returns {string} URL pronta a usar pelo cliente HTTP.
+ * @throws {Error} Quando produção usa HTTP inseguro.
+ */
+export function resolveApiBaseUrl(value) {
+    const isProduction = import.meta.env.PROD;
+
+    if (isProduction && value.startsWith("http://")) {
+        throw new Error("VITE_API_BASE_URL deve usar HTTPS em produção.");
+    }
+
+    // Em desenvolvimento, localhost pode usar HTTP para facilitar testes.
+    return value;
+}
+
+export const API_BASE_URL = resolveApiBaseUrl(configuredApiBaseUrl);

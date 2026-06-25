@@ -37,6 +37,7 @@ import { stockRoutes } from "./routes/stock.routes.js";
 import { routineAlertRoutes } from "./routes/routine-alert.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { requestTimeout } from "./middlewares/request-timeout.middleware.js";
+import { requireHttps } from "./middlewares/secure-transport.middleware.js";
 
 /**
  * Cria e configura uma instância Express da API Orélle.
@@ -47,20 +48,19 @@ import { requestTimeout } from "./middlewares/request-timeout.middleware.js";
 export function createApp() {
     const app = express();
 
+    // 1. Middlewares Globais de Configuração
+    app.set("trust proxy", 1);
     app.use(cors({ origin: env.clientOrigin, credentials: true }));
     app.use(express.json());
     app.use(cookieParser());
-    app.use(requestTimeout());
+    app.use(requireHttps(env));
 
+    // 2. Rota de Health Check
     app.get("/api/health", (req, res) => {
-        // O health check não consulta base de dados nem devolve dados pessoais ou biométricos.
-        res.json({
-            status: "ok",
-            app: "orelle",
-            checks: { http: "ok" },
-        });
+        res.json({ status: "ok", app: "orelle" });
     });
 
+    // 3. Definição das Rotas da Aplicação
     app.use("/api/auth", authRoutes);
     app.use("/api/profile", profileRoutes);
     app.use("/api/preferences", preferencesRoutes);
@@ -81,6 +81,8 @@ export function createApp() {
     app.use("/api", reorderRoutes);
     app.use("/api", notificationRoutes);
     app.use("/api", routineAlertRoutes);
+    
+    // Rotas de Administração
     app.use("/api/admin", adminUsersRoutes);
     app.use("/api/admin", adminReviewRoutes);
     app.use("/api/admin", adminExportRoutes);
@@ -89,7 +91,9 @@ export function createApp() {
     app.use("/api/admin", adminDashboardRoutes);
     app.use("/api/admin", stockRoutes);
 
+    // 4. Middleware de Tratamento de Erros (Sempre no fim das rotas!)
     app.use(errorMiddleware);
 
+    // 5. Retorno único da aplicação configurada
     return app;
 }
