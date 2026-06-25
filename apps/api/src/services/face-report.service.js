@@ -63,8 +63,8 @@ function buildRoutineSuggestions(analysis) {
  * Converte relatorio para resposta segura.
  *
  * @function toFaceReportResponse
- * @param {object} report - Documento Mongoose ou mock equivalente.
- * @returns {{id: string, analysisId: string, cosmeticSummary: string, routineSuggestions: object[], sources: string[], limitations: string[], createdAt: Date|undefined}} Relatorio publico.
+ * @param {object} report - Documento Mongoose ou duplo de teste equivalente.
+ * @returns {{id: string, analysisId: string, cosmeticSummary: string, routineSuggestions: object[], sources: string[], limitations: string[], privacyStatus: string, createdAt: Date|undefined}} Relatorio publico.
  */
 function toFaceReportResponse(report) {
     return {
@@ -74,6 +74,7 @@ function toFaceReportResponse(report) {
         routineSuggestions: report.routineSuggestions,
         sources: report.sources,
         limitations: report.limitations,
+        privacyStatus: report.privacyStatus ?? "active",
         createdAt: report.createdAt,
     };
 }
@@ -103,7 +104,9 @@ export async function generateReportFromLatestAnalysis(userId) {
         routineSuggestions: buildRoutineSuggestions(analysis),
         sources: analysis.sources,
         limitations: analysis.limitations,
+        privacyStatus: "active",
     });
 
+    // A criação recebe valores legíveis, mas o model cifra antes de persistir através dos setters do Mongoose.
     return toFaceReportResponse(report);
 }

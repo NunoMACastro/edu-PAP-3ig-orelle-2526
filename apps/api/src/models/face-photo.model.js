@@ -1,12 +1,26 @@
-/**
- * Modelo de metadados de fotografias faciais da MF1.
- *
- * O ficheiro fica em storage privado. A API guarda e devolve apenas metadados
- * seguros; `storageKey` tem `select: false` para reduzir risco de fuga.
- */
 import mongoose from "mongoose";
+import { DATA_ENCRYPTION_ALGORITHM } from "../services/encryption.service.js";
 
 const { Schema, model } = mongoose;
+
+const encryptionMetadataSchema = new Schema(
+    {
+        algorithm: {
+            type: String,
+            enum: [DATA_ENCRYPTION_ALGORITHM],
+            required: true,
+        },
+        iv: {
+            type: String,
+            required: true,
+        },
+        authTag: {
+            type: String,
+            required: true,
+        },
+    },
+    { _id: false },
+);
 
 const facePhotoSchema = new Schema(
     {
@@ -24,6 +38,15 @@ const facePhotoSchema = new Schema(
         storageKey: {
             type: String,
             required: true,
+            // O path privado nunca entra em respostas públicas; só services internos
+            // o selecionam explicitamente quando precisam de ler ou apagar o ficheiro.
+            select: false,
+        },
+        encryption: {
+            type: encryptionMetadataSchema,
+            required: true,
+            // IV e auth tag são necessários para decifrar, mas seriam dados
+            // sensíveis demais para seguir no DTO enviado ao frontend.
             select: false,
         },
         originalName: {
@@ -47,6 +70,8 @@ const facePhotoSchema = new Schema(
         status: {
             type: String,
             enum: ["active", "deleted", "anonymized"],
+            // O estado `anonymized` vem de BK-MF5-01 e prepara a eliminação
+            // seletiva sem quebrar histórico, auditoria ou evidência legal.
             default: "active",
         },
     },
