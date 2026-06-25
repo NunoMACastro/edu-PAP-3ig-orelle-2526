@@ -8,7 +8,9 @@ import bcrypt from "bcryptjs";
 import { User } from "../models/user.model.js";
 import { AppError } from "../middlewares/error.middleware.js";
 
+export const BCRYPT_COST = 12;
 const ACTIVE_ACCOUNT_STATUS = "active";
+
 
 /**
  * Converte um documento User numa resposta segura para o cliente.
@@ -58,7 +60,8 @@ export async function registerUser({ email, password }) {
         throw new AppError(409, "Já existe uma conta com este email");
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    // O backend faz hash da password; a UI nunca decide como guardar segredos.
+    const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
     const user = await User.create({ email, passwordHash, role: "cliente" });
 
     return toSafeUser(user);
@@ -71,17 +74,15 @@ export async function registerUser({ email, password }) {
  * @function loginUser
  * @param {{email: string, password: string}} input - Credenciais validadas.
  * @returns {Promise<{id: string, email: string, role: string, createdAt: Date|undefined}>} Utilizador autenticado.
- * @throws {AppError} Quando email ou password nao correspondem.
+ * @throws {AppError} Quando email ou password não correspondem.
  */
 export async function loginUser({ email, password }) {
     const user = await User.findOne({ email }).select(
         "+passwordHash email role createdAt isActive accountStatus",
     );
 
-    // A mensagem e igual para email inexistente e password errada para evitar
-    // enumeracao de contas.
     if (!user) {
-        throw new AppError(401, "Credenciais invalidas");
+        throw new AppError(401, "Credenciais inválidas");
     }
 
     ensureUserCanAuthenticate(user);
@@ -89,7 +90,8 @@ export async function loginUser({ email, password }) {
     const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
     if (!passwordMatches) {
-        throw new AppError(401, "Credenciais invalidas");
+        // A mesma mensagem evita enumeração de contas por tentativa/erro.
+        throw new AppError(401, "Credenciais inválidas");
     }
 
     return toSafeUser(user);
