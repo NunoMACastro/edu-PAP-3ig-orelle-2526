@@ -1,9 +1,8 @@
 /**
- * Configuracao central da API Orélle.
+ * Configuração central da API Orélle.
  *
- * Este ficheiro existe desde o BK-MF0-01 e foi estendido no BK-MF0-02 para
- * incluir os parametros da sessao HttpOnly. A regra pedagogica aqui e simples:
- * o resto da aplicacao importa `env` e nao lê `process.env` diretamente.
+ * O resto da aplicação importa `env` e não lê `process.env` diretamente.
+ * Isto evita que segredos técnicos fiquem espalhados por vários módulos.
  */
 import "dotenv/config";
 
@@ -16,11 +15,11 @@ const INSECURE_SESSION_SECRETS = new Set([
 ]);
 
 /**
- * Identifica segredos de sessao que nao sao aceitaveis em producao.
+ * Identifica segredos de sessão que não são aceitáveis em produção.
  *
  * @function isUnsafeProductionSessionSecret
  * @param {string|undefined} secret - Valor de SESSION_SECRET.
- * @returns {boolean} Verdadeiro quando o segredo e ausente, fraco ou placeholder.
+ * @returns {boolean} Verdadeiro quando o segredo é ausente, fraco ou temporário.
  */
 export function isUnsafeProductionSessionSecret(secret) {
     const normalizedSecret = String(secret ?? "").trim();
@@ -32,7 +31,7 @@ export function isUnsafeProductionSessionSecret(secret) {
 }
 
 /**
- * Variaveis de ambiente normalizadas usadas pelo backend.
+ * Variáveis de ambiente normalizadas usadas pelo backend.
  *
  * @type {{
  *   nodeEnv: string,
@@ -41,7 +40,8 @@ export function isUnsafeProductionSessionSecret(secret) {
  *   clientOrigin: string,
  *   sessionSecret: string,
  *   sessionTtl: string,
- *   stripeSecretKey: string|undefined
+ *   stripeSecretKey: string|undefined,
+ *   dataEncryptionKey: string|undefined
  * }}
  */
 export const env = {
@@ -52,10 +52,11 @@ export const env = {
     sessionSecret: process.env.SESSION_SECRET ?? "dev-only-change-me",
     sessionTtl: process.env.SESSION_TTL ?? "2h",
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    dataEncryptionKey: process.env.DATA_ENCRYPTION_KEY,
 };
 
-// Em producao, uma sessao assinada com o segredo de desenvolvimento seria uma
-// falha grave. Por isso, a aplicacao bloqueia logo no arranque.
+// Em produção, uma sessão assinada com o segredo de desenvolvimento seria
+// uma falha grave. Por isso, a aplicação bloqueia logo no arranque.
 if (
     env.nodeEnv === "production" &&
     isUnsafeProductionSessionSecret(env.sessionSecret)

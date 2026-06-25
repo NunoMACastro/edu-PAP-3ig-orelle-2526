@@ -5,6 +5,10 @@ import { open, unlink } from "node:fs/promises";
 import { AppError } from "../middlewares/error.middleware.js";
 import { FaceConsent } from "../models/face-consent.model.js";
 import { FacePhoto } from "../models/face-photo.model.js";
+import {
+    encryptFacePhotoFile,
+    removeEncryptedFacePhotoFiles,
+} from "./face-secure-storage.service.js";
 
 const SIGNATURE_READ_BYTES = 12;
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -164,16 +168,18 @@ export async function acceptFaceConsent(userId, input) {
 }
 
 /**
- * Guarda metadados de fotografias faciais com ownership da sessao.
+ * Guarda metadados de fotografias faciais com ownership da sessão.
  *
  * @async
  * @function saveFacePhotos
  * @param {string} userId - Utilizador autenticado.
  * @param {{kind: string, file: Express.Multer.File}[]} uploadedFiles - Ficheiros validados.
- * @param {object|undefined} activeConsent - Consentimento ja confirmado na rota.
+ * @param {object|undefined} activeConsent - Consentimento já confirmado na rota.
  * @returns {Promise<object[]>} Fotografias seguras.
  */
 export async function saveFacePhotos(userId, uploadedFiles, activeConsent) {
+    let encryptedFiles = [];
+
     try {
         const consent =
             activeConsent ??
@@ -185,11 +191,26 @@ export async function saveFacePhotos(userId, uploadedFiles, activeConsent) {
 
         await ensureAllowedImageSignatures(uploadedFiles);
 
+        for (const { kind, file } of uploadedFiles) {
+            const encryptedFile = await encryptFacePhotoFile({
+                sourcePath: file.path,
+            });
+
+            // A lista é atualizada logo após cada sucesso para permitir rollback
+            // se o ficheiro seguinte falhar antes da inserção em MongoDB.
+            encryptedFiles.push({
+                kind,
+                file,
+                ...encryptedFile,
+            });
+        }
+
         const photos = await FacePhoto.insertMany(
-            uploadedFiles.map(({ kind, file }) => ({
+            encryptedFiles.map(({ kind, file, storageKey, encryption }) => ({
                 userId,
                 kind,
-                storageKey: file.path,
+                storageKey,
+                encryption,
                 originalName: file.originalname,
                 mimeType: file.mimetype,
                 sizeBytes: file.size,
@@ -197,9 +218,12 @@ export async function saveFacePhotos(userId, uploadedFiles, activeConsent) {
             })),
         );
 
+        // A resposta mantém só metadados seguros; storage e dados criptográficos
+        // ficam disponíveis apenas em queries internas com seleção explícita.
         return photos.map(toFacePhotoResponse);
     } catch (err) {
         await removeUploadedFiles(uploadedFiles);
+        await removeEncryptedFacePhotoFiles(encryptedFiles);
         throw err;
     }
 }
