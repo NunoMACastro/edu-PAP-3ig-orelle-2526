@@ -1,16 +1,17 @@
 /**
- * Pagina de detalhe publico de produto.
+ * Página de detalhe público de produto.
  */
 import { useState } from "react";
+import { OptimizedImage } from "../components/OptimizedImage.jsx";
 import { apiRequest } from "../services/apiClient.js";
 
 const PRODUCT_NOT_FOUND_MESSAGE = "Produto não encontrado";
 
 /**
- * Mostra imagem, descricao, ingredientes, preco, stock e resumo de notas.
+ * Mostra imagem, descrição, ingredientes, preço, stock e resumo de notas.
  *
  * @function ProductDetailsPage
- * @returns {JSX.Element} Formulario por ID e detalhe do produto.
+ * @returns {JSX.Element} Formulário por ID e detalhe do produto.
  */
 export function ProductDetailsPage() {
     const [productId, setProductId] = useState("");
@@ -24,7 +25,7 @@ export function ProductDetailsPage() {
      *
      * @async
      * @function handleSubmit
-     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulario.
+     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulário.
      * @returns {Promise<void>}
      */
     async function handleSubmit(event) {
@@ -35,6 +36,7 @@ export function ProductDetailsPage() {
         setProduct(null);
 
         try {
+            // A página atual usa apiRequest e não depende de router.
             const data = await apiRequest(`/catalog/products/${productId}`);
             setProduct(data.product);
             setStatus("success");
@@ -63,6 +65,7 @@ export function ProductDetailsPage() {
         setCartMessage("");
 
         try {
+            // A compra continua dependente de clique explícito do utilizador.
             await apiRequest("/cart/items", {
                 method: "POST",
                 body: JSON.stringify({ productId: product.id, quantity: 1 }),
@@ -75,7 +78,7 @@ export function ProductDetailsPage() {
     }
 
     return (
-        <section>
+        <section className="product-detail-section">
             <h1>Detalhe do produto</h1>
             <form onSubmit={handleSubmit}>
                 <label>
@@ -91,17 +94,23 @@ export function ProductDetailsPage() {
             </form>
 
             {status === "error" && <p role="alert">{error}</p>}
-            {cartMessage && <p>{cartMessage}</p>}
+            {cartMessage && <p role="status">{cartMessage}</p>}
             {status === "empty" && <p>Produto não encontrado.</p>}
             {status === "success" && product && (
-                <article>
-                    <img src={product.imageUrl} alt={product.name} />
+                <article className="product-detail-card">
+                    <OptimizedImage
+                        className="product-detail-image"
+                        src={product.imageUrl}
+                        alt={product.name}
+                    />
                     <h2>{product.name}</h2>
                     <p>{product.brandName}</p>
                     <p>{product.description}</p>
                     <p>{(product.priceCents / 100).toFixed(2)} EUR</p>
                     <p>Stock: {product.stock}</p>
-                    <button onClick={addToCart}>Adicionar ao carrinho</button>
+                    <button type="button" onClick={addToCart}>
+                        Adicionar ao carrinho
+                    </button>
                     <p>
                         Nota média: {product.reviewSummary.averageRating} (
                         {product.reviewSummary.totalReviews} avaliações)

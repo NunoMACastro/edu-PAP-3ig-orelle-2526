@@ -769,3 +769,36 @@ section > p:not([role]) {
     color: var(--bordo-dark);
     background: var(--blush);
 }
+/* A classe comum mantém imagens fluidas sem afetar todos os <img> da app. */
+.optimized-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.product-detail-card {
+    display: grid;
+    gap: 12px;
+    max-width: 720px;
+}
+
+/* A proporção reserva espaço antes da imagem chegar e reduz saltos de layout. */
+.product-detail-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+    background: #f5f1ee;
+}
+
+.product-detail-section form {
+    display: grid;
+    gap: 12px;
+    max-width: 420px;
+}
+
+@media (max-width: 760px) {
+    .product-detail-card {
+        max-width: 100%;
+    }
+}
