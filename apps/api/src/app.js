@@ -1,8 +1,8 @@
 /**
- * Fabrica da aplicacao Express da MF0.
+ * Fábrica da aplicação Express da Orélle.
  *
  * `createApp` fica separado de `server.js` para permitir que os testes criem a
- * aplicacao sem abrir porta TCP nem ligar diretamente ao MongoDB.
+ * aplicação sem abrir porta TCP nem ligar diretamente ao MongoDB.
  */
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -16,8 +16,6 @@ import { adminUsersRoutes } from "./routes/admin-users.routes.js";
 import { adminProductsRoutes } from "./routes/admin-products.routes.js";
 import { adminCategoriesRoutes } from "./routes/admin-categories.routes.js";
 import { beforeAfterVisualizationRoutes } from "./routes/before-after-visualization.routes.js";
-import { biometricAuditRoutes } from "./routes/biometric-audit.routes.js";
-import { biometricDataRequestRoutes } from "./routes/biometric-data-request.routes.js";
 import { cartRoutes } from "./routes/cart.routes.js";
 import { catalogRoutes } from "./routes/catalog.routes.js";
 import { dailyRoutineRoutes } from "./routes/daily-routine.routes.js";
@@ -38,12 +36,13 @@ import { skinHistoryRoutes } from "./routes/skin-history.routes.js";
 import { stockRoutes } from "./routes/stock.routes.js";
 import { routineAlertRoutes } from "./routes/routine-alert.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+import { requestTimeout } from "./middlewares/request-timeout.middleware.js";
 
 /**
- * Cria e configura uma instancia Express da API Orélle.
+ * Cria e configura uma instância Express da API Orélle.
  *
  * @function createApp
- * @returns {import("express").Express} Aplicacao Express pronta a usar.
+ * @returns {import("express").Express} Aplicação Express pronta a usar.
  */
 export function createApp() {
     const app = express();
@@ -51,10 +50,15 @@ export function createApp() {
     app.use(cors({ origin: env.clientOrigin, credentials: true }));
     app.use(express.json());
     app.use(cookieParser());
+    app.use(requestTimeout());
 
-    // Endpoint simples para smoke tests e verificacao de arranque.
     app.get("/api/health", (req, res) => {
-        res.json({ status: "ok", app: "orelle" });
+        // O health check não consulta base de dados nem devolve dados pessoais ou biométricos.
+        res.json({
+            status: "ok",
+            app: "orelle",
+            checks: { http: "ok" },
+        });
     });
 
     app.use("/api/auth", authRoutes);
@@ -72,7 +76,6 @@ export function createApp() {
     app.use("/api", makeupSimulationRoutes);
     app.use("/api", beforeAfterVisualizationRoutes);
     app.use("/api", skinComparisonRoutes);
-    app.use("/api", biometricDataRequestRoutes);
     app.use("/api", cartRoutes);
     app.use("/api", orderRoutes);
     app.use("/api", reorderRoutes);
@@ -85,7 +88,6 @@ export function createApp() {
     app.use("/api/admin", adminCategoriesRoutes);
     app.use("/api/admin", adminDashboardRoutes);
     app.use("/api/admin", stockRoutes);
-    app.use("/api/admin", biometricAuditRoutes);
 
     app.use(errorMiddleware);
 
