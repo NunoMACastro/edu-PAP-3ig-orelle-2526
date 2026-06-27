@@ -1,0 +1,25 @@
+{
+    "name": "orelle-web",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite --host 127.0.0.1",
+        "build": "vite build",
+        "preview": "vite preview",
+        "smoke:mf2": "node scripts/smoke-mf2-recommendations.mjs",
+        "smoke:mf5-privacy-request": "node scripts/check-mf5-biometric-request-client.mjs",
+        "smoke:mf5-feedback": "node scripts/check-mf5-feedback.mjs",
+        "smoke:mf5-theme": "node scripts/check-mf5-theme.mjs",
+        "smoke:mf6-images": "node scripts/check-mf6-images.mjs",
+        "smoke:mf6-performance-unit": "node scripts/check-mf6-performance-unit.mjs",
+        "smoke:mf6-page-budget": "node scripts/check-mf6-page-budget.mjs",
+        "smoke:mf6-runtime": "node scripts/check-mf6-runtime-performance.mjs"
+    },
+    "dependencies": {
+        "@vitejs/plugin-react": "^4.3.1",
+        "vite": "^5.3.5",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    }
+}
