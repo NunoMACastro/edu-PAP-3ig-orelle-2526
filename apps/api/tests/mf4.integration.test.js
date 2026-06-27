@@ -353,6 +353,36 @@ describe("MF4 - integracao HTTP", () => {
         expect(response.text).not.toContain("nao-deve-sair");
     });
 
+    it("BK-MF7-05 exporta relatorios IA em PDF apenas com privacyStatus active", async () => {
+        FaceReport.find.mockReturnValueOnce(
+            querySelectSortLimit([
+                {
+                    _id: objectId("66f000000000000000000007"),
+                    userId: objectId(userId),
+                    analysisId: objectId("66f000000000000000000008"),
+                    cosmeticSummary: "Resumo ativo.",
+                    sources: ["fotografia_frontal"],
+                    limitations: ["Nao e diagnostico medico."],
+                    createdAt: new Date("2026-06-18T10:00:00.000Z"),
+                },
+            ]),
+        );
+
+        const response = await request(createApp())
+            .get("/api/admin/exports/ai-reports?format=pdf")
+            .set("Cookie", [`orelle_session=${makeToken()}`]);
+
+        // O filtro impede que relatórios apagados/anonymizados entrem no PDF admin.
+        expect(FaceReport.find).toHaveBeenCalledWith({ privacyStatus: "active" });
+        expect(response.status).toBe(200);
+        expect(response.headers["content-type"]).toContain("application/pdf");
+        expect(response.headers["content-disposition"]).toBe(
+            'attachment; filename="ai-reports.pdf"',
+        );
+        expect(response.headers["x-content-type-options"]).toBe("nosniff");
+        expect(response.headers["x-orelle-export-rows"]).toBe("1");
+    });
+
     it("cliente lista notificacoes proprias e marca apenas por ownership", async () => {
         mockSessionAccount({ role: ROLES.CLIENTE });
         Notification.find.mockReturnValueOnce(

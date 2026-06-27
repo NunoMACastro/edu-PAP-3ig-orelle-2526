@@ -112,7 +112,8 @@ async function getDatasetRows(dataset) {
         };
     }
 
-    const reports = await FaceReport.find({})
+    // Exportacoes administrativas tambem respeitam pedidos de privacidade RF41.
+    const reports = await FaceReport.find({ privacyStatus: "active" })
         .select("userId analysisId cosmeticSummary sources limitations createdAt")
         .sort({ createdAt: -1 })
         .limit(100);
