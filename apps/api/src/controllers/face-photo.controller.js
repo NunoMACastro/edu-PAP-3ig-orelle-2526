@@ -18,11 +18,12 @@ import {
  * @function acceptFaceConsentController
  * @param {import("express").Request & {user: {id: string}}} req - Pedido autenticado.
  * @param {import("express").Response} res - Resposta Express.
- * @param {import("express").NextFunction} next - Proximo middleware.
+ * @param {import("express").NextFunction} next - Próximo middleware.
  * @returns {Promise<import("express").Response|void>} Resposta com consentimento.
  */
 export async function acceptFaceConsentController(req, res, next) {
     try {
+        // A identidade usada pelo service vem de requireAuth, nao do body enviado pela UI.
         const input = validateFaceConsentInput(req.body);
         const consent = await acceptFaceConsent(req.user.id, input);
 
@@ -31,6 +32,7 @@ export async function acceptFaceConsentController(req, res, next) {
         return next(err);
     }
 }
+
 
 /**
  * Normaliza ficheiros recebidos para limpeza em caso de erro.

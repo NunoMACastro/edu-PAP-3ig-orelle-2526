@@ -4,16 +4,17 @@
 import { AppError } from "../middlewares/error.middleware.js";
 
 /**
- * Valida consentimento facial explicito.
+ * Valida consentimento facial explícito.
  *
  * @function validateFaceConsentInput
  * @param {Record<string, unknown>} body - Corpo JSON do pedido.
  * @returns {{version: string}} Consentimento normalizado.
- * @throws {AppError} Quando o consentimento nao foi aceite.
+ * @throws {AppError} Quando o consentimento não foi aceite.
  */
 export function validateFaceConsentInput(body) {
     if (body.accepted !== true) {
-        throw new AppError(400, "Consentimento facial obrigatorio");
+        // A API exige ação afirmativa; texto visível no frontend não chega para cumprir RNF12.
+        throw new AppError(400, "Consentimento facial obrigatório");
     }
 
     return {
