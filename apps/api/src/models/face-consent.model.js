@@ -1,9 +1,8 @@
 /**
- * Modelo de consentimento facial minimo da MF1.
+ * Modelo de consentimento facial da Orélle.
  *
- * O consentimento e indispensavel antes de receber ou processar fotografias
- * faciais. Fluxos completos de revogacao/apagamento ficam para macrofases
- * posteriores, mas `revokedAt` prepara esse caminho sem inventar UI admin.
+ * Guarda apenas a prova mínima de aceitação para análise facial cosmética.
+ * Fotografias e relatórios continuam nos seus próprios modelos protegidos.
  */
 import mongoose from "mongoose";
 

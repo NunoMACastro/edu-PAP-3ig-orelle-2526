@@ -1,3 +1,4 @@
+// apps/api/src/routes/face-photo.routes.js
 /**
  * Rotas de consentimento e upload facial.
  *
@@ -19,14 +20,21 @@ import {
  *
  * @type {import("express").Router}
  */
-export const facePhotoRoutes = Router();
+export const facePhotoRoutes = Router(); // 1º Criamos o router
 
+
+/**
+ * Rota para aceitar o consentimento de análise facial.
+ */
 facePhotoRoutes.post(
     "/face-consent",
     requireAuth,
     acceptFaceConsentController,
 );
 
+/**
+ * Rota para fazer upload das fotografias faciais.
+ */
 facePhotoRoutes.post(
     "/face-photos",
     requireAuth,

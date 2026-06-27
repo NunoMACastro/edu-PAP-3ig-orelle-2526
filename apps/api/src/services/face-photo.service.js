@@ -146,6 +146,7 @@ export async function removeUploadedFiles(uploadedFiles = []) {
  * @returns {Promise<object>} Consentimento seguro.
  */
 export async function acceptFaceConsent(userId, input) {
+    // O filtro por userId vem da sessao e impede consentimento criado para outra conta.
     const consent = await FaceConsent.findOneAndUpdate(
         { userId },
         {

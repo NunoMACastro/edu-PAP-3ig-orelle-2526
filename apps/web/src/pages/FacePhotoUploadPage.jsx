@@ -20,56 +20,52 @@ export function FacePhotoUploadPage() {
     const [status, setStatus] = useState("idle");
     const [message, setMessage] = useState("");
 
-    /**
-     * Aceita consentimento e envia fotografias para a API.
-     *
-     * @async
-     * @function handleSubmit
-     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulario.
-     * @returns {Promise<void>}
-     */
-    async function handleSubmit(event) {
-        event.preventDefault();
-        if (!accepted || !frontal || !perfil) {
-            setStatus("error");
-            setMessage("Aceita o consentimento e escolhe as duas fotografias.");
-            return;
-        }
-
-        setStatus("loading");
-        setMessage("");
-
-        try {
-            await apiRequest("/face-consent", {
-                method: "POST",
-                body: JSON.stringify({
-                    accepted,
-                    version: "face-analysis-v1",
-                }),
-            });
-
-            const [optimizedFrontal, optimizedPerfil] = await Promise.all([
-                compressImageForUpload(frontal),
-                compressImageForUpload(perfil),
-            ]);
-            const formData = new FormData();
-            formData.append("frontal", optimizedFrontal);
-            formData.append("perfil", optimizedPerfil);
-
-            // O apiRequest deteta FormData e evita forcar Content-Type errado no upload.
-            const data = await apiRequest("/face-photos", {
-                method: "POST",
-                body: formData,
-            });
-
-            setStatus("success");
-            setMessage(`${data.photos.length} fotografias guardadas com seguranca.`);
-        } catch (err) {
-            // A UI mostra texto controlado e nao expoe paths, cookies ou detalhes dos ficheiros.
-            setStatus("error");
-            setMessage(err.message);
-        }
+/**
+ * Aceita consentimento e envia fotografias para a API.
+ *
+ * @async
+ * @function handleSubmit
+ * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulário.
+ * @returns {Promise<void>}
+ */
+async function handleSubmit(event) {
+    event.preventDefault();
+    if (!accepted || !frontal || !perfil) {
+        setStatus("error");
+        setMessage("Aceita o consentimento e escolhe as duas fotografias.");
+        return;
     }
+
+    setStatus("loading");
+    setMessage("");
+
+    try {
+        await apiRequest("/face-consent", {
+            method: "POST",
+            body: JSON.stringify({
+                accepted,
+                version: "face-analysis-v1",
+            }),
+        });
+
+        const formData = new FormData();
+        formData.append("frontal", frontal);
+        formData.append("perfil", perfil);
+
+        // FormData segue sem Content-Type manual para o browser definir boundary seguro.
+        const data = await apiRequest("/face-photos", {
+            method: "POST",
+            body: formData,
+        });
+
+        setStatus("success");
+        setMessage(`${data.photos.length} fotografias guardadas com segurança.`);
+    } catch (err) {
+        // A mensagem visível é controlada e não revela paths, cookies ou detalhes internos.
+        setStatus("error");
+        setMessage(err.message);
+    }
+}
 
     const isBusy = status === "loading";
     const feedbackType = status === "error" ? "error" : "success";
