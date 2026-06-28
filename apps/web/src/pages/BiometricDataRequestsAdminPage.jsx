@@ -1,7 +1,8 @@
 /**
- * Painel RF41 para revisao de pedidos de privacidade biometrica.
+ * Painel RNF13/RF41 para revisão de pedidos de privacidade biométrica.
  */
 import { useEffect, useState } from "react";
+import { FeedbackMessage } from "../components/FeedbackMessage.jsx";
 import { apiRequest } from "../services/apiClient.js";
 
 /**
@@ -9,17 +10,17 @@ import { apiRequest } from "../services/apiClient.js";
  *
  * @function formatResources
  * @param {string[]} resources - Recursos pedidos pelo cliente.
- * @returns {string} Recursos formatados sem dados sensiveis.
+ * @returns {string} Recursos formatados sem dados sensíveis.
  */
 function formatResources(resources = []) {
     return resources.join(", ") || "sem recursos";
 }
 
 /**
- * Painel de revisao de pedidos de eliminacao/anonymizacao de dados faciais.
+ * Painel de revisão de pedidos de eliminação/anonymização de dados faciais.
  *
  * @function BiometricDataRequestsAdminPage
- * @returns {import("react").JSX.Element} Lista minimizada de pedidos e acoes de decisao.
+ * @returns {JSX.Element} Lista minimizada de pedidos e ações de decisão.
  */
 export function BiometricDataRequestsAdminPage() {
     const [requests, setRequests] = useState([]);
@@ -54,13 +55,13 @@ export function BiometricDataRequestsAdminPage() {
     }, []);
 
     /**
-     * Envia a decisao do revisor para a API.
+     * Envia a decisão do revisor para a API.
      *
      * @async
      * @function decideRequest
-     * @param {string} requestId - Pedido biometrico a decidir.
-     * @param {"approved"|"rejected"} decision - Decisao escolhida no painel.
-     * @returns {Promise<void>} Recarrega a lista apos decisao.
+     * @param {string} requestId - Pedido biométrico a decidir.
+     * @param {"approved"|"rejected"} decision - Decisão escolhida no painel.
+     * @returns {Promise<void>} Recarrega a lista após decisão.
      */
     async function decideRequest(requestId, decision) {
         setStatus("loading");
@@ -75,28 +76,33 @@ export function BiometricDataRequestsAdminPage() {
                         decision,
                         decisionReason:
                             decision === "approved"
-                                ? "Pedido aprovado no painel MF5."
+                                ? "Pedido aprovado no painel de privacidade."
                                 : "Pedido rejeitado após revisão.",
                     }),
                 },
             );
             await loadRequests();
         } catch (err) {
+            // A mensagem vem do backend e não inclui fotografias, relatórios ou paths internos.
             setMessage(err.message);
             setStatus("error");
         }
     }
 
+    const isBusy = status === "loading";
+
     return (
         <section>
             <h1>Pedidos de privacidade biométrica</h1>
-            <button onClick={loadRequests} disabled={status === "loading"}>
-                {status === "loading" ? "A carregar..." : "Atualizar pedidos"}
+            <button onClick={loadRequests} disabled={isBusy}>
+                {isBusy ? "A carregar..." : "Atualizar pedidos"}
             </button>
 
-            {status === "loading" && <p role="status">A carregar pedidos...</p>}
+            {isBusy && <p role="status">A carregar pedidos...</p>}
             {status === "empty" && <p>Sem pedidos para rever.</p>}
-            {status === "error" && <p role="alert">{message}</p>}
+            {status === "error" && (
+                <FeedbackMessage type="error">{message}</FeedbackMessage>
+            )}
 
             {requests.length > 0 && (
                 <ul>
@@ -112,18 +118,16 @@ export function BiometricDataRequestsAdminPage() {
                             {item.status === "pending" && (
                                 <p>
                                     <button
-                                        onClick={() =>
-                                            decideRequest(item.id, "approved")
-                                        }
-                                        disabled={status === "loading"}
+                                        type="button"
+                                        disabled={isBusy}
+                                        onClick={() => decideRequest(item.id, "approved")}
                                     >
-                                        Aprovar
+                                        {isBusy ? "A aprovar..." : "Aprovar"}
                                     </button>
                                     <button
-                                        onClick={() =>
-                                            decideRequest(item.id, "rejected")
-                                        }
-                                        disabled={status === "loading"}
+                                        type="button"
+                                        onClick={() => decideRequest(item.id, "rejected")}
+                                        disabled={isBusy}
                                     >
                                         Rejeitar
                                     </button>

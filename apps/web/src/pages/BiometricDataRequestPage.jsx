@@ -1,5 +1,5 @@
 /**
- * Pagina de cliente para criar pedidos de privacidade biometrica RF41.
+ * Página de cliente para criar pedidos de privacidade biométrica RNF13.
  */
 import { useState } from "react";
 import { FeedbackMessage } from "../components/FeedbackMessage.jsx";
@@ -10,11 +10,11 @@ import { apiRequest } from "../services/apiClient.js";
 const ACTION_OPTIONS = Object.freeze([
     {
         value: "delete",
-        label: "Eliminar dados biometricos",
+        label: "Eliminar dados biométricos",
     },
     {
         value: "anonymize",
-        label: "Anonimizar dados biometricos",
+        label: "Anonimizar dados biométricos",
     },
 ]);
 
@@ -25,7 +25,7 @@ const RESOURCE_OPTIONS = Object.freeze([
     },
     {
         value: "reports",
-        label: "Relatorios cosmeticos",
+        label: "Relatórios cosméticos",
     },
 ]);
 
@@ -36,7 +36,7 @@ const RESOURCE_OPTIONS = Object.freeze([
  * @param {string[]} resources - Recursos atualmente selecionados.
  * @param {string} value - Recurso a adicionar ou remover.
  * @param {boolean} checked - Estado final do checkbox.
- * @returns {string[]} Proxima lista de recursos.
+ * @returns {string[]} Próxima lista de recursos.
  */
 function toggleResourceValue(resources, value, checked) {
     if (checked) {
@@ -47,10 +47,10 @@ function toggleResourceValue(resources, value, checked) {
 }
 
 /**
- * Formulario de cliente para pedir eliminacao ou anonimizacao de dados faciais.
+ * Formulário de cliente para pedir eliminação ou anonimização de dados faciais.
  *
  * @function BiometricDataRequestPage
- * @returns {JSX.Element} UI de criacao de pedido RF41 com feedback seguro.
+ * @returns {JSX.Element} UI de criação de pedido RNF13 com feedback seguro.
  */
 export function BiometricDataRequestPage() {
     const { user } = useAuth();
@@ -64,7 +64,7 @@ export function BiometricDataRequestPage() {
     const [createdRequest, setCreatedRequest] = useState(null);
 
     /**
-     * Atualiza campo simples do formulario.
+     * Atualiza campo simples do formulário.
      *
      * @function updateField
      * @param {import("react").ChangeEvent<HTMLSelectElement|HTMLTextAreaElement>} event - Evento do campo.
@@ -100,7 +100,7 @@ export function BiometricDataRequestPage() {
      *
      * @async
      * @function handleSubmit
-     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulario.
+     * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulário.
      * @returns {Promise<void>}
      */
     async function handleSubmit(event) {
@@ -127,14 +127,14 @@ export function BiometricDataRequestPage() {
             });
 
             setStatus("success");
-            setMessage("Pedido criado. Um consultor ou administrador vai rever a decisao.");
+            setMessage("Pedido criado. Um consultor ou administrador vai rever a decisão.");
             setCreatedRequest(data.request ?? null);
             setForm((current) => ({
                 ...current,
                 reason: "",
             }));
         } catch (err) {
-            // O backend continua a decidir sessao, ownership e role; a UI mostra apenas mensagem segura.
+            // A API decide sessão, ownership e role; a UI mostra apenas mensagem segura.
             setStatus("error");
             setMessage(err.message);
         }
@@ -147,15 +147,15 @@ export function BiometricDataRequestPage() {
 
     return (
         <section>
-            <h1>Pedido de privacidade biometrica</h1>
+            <h1>Pedido de privacidade biométrica</h1>
             <p>
-                Pede a eliminacao ou anonimizacao das fotografias faciais e
-                relatorios cosmeticos associados a tua conta.
+                Pede a eliminação ou anonimização das fotografias faciais e
+                relatórios cosméticos associados à tua conta.
             </p>
 
             {!isClient && (
                 <FeedbackMessage type="info">
-                    Inicia sessao como cliente para criar um pedido.
+                    Inicia sessão como cliente para criar um pedido.
                 </FeedbackMessage>
             )}
 
@@ -200,7 +200,6 @@ export function BiometricDataRequestPage() {
                         onChange={updateField}
                         maxLength={500}
                         disabled={isDisabled}
-                        placeholder="Ex.: Quero remover a analise facial antiga."
                     />
                 </label>
 

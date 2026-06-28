@@ -1,5 +1,5 @@
 /**
- * Validadores HTTP para pedidos de privacidade biometrica.
+ * Validadores HTTP para pedidos de privacidade biométrica.
  */
 import { AppError } from "../middlewares/error.middleware.js";
 import {
@@ -23,12 +23,12 @@ function normalizeShortText(value) {
 }
 
 /**
- * Valida o pedido criado pelo proprio cliente.
+ * Valida o pedido criado pelo próprio cliente.
  *
  * @function validateCreateBiometricDataRequestInput
  * @param {Record<string, unknown>} body - Corpo recebido pela API.
  * @returns {{action: string, resources: string[], reason: string}} Dados normalizados.
- * @throws {AppError} Quando a acao ou os recursos sao invalidos.
+ * @throws {AppError} Quando a ação ou os recursos são inválidos.
  */
 export function validateCreateBiometricDataRequestInput(body = {}) {
     const action = String(body.action ?? "").trim();
@@ -42,6 +42,7 @@ export function validateCreateBiometricDataRequestInput(body = {}) {
     }
 
     if (!resources.length || resources.some((resource) => !RESOURCES.has(resource))) {
+        // O backend não aceita recursos livres para impedir apagamentos fora do escopo RNF13.
         throw new AppError(400, "Recursos do pedido inválidos.");
     }
 
@@ -49,12 +50,12 @@ export function validateCreateBiometricDataRequestInput(body = {}) {
 }
 
 /**
- * Valida a decisao tomada por consultor ou administrador.
+ * Valida a decisão tomada por consultor ou administrador.
  *
  * @function validateBiometricDataRequestDecisionInput
  * @param {Record<string, unknown>} body - Corpo recebido pela API.
- * @returns {{decision: "approved"|"rejected", decisionReason: string}} Decisao normalizada.
- * @throws {AppError} Quando a decisao e invalida.
+ * @returns {{decision: "approved"|"rejected", decisionReason: string}} Decisão normalizada.
+ * @throws {AppError} Quando a decisão é inválida.
  */
 export function validateBiometricDataRequestDecisionInput(body = {}) {
     const decision = String(body.decision ?? "").trim();

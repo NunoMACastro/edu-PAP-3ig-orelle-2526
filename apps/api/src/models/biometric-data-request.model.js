@@ -1,8 +1,8 @@
 /**
- * Modelo de pedidos de privacidade sobre dados biometricos.
+ * Modelo de pedidos de privacidade sobre dados biométricos.
  *
- * O pedido guarda apenas metadados de decisao. Fotografias, storage keys,
- * paths internos e relatorios completos continuam nos modelos de origem.
+ * O pedido guarda apenas metadados de decisão. Fotografias, storage keys,
+ * paths internos e relatórios completos continuam nos modelos de origem.
  */
 import mongoose from "mongoose";
 
@@ -45,6 +45,7 @@ const biometricDataRequestSchema = new Schema(
             required: true,
             validate: {
                 validator(resources) {
+                    // Um pedido sem recurso não tem alvo seguro para aplicar RNF13.
                     return Array.isArray(resources) && resources.length > 0;
                 },
                 message: "Indica pelo menos um tipo de recurso.",
@@ -91,11 +92,12 @@ const biometricDataRequestSchema = new Schema(
     { timestamps: true },
 );
 
+// Estes índices suportam o painel de revisão sem procurar por conteúdo biométrico.
 biometricDataRequestSchema.index({ status: 1, createdAt: -1 });
 biometricDataRequestSchema.index({ requesterId: 1, status: 1 });
 
 /**
- * Modelo Mongoose dos pedidos de eliminacao/anonymizacao de dados biometricos.
+ * Modelo Mongoose dos pedidos de eliminação/anonymização de dados biométricos.
  *
  * @type {import("mongoose").Model}
  */
