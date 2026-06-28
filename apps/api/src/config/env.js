@@ -65,16 +65,16 @@ export function isUnsafeProductionSessionSecret(secret) {
  * Variaveis de ambiente normalizadas usadas pelo backend.
  *
  * @type {{
- *   nodeEnv: string,
- *   port: number,
- *   mongoUri: string,
- *   clientOrigin: string,
- *   clientOrigins: string[],
- *   sessionSecret: string,
- *   sessionTtl: string,
- *   stripeSecretKey: string|undefined,
- *   dataEncryptionKey: string|undefined,
- *   forceHttps: boolean
+ * nodeEnv: string,
+ * port: number,
+ * mongoUri: string,
+ * clientOrigin: string,
+ * clientOrigins: string[],
+ * sessionSecret: string,
+ * sessionTtl: string,
+ * stripeSecretKey: string|undefined,
+ * dataEncryptionKey: string|undefined,
+ * forceHttps: boolean
  * }}
  */
 export const env = {
