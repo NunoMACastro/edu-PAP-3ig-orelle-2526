@@ -1,5 +1,5 @@
 /**
- * Controllers HTTP para pedidos de privacidade biometrica.
+ * Controllers HTTP para pedidos de privacidade biométrica.
  */
 import {
     validateBiometricDataRequestDecisionInput,
@@ -12,13 +12,13 @@ import {
 } from "../services/biometric-data-request.service.js";
 
 /**
- * Cria pedido de eliminacao/anonymizacao para o cliente autenticado.
+ * Cria pedido de eliminação/anonymização para o cliente autenticado.
  *
  * @async
  * @function createMyBiometricDataRequestController
  * @param {import("express").Request & {user: {id: string}}} req - Pedido autenticado.
  * @param {import("express").Response} res - Resposta Express.
- * @param {import("express").NextFunction} next - Proximo middleware.
+ * @param {import("express").NextFunction} next - Próximo middleware.
  * @returns {Promise<import("express").Response|void>} Resposta 201 com pedido minimizado.
  */
 export async function createMyBiometricDataRequestController(req, res, next) {
@@ -33,13 +33,13 @@ export async function createMyBiometricDataRequestController(req, res, next) {
 }
 
 /**
- * Lista pedidos para revisao por consultor ou administrador.
+ * Lista pedidos para revisão por consultor ou administrador.
  *
  * @async
  * @function listBiometricDataRequestsController
  * @param {import("express").Request & {user: {id: string, role: string}}} req - Pedido protegido por role.
  * @param {import("express").Response} res - Resposta Express.
- * @param {import("express").NextFunction} next - Proximo middleware.
+ * @param {import("express").NextFunction} next - Próximo middleware.
  * @returns {Promise<import("express").Response|void>} Resposta 200 com pedidos minimizados.
  */
 export async function listBiometricDataRequestsController(req, res, next) {
@@ -53,14 +53,14 @@ export async function listBiometricDataRequestsController(req, res, next) {
 }
 
 /**
- * Aprova ou rejeita pedido biometrico pendente.
+ * Aprova ou rejeita pedido biométrico pendente.
  *
  * @async
  * @function decideBiometricDataRequestController
  * @param {import("express").Request & {user: {id: string, role: string}}} req - Pedido autenticado de consultor/admin.
  * @param {import("express").Response} res - Resposta Express.
- * @param {import("express").NextFunction} next - Proximo middleware.
- * @returns {Promise<import("express").Response|void>} Resposta 200 com decisao aplicada.
+ * @param {import("express").NextFunction} next - Próximo middleware.
+ * @returns {Promise<import("express").Response|void>} Resposta 200 com decisão aplicada.
  */
 export async function decideBiometricDataRequestController(req, res, next) {
     try {

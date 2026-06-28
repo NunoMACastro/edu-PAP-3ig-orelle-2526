@@ -1,5 +1,5 @@
 /**
- * Rotas de pedidos de eliminacao/anonymizacao de dados faciais.
+ * Rotas de pedidos de eliminação/anonymização de dados faciais.
  */
 import { Router } from "express";
 import { ROLES } from "../constants/roles.js";
@@ -12,7 +12,7 @@ import { requireAuth } from "../middlewares/auth.middleware.js";
 import { requireRole } from "../middlewares/role.middleware.js";
 
 /**
- * Router Express para RF41.
+ * Router Express para RNF13/RF41.
  *
  * @type {import("express").Router}
  */

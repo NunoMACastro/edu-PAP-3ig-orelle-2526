@@ -1,5 +1,5 @@
 /**
- * Service do fluxo RF41 para pedidos de eliminacao/anonymizacao biometrica.
+ * Service do fluxo RNF13/RF41 para pedidos de eliminação/anonymização biométrica.
  */
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
@@ -37,7 +37,7 @@ function idToString(value) {
  *
  * @function toBiometricDataRequestResponse
  * @param {object} request - Documento Mongoose ou objeto equivalente.
- * @returns {object} Pedido sem dados biometricos brutos.
+ * @returns {object} Pedido sem dados biométricos brutos.
  */
 function toBiometricDataRequestResponse(request) {
     return {
@@ -57,10 +57,10 @@ function toBiometricDataRequestResponse(request) {
 }
 
 /**
- * Devolve options de Mongoose apenas quando uma transacao real esta ativa.
+ * Devolve options de Mongoose apenas quando uma transação real está ativa.
  *
  * @function sessionOptions
- * @param {import("mongoose").ClientSession|null} session - Sessao transacional opcional.
+ * @param {import("mongoose").ClientSession|null} session - Sessão transacional opcional.
  * @returns {{session: import("mongoose").ClientSession}|undefined} Options para queries/saves.
  */
 function sessionOptions(session) {
@@ -68,14 +68,14 @@ function sessionOptions(session) {
 }
 
 /**
- * Indica se a ligacao atual parece suportar transacoes MongoDB.
+ * Indica se a ligação atual parece suportar transações MongoDB.
  *
- * MongoDB standalone nao suporta transacoes. Nesses ambientes, o service usa um
- * estado duravel `processing`/`failed` para evitar pedidos "pending" apos
- * mutacoes parciais e permitir recuperacao operacional.
+ * MongoDB standalone não suporta transações. Nesses ambientes, o service usa um
+ * estado durável `processing`/`failed` para evitar pedidos presos em `pending`
+ * após mutações parciais e permitir recuperação operacional.
  *
  * @function canUseMongoTransactions
- * @returns {boolean} True quando a ligacao esta pronta e nao parece standalone.
+ * @returns {boolean} True quando a ligação está pronta e não parece standalone.
  */
 function canUseMongoTransactions() {
     const topologyType =
@@ -85,11 +85,11 @@ function canUseMongoTransactions() {
 }
 
 /**
- * Inicia sessao transacional apenas quando o runtime MongoDB a suporta.
+ * Inicia sessão transacional apenas quando o runtime MongoDB a suporta.
  *
  * @async
  * @function createOptionalSession
- * @returns {Promise<import("mongoose").ClientSession|null>} Sessao ou null para fallback duravel.
+ * @returns {Promise<import("mongoose").ClientSession|null>} Sessão ou null para fallback durável.
  */
 async function createOptionalSession() {
     if (!canUseMongoTransactions()) return null;
@@ -98,11 +98,11 @@ async function createOptionalSession() {
 }
 
 /**
- * Executa uma decisao com transacao quando disponivel.
+ * Executa uma decisão com transação quando disponível.
  *
  * @async
  * @function runWithOptionalTransaction
- * @param {(session: import("mongoose").ClientSession|null) => Promise<object>} handler - Mutacao a executar.
+ * @param {(session: import("mongoose").ClientSession|null) => Promise<object>} handler - Mutação a executar.
  * @returns {Promise<object>} Resultado do handler.
  */
 async function runWithOptionalTransaction(handler) {
@@ -124,12 +124,12 @@ async function runWithOptionalTransaction(handler) {
 }
 
 /**
- * Carrega pedido com a sessao transacional quando existir.
+ * Carrega pedido com a sessão transacional quando existir.
  *
  * @async
  * @function findBiometricDataRequestById
  * @param {string} requestId - ID validado do pedido.
- * @param {import("mongoose").ClientSession|null} session - Sessao transacional opcional.
+ * @param {import("mongoose").ClientSession|null} session - Sessão transacional opcional.
  * @returns {Promise<object|null>} Documento de pedido ou null.
  */
 async function findBiometricDataRequestById(requestId, session) {
@@ -141,13 +141,13 @@ async function findBiometricDataRequestById(requestId, session) {
 }
 
 /**
- * Grava pedido preservando a transacao quando aplicavel.
+ * Grava pedido com a transação recebida pelo caller.
  *
  * @async
  * @function saveBiometricDataRequest
  * @param {object} request - Documento Mongoose ou mock equivalente.
- * @param {import("mongoose").ClientSession|null} session - Sessao transacional opcional.
- * @returns {Promise<void>} Conclui apos persistencia.
+ * @param {import("mongoose").ClientSession|null} session - Sessão transacional opcional.
+ * @returns {Promise<void>} Conclui após persistência.
  */
 async function saveBiometricDataRequest(request, session) {
     const options = sessionOptions(session);
@@ -165,12 +165,13 @@ async function saveBiometricDataRequest(request, session) {
  *
  * @async
  * @function createMyBiometricDataRequest
- * @param {string} userId - Utilizador autenticado pela sessao.
+ * @param {string} userId - Utilizador autenticado pela sessão.
  * @param {{action: string, resources: string[], reason: string}} input - Dados validados.
  * @returns {Promise<object>} Pedido criado em formato seguro.
  */
 export async function createMyBiometricDataRequest(userId, input) {
     const request = await BiometricDataRequest.create({
+        // O requesterId vem da sessão, nunca do body, para preservar ownership.
         requesterId: userId,
         action: input.action,
         resources: input.resources,
@@ -181,7 +182,7 @@ export async function createMyBiometricDataRequest(userId, input) {
 }
 
 /**
- * Lista pedidos para o painel de revisao e regista auditoria RF44.
+ * Lista pedidos para o painel de revisão e regista auditoria RF44.
  *
  * @async
  * @function listBiometricDataRequestsForReview
@@ -198,21 +199,21 @@ export async function listBiometricDataRequestsForReview(actor) {
         actorRole: actor.role,
         action: BIOMETRIC_AUDIT_ACTIONS.LIST_REQUESTS,
         resourceType: BIOMETRIC_AUDIT_RESOURCE_TYPES.REQUEST,
-        reason: "Listagem de pedidos biometricos para revisao.",
+        reason: "Listagem de pedidos biométricos para revisão.",
     });
 
     return requests.map(toBiometricDataRequestResponse);
 }
 
 /**
- * Regista uma tentativa de decisao sobre pedido biometrico.
+ * Regista uma tentativa de decisão sobre pedido biométrico.
  *
  * @async
  * @function recordDecisionAudit
  * @param {{id: string, role: string}} actor - Consultor/admin autenticado.
  * @param {object|null} request - Pedido encontrado, quando existir.
  * @param {{resourceId: string, result: string, reason: string}} event - Metadados do resultado.
- * @returns {Promise<void>} Conclui apos gravar auditoria.
+ * @returns {Promise<void>} Conclui após gravar auditoria.
  */
 async function recordDecisionAudit(actor, request, event) {
     await recordBiometricAccess({
@@ -228,14 +229,14 @@ async function recordDecisionAudit(actor, request, event) {
 }
 
 /**
- * Aplica eliminacao logica aos recursos selecionados.
+ * Aplica eliminação lógica aos recursos selecionados.
  *
  * @async
  * @function applyDeleteAction
  * @param {import("mongoose").Types.ObjectId|string} requesterId - Dono dos recursos.
  * @param {string[]} resources - Recursos pedidos.
- * @param {import("mongoose").ClientSession|null} session - Sessao transacional opcional.
- * @returns {Promise<void>} Conclui quando os recursos ficam fora da operacao normal.
+ * @param {import("mongoose").ClientSession|null} session - Sessão transacional opcional.
+ * @returns {Promise<void>} Conclui quando os recursos ficam fora da operação normal.
  */
 async function applyDeleteAction(requesterId, resources, session) {
     const options = sessionOptions(session);
@@ -244,6 +245,7 @@ async function applyDeleteAction(requesterId, resources, session) {
         const filter = { userId: requesterId, status: "active" };
         const update = { $set: { status: "deleted" } };
 
+        // O filtro por userId impede decisões administrativas sobre recursos de outro cliente.
         if (options) await FacePhoto.updateMany(filter, update, options);
         else await FacePhoto.updateMany(filter, update);
     }
@@ -260,20 +262,21 @@ async function applyDeleteAction(requesterId, resources, session) {
             },
         };
 
+        // O relatório fica sem conteúdo útil, mas mantém metadados mínimos para auditoria.
         if (options) await FaceReport.updateMany(filter, update, options);
         else await FaceReport.updateMany(filter, update);
     }
 }
 
 /**
- * Aplica anonymizacao minima aos recursos selecionados.
+ * Aplica anonymização mínima aos recursos selecionados.
  *
  * @async
  * @function applyAnonymizeAction
  * @param {import("mongoose").Types.ObjectId|string} requesterId - Dono dos recursos.
  * @param {string[]} resources - Recursos pedidos.
- * @param {import("mongoose").ClientSession|null} session - Sessao transacional opcional.
- * @returns {Promise<void>} Conclui quando os dados deixam de ser uteis para identificacao.
+ * @param {import("mongoose").ClientSession|null} session - Sessão transacional opcional.
+ * @returns {Promise<void>} Conclui quando os dados deixam de ser úteis para identificação.
  */
 async function applyAnonymizeAction(requesterId, resources, session) {
     const options = sessionOptions(session);
@@ -283,7 +286,7 @@ async function applyAnonymizeAction(requesterId, resources, session) {
         const update = {
             $set: {
                 status: "anonymized",
-                originalName: "fotografia-anonymizada",
+                originalName: "fotografia-anonimizada",
             },
         };
 
@@ -296,7 +299,7 @@ async function applyAnonymizeAction(requesterId, resources, session) {
         const update = {
             $set: {
                 privacyStatus: "anonymized",
-                cosmeticSummary: "Relatório anonymizado a pedido do utilizador.",
+                cosmeticSummary: "Relatório anonimizado a pedido do utilizador.",
                 routineSuggestions: [],
                 sources: ["privacy_request_anonymize"],
                 limitations: ["Conteúdo pessoal removido por pedido de privacidade."],
@@ -309,14 +312,14 @@ async function applyAnonymizeAction(requesterId, resources, session) {
 }
 
 /**
- * Aplica a acao aprovada aos recursos pedidos.
+ * Aplica a ação aprovada aos recursos pedidos.
  *
  * @async
  * @function applyApprovedBiometricDataRequest
  * @param {object} request - Pedido aprovado.
- * @param {import("mongoose").ClientSession|null} session - Sessao transacional opcional.
+ * @param {import("mongoose").ClientSession|null} session - Sessão transacional opcional.
  * @returns {Promise<void>} Conclui quando os recursos foram tratados.
- * @throws {AppError} Quando a acao gravada no pedido nao e suportada.
+ * @throws {AppError} Quando a ação gravada no pedido não é suportada.
  */
 async function applyApprovedBiometricDataRequest(request, session) {
     if (request.action === BIOMETRIC_REQUEST_ACTIONS.DELETE) {
@@ -337,9 +340,9 @@ async function applyApprovedBiometricDataRequest(request, session) {
  *
  * @function assertRequestCanBeDecided
  * @param {object} request - Pedido carregado.
- * @param {{decision: "approved"|"rejected"}} input - Decisao validada.
+ * @param {{decision: "approved"|"rejected"}} input - Decisão validada.
  * @returns {void}
- * @throws {AppError} Quando o estado atual nao aceita a decisao.
+ * @throws {AppError} Quando o estado atual não aceita a decisão.
  */
 function assertRequestCanBeDecided(request, input) {
     if (request.status === BIOMETRIC_REQUEST_STATUSES.PENDING) return;
@@ -359,12 +362,12 @@ function assertRequestCanBeDecided(request, input) {
 }
 
 /**
- * Guarda estado falhado recuperavel sem expor detalhes internos ao frontend.
+ * Guarda estado falhado recuperável sem expor detalhes internos ao frontend.
  *
  * @async
  * @function markDecisionAsFailed
- * @param {object} request - Pedido cuja aprovacao falhou.
- * @returns {Promise<void>} Conclui quando o estado recuperavel fica gravado.
+ * @param {object} request - Pedido cuja aprovação falhou.
+ * @returns {Promise<void>} Conclui quando o estado recuperável fica gravado.
  */
 async function markDecisionAsFailed(request) {
     request.status = BIOMETRIC_REQUEST_STATUSES.FAILED;
@@ -373,14 +376,14 @@ async function markDecisionAsFailed(request) {
 }
 
 /**
- * Aplica aprovacao com transacao quando possivel e fallback duravel quando nao.
+ * Aplica aprovação com transação quando possível e fallback durável quando não.
  *
  * @async
  * @function approveBiometricDataRequest
  * @param {object} request - Pedido a aprovar.
  * @param {string} reviewerId - Revisor autenticado.
  * @param {{decisionReason: string}} input - Input validado.
- * @param {import("mongoose").ClientSession|null} session - Sessao transacional opcional.
+ * @param {import("mongoose").ClientSession|null} session - Sessão transacional opcional.
  * @returns {Promise<object>} Pedido atualizado em DTO seguro.
  */
 async function approveBiometricDataRequest(request, reviewerId, input, session) {
@@ -398,6 +401,7 @@ async function approveBiometricDataRequest(request, reviewerId, input, session) 
         request.decisionError = "";
         await saveBiometricDataRequest(request, session);
     } catch (err) {
+        // Sem transação real, o estado `failed` permite retomar a decisão sem mascarar a falha.
         if (!session) await markDecisionAsFailed(request);
         throw err;
     }
@@ -406,22 +410,22 @@ async function approveBiometricDataRequest(request, reviewerId, input, session) 
 }
 
 /**
- * Decide um pedido pendente e aplica tratamento quando ha aprovacao.
+ * Decide um pedido pendente e aplica tratamento quando há aprovação.
  *
  * @async
  * @function decideBiometricDataRequest
  * @param {string} requestId - Pedido a decidir.
  * @param {{id: string, role: string}} actor - Consultor/admin autenticado.
- * @param {{decision: "approved"|"rejected", decisionReason: string}} input - Decisao validada.
+ * @param {{decision: "approved"|"rejected", decisionReason: string}} input - Decisão validada.
  * @returns {Promise<object>} Pedido atualizado.
- * @throws {AppError} Quando o pedido nao existe, ja foi decidido ou tem ID invalido.
+ * @throws {AppError} Quando o pedido não existe, já foi decidido ou tem ID inválido.
  */
 export async function decideBiometricDataRequest(requestId, actor, input) {
     if (!mongoose.isValidObjectId(requestId)) {
         await recordDecisionAudit(actor, null, {
             resourceId: requestId,
             result: BIOMETRIC_AUDIT_RESULTS.DENIED,
-            reason: "Tentativa de decidir pedido com ID invalido.",
+            reason: "Tentativa de decidir pedido com ID inválido.",
         });
         throw new AppError(400, "ID de pedido inválido.");
     }
@@ -460,7 +464,7 @@ export async function decideBiometricDataRequest(requestId, actor, input) {
             await recordDecisionAudit(actor, request, {
                 resourceId: idToString(request._id) ?? requestId,
                 result: BIOMETRIC_AUDIT_RESULTS.ALLOWED,
-                reason: "Pedido biometrico rejeitado por revisor autorizado.",
+                reason: "Pedido biométrico rejeitado por revisor autorizado.",
             });
             return toBiometricDataRequestResponse(request);
         }
@@ -476,7 +480,7 @@ export async function decideBiometricDataRequest(requestId, actor, input) {
             await recordDecisionAudit(actor, request, {
                 resourceId: idToString(request._id) ?? requestId,
                 result: BIOMETRIC_AUDIT_RESULTS.ALLOWED,
-                reason: "Pedido biometrico aprovado por revisor autorizado.",
+                reason: "Pedido biométrico aprovado por revisor autorizado.",
             });
 
             return approvedRequest;
@@ -484,7 +488,7 @@ export async function decideBiometricDataRequest(requestId, actor, input) {
             await recordDecisionAudit(actor, request, {
                 resourceId: idToString(request._id) ?? requestId,
                 result: BIOMETRIC_AUDIT_RESULTS.DENIED,
-                reason: "Falha operacional ao aplicar decisao biometrica.",
+                reason: "Falha operacional ao aplicar decisão biométrica.",
             });
             throw err;
         }
