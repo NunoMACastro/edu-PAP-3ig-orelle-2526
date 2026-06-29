@@ -14,7 +14,8 @@
         "smoke:mf6-images": "node scripts/check-mf6-images.mjs",
         "smoke:mf6-performance-unit": "node scripts/check-mf6-performance-unit.mjs",
         "smoke:mf6-page-budget": "node scripts/check-mf6-page-budget.mjs",
-        "smoke:mf6-runtime": "node scripts/check-mf6-runtime-performance.mjs"
+        "smoke:mf6-runtime": "node scripts/check-mf6-runtime-performance.mjs",
+        "smoke:mf7-compat": "node scripts/check-mf7-browser-compatibility.mjs"
     },
     "dependencies": {
         "@vitejs/plugin-react": "^4.3.1",
