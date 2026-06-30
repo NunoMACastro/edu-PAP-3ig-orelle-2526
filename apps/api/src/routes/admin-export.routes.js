@@ -1,5 +1,5 @@
 /**
- * Rotas de exportacao administrativa.
+ * Rotas de exportação administrativa.
  */
 import { Router } from "express";
 import { ROLES } from "../constants/roles.js";
@@ -10,6 +10,7 @@ import { requireRole } from "../middlewares/role.middleware.js";
 export const adminExportRoutes = Router();
 
 adminExportRoutes.get(
+    // A exportação agregada pode conter dados pessoais minimizados, por isso exige ADMIN.
     "/exports/:dataset",
     requireAuth,
     requireRole(ROLES.ADMIN),

@@ -1,5 +1,5 @@
 /**
- * Pagina de exportacoes administrativas minimizadas.
+ * Página de exportações administrativas minimizadas.
  */
 import { useState } from "react";
 import { apiDownload } from "../services/apiClient.js";
@@ -9,7 +9,7 @@ import { apiDownload } from "../services/apiClient.js";
  *
  * @function getDownloadFilename
  * @param {string|null} contentDisposition - Header Content-Disposition.
- * @param {string} fallback - Nome local quando o header nao existe.
+ * @param {string} fallback - Nome local quando o header não existe.
  * @returns {string} Nome seguro para download.
  */
 function getDownloadFilename(contentDisposition, fallback) {
@@ -23,10 +23,10 @@ function getDownloadFilename(contentDisposition, fallback) {
 }
 
 /**
- * Descarrega um Blob no browser sem expor o conteudo no DOM.
+ * Descarrega um Blob no browser sem expor o conteúdo no DOM.
  *
  * @function downloadBlob
- * @param {Blob} blob - Conteudo binario recebido da API.
+ * @param {Blob} blob - Conteúdo binário recebido da API.
  * @param {string} filename - Nome do ficheiro.
  * @returns {void}
  */
@@ -43,10 +43,10 @@ function downloadBlob(blob, filename) {
 }
 
 /**
- * Gera exportacoes CSV/PDF como ficheiros descarregaveis.
+ * Gera exportações CSV/PDF como ficheiros descarregáveis.
  *
  * @function AdminExportsPage
- * @returns {JSX.Element} UI admin de exportacoes.
+ * @returns {JSX.Element} UI admin de exportações.
  */
 export function AdminExportsPage() {
     const [dataset, setDataset] = useState("sales");
@@ -70,6 +70,7 @@ export function AdminExportsPage() {
                 `${dataset}.${format}`,
             );
 
+            // A UI descarrega o ficheiro e mostra apenas metadados seguros.
             downloadBlob(blob, filename);
             setExportResult({
                 filename,
@@ -78,6 +79,7 @@ export function AdminExportsPage() {
             });
             setStatus("success");
         } catch (err) {
+            // O erro visível vem da API, mas o conteúdo exportado nunca é renderizado.
             setError(err.message);
             setStatus("error");
         }
