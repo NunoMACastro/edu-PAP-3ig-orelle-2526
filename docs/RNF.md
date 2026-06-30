@@ -54,6 +54,8 @@
 | RNF12  | Consentimento explícito para análise facial (RGPD).                      | Privacidade | Must       |
 | RNF13  | Direito a eliminar conta e dados (incluindo fotos).                      | Privacidade | Must       |
 | RNF14  | Sessões autenticadas com **cookies HttpOnly**.                           | Segurança   | Must       |
+| RNF30  | Histórico IA deve respeitar minimização, encriptação/privacidade e não expor fotografias, storage keys, consent IDs ou prompts internos. | Privacidade | Must |
+| RNF31  | Acessos de consultor a sessões IA devem ser autenticados, autorizados, auditáveis e limitados a DTO seguro. | Segurança / Auditoria | Must |
 
 ---
 
@@ -80,6 +82,10 @@
 | RNF20  | Logs de erros e métricas de desempenho.               | Operação    | Should     |
 | RNF21  | Base de dados com backups automáticos diários.        | Fiabilidade | Should     |
 | RNF22  | Ambiente de testes separado do ambiente de produção.  | Operação    | Should     |
+| RNF26  | A interface final deve aproximar-se do mockup aprovado nos ecrãs principais. | UX / UI | Must |
+| RNF27  | Os testes atuais devem ser verificados e os testes em falta criados antes da bateria final. | Qualidade | Must |
+| RNF28  | A bateria final de testes deve ser executada com evidências objetivas. | Qualidade | Must |
+| RNF29  | Os erros encontrados nos testes finais devem ser corrigidos e revalidados. | Qualidade / Estabilização | Must |
 
 ---
 
@@ -143,3 +149,4 @@ Projeto académico orientado ao contexto PAP.
 
 -   **2024-06-15** - Versão inicial dos Requisitos Não Funcionais (RNF) e Stack Tecnológica Sugerida.
 -   **2026-04-14** - Normalizacao editorial para coerencia com planificacao canónica e contrato comum de avaliacao.
+-   **2026-06-30** - Adicionados RNF30 e RNF31 para histórico IA minimizado e revisão humana segura/auditável.

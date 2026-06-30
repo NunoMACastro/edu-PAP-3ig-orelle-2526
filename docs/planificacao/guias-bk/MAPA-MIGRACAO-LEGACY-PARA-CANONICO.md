@@ -4,7 +4,7 @@
 - `doc_id`: `MAPA-MIGRACAO`
 - `path`: `docs/planificacao/guias-bk/MAPA-MIGRACAO-LEGACY-PARA-CANONICO.md`
 - `owner`: `Nuno`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Mapa
 | origem_legacy | destino_canonico |
@@ -47,7 +47,12 @@
 | legacy-RF37 | MF4/BK-MF4-05-enviar-alertas-personalizados-esta-na-hora-da-sua-rotina-noturna.md |
 | legacy-RF40 | MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md |
 | legacy-RF41 | MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md |
+| legacy-RF42 | MF8/BK-MF8-08-sessao-guiada-de-avaliacao-cosmetica-com-ia.md |
+| legacy-RF43 | MF8/BK-MF8-10-recomendacoes-enriquecidas-com-respostas-da-avaliacao-guiada.md |
 | legacy-RF44 | MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md |
+| legacy-RF45 | MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
+| legacy-RF46 | MF8/BK-MF8-12-insights-correcoes-do-consultor-visiveis-para-o-cliente.md |
+| legacy-RF47 | MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md |
 | legacy-RNF01 | MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md |
 | legacy-RNF02 | MF5/BK-MF5-06-design-coerente-com-estetica-da-marca-cores-suaves-tipografia-moderna.md |
 | legacy-RNF03 | MF5/BK-MF5-07-mensagens-claras-icones-acessiveis-e-feedback-imediato-em-formularios.md |
@@ -68,13 +73,21 @@
 | legacy-RNF18 | MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md |
 | legacy-RNF19 | MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md |
 | legacy-RNF20 | MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md |
-| legacy-RNF21 | MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md |
-| legacy-RNF22 | MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md |
+| legacy-RNF21 | MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md |
+| legacy-RNF22 | MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md |
 | legacy-RNF23 | MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md |
 | legacy-RNF24 | MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md |
 | legacy-RNF25 | MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md |
+| legacy-RNF26 | MF8/BK-MF8-14-aproximacao-da-ui-a-ui-do-mockup.md |
+| legacy-RNF27 | MF8/BK-MF8-15-verificacao-dos-testes-atuais-e-criacao-dos-testes-em-falta.md |
+| legacy-RNF28 | MF8/BK-MF8-16-execucao-final-de-testes-com-evidencias.md |
+| legacy-RNF29 | MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md |
+| legacy-RNF30 | MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md |
+| legacy-RNF31 | MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
 
 ## Changelog
+- `2026-06-30`: mapa MF8 atualizado até RNF31 com renumeração RNF26-RNF29.
+- `2026-06-29`: mapa MF8 atualizado na primeira revisão de fecho.
 - `2026-04-12`: mapeamento inicial legacy -> BK canónico.
 - `2026-04-14`: destino atualizado para naming semantico `BK-MF*-**-slug`.
 - `2026-04-17`: removidos mapeamentos legacy dos RF excluídos do escopo PAP.

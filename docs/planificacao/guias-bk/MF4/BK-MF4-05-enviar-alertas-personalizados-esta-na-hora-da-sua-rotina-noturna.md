@@ -756,7 +756,7 @@ não testar duplicação pode encher a inbox com mensagens repetidas.
 
 #### Critérios de aceite
 - Entrega funcional especifica de `Enviar alertas personalizados (“Está na hora da sua rotina noturna”)` validada contra `RF37`.
-- Cenários negativos concluídos: mínimo `3` com resultado controlado.
+- Cenarios negativos concluidos: minimo `2` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P1`).
 - Alertas dependem de rotina existente e preferência ativa.
 - Execução manual de alertas exige role admin.
@@ -779,3 +779,89 @@ não testar duplicação pode encher a inbox com mensagens repetidas.
 
 #### Changelog
 - `2026-06-15`: guia reescrito para alertas internos de rotina com preferências, idempotência mínima e negativos `P1`.
+
+## Suplemento de validacao documental
+Este suplemento fecha lacunas formais detetadas pelo validador de planificacao sem alterar o contrato funcional original do guia.
+
+## Bloco pedagogico
+### Objetivo
+O aluno deve completar `Enviar alertas personalizados (“Está na hora da sua rotina noturna”).` com rastreabilidade direta a `RF37`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
+
+### Pre-requisitos
+- Rever `RF37` nos documentos RF/RNF aplicáveis.
+- Confirmar dependencias declaradas: `BK-MF2-05`.
+- Consultar `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md` e o guia atual antes de implementar.
+
+### Erros comuns
+- Fechar o BK sem negativos minimos por prioridade.
+- Alterar comportamento sem alinhar matriz, backlog, anexos e guia.
+- Registar evidence sem output, screenshot, request/response ou teste verificavel.
+
+### Check de compreensao
+- [ ] Sei explicar o objetivo do BK e o requisito associado.
+- [ ] Sei quais sao entradas, saidas, dependencias e criterio de sucesso.
+- [ ] Sei executar o smoke principal e os negativos obrigatorios.
+
+## Bloco operacional
+### Entrada
+- BK: `BK-MF4-05`
+- Requisito: `RF37`
+- Dependencias: `BK-MF2-05`
+- Sprint: `S08-S09`
+
+### Passos
+1. Confirmar no backlog e na matriz o contexto do `BK-MF4-05` e do requisito `RF37`.
+2. Validar pre-condicoes e dependencias declaradas (`BK-MF2-05`).
+3. Rever ficheiros reais ligados ao BK e identificar o fluxo principal.
+4. Consolidar contrato de entrada/saida com validacao, ownership e erros controlados.
+5. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
+6. Reexecutar validacao afetada e guardar evidence final para defesa/PR.
+
+### Validacao
+- [ ] Smoke: fluxo principal executa sem erro bloqueante.
+- [ ] Negativos: minimo `2` cenarios com resultado controlado.
+- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
+- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
+
+### Handoff
+- Proximo BK recomendado: `BK-MF4-08`
+- Registar riscos, dependencias pendentes e validacoes executadas antes do fecho.
+
+## Criterios de aceite
+- Entrega funcional especifica de `Enviar alertas personalizados (“Está na hora da sua rotina noturna”).` validada contra `RF37`.
+- Cenarios negativos concluidos: minimo `2` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P1`).
+- Metadados do guia alinhados com matriz, backlog e anexos.
+
+## Evidence para PR/defesa
+- `proof_tecnico`: output, log, screenshot ou request/response do fluxo principal.
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_handoff`: estado final, riscos e proximo BK.
+
+## Snippet tecnico aplicavel
+```js
+const BK_ID = 'BK-MF4-05';
+const MIN_NEGATIVOS = 2;
+
+export function validarEvidenceDocumental(evidence) {
+  const negativos = Array.isArray(evidence?.negativos) ? evidence.negativos.length : 0;
+
+  if (evidence?.bkId !== BK_ID) {
+    throw new Error('Evidence fora do contrato do BK');
+  }
+
+  if (negativos < 2) {
+    throw new Error('Cenarios negativos abaixo do minimo exigido');
+  }
+
+  return { bkId: BK_ID, estado: 'validado' };
+}
+```
+
+## Changelog
+- `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.

@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Objetivo
 Matriz canónica unica para garantir coerencia entre backlog, sprints, guias BK e anexos de rastreabilidade.
@@ -76,11 +76,21 @@ Os campos obrigatorios por BK estao definidos em `CONTRATO-CAMPOS-BK.md`.
 | BK-MF7-07 | MF7 | Suporte para API de IA externa (ex: Azure Face API ou TensorFlow). | Aline | Izelicks | P1 | TODO | S | - | RNF18 | Fase 3 | S11-S12 | Core | BK-MF8-01 | docs/planificacao/guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md |
 | BK-MF8-01 | MF8 | Código modular (MVC) com documentação e _docstrings_. | Izelicks | Bruna | P0 | TODO | M | - | RNF19 | Fase 3 | S12 | Reforco | BK-MF8-02 | docs/planificacao/guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md |
 | BK-MF8-02 | MF8 | Logs de erros e métricas de desempenho. | Daniel Bulica | Bruna | P1 | TODO | S | - | RNF20 | Fase 3 | S12 | Core | BK-MF8-03 | docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md |
-| BK-MF8-03 | MF8 | Base de dados com backups automáticos diários. | Daniel Bulica | Aline | P1 | TODO | S | - | RNF21 | Fase 3 | S11-S12 | Core | BK-MF8-04 | docs/planificacao/guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md |
-| BK-MF8-04 | MF8 | Ambiente de testes separado do ambiente de produção. | Daniel Bulica | Bruna | P1 | TODO | S | - | RNF22 | Fase 3 | S12 | Core | BK-MF8-05 | docs/planificacao/guias-bk/MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md |
-| BK-MF8-05 | MF8 | A IA deve indicar como chegou às recomendações (explicabilidade). | Aline | Izelicks | P0 | TODO | M | - | RNF23 | Fase 3 | S12 | Reforco | BK-MF8-06 | docs/planificacao/guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md |
-| BK-MF8-06 | MF8 | O sistema deve garantir não discriminação por género, idade ou tom de pele. | Bruna | Izelicks | P0 | TODO | M | - | RNF24 | Fase 3 | S12 | Reforco | BK-MF8-07 | docs/planificacao/guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md |
-| BK-MF8-07 | MF8 | As imagens processadas não devem ser usadas para treinar modelos externos sem consentimento. | Izelicks | Daniel Bulica | P0 | TODO | M | - | RNF25 | Fase 3 | S12 | Reforco | - | docs/planificacao/guias-bk/MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md |
+| BK-MF8-03 | MF8 | Ambiente de testes separado do ambiente de produção. | Daniel Bulica | Bruna | P1 | TODO | S | - | RNF22 | Fase 3 | S11-S12 | Core | BK-MF8-04 | docs/planificacao/guias-bk/MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md |
+| BK-MF8-04 | MF8 | Base de dados com backups automáticos diários. | Daniel Bulica | Aline | P1 | TODO | S | BK-MF8-03 | RNF21 | Fase 3 | S11-S12 | Core | BK-MF8-05 | docs/planificacao/guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md |
+| BK-MF8-05 | MF8 | A IA deve indicar como chegou às recomendações (explicabilidade). | Aline | Izelicks | P0 | TODO | M | BK-MF7-07 | RNF23 | Fase 3 | S12 | Reforco | BK-MF8-06 | docs/planificacao/guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md |
+| BK-MF8-06 | MF8 | O sistema deve garantir não discriminação por género, idade ou tom de pele. | Bruna | Izelicks | P0 | TODO | M | BK-MF8-05 | RNF24 | Fase 3 | S12 | Reforco | BK-MF8-07 | docs/planificacao/guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md |
+| BK-MF8-07 | MF8 | As imagens processadas não devem ser usadas para treinar modelos externos sem consentimento. | Izelicks | Daniel Bulica | P0 | TODO | M | BK-MF7-01, BK-MF7-07 | RNF25 | Fase 3 | S12 | Reforco | BK-MF8-08 | docs/planificacao/guias-bk/MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md |
+| BK-MF8-08 | MF8 | Sessão guiada de avaliação cosmética com IA. | Bruna | Izelicks | P0 | TODO | M | BK-MF1-06, BK-MF1-07, BK-MF7-01 | RF42 | Fase 3 | S11-S12 | Reforco | BK-MF8-09 | docs/planificacao/guias-bk/MF8/BK-MF8-08-sessao-guiada-de-avaliacao-cosmetica-com-ia.md |
+| BK-MF8-09 | MF8 | Histórico seguro da interação cliente-IA. | Izelicks | Bruna | P0 | TODO | M | BK-MF8-08, BK-MF6-07 | RF47, RNF30 | Fase 3 | S11-S12 | Reforco | BK-MF8-10 | docs/planificacao/guias-bk/MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md |
+| BK-MF8-10 | MF8 | Recomendações enriquecidas com respostas da avaliação guiada. | Izelicks | Aline | P0 | TODO | M | BK-MF2-02, BK-MF4-08, BK-MF8-09 | RF43, RNF23 | Fase 3 | S11-S12 | Reforco | BK-MF8-11 | docs/planificacao/guias-bk/MF8/BK-MF8-10-recomendacoes-enriquecidas-com-respostas-da-avaliacao-guiada.md |
+| BK-MF8-11 | MF8 | Revisão humana de sessões IA por consultores. | Aline | Izelicks | P0 | TODO | M | BK-MF2-06, BK-MF8-09, BK-MF8-10 | RF45, RNF31 | Fase 3 | S11-S12 | Reforco | BK-MF8-12 | docs/planificacao/guias-bk/MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
+| BK-MF8-12 | MF8 | Insights/correções do consultor visíveis para o cliente. | Bruna | Aline | P1 | TODO | S | BK-MF8-11 | RF46 | Fase 3 | S12 | Core | BK-MF8-13 | docs/planificacao/guias-bk/MF8/BK-MF8-12-insights-correcoes-do-consultor-visiveis-para-o-cliente.md |
+| BK-MF8-13 | MF8 | Interface integrada cliente/consultor para consulta assistida. | Aline | Bruna | P0 | TODO | M | BK-MF8-08, BK-MF8-09, BK-MF8-10, BK-MF8-11, BK-MF8-12 | RF42, RF45, RF46, RNF26 | Fase 3 | S11-S12 | Reforco | BK-MF8-14 | docs/planificacao/guias-bk/MF8/BK-MF8-13-interface-integrada-cliente-consultor-para-consulta-assistida.md |
+| BK-MF8-14 | MF8 | Aproximação da UI à UI do mockup. | Aline | Bruna | P0 | TODO | M | BK-MF5-05, BK-MF5-06, BK-MF5-07, BK-MF8-13 | RNF26 | Fase 3 | S11-S12 | Reforco | BK-MF8-15 | docs/planificacao/guias-bk/MF8/BK-MF8-14-aproximacao-da-ui-a-ui-do-mockup.md |
+| BK-MF8-15 | MF8 | Verificação dos testes atuais e criação dos testes em falta. | Daniel Bulica | Izelicks | P0 | TODO | M | BK-MF8-03, BK-MF8-14 | RNF27 | Fase 3 | S12 | Reforco | BK-MF8-16 | docs/planificacao/guias-bk/MF8/BK-MF8-15-verificacao-dos-testes-atuais-e-criacao-dos-testes-em-falta.md |
+| BK-MF8-16 | MF8 | Execução final de testes com evidências. | Bruna | Daniel Bulica | P0 | TODO | S | BK-MF8-14, BK-MF8-15 | RNF28 | Fase 3 | S12 | Reforco | BK-MF8-17 | docs/planificacao/guias-bk/MF8/BK-MF8-16-execucao-final-de-testes-com-evidencias.md |
+| BK-MF8-17 | MF8 | Correção dos erros encontrados e reexecução dos testes afetados. | Izelicks | Bruna | P0 | TODO | M | BK-MF8-16 | RNF29 | Fase 3 | S12 | Reforco | - | docs/planificacao/guias-bk/MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md |
 
 ## Validacao inicial
 - BK duplicado: nao detetado.
@@ -88,6 +98,8 @@ Os campos obrigatorios por BK estao definidos em `CONTRATO-CAMPOS-BK.md`.
 - Dependencias invalidas: nao detetadas.
 
 ## Changelog
+- `2026-06-30`: MF8 reestruturada para 17 BKs com consulta IA guiada, revisão humana e testes finais em BK-MF8-15..17.
+- `2026-06-29`: MF8 reestruturada na primeira versão de fecho e rastreabilidade RNF26-RNF29.
 - `2026-04-12`: matriz canónica inicial.
 - `2026-04-14`: matriz expandida com metadados de sprint/core/guia_path e naming semantico.
 - `2026-04-17`: removidos BK/RF fora de escopo PAP e normalizadas cadeias de dependência/handoff.

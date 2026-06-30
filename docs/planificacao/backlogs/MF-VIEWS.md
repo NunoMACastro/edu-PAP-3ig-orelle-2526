@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Criterio de pronto pedagogico por macro
 - Macro fecha apenas com 100% dos BK com guia valido, checklist completa e evidence verificavel.
@@ -208,32 +208,50 @@ BK-MF7-01, BK-MF7-02, BK-MF7-03, BK-MF7-04, BK-MF7-05, BK-MF7-06, BK-MF7-07
 - Todos os BK da macro com guia canónico atualizado.
 - Sem dependencias invalidas para a macro seguinte.
 
-## MF8 - Integracoes, compatibilidade e fecho
+## MF8 - Consulta IA guiada, revisão humana, UI e testes finais
 ### Sequencia por macro
-BK-MF8-01, BK-MF8-02, BK-MF8-03, BK-MF8-04, BK-MF8-05, BK-MF8-06, BK-MF8-07
+BK-MF8-01, BK-MF8-02, BK-MF8-03, BK-MF8-04, BK-MF8-05, BK-MF8-06, BK-MF8-07, BK-MF8-08, BK-MF8-09, BK-MF8-10, BK-MF8-11, BK-MF8-12, BK-MF8-13, BK-MF8-14, BK-MF8-15, BK-MF8-16, BK-MF8-17
 
 ### Guias disponiveis
 - [BK-MF8-01 - Código modular (MVC) com documentação e _docstrings_.](../guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md)
 - [BK-MF8-02 - Logs de erros e métricas de desempenho.](../guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md)
-- [BK-MF8-03 - Base de dados com backups automáticos diários.](../guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md)
-- [BK-MF8-04 - Ambiente de testes separado do ambiente de produção.](../guias-bk/MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md)
+- [BK-MF8-03 - Ambiente de testes separado do ambiente de produção.](../guias-bk/MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md)
+- [BK-MF8-04 - Base de dados com backups automáticos diários.](../guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md)
 - [BK-MF8-05 - A IA deve indicar como chegou às recomendações (explicabilidade).](../guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md)
 - [BK-MF8-06 - O sistema deve garantir não discriminação por género, idade ou tom de pele.](../guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md)
 - [BK-MF8-07 - As imagens processadas não devem ser usadas para treinar modelos externos sem consentimento.](../guias-bk/MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md)
+- [BK-MF8-08 - Sessão guiada de avaliação cosmética com IA.](../guias-bk/MF8/BK-MF8-08-sessao-guiada-de-avaliacao-cosmetica-com-ia.md)
+- [BK-MF8-09 - Histórico seguro da interação cliente-IA.](../guias-bk/MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md)
+- [BK-MF8-10 - Recomendações enriquecidas com respostas da avaliação guiada.](../guias-bk/MF8/BK-MF8-10-recomendacoes-enriquecidas-com-respostas-da-avaliacao-guiada.md)
+- [BK-MF8-11 - Revisão humana de sessões IA por consultores.](../guias-bk/MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md)
+- [BK-MF8-12 - Insights/correções do consultor visíveis para o cliente.](../guias-bk/MF8/BK-MF8-12-insights-correcoes-do-consultor-visiveis-para-o-cliente.md)
+- [BK-MF8-13 - Interface integrada cliente/consultor para consulta assistida.](../guias-bk/MF8/BK-MF8-13-interface-integrada-cliente-consultor-para-consulta-assistida.md)
+- [BK-MF8-14 - Aproximação da UI à UI do mockup.](../guias-bk/MF8/BK-MF8-14-aproximacao-da-ui-a-ui-do-mockup.md)
+- [BK-MF8-15 - Verificação dos testes atuais e criação dos testes em falta.](../guias-bk/MF8/BK-MF8-15-verificacao-dos-testes-atuais-e-criacao-dos-testes-em-falta.md)
+- [BK-MF8-16 - Execução final de testes com evidências.](../guias-bk/MF8/BK-MF8-16-execucao-final-de-testes-com-evidencias.md)
+- [BK-MF8-17 - Correção dos erros encontrados e reexecução dos testes afetados.](../guias-bk/MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md)
 
 ### Step-by-step macro
 1. Confirmar dependencias desbloqueadas antes de iniciar a macro.
-2. Executar BK por prioridade (`P0 > P1 > P2`) mantendo sequencia tecnica.
-3. Validar smoke, negativos e evidence por BK antes do handoff.
-4. Atualizar backlog, matriz e anexo de sprint/owner no mesmo ciclo.
-5. Fechar macro apenas quando 100% dos BK tiverem criterios de aceite e evidence validada.
+2. Fechar base tecnica, operacional, privacidade e explicabilidade da IA.
+3. Implementar consulta guiada, histórico seguro, recomendações enriquecidas e revisão humana.
+4. Integrar a experiência cliente/consultor antes do polimento visual.
+5. Aproximar UI ao mockup e confirmar responsividade nos ecras principais.
+6. Completar testes em falta, executar bateria final e registar evidence.
+7. Corrigir erros encontrados e reexecutar testes afetados antes do fecho.
+8. Atualizar backlog, matriz e anexo de sprint/owner no mesmo ciclo.
 
 ### Pronto da macro
 - Todos os BK da macro com guia canónico atualizado.
-- Sem dependencias invalidas para a macro seguinte.
+- Consulta IA guiada, histórico seguro, recomendações reais e revisão humana planeados end-to-end.
+- UI principal alinhada com mockup ou com desvios justificados.
+- Testes finais executados, erros corrigidos/revalidados e evidence pronta para defesa.
+
 
 
 ## Changelog
+- `2026-06-30`: MF8 revista para 17 BKs com consulta IA guiada, revisão humana e testes finais em BK-MF8-15..17.
+- `2026-06-29`: MF8 revista na primeira versão de fecho visual e QA final.
 - `2026-04-12`: MF-VIEWS inicial da Orelle.
 - `2026-04-14`: MF-VIEWS alinhado ao naming semantico e contrato canónico comum.
 - `2026-04-17`: removidos BK fora do escopo PAP e atualizado encadeamento por macro.

@@ -1932,3 +1932,91 @@ O `BK-MF7-03` deve garantir que estes endpoints continuam dependentes de cookies
 #### Changelog
 
 - 2026-06-26: Guia corrigido para código completo por camada, incluindo model, validators, service, controllers, rotas, UI de cliente, UI de revisão, testes, auditoria, fallback operacional e negativos de `RNF13`.
+
+## Suplemento de validacao documental
+Este suplemento fecha lacunas formais detetadas pelo validador de planificacao sem alterar o contrato funcional original do guia.
+
+## Bloco pedagogico
+### Objetivo
+O aluno deve completar `Direito a eliminar conta e dados (incluindo fotos).` com rastreabilidade direta a `RNF13`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
+
+### Pre-requisitos
+- Rever `RNF13` nos documentos RF/RNF aplicáveis.
+- Confirmar dependencias declaradas: `-`.
+- Consultar `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md` e o guia atual antes de implementar.
+
+### Erros comuns
+- Fechar o BK sem negativos minimos por prioridade.
+- Alterar comportamento sem alinhar matriz, backlog, anexos e guia.
+- Registar evidence sem output, screenshot, request/response ou teste verificavel.
+
+### Check de compreensao
+- [ ] Sei explicar o objetivo do BK e o requisito associado.
+- [ ] Sei quais sao entradas, saidas, dependencias e criterio de sucesso.
+- [ ] Sei executar o smoke principal e os negativos obrigatorios.
+
+## Bloco operacional
+### Entrada
+- BK: `BK-MF7-02`
+- Requisito: `RNF13`
+- Dependencias: `-`
+- Sprint: `S11-S12`
+
+### Passos
+1. Confirmar no backlog e na matriz o contexto do `BK-MF7-02` e do requisito `RNF13`.
+2. Validar pre-condicoes e dependencias declaradas (`-`).
+3. Rever ficheiros reais ligados ao BK e identificar o fluxo principal.
+4. Consolidar contrato de entrada/saida com validacao, ownership e erros controlados.
+5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
+6. Registar evidencia tecnica objetiva antes do handoff.
+7. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
+8. Reexecutar validacao afetada e guardar evidence final para defesa/PR.
+
+### Validacao
+- [ ] Smoke: fluxo principal executa sem erro bloqueante.
+- [ ] Negativos: minimo `3` cenarios com resultado controlado.
+- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
+- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
+
+### Matriz minima de testes por prioridade
+- `P0`: unit + integration + e2e + 3 negativos.
+- `P1`: unit/integration + 2 negativos.
+- `P2`: teste focal + 1 negativo.
+
+### Handoff
+- Proximo BK recomendado: `BK-MF7-03`
+- Registar riscos, dependencias pendentes e validacoes executadas antes do fecho.
+
+## Criterios de aceite
+- Entrega funcional especifica de `Direito a eliminar conta e dados (incluindo fotos).` validada contra `RNF13`.
+- Cenarios negativos concluidos: minimo `3` com resultado controlado.
+- Evidencia de testes por camada conforme prioridade (`P0`).
+- Metadados do guia alinhados com matriz, backlog e anexos.
+
+## Evidence para PR/defesa
+- `proof_tecnico`: output, log, screenshot ou request/response do fluxo principal.
+- `proof_negativos`: cenarios negativos executados e resultados observados.
+- `proof_handoff`: estado final, riscos e proximo BK.
+
+## Snippet tecnico aplicavel
+```js
+const BK_ID = 'BK-MF7-02';
+const MIN_NEGATIVOS = 3;
+
+export function validarEvidenceDocumental(evidence) {
+  const negativos = Array.isArray(evidence?.negativos) ? evidence.negativos.length : 0;
+
+  if (evidence?.bkId !== BK_ID) {
+    throw new Error('Evidence fora do contrato do BK');
+  }
+
+  if (negativos < 3) {
+    throw new Error('Cenarios negativos abaixo do minimo exigido');
+  }
+
+  return { bkId: BK_ID, estado: 'validado' };
+}
+```
+
+## Changelog
+- `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.

@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-19`
+- `last_updated`: `2026-06-30`
 
 ## Contrato de avaliacao (pesos oficiais)
 | criterio | peso |
@@ -31,8 +31,8 @@
 | S08 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 10 | 100.0 | SIM | - | - | N/A | - |
 | S09 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 9 | 100.0 | SIM | - | - | N/A | - |
 | S10 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 10.5 | 71.4 | SIM | - | - | N/A | - |
-| S11 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 13 | 72.0 | SIM | - | - | N/A | - |
-| S12 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 16 | 72.7 | SIM | - | - | N/A | - |
+| S11 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 19 | 78.9 | SIM | - | - | N/A | - |
+| S12 | PLANEADA | - | - | - | - | - | S=1,M=2,L=3 + split 50/50 | 29 | 72.4 | SIM | - | - | N/A | - |
 
 ## Regra de preenchimento
 1. `estado_sprint` so pode ser `PLANEADA`, `EM_CURSO` ou `FECHADA`.
@@ -47,5 +47,7 @@
 - `Vermelho`: desvio >= 5 unidades, bloqueio em BK `P0` ou quebra de rastreabilidade.
 
 ## Changelog
+- `2026-06-30`: S11/S12 recalculadas após expansão da MF8 para 17 BKs.
+- `2026-06-29`: S11/S12 recalculadas após expansão da MF8.
 - `2026-04-18`: scorecard migrado para schema canónico único entre as PAPs.
 - `2026-04-19`: tabela atualizada com `modelo_carga`, `core_dual_percent` e `core_dual_ok`, alinhada com `PLANO-SPRINTS`.

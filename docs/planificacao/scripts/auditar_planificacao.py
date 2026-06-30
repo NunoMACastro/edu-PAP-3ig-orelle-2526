@@ -8,8 +8,8 @@ import sys
 from collections import Counter, defaultdict
 from datetime import date
 
-EXPECTED_RF = [f"RF{i:02d}" for i in range(1, 29)] + [f"RF{i:02d}" for i in range(30, 38)] + ["RF40", "RF41", "RF44"]
-EXPECTED_RNF = [f"RNF{i:02d}" for i in range(1, 26)]
+EXPECTED_RF = [f"RF{i:02d}" for i in range(1, 29)] + [f"RF{i:02d}" for i in range(30, 38)] + ["RF40", "RF41", "RF42", "RF43", "RF44", "RF45", "RF46", "RF47"]
+EXPECTED_RNF = [f"RNF{i:02d}" for i in range(1, 32)]
 GUIDE_FILENAME_RE = re.compile(r"^BK-MF[0-8]-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 SPRINT_CSV_RE = re.compile(r"^S\d{2}(,S\d{2})*$")
 SPRINT_RANGE_RE = re.compile(r"^S\d{2}-S\d{2}$")

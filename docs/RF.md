@@ -58,6 +58,10 @@
 | RF15   | Gerar um **relatório personalizado** com diagnóstico e sugestões de rotina.                               | Sistema (IA)     | Must       | RF14         |
 | RF16   | A análise deve ser guardada no histórico pessoal para futuras comparações.                                | Cliente, Sistema | Should     | RF15         |
 | RF17   | O utilizador pode consultar **evolução da pele ao longo do tempo** através de gráficos.                   | Cliente          | Could      | RF16         |
+| RF42   | Cliente pode iniciar uma **avaliação guiada** com perguntas cosméticas estruturadas antes/depois da análise facial. | Cliente, Sistema | Must       | RF14, RF15   |
+| RF45   | Consultores podem rever sessões IA submetidas e adicionar insights/correções.                             | Consultor        | Must       | RF42         |
+| RF46   | Cliente pode consultar insights/correções de consultor associados à sessão/recomendações.                 | Cliente          | Should     | RF45         |
+| RF47   | Histórico da interação cliente-IA é guardado de forma minimizada e consultável pelo próprio cliente.      | Cliente, Sistema | Must       | RF42         |
 
 ---
 
@@ -70,6 +74,7 @@
 | RF20   | O utilizador pode marcar recomendações como **“úteis” ou “não relevantes”** para treinar o modelo.  | Cliente     | Could      | RF18         |
 | RF21   | O sistema deve sugerir **rotinas diárias** (manhã / noite) com base nos produtos adquiridos.        | Sistema     | Should     | RF18         |
 | RF22   | Consultores podem rever recomendações e sugerir ajustes manuais.                                    | Consultor   | Could      | RF18         |
+| RF43   | Recomendações usam análise, relatório, histórico, respostas guiadas, restrições e produtos reais com stock. | IA, Cliente | Must       | RF18, RF40, RF42 |
 
 ---
 
@@ -134,10 +139,17 @@
 -   **Quando** o utilizador envia uma fotografia, **então** o sistema processa a imagem, identifica características da pele e apresenta um **relatório em menos de 10 segundos**.
 -   O relatório deve conter: tipo de pele, principais problemas e **3 a 5 produtos sugeridos**.
 
-### Recomendação Personalizada (RF18–RF22)
+### Consulta IA Guiada e Revisão Humana (RF42, RF45–RF47)
+
+-   **Quando** o cliente inicia uma avaliação guiada, **então** o sistema apresenta perguntas estruturadas, guarda respostas minimizadas e permite concluir a sessão apenas quando os campos obrigatórios estão válidos.
+-   **Quando** uma sessão é submetida para revisão, **então** consultores autorizados podem aprovar, ajustar ou adicionar insight sem ver fotografias, storage keys, consent IDs ou prompts internos.
+-   **Quando** há insight/correção de consultor, **então** o cliente consegue consultar o estado da revisão, a nota pública e as recomendações afetadas.
+
+### Recomendação Personalizada (RF18–RF22, RF43)
 
 -   **Quando** um novo relatório é criado, **então** o utilizador vê recomendações específicas com descrição e motivo.
 -   **Se** o utilizador marcar “não relevante”, o modelo regista esse feedback.
+-   **Quando** existir sessão guiada associada, **então** as recomendações consideram respostas, restrições, histórico e apenas produtos reais com stock.
 
 ### Simulação Virtual (RF23–RF25)
 
@@ -158,7 +170,7 @@
 
 -   **Fase 1 - Núcleo Funcional Inicial:** RF01–RF24 (identidade, catálogo, análise IA, recomendação e simulação baseline).
 -   **Fase 2 - Produto, Operação e Privacidade:** RF25, RF26, RF27, RF28, RF30, RF31, RF32, RF33, RF34, RF35, RF36, RF37, RF40, RF41, RF44.
--   **Fase 3 - Hardening para defesa:** sem novos RF obrigatórios; foco em qualidade operacional, evidências e consolidação de critérios de aceitação.
+-   **Fase 3 - Hardening para defesa:** RF42, RF43, RF45, RF46, RF47, qualidade operacional, evidências e consolidação de critérios de aceitação.
 
 ---
 
@@ -184,3 +196,4 @@ Projeto académico destinado a fins educativos no âmbito da PAP.
 -   **2024-04-27** - Reorganização do RF.md para formato padrão com novas secções (MVP, créditos, licença e changelog).
 -   **2026-04-14** - Alinhamento editorial com planificacao canónica, scorecard comum e rastreabilidade BK.
 -   **2026-04-17** - Removidos requisitos fora do escopo PAP para manter RF e planificação sem referências residuais.
+-   **2026-06-30** - Adicionados RF42, RF43, RF45, RF46 e RF47 para consulta IA guiada, recomendações enriquecidas e revisão humana.

@@ -6,14 +6,14 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Estado de cobertura por fase
 | Fase | Macros | BK totais | Guias existentes | Cobertura |
 | --- | --- | --- | --- | --- |
 | Fase 1 | MF0, MF1, MF2 | 24 | 24 | 100% |
 | Fase 2 | MF3, MF4, MF5 | 19 | 19 | 100% |
-| Fase 3 | MF6, MF7, MF8 | 21 | 21 | 100% |
+| Fase 3 | MF6, MF7, MF8 | 31 | 31 | 100% |
 
 ## Contrato editorial
 Todos os guias seguem `_TEMPLATE-BK.md` com:
@@ -106,13 +106,25 @@ Todos os guias seguem `_TEMPLATE-BK.md` com:
 ### MF8
 - [BK-MF8-01 - Código modular (MVC) com documentação e _docstrings_.](MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md)
 - [BK-MF8-02 - Logs de erros e métricas de desempenho.](MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md)
-- [BK-MF8-03 - Base de dados com backups automáticos diários.](MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md)
-- [BK-MF8-04 - Ambiente de testes separado do ambiente de produção.](MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md)
+- [BK-MF8-03 - Ambiente de testes separado do ambiente de produção.](MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md)
+- [BK-MF8-04 - Base de dados com backups automáticos diários.](MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md)
 - [BK-MF8-05 - A IA deve indicar como chegou às recomendações (explicabilidade).](MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md)
 - [BK-MF8-06 - O sistema deve garantir não discriminação por género, idade ou tom de pele.](MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md)
 - [BK-MF8-07 - As imagens processadas não devem ser usadas para treinar modelos externos sem consentimento.](MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md)
+- [BK-MF8-08 - Sessão guiada de avaliação cosmética com IA.](MF8/BK-MF8-08-sessao-guiada-de-avaliacao-cosmetica-com-ia.md)
+- [BK-MF8-09 - Histórico seguro da interação cliente-IA.](MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md)
+- [BK-MF8-10 - Recomendações enriquecidas com respostas da avaliação guiada.](MF8/BK-MF8-10-recomendacoes-enriquecidas-com-respostas-da-avaliacao-guiada.md)
+- [BK-MF8-11 - Revisão humana de sessões IA por consultores.](MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md)
+- [BK-MF8-12 - Insights/correções do consultor visíveis para o cliente.](MF8/BK-MF8-12-insights-correcoes-do-consultor-visiveis-para-o-cliente.md)
+- [BK-MF8-13 - Interface integrada cliente/consultor para consulta assistida.](MF8/BK-MF8-13-interface-integrada-cliente-consultor-para-consulta-assistida.md)
+- [BK-MF8-14 - Aproximação da UI à UI do mockup.](MF8/BK-MF8-14-aproximacao-da-ui-a-ui-do-mockup.md)
+- [BK-MF8-15 - Verificação dos testes atuais e criação dos testes em falta.](MF8/BK-MF8-15-verificacao-dos-testes-atuais-e-criacao-dos-testes-em-falta.md)
+- [BK-MF8-16 - Execução final de testes com evidências.](MF8/BK-MF8-16-execucao-final-de-testes-com-evidencias.md)
+- [BK-MF8-17 - Correção dos erros encontrados e reexecução dos testes afetados.](MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md)
 
 ## Changelog
+- `2026-06-30`: índice MF8 expandido para 17 guias e Fase 3 recalculada para 31 guias.
+- `2026-06-29`: índice MF8 expandido na primeira versão de fecho.
 - `2026-04-12`: indice inicial dos guias BK Orelle.
 - `2026-04-14`: indice atualizado para naming semantico e contrato canónico comum.
 - `2026-04-17`: removidos guias BK fora do escopo PAP e recalculada cobertura por fase.

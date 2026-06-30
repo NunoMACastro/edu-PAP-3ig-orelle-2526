@@ -1,36 +1,36 @@
-# BK-MF8-03 - Base de dados com backups automáticos diários
+# BK-MF8-04 - Base de dados com backups automáticos diários.
 
 ## Header
-- `doc_id`: `GUIA-BK-MF8-03`
-- `bk_id`: `BK-MF8-03`
+- `doc_id`: `GUIA-BK-MF8-04`
+- `bk_id`: `BK-MF8-04`
 - `macro`: `MF8`
 - `owner`: `Daniel Bulica`
 - `apoio`: `Aline`
 - `prioridade`: `P1`
 - `estado`: `TODO`
 - `esforco`: `S`
-- `dependencias`: `-`
+- `dependencias`: `BK-MF8-03`
 - `rf_rnf`: `RNF21`
 - `fase_documental`: `Fase 3`
 - `sprint`: `S11-S12`
 - `core_or_reforco`: `Core`
-- `proximo_bk`: `BK-MF8-04`
-- `guia_path`: `docs/planificacao/guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md`
-- `last_updated`: `2026-04-14`
+- `proximo_bk`: `BK-MF8-05`
+- `guia_path`: `docs/planificacao/guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md`
+- `last_updated`: `2026-06-29`
 
 ## Contexto do BK
-- Entrega alvo: implementar `Base de dados com backups automáticos diários` com rastreabilidade direta ao requisito `RNF21`.
-- Foco tecnico da macro: `Integracoes, compatibilidade e fecho`.
+- Entrega alvo: implementar `Base de dados com backups automáticos diários.` com rastreabilidade direta ao requisito `RNF21`.
+- Foco tecnico da macro: `Fecho visual, qualidade, testes finais e estabilizacao`.
 - Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
 
 ## Bloco pedagogico
 ### Objetivo
-Executar `Base de dados com backups automáticos diários` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+O aluno deve documentar e validar um mecanismo de backup diário, mesmo que seja um script/stub controlado para o contexto PAP.
 
 ### Pre-requisitos
-- Rever `RNF21` em `docs/RF.md` ou `docs/RNF.md`.
+- Rever `RNF21` em `docs/RNF.md`.
 - Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `-`.
+- Confirmar dependencias declaradas: `BK-MF8-03`.
 
 ### Erros comuns
 - Fechar o BK sem negativos minimos por prioridade.
@@ -48,15 +48,15 @@ Executar `Base de dados com backups automáticos diários` com evidência tecnic
 
 ## Bloco operacional
 ### Entrada
-- BK: `BK-MF8-03`
+- BK: `BK-MF8-04`
 - Requisito: `RNF21`
-- Dependencias: `-`
+- Dependencias: `BK-MF8-03`
 - Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF8-03` e do requisito `RNF21`.
-2. Validar pre-condicoes e dependencias declaradas (-).
-3. Definir contrato de entrada/saida para `Base de dados com backups automáticos diários`.
+1. Confirmar no backlog e na matriz o contexto do `BK-MF8-04` e do requisito `RNF21`.
+2. Validar pre-condicoes e dependencias declaradas (BK-MF8-03).
+3. Definir contrato de entrada/saida para `Base de dados com backups automáticos diários.`.
 4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
 6. Executar cenarios negativos obrigatorios (minimo 2) e registar o resultado.
@@ -77,27 +77,47 @@ Executar `Base de dados com backups automáticos diários` com evidência tecnic
 - `P2`: teste focal + 1 negativo.
 
 ### Handoff
-- Proximo BK recomendado: `BK-MF8-04`
+- Proximo BK recomendado: `BK-MF8-05`
 - Registar no handoff estado de dependencias, riscos e decisao tecnica tomada.
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet tecnico orientado a robustez/operacao (`BK-MF8-03` / `RNF21`)**
+**Snippet tecnico orientado a backups/fiabilidade (`BK-MF8-04` / `RNF21`)**
 
-```ts
-const BK_ID = 'BK-MF8-03';
+```js
+const BK_ID = 'BK-MF8-04';
 const REQ_ID = 'RNF21';
+const MIN_NEGATIVOS = 2;
 
-export function validar_bk_mf8_03(okSmoke: boolean, negativos: number, evidencias: number) {
-  if (!okSmoke) throw new Error(`${BK_ID}: smoke falhou`);
-  if (negativos < 2) throw new Error(`${BK_ID}: negativos insuficientes`);
-  if (evidencias < 2) throw new Error(`${BK_ID}: evidencias insuficientes`);
-  return { bkId: BK_ID, reqId: REQ_ID, status: 'OK' };
+export function validarFechoMf8(evidence) {
+  if (!evidence || evidence.bkId !== BK_ID || evidence.requisito !== REQ_ID) {
+    throw new Error('Evidence fora do contrato do BK');
+  }
+
+  if (!Array.isArray(evidence.provas) || evidence.provas.length < 2) {
+    throw new Error('Evidence tecnica insuficiente para defesa');
+  }
+
+  if (!Array.isArray(evidence.negativos) || evidence.negativos.length < MIN_NEGATIVOS) {
+    throw new Error('Cenarios negativos abaixo do minimo exigido');
+  }
+
+  return {
+    bkId: BK_ID,
+    requisito: REQ_ID,
+    estado: 'validado',
+    dominio: 'fiabilidade dos dados',
+  };
 }
 ```
 
+## Checklist tecnico especifico
+- existe comando, script ou procedimento claro de backup
+- o destino do backup é separado da base principal
+- há evidência de execução ou simulação controlada
+
 ## Criterios de aceite
-- Entrega funcional especifica de `Base de dados com backups automáticos diários` validada contra `RNF21`.
+- Entrega funcional especifica de `Base de dados com backups automáticos diários.` validada contra `RNF21`.
 - Cenarios negativos concluidos: minimo `2` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P1`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
@@ -110,7 +130,7 @@ export function validar_bk_mf8_03(okSmoke: boolean, negativos: number, evidencia
 - `proof_negocio`: indicador operacional (incidentes, disponibilidade, conformidade de gate).
 
 ## Proximo BK recomendado
-`BK-MF8-04`
+`BK-MF8-05`
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-06-29`: guia MF8 atualizado para a sequencia de fecho visual, QA final e estabilizacao.

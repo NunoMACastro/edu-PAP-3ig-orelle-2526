@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-19`
+- `last_updated`: `2026-06-30`
 
 ## Conversao S/M/L
 - `S`: 1 unidade
@@ -23,12 +23,12 @@
 | Total equipa | 16 |
 
 ## Carga global planeada (modelo normalizado)
-- BK totais: `64`
-- `esforco_unico_total_u`: `100` (cada BK conta 1x com `S=1`, `M=2`, `L=3`)
+- BK totais: `74`
+- `esforco_unico_total_u`: `119` (cada BK conta 1x com `S=1`, `M=2`, `L=3`)
 - `carga_planeada_sprint_u`: distribuicao do esforco pelas janelas declaradas (`Sxx-Syy`)
 - Janela de execucao: `12` sprints (`2026-04-13` a `2026-07-05`)
 - Capacidade total da janela: `192` unidades
-- Margem operacional global (capacidade - esforco_unico_total_u): `92` unidades
+- Margem operacional global (capacidade - esforco_unico_total_u): `73` unidades
 
 ## Linha temporal oficial (12 sprints)
 | sprint | periodo | foco_macro | objetivo_operacional | carga_planeada_u | gate |
@@ -43,8 +43,8 @@
 | S08 | 2026-06-01 a 2026-06-07 | MF3/MF4 | Carga planeada e entrega com evidence completa | 10 | SIM |
 | S09 | 2026-06-08 a 2026-06-14 | MF4/MF5 | Carga planeada e entrega com evidence completa | 9 | NAO |
 | S10 | 2026-06-15 a 2026-06-21 | MF6/MF5 | Carga planeada e entrega com evidence completa | 10.5 | NAO |
-| S11 | 2026-06-22 a 2026-06-28 | MF6/MF7/MF8 | Carga planeada e entrega com evidence completa | 13 | NAO |
-| S12 | 2026-06-29 a 2026-07-05 | MF7/MF8 | Carga planeada e entrega com evidence completa | 16 | SIM |
+| S11 | 2026-06-22 a 2026-06-28 | MF6/MF7/MF8 | Carga planeada e entrega com evidence completa | 19 | NAO |
+| S12 | 2026-06-29 a 2026-07-05 | MF7/MF8 | Carga planeada e entrega com evidence completa | 29 | SIM |
 
 ## Regra de replaneamento
 1. Replaneamento apenas no fecho da sprint, salvo bloqueio critico.
@@ -73,5 +73,7 @@
 - `ANEXO-CORE-DUAL-BK.md`
 
 ## Changelog
+- `2026-06-30`: carga recalculada após expansão da MF8 para 17 BKs e 74 BKs totais.
+- `2026-06-29`: carga recalculada na primeira expansão da MF8.
 - `2026-04-18`: plano de sprints normalizado para contrato canónico v2 cross-PAP.
 - `2026-04-19`: carga normalizada (`esforco_unico_total_u` vs `carga_planeada_sprint_u`) + regra core dual >=70%.

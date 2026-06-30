@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Objetivo
 Mapear requisitos nao funcionais (`RNF`) para BKs, sprint e guia correspondente.
@@ -34,12 +34,20 @@ Mapear requisitos nao funcionais (`RNF`) para BKs, sprint e guia correspondente.
 | RNF18 | BK-MF7-07 | MF7 | Aline | S11-S12 | P1 | docs/planificacao/guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md |
 | RNF19 | BK-MF8-01 | MF8 | Izelicks | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md |
 | RNF20 | BK-MF8-02 | MF8 | Daniel Bulica | S12 | P1 | docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md |
-| RNF21 | BK-MF8-03 | MF8 | Daniel Bulica | S11-S12 | P1 | docs/planificacao/guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md |
-| RNF22 | BK-MF8-04 | MF8 | Daniel Bulica | S12 | P1 | docs/planificacao/guias-bk/MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md |
+| RNF21 | BK-MF8-04 | MF8 | Daniel Bulica | S11-S12 | P1 | docs/planificacao/guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md |
+| RNF22 | BK-MF8-03 | MF8 | Daniel Bulica | S11-S12 | P1 | docs/planificacao/guias-bk/MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md |
 | RNF23 | BK-MF8-05 | MF8 | Aline | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md |
 | RNF24 | BK-MF8-06 | MF8 | Bruna | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md |
 | RNF25 | BK-MF8-07 | MF8 | Izelicks | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md |
+| RNF26 | BK-MF8-14 | MF8 | Aline | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-14-aproximacao-da-ui-a-ui-do-mockup.md |
+| RNF27 | BK-MF8-15 | MF8 | Daniel Bulica | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-15-verificacao-dos-testes-atuais-e-criacao-dos-testes-em-falta.md |
+| RNF28 | BK-MF8-16 | MF8 | Bruna | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-16-execucao-final-de-testes-com-evidencias.md |
+| RNF29 | BK-MF8-17 | MF8 | Izelicks | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md |
+| RNF30 | BK-MF8-09 | MF8 | Izelicks | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md |
+| RNF31 | BK-MF8-11 | MF8 | Aline | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
 
 ## Changelog
+- `2026-06-30`: RNF26-RNF29 renumerados para BK-MF8-14..17 e adicionados RNF30/RNF31.
+- `2026-06-29`: MF8 expandida na primeira versão de fecho para cobrir mockup, testes finais e correção/revalidação.
 - `2026-04-14`: anexo criado para rastreabilidade nao funcional canónica.
 - `2026-04-17`: atualizado `last_updated` para refletir revisao documental.

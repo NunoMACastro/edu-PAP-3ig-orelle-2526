@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Objetivo
 Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
@@ -52,8 +52,14 @@ Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
 | RF37 | BK-MF4-05 | MF4 | Izelicks | S08-S09 | P1 | docs/planificacao/guias-bk/MF4/BK-MF4-05-enviar-alertas-personalizados-esta-na-hora-da-sua-rotina-noturna.md |
 | RF40 | BK-MF4-08 | MF4 | Izelicks | S08-S09 | P0 | docs/planificacao/guias-bk/MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md |
 | RF41 | BK-MF5-01 | MF5 | Izelicks | S09-S10 | P0 | docs/planificacao/guias-bk/MF5/BK-MF5-01-painel-para-consultores-admins-reverem-e-aprovarem-pedidos-de-eliminacao-anonymizacao-de-fotografias-e-relatorios.md |
+| RF42 | BK-MF8-08 | MF8 | Bruna | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-08-sessao-guiada-de-avaliacao-cosmetica-com-ia.md |
+| RF43 | BK-MF8-10 | MF8 | Izelicks | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-10-recomendacoes-enriquecidas-com-respostas-da-avaliacao-guiada.md |
 | RF44 | BK-MF5-04 | MF5 | Bruna | S09-S10 | P1 | docs/planificacao/guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md |
+| RF45 | BK-MF8-11 | MF8 | Aline | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
+| RF46 | BK-MF8-12 | MF8 | Bruna | S12 | P1 | docs/planificacao/guias-bk/MF8/BK-MF8-12-insights-correcoes-do-consultor-visiveis-para-o-cliente.md |
+| RF47 | BK-MF8-09 | MF8 | Izelicks | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md |
 
 ## Changelog
 - `2026-04-14`: anexo criado para rastreabilidade funcional canónica.
 - `2026-04-17`: removidos mapeamentos RF/BK fora de escopo PAP.
+- `2026-06-30`: adicionados RF42, RF43, RF45, RF46 e RF47 na MF8.

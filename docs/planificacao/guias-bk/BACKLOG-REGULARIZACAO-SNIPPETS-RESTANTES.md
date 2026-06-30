@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-18`
+- `last_updated`: `2026-06-30`
 
 ## Objetivo
 Listar BK com snippet genérico fora do recorte desta vaga (`P0` até gate S4) para regularização futura controlada.
@@ -62,11 +62,23 @@ Listar BK com snippet genérico fora do recorte desta vaga (`P0` até gate S4) p
 | BK-MF7-07 | MF7 | S11-S12 | P1 | `docs/planificacao/guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md` |
 | BK-MF8-01 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md` |
 | BK-MF8-02 | MF8 | S12 | P1 | `docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md` |
-| BK-MF8-03 | MF8 | S12 | P1 | `docs/planificacao/guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md` |
-| BK-MF8-04 | MF8 | S12 | P1 | `docs/planificacao/guias-bk/MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md` |
+| BK-MF8-03 | MF8 | S11-S12 | P1 | `docs/planificacao/guias-bk/MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md` |
+| BK-MF8-04 | MF8 | S11-S12 | P1 | `docs/planificacao/guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md` |
 | BK-MF8-05 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md` |
 | BK-MF8-06 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md` |
 | BK-MF8-07 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md` |
+| BK-MF8-08 | MF8 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-08-sessao-guiada-de-avaliacao-cosmetica-com-ia.md` |
+| BK-MF8-09 | MF8 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md` |
+| BK-MF8-10 | MF8 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-10-recomendacoes-enriquecidas-com-respostas-da-avaliacao-guiada.md` |
+| BK-MF8-11 | MF8 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md` |
+| BK-MF8-12 | MF8 | S12 | P1 | `docs/planificacao/guias-bk/MF8/BK-MF8-12-insights-correcoes-do-consultor-visiveis-para-o-cliente.md` |
+| BK-MF8-13 | MF8 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-13-interface-integrada-cliente-consultor-para-consulta-assistida.md` |
+| BK-MF8-14 | MF8 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-14-aproximacao-da-ui-a-ui-do-mockup.md` |
+| BK-MF8-15 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-15-verificacao-dos-testes-atuais-e-criacao-dos-testes-em-falta.md` |
+| BK-MF8-16 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-16-execucao-final-de-testes-com-evidencias.md` |
+| BK-MF8-17 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md` |
 
 ## Changelog
+- `2026-06-30`: lista MF8 atualizada para 17 guias e paths renumerados.
+- `2026-06-29`: lista MF8 expandida na primeira revisão de fecho.
 - `2026-04-18`: backlog fechado criado para fasear regularização semântica remanescente.

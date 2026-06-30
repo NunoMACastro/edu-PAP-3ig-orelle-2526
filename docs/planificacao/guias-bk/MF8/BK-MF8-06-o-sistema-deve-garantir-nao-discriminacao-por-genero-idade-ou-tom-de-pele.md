@@ -1,4 +1,4 @@
-# BK-MF8-06 - O sistema deve garantir não discriminação por género, idade ou tom de pele
+# BK-MF8-06 - O sistema deve garantir não discriminação por género, idade ou tom de pele.
 
 ## Header
 - `doc_id`: `GUIA-BK-MF8-06`
@@ -9,28 +9,28 @@
 - `prioridade`: `P0`
 - `estado`: `TODO`
 - `esforco`: `M`
-- `dependencias`: `-`
+- `dependencias`: `BK-MF8-05`
 - `rf_rnf`: `RNF24`
 - `fase_documental`: `Fase 3`
 - `sprint`: `S12`
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF8-07`
 - `guia_path`: `docs/planificacao/guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-06-29`
 
 ## Contexto do BK
-- Entrega alvo: implementar `O sistema deve garantir não discriminação por género, idade ou tom de pele` com rastreabilidade direta ao requisito `RNF24`.
-- Foco tecnico da macro: `Integracoes, compatibilidade e fecho`.
+- Entrega alvo: implementar `O sistema deve garantir não discriminação por género, idade ou tom de pele.` com rastreabilidade direta ao requisito `RNF24`.
+- Foco tecnico da macro: `Fecho visual, qualidade, testes finais e estabilizacao`.
 - Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
 
 ## Bloco pedagogico
 ### Objetivo
-Executar `O sistema deve garantir não discriminação por género, idade ou tom de pele` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+O aluno deve validar que recomendações e mensagens não discriminam utilizadores por género, idade ou tom de pele.
 
 ### Pre-requisitos
-- Rever `RNF24` em `docs/RF.md` ou `docs/RNF.md`.
+- Rever `RNF24` em `docs/RNF.md`.
 - Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `-`.
+- Confirmar dependencias declaradas: `BK-MF8-05`.
 
 ### Erros comuns
 - Fechar o BK sem negativos minimos por prioridade.
@@ -50,23 +50,23 @@ Executar `O sistema deve garantir não discriminação por género, idade ou tom
 ### Entrada
 - BK: `BK-MF8-06`
 - Requisito: `RNF24`
-- Dependencias: `-`
+- Dependencias: `BK-MF8-05`
 - Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
 
 ### Passos
 1. Confirmar no backlog e na matriz o contexto do `BK-MF8-06` e do requisito `RNF24`.
-2. Validar pre-condicoes e dependencias declaradas (-).
-3. Definir contrato de entrada/saida para `O sistema deve garantir não discriminação por género, idade ou tom de pele`.
+2. Validar pre-condicoes e dependencias declaradas (BK-MF8-05).
+3. Definir contrato de entrada/saida para `O sistema deve garantir não discriminação por género, idade ou tom de pele.`.
 4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
 6. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
-8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
+7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados, UX ou QA).
+8. Reexecutar validacao afetada e guardar evidence final para defesa/PR.
 
 ### Cenarios negativos recomendados
-- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
-- tentativa com estado de negocio invalido (transicao nao permitida)
-- falha de integracao externa (timeout/erro) com fallback controlado
+- entrada obrigatoria em falta com erro validado
+- tentativa em estado de negocio invalido com resposta controlada
+- falha de integracao/configuracao com fallback ou bloqueio seguro
 
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
@@ -85,26 +85,42 @@ Executar `O sistema deve garantir não discriminação por género, idade ou tom
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF8-06` / `RNF24`)**
+**Snippet tecnico orientado a consultoria-inteligente/etica (`BK-MF8-06` / `RNF24`)**
 
-```ts
+```js
 const BK_ID = 'BK-MF8-06';
 const REQ_ID = 'RNF24';
+const MIN_NEGATIVOS = 3;
 
-type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
+export function validarFechoMf8(evidence) {
+  if (!evidence || evidence.bkId !== BK_ID || evidence.requisito !== REQ_ID) {
+    throw new Error('Evidence fora do contrato do BK');
+  }
 
-export function executar_bk_mf8_06(input: AnaliseInput) {
-  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
-  const startedAt = Date.now();
-  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
-  const duracaoMs = Date.now() - startedAt;
-  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
-  return resultado;
+  if (!Array.isArray(evidence.provas) || evidence.provas.length < 2) {
+    throw new Error('Evidence tecnica insuficiente para defesa');
+  }
+
+  if (!Array.isArray(evidence.negativos) || evidence.negativos.length < MIN_NEGATIVOS) {
+    throw new Error('Cenarios negativos abaixo do minimo exigido');
+  }
+
+  return {
+    bkId: BK_ID,
+    requisito: REQ_ID,
+    estado: 'validado',
+    dominio: 'ética e não discriminação',
+  };
 }
 ```
 
+## Checklist tecnico especifico
+- campos sensíveis não são usados para excluir utilizadores sem justificação clínica/funcional
+- textos e resultados são revistos contra enviesamentos óbvios
+- casos negativos demonstram comportamento controlado perante dados sensíveis
+
 ## Criterios de aceite
-- Entrega funcional especifica de `O sistema deve garantir não discriminação por género, idade ou tom de pele` validada contra `RNF24`.
+- Entrega funcional especifica de `O sistema deve garantir não discriminação por género, idade ou tom de pele.` validada contra `RNF24`.
 - Cenarios negativos concluidos: minimo `3` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P0`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
@@ -114,10 +130,10 @@ export function executar_bk_mf8_06(input: AnaliseInput) {
 - `pr`: referencia de commit/PR e resumo tecnico da alteracao.
 - `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
 - `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de utilidade/qualidade da recomendacao ou analise IA.
+- `proof_negocio`: indicador operacional (incidentes, disponibilidade, conformidade de gate).
 
 ## Proximo BK recomendado
 `BK-MF8-07`
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-06-29`: guia MF8 atualizado para a sequencia de fecho visual, QA final e estabilizacao.

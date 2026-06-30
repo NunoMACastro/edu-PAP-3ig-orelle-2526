@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Objetivo
 Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para auditoria e controlo docente.
@@ -73,12 +73,24 @@ Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para audito
 | BK-MF7-07 | MF7 | Aline | Izelicks | S11-S12 | P1 | Core | docs/planificacao/guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md |
 | BK-MF8-01 | MF8 | Izelicks | Bruna | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md |
 | BK-MF8-02 | MF8 | Daniel Bulica | Bruna | S12 | P1 | Core | docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md |
-| BK-MF8-03 | MF8 | Daniel Bulica | Aline | S11-S12 | P1 | Core | docs/planificacao/guias-bk/MF8/BK-MF8-03-base-de-dados-com-backups-automaticos-diarios.md |
-| BK-MF8-04 | MF8 | Daniel Bulica | Bruna | S12 | P1 | Core | docs/planificacao/guias-bk/MF8/BK-MF8-04-ambiente-de-testes-separado-do-ambiente-de-producao.md |
+| BK-MF8-03 | MF8 | Daniel Bulica | Bruna | S11-S12 | P1 | Core | docs/planificacao/guias-bk/MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md |
+| BK-MF8-04 | MF8 | Daniel Bulica | Aline | S11-S12 | P1 | Core | docs/planificacao/guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md |
 | BK-MF8-05 | MF8 | Aline | Izelicks | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md |
 | BK-MF8-06 | MF8 | Bruna | Izelicks | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-06-o-sistema-deve-garantir-nao-discriminacao-por-genero-idade-ou-tom-de-pele.md |
 | BK-MF8-07 | MF8 | Izelicks | Daniel Bulica | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-07-as-imagens-processadas-nao-devem-ser-usadas-para-treinar-modelos-externos-sem-consentimento.md |
+| BK-MF8-08 | MF8 | Bruna | Izelicks | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-08-sessao-guiada-de-avaliacao-cosmetica-com-ia.md |
+| BK-MF8-09 | MF8 | Izelicks | Bruna | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md |
+| BK-MF8-10 | MF8 | Izelicks | Aline | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-10-recomendacoes-enriquecidas-com-respostas-da-avaliacao-guiada.md |
+| BK-MF8-11 | MF8 | Aline | Izelicks | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
+| BK-MF8-12 | MF8 | Bruna | Aline | S12 | P1 | Core | docs/planificacao/guias-bk/MF8/BK-MF8-12-insights-correcoes-do-consultor-visiveis-para-o-cliente.md |
+| BK-MF8-13 | MF8 | Aline | Bruna | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-13-interface-integrada-cliente-consultor-para-consulta-assistida.md |
+| BK-MF8-14 | MF8 | Aline | Bruna | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-14-aproximacao-da-ui-a-ui-do-mockup.md |
+| BK-MF8-15 | MF8 | Daniel Bulica | Izelicks | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-15-verificacao-dos-testes-atuais-e-criacao-dos-testes-em-falta.md |
+| BK-MF8-16 | MF8 | Bruna | Daniel Bulica | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-16-execucao-final-de-testes-com-evidencias.md |
+| BK-MF8-17 | MF8 | Izelicks | Bruna | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md |
 
 ## Changelog
+- `2026-06-30`: MF8 sincronizada para 17 BKs, com testes finais em BK-MF8-15..17.
+- `2026-06-29`: adicionados BK-MF8-08 a BK-MF8-11 e renumerada a sequência operacional da MF8.
 - `2026-04-14`: anexo criado para consistencia temporal e ownership da planificacao.
 - `2026-04-17`: removidos BK fora de escopo PAP e consolidado mapeamento final.

@@ -1,4 +1,4 @@
-# BK-MF8-05 - A IA deve indicar como chegou às recomendações (explicabilidade)
+# BK-MF8-05 - A IA deve indicar como chegou às recomendações (explicabilidade).
 
 ## Header
 - `doc_id`: `GUIA-BK-MF8-05`
@@ -9,28 +9,28 @@
 - `prioridade`: `P0`
 - `estado`: `TODO`
 - `esforco`: `M`
-- `dependencias`: `-`
+- `dependencias`: `BK-MF7-07`
 - `rf_rnf`: `RNF23`
 - `fase_documental`: `Fase 3`
 - `sprint`: `S12`
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF8-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md`
-- `last_updated`: `2026-04-14`
+- `last_updated`: `2026-06-29`
 
 ## Contexto do BK
-- Entrega alvo: implementar `A IA deve indicar como chegou às recomendações (explicabilidade)` com rastreabilidade direta ao requisito `RNF23`.
-- Foco tecnico da macro: `Integracoes, compatibilidade e fecho`.
+- Entrega alvo: implementar `A IA deve indicar como chegou às recomendações (explicabilidade).` com rastreabilidade direta ao requisito `RNF23`.
+- Foco tecnico da macro: `Fecho visual, qualidade, testes finais e estabilizacao`.
 - Regra de governanca: preservar IDs BK, contrato de campos e consistencia entre backlog, matriz, sprints e guias.
 
 ## Bloco pedagogico
 ### Objetivo
-Executar `A IA deve indicar como chegou às recomendações (explicabilidade)` com evidência tecnica objetiva e fecho documental alinhado ao contrato canónico.
+O aluno deve mostrar ao utilizador os motivos da recomendação sem inventar diagnósticos médicos nem expor dados sensíveis.
 
 ### Pre-requisitos
-- Rever `RNF23` em `docs/RF.md` ou `docs/RNF.md`.
+- Rever `RNF23` em `docs/RNF.md`.
 - Validar linha do BK no `BACKLOG-MVP.md` e na `MATRIZ-CANONICA-BK.md`.
-- Confirmar dependencias declaradas: `-`.
+- Confirmar dependencias declaradas: `BK-MF7-07`.
 
 ### Erros comuns
 - Fechar o BK sem negativos minimos por prioridade.
@@ -50,23 +50,23 @@ Executar `A IA deve indicar como chegou às recomendações (explicabilidade)` c
 ### Entrada
 - BK: `BK-MF8-05`
 - Requisito: `RNF23`
-- Dependencias: `-`
+- Dependencias: `BK-MF7-07`
 - Artefactos: `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md`, `PLANO-SPRINTS.md`
 
 ### Passos
 1. Confirmar no backlog e na matriz o contexto do `BK-MF8-05` e do requisito `RNF23`.
-2. Validar pre-condicoes e dependencias declaradas (-).
-3. Definir contrato de entrada/saida para `A IA deve indicar como chegou às recomendações (explicabilidade)`.
+2. Validar pre-condicoes e dependencias declaradas (BK-MF7-07).
+3. Definir contrato de entrada/saida para `A IA deve indicar como chegou às recomendações (explicabilidade).`.
 4. Implementar ou consolidar o fluxo principal com registo tecnico objetivo.
 5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
 6. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados ou UX).
-8. Atualizar evidence (`pr`, `proof`, `neg`) com artefactos verificaveis.
+7. Aplicar reforco tecnico associado ao risco dominante (seguranca, performance, dados, UX ou QA).
+8. Reexecutar validacao afetada e guardar evidence final para defesa/PR.
 
 ### Cenarios negativos recomendados
-- pedido sem contexto obrigatorio (ex.: `userId`, `perfilId` ou `carrinhoId`)
-- tentativa com estado de negocio invalido (transicao nao permitida)
-- falha de integracao externa (timeout/erro) com fallback controlado
+- entrada obrigatoria em falta com erro validado
+- tentativa em estado de negocio invalido com resposta controlada
+- falha de integracao/configuracao com fallback ou bloqueio seguro
 
 ### Validacao
 - [ ] Smoke: fluxo principal executa sem erro bloqueante.
@@ -85,26 +85,42 @@ Executar `A IA deve indicar como chegou às recomendações (explicabilidade)` c
 - Se houver bloqueio >48h, escalar no scorecard da sprint.
 
 ## Snippet tecnico aplicavel
-**Snippet tecnico orientado ao dominio de consultoria inteligente (`BK-MF8-05` / `RNF23`)**
+**Snippet tecnico orientado a consultoria-inteligente/explicabilidade (`BK-MF8-05` / `RNF23`)**
 
-```ts
+```js
 const BK_ID = 'BK-MF8-05';
 const REQ_ID = 'RNF23';
+const MIN_NEGATIVOS = 3;
 
-type AnaliseInput = { userId: string; imagemId?: string; perfilId?: string };
+export function validarFechoMf8(evidence) {
+  if (!evidence || evidence.bkId !== BK_ID || evidence.requisito !== REQ_ID) {
+    throw new Error('Evidence fora do contrato do BK');
+  }
 
-export function executar_bk_mf8_05(input: AnaliseInput) {
-  if (!input.userId) throw new Error(`${BK_ID}: userId obrigatorio`);
-  const startedAt = Date.now();
-  const resultado = { bkId: BK_ID, reqId: REQ_ID, status: 'OK', explainability: true };
-  const duracaoMs = Date.now() - startedAt;
-  if (duracaoMs > 10_000) throw new Error(`${BK_ID}: violacao de latencia p95`);
-  return resultado;
+  if (!Array.isArray(evidence.provas) || evidence.provas.length < 2) {
+    throw new Error('Evidence tecnica insuficiente para defesa');
+  }
+
+  if (!Array.isArray(evidence.negativos) || evidence.negativos.length < MIN_NEGATIVOS) {
+    throw new Error('Cenarios negativos abaixo do minimo exigido');
+  }
+
+  return {
+    bkId: BK_ID,
+    requisito: REQ_ID,
+    estado: 'validado',
+    dominio: 'explicabilidade de IA',
+  };
 }
 ```
 
+## Checklist tecnico especifico
+- cada recomendação tem motivos legíveis ligados a sinais conhecidos
+- limitações/fallbacks da IA são comunicados de forma honesta
+- não são mostrados dados biométricos crus ou imagens privadas
+
 ## Criterios de aceite
-- Entrega funcional especifica de `A IA deve indicar como chegou às recomendações (explicabilidade)` validada contra `RNF23`.
+- Entrega funcional especifica de `A IA deve indicar como chegou às recomendações (explicabilidade).` validada contra `RNF23`.
 - Cenarios negativos concluidos: minimo `3` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P0`).
 - Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
@@ -114,10 +130,10 @@ export function executar_bk_mf8_05(input: AnaliseInput) {
 - `pr`: referencia de commit/PR e resumo tecnico da alteracao.
 - `proof_tecnico`: 2-3 evidencias objetivas (output, log, screenshot, teste).
 - `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_negocio`: indicador de utilidade/qualidade da recomendacao ou analise IA.
+- `proof_negocio`: indicador operacional (incidentes, disponibilidade, conformidade de gate).
 
 ## Proximo BK recomendado
 `BK-MF8-06`
 
 ## Changelog
-- `2026-04-14`: guia normalizado para contrato canonico comum (header v2 + blocos pedagogico/operacional + naming semantico).
+- `2026-06-29`: guia MF8 atualizado para a sequencia de fecho visual, QA final e estabilizacao.

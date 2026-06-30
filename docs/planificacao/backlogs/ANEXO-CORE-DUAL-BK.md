@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-19`
+- `last_updated`: `2026-06-30`
 
 ## Objetivo
 Classificar cada BK no contrato de core dual da Orelle e ligar cada item a KPI primario/secundario auditavel.
@@ -88,6 +88,18 @@ Classificar cada BK no contrato de core dual da Orelle e ligar cada item a KPI p
 | BK-MF8-05 | CORE-IA | ConsultoriaInteligente | taxa_recomendacao_util | tempo_analise_p95 | impacto direto no motor de analise/recomendacao/simulacao |
 | BK-MF8-06 | CORE-IA | ConsultoriaInteligente | taxa_recomendacao_util | tempo_analise_p95 | impacto direto no motor de analise/recomendacao/simulacao |
 | BK-MF8-07 | CORE-IA | ConsultoriaInteligente | taxa_recomendacao_util | tempo_analise_p95 | impacto direto no motor de analise/recomendacao/simulacao |
+| BK-MF8-08 | CORE-IA | ConsultoriaInteligente | taxa_recomendacao_util | tempo_analise_p95 | sessão guiada melhora contexto e qualidade da avaliação IA |
+| BK-MF8-09 | CORE-IA | ConsultoriaInteligente | retencao_fluxo_ia_30d | taxa_conformidade_gates | histórico seguro suporta continuidade da consulta IA |
+| BK-MF8-10 | CORE-HIBRIDO | ConfiancaConversao | add_to_cart_recomendado | taxa_recomendacao_util | ranking junta consulta IA e produtos reais com stock |
+| BK-MF8-11 | CORE-IA | ConsultoriaInteligente | taxa_recomendacao_util | taxa_conformidade_gates | revisão humana aumenta confiança na recomendação IA |
+| BK-MF8-12 | CORE-IA | ConsultoriaInteligente | retencao_fluxo_ia_30d | taxa_recomendacao_util | cliente recebe feedback humano associado à sessão IA |
+| BK-MF8-13 | CORE-HIBRIDO | ConfiancaConversao | add_to_cart_recomendado | retencao_fluxo_ia_30d | interface integra consulta IA, revisão humana e conversão |
+| BK-MF8-14 | CORE-HIBRIDO | ConfiancaConversao | add_to_cart_recomendado | retencao_fluxo_ia_30d | acabamento visual aumenta confianca e conversao nos fluxos core |
+| BK-MF8-15 | SUPORTE | FundacaoQualidade | taxa_conformidade_gates | taxa_incidentes_criticos | fecho de testes e estabilizacao sem entrega funcional core direta |
+| BK-MF8-16 | SUPORTE | FundacaoQualidade | taxa_conformidade_gates | taxa_incidentes_criticos | fecho de testes e estabilizacao sem entrega funcional core direta |
+| BK-MF8-17 | SUPORTE | FundacaoQualidade | taxa_conformidade_gates | taxa_incidentes_criticos | fecho de testes e estabilizacao sem entrega funcional core direta |
 
 ## Changelog
+- `2026-06-30`: MF8 atualizada para 17 BKs, incluindo consulta IA guiada e revisão humana.
+- `2026-06-29`: MF8 expandida com BKs de mockup, testes finais e estabilização.
 - `2026-04-19`: anexo atualizado com rubrica deterministica e coluna `justificacao_classe`.

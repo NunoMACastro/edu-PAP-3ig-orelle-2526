@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-17`
+- `last_updated`: `2026-06-30`
 
 ## Roadmap por macro
 | Macro | BK da macro | Acumulado | Estado |
@@ -19,8 +19,10 @@
 | MF5 | 6 | 43 | Concluido (normalizacao documental) |
 | MF6 | 7 | 50 | Concluido (normalizacao documental) |
 | MF7 | 7 | 57 | Concluido (normalizacao documental) |
-| MF8 | 7 | 64 | Concluido (normalizacao documental) |
+| MF8 | 17 | 74 | Concluido (normalizacao documental) |
 
 ## Changelog
+- `2026-06-30`: roadmap recalculado para 74 BK após expansão da MF8 para 17 BKs.
+- `2026-06-29`: roadmap recalculado na primeira expansão da MF8.
 - `2026-04-14`: roadmap confirmado apos migracao para naming semantico e contrato canónico.
-- `2026-04-17`: roadmap recalculado para 64 BK apos cortes de escopo PAP.
+- `2026-04-17`: roadmap recalculado apos cortes de escopo PAP anteriores a expansao da MF8.

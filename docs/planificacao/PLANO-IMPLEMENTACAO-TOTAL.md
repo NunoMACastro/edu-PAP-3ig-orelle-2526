@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-04-19`
+- `last_updated`: `2026-06-30`
 
 ## Objetivo
 Definir o plano macro executavel da Orelle com rastreabilidade RF/RNF -> BK -> Guia e governanca alinhada ao contrato canónico v2.
@@ -30,12 +30,12 @@ Definir o plano macro executavel da Orelle com rastreabilidade RF/RNF -> BK -> G
 | MF5 | Janela canónica S01-S12 | 6 | Aline |
 | MF6 | Janela canónica S01-S12 | 7 | Izelicks |
 | MF7 | Janela canónica S01-S12 | 7 | Bruna |
-| MF8 | Janela canónica S01-S12 | 7 | Partilhado (Bruna/Aline/Izelicks) |
+| MF8 | Janela canónica S01-S12 | 17 | Partilhado (Bruna/Aline/Izelicks/Daniel Bulica) |
 
 ## Fases
 1. Fase 1 (`S01-S04`): fundacoes + consolidacao do nucleo inicial.
 2. Fase 2 (`S05-S08`): capacidades de produto + coerencia cross-artefactos.
-3. Fase 3 (`S09-S12`): qualidade final, evidencias e defesa.
+3. Fase 3 (`S09-S12`): qualidade final, consulta IA guiada, revisão humana, evidencias e defesa.
 
 ## Regras transversais por macro
 1. Owner unico por BK com apoio explicito.
@@ -55,5 +55,7 @@ Definir o plano macro executavel da Orelle com rastreabilidade RF/RNF -> BK -> G
 - Evidencias de gate publicadas (`S4`, `S8`, `S12`).
 
 ## Changelog
+- `2026-06-30`: MF8 expandida para 17 BKs, incluindo consulta IA guiada, revisão humana e testes finais em BK-MF8-15..17.
+- `2026-06-29`: MF8 expandida na primeira versão de fecho técnico, UI, QA final e estabilização.
 - `2026-04-18`: plano macro normalizado para contrato canónico v2 cross-PAP.
 - `2026-04-19`: incorporado contrato de core dual, rebalanceamento e politica de pagamentos MVP.
