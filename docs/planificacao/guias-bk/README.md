@@ -104,6 +104,7 @@ Todos os guias seguem `_TEMPLATE-BK.md` com:
 - [BK-MF7-07 - Suporte para API de IA externa (ex: Azure Face API ou TensorFlow).](MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md)
 
 ### MF8
+- [Arranque local da Orélle antes dos BKs da MF8.](MF8/00-ARRANQUE-LOCAL.md)
 - [BK-MF8-01 - Código modular (MVC) com documentação e _docstrings_.](MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md)
 - [BK-MF8-02 - Logs de erros e métricas de desempenho.](MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md)
 - [BK-MF8-03 - Ambiente de testes separado do ambiente de produção.](MF8/BK-MF8-03-ambiente-de-testes-separado-do-ambiente-de-producao.md)
@@ -123,6 +124,7 @@ Todos os guias seguem `_TEMPLATE-BK.md` com:
 - [BK-MF8-17 - Correção dos erros encontrados e reexecução dos testes afetados.](MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md)
 
 ## Changelog
+- `2026-07-03`: adicionado guia operacional de arranque local para a MF8.
 - `2026-06-30`: índice MF8 expandido para 17 guias e Fase 3 recalculada para 31 guias.
 - `2026-06-29`: índice MF8 expandido na primeira versão de fecho.
 - `2026-04-12`: indice inicial dos guias BK Orelle.
