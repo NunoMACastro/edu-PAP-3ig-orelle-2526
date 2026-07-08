@@ -19,6 +19,8 @@ const DEFAULT_CLIENT_ORIGINS = [
     DEFAULT_CLIENT_ORIGIN,
     "http://localhost:5173",
 ];
+const AI_PROVIDER_MODES = new Set(["local", "external", "openai"]);
+const DEFAULT_AI_PROVIDER_MODEL = "gpt-4.1";
 
 /**
  * Converte a lista CSV de origens permitidas em valores aceites pelo CORS.
@@ -62,6 +64,30 @@ export function isUnsafeProductionSessionSecret(secret) {
 }
 
 /**
+ * Normaliza o modo do provider de IA para valores suportados pela API.
+ *
+ * @function parseAiProviderMode
+ * @param {string|undefined} value - Valor cru de AI_PROVIDER_MODE.
+ * @returns {"local"|"external"|"openai"} Modo suportado ou local seguro.
+ */
+function parseAiProviderMode(value) {
+    return AI_PROVIDER_MODES.has(value) ? value : "local";
+}
+
+/**
+ * Lê uma variável opcional tratando strings vazias como ausência de valor.
+ *
+ * @function readOptionalEnvValue
+ * @param {string|undefined} value - Valor cru de ambiente.
+ * @returns {string|undefined} Valor limpo ou undefined.
+ */
+function readOptionalEnvValue(value) {
+    const normalizedValue = String(value ?? "").trim();
+
+    return normalizedValue || undefined;
+}
+
+/**
  * Variaveis de ambiente normalizadas usadas pelo backend.
  *
  * @type {{
@@ -75,9 +101,11 @@ export function isUnsafeProductionSessionSecret(secret) {
  *   stripeSecretKey: string|undefined,
  *   dataEncryptionKey: string|undefined,
  *   forceHttps: boolean,
- *   aiProviderMode: "local"|"external",
+ *   aiProviderMode: "local"|"external"|"openai",
  *   aiProviderUrl: string|undefined,
- *   aiProviderKey: string|undefined
+ *   aiProviderKey: string|undefined,
+ *   openAiApiKey: string|undefined,
+ *   aiProviderModel: string
  * }}
  */
 export const env = {
@@ -94,9 +122,15 @@ export const env = {
         process.env.FORCE_HTTPS === "true" ||
         process.env.NODE_ENV === "production",
     // O modo local é o padrão seguro: nenhuma fotografia sai para provider externo sem configuração explícita.
-    aiProviderMode: process.env.AI_PROVIDER_MODE === "external" ? "external" : "local",
+    aiProviderMode: parseAiProviderMode(process.env.AI_PROVIDER_MODE),
     aiProviderUrl: process.env.AI_PROVIDER_URL,
     aiProviderKey: process.env.AI_PROVIDER_KEY,
+    openAiApiKey:
+        readOptionalEnvValue(process.env.OPENAI_API_KEY) ??
+        readOptionalEnvValue(process.env.AI_PROVIDER_KEY),
+    aiProviderModel:
+        readOptionalEnvValue(process.env.AI_PROVIDER_MODEL) ??
+        DEFAULT_AI_PROVIDER_MODEL,
 };
 
 // Em producao, uma sessao assinada com o segredo de desenvolvimento seria uma

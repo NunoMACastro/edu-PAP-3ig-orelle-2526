@@ -7,7 +7,10 @@
  */
 import { env } from "../config/env.js";
 import { AppError } from "../middlewares/error.middleware.js";
-import { analyzeSkinPhotosExternally } from "./external-skin-analysis.provider.js";
+import {
+    analyzeSkinPhotosExternally,
+    analyzeSkinPhotosWithOpenAi,
+} from "./external-skin-analysis.provider.js";
 
 const MIN_CONFIDENCE = 0.45;
 const MAX_CONFIDENCE = 0.62;
@@ -149,11 +152,15 @@ async function analyzeSkinPhotosLocally(input) {
 export async function analyzeSkinPhotos(input) {
     const validInput = assertValidAnalysisPhotos(input);
 
-    if (env.aiProviderMode !== "external") {
+    if (env.aiProviderMode === "local") {
         return analyzeSkinPhotosLocally(validInput);
     }
 
     try {
+        if (env.aiProviderMode === "openai") {
+            return await analyzeSkinPhotosWithOpenAi(validInput);
+        }
+
         return await analyzeSkinPhotosExternally(validInput);
     } catch (err) {
         if (err instanceof AppError && err.statusCode < 500) {

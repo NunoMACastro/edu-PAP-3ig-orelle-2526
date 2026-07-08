@@ -1,5 +1,483 @@
 # Auditoria de implementacao real_dev - MF8
 
+## 2026-07-07 - MF8 completa - auditar_implementacao fresh
+
+### Resultado
+
+- Estado: `AUDITADO_OK_COM_RESSALVA_E2E`
+- Decisao operacional: `PASS_COM_RESSALVA_E2E`
+- MF auditada: `MF8`
+- BKs auditados: `BK-MF8-01` a `BK-MF8-17`
+- Modo executado: `auditar_implementacao`
+- Implementacao alterada nesta execucao: `nao`
+- Docs canonicos/guias BK alterados: `nao`
+- Relatorio tecnico actualizado: `docs/planificacao/guias-bk/AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`
+- Commits criados: `nao`
+
+### Nota de escopo
+
+Esta auditoria global foi executada a partir do prompt activo com `MF_ALVO=MF8`,
+`BK_IDS=[]`, `IMPLEMENTATION_ROOT=real_dev`, `RUN_COMMANDS=true`,
+`STRICT_SCOPE=true`, `CHECK_MF_COHERENCE=true`, `PROFUNDIDADE_COERENCIA=vizinhas`,
+`PERMITIR_ALTERAR_DOCS=nao` e `PERMITIR_COMMITS=nao`.
+
+Foram auditados `real_dev/api`, `real_dev/web`, `docs/evidence/MF8`, os guias
+MF8 e os documentos canonicos de rastreabilidade. `apps/` foi mantido como
+referencia publica dos guias, nao como raiz real de execucao. `real_dev/` esta
+ignorado por `.gitignore`, comportamento esperado neste checkout.
+
+O worktree ja estava sujo antes desta intervencao, com alteracoes locais em:
+
+- `docs/planificacao/guias-bk/AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`
+- `docs/planificacao/guias-bk/CORRECAO-AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`
+- `docs/evidence/MF8/CORRECOES-FINAIS.md`
+
+Essas alteracoes foram preservadas. Nesta execucao foi acrescentada apenas esta
+seccao global ao relatorio de auditoria.
+
+### Estado por BK
+
+| BK | RF/RNF | Estado | Evidencia principal |
+| --- | --- | --- | --- |
+| `BK-MF8-01` | `RNF19` | `AUDITADO_OK` | Estrutura MVC/modular em `real_dev/api/src`, contrato `mf8.modularidade.contract.test.js` e suite API completa. |
+| `BK-MF8-02` | `RNF20` | `AUDITADO_OK` | `observability.service.js`, middlewares de requestId/metrica, teste `mf8.safe-logging.contract.test.js`. |
+| `BK-MF8-03` | `RNF22` | `AUDITADO_OK` | `env.js` bloqueia ambiente de teste inseguro; `mf8.test-env.contract.test.js` cobre negativos. |
+| `BK-MF8-04` | `RNF21` | `AUDITADO_OK` | `scripts/backup-daily.mjs` usa storage privado, dry-run e redaccao; `mf8.backup.contract.test.js` passa. |
+| `BK-MF8-05` | `RNF23` | `AUDITADO_OK` | `recommendation-reason.service.js` gera motivos/fontes/limitacoes publicas e bloqueia claims clinicas. |
+| `BK-MF8-06` | `RNF24` | `AUDITADO_OK` | `ai-fairness-guard.service.js` bloqueia genero, idade e tom de pele em motivos/fontes/texto publico. |
+| `BK-MF8-07` | `RNF25` | `AUDITADO_OK` | Provider externo exige finalidade cosmetica, payload minimizado e `modelLearningAllowed=false`. |
+| `BK-MF8-08` | `RF42` | `AUDITADO_OK` | Rotas/sessao guiada autenticadas, ownership no backend, UI `GuidedConsultationPage` e smoke MF8. |
+| `BK-MF8-09` | `RF47`, `RNF30` | `AUDITADO_OK` | Historico IA minimizado, filtrado por utilizador autenticado, sem IDs internos no DTO publico. |
+| `BK-MF8-10` | `RF43`, `RNF23` | `AUDITADO_OK` | Recomendacoes enriquecidas com contexto guiado seguro, boost limitado, explicabilidade e stock/restricoes. |
+| `BK-MF8-11` | `RF45`, `RNF31` | `AUDITADO_OK` | Fila de revisao humana por consultor/admin, DTO minimizado, decisao auditada e role gates. |
+| `BK-MF8-12` | `RF46` | `AUDITADO_OK` | Insights publicados visiveis apenas ao cliente dono, sem nota interna, actorId, userId ou audit trail. |
+| `BK-MF8-13` | UI integrada | `AUDITADO_OK` | `AssistedConsultationHubPage`, role panels, smokes de UI e preservacao da autorizacao backend. |
+| `BK-MF8-14` | `RNF26` | `AUDITADO_OK` | `mockup/` existe; gate `check-mf8-mockup-alignment.mjs` validou 6 ficheiros e 20 padroes. |
+| `BK-MF8-15` | `RNF27` | `AUDITADO_OK_COM_RESSALVA_E2E` | Matriz `TESTES-ATUAIS-E-LACUNAS.md`, contrato/teste final e smoke final existem; `proof_e2e` fica blocker. |
+| `BK-MF8-16` | `RNF28` | `AUDITADO_OK_COM_RESSALVA_E2E` | `EXECUCAO-FINAL-TESTES.md`, contrato/teste BK16 e bateria final existem; E2E real nao tem runner aprovado. |
+| `BK-MF8-17` | `RNF29` | `AUDITADO_OK_COM_RESSALVA_E2E` | `CORRECOES-FINAIS.md`, contrato/teste BK17, sem falhas de produto e blocker E2E preservado. |
+
+### Findings e blockers
+
+| Severidade | Quantidade | Estado |
+| --- | ---: | --- |
+| `P0` | 0 | Sem findings confirmados. |
+| `P1` | 0 | Sem findings abertos; P1 historicos de BK15/BK16/BK17 estao fechados nas secoes anteriores. |
+| `P2` | 0 | Sem findings confirmados nesta passagem global. |
+| `P3` | 1 | Ambiental: `npm --prefix real_dev/api test` falha na sandbox por `listen EPERM`, mas passa fora da sandbox. |
+
+Blocker preservado:
+
+- `proof_e2e`: nao existe runner browser/E2E aprovado em `real_dev/web/package.json`.
+  A MF8 declara este ponto como `TODO (BLOCKER)` nos artefactos finais, em vez
+  de o marcar como sucesso artificial. Isto deixa a implementacao auditada e
+  testada por unit/integration/smoke/build, mas sem prova browser E2E real.
+
+### Coerencia entre MFs
+
+- `MF7 -> MF8`: preservada. A suite API completa passou fora da sandbox e a
+  auditoria nao encontrou regressao em cookies HttpOnly, roles, consentimento,
+  ownership, privacidade biometrica, provider IA, pagamentos ou endpoints.
+- `MF8 interna`: preservada. Os BKs `BK-MF8-08` a `BK-MF8-13` formam o fluxo
+  guiado cliente/consultor: sessao guiada, historico seguro, recomendacoes
+  enriquecidas, revisao humana, insights do cliente e hub integrado.
+- `BK-MF8-14 -> BK-MF8-17`: preservada com ressalva. Mockup, matriz de testes,
+  execucao final e correcao final existem; apenas `proof_e2e` fica bloqueado
+  por ausencia de runner browser aprovado.
+- `MF8 -> MF seguinte`: nao existe `MF9` canonica neste checkout; `BK-MF8-17`
+  e terminal.
+
+### Validacoes executadas
+
+| Comando / verificacao | Resultado |
+| --- | --- |
+| `git status --short --untracked-files=all` | `PASS_COM_NOTA` - worktree ja tinha alteracoes locais nos relatorios MF8 e `CORRECOES-FINAIS.md`; foram preservadas. |
+| `git check-ignore -v real_dev real_dev/api real_dev/web ...` | `PASS_COM_NOTA` - `.gitignore:2:real_dev/` confirma que a raiz real esta ignorada como esperado. |
+| `npm --prefix real_dev/api test` na sandbox | `FAIL_AMBIENTE` - `listen EPERM: operation not permitted 0.0.0.0`, com erros derivados de porta nula em Supertest. |
+| `npm --prefix real_dev/api test` fora da sandbox | `PASS` - `41` ficheiros e `284` testes passaram. |
+| `npm --prefix real_dev/web run build` | `PASS` - Vite compilou `87` modulos. |
+| `node real_dev/web/scripts/check-mf8-guided-consultation-page.mjs` | `PASS` - pagina BK8 ligada a endpoints reais e sem storage inseguro. |
+| `node real_dev/web/scripts/check-mf8-ai-history-page.mjs` | `PASS` - smoke frontend do historico IA. |
+| `node real_dev/web/scripts/check-mf8-assisted-consultation-ui.mjs` | `PASS` - `8` ficheiros e `32` contratos. |
+| `node real_dev/web/scripts/check-mf8-mockup-alignment.mjs` | `PASS` - `6` ficheiros e `20` padroes. |
+| `node real_dev/web/scripts/check-mf8-final-smoke.mjs` | `PASS` - `4` artefactos e `18` contratos. |
+| `bash scripts/validate-planificacao.sh` | `PASS` - `overall_pass=true`, `44` RF, `31` RNF, `74` BKs/guias. |
+| Pesquisa estatica obrigatoria em `real_dev/api`, `real_dev/web` e `docs/evidence/MF8` | `PASS_COM_RESIDUAIS_ESPERADOS` - hits classificados como guards anti-storage, stubs/testes Stripe/PayPal/MBWay, segredos fake de teste, provider configurado por env, redaccao/observabilidade e texto defensivo contra treino externo. Sem finding novo. |
+| Scan de marcadores sensiveis em `docs/evidence/MF8` e superfícies MF8 | `PASS_COM_RESIDUAIS_ESPERADOS` - artefactos de evidence nao expõem outputs reais sensiveis; hits restantes sao denylist, comentarios defensivos ou campos internos usados apenas no backend. |
+| `git diff --check` | `PASS` - sem output. |
+| `rg -n "[ \\t]+$" ...` nos relatorios/evidence MF8 alterados | `PASS` - sem trailing whitespace. |
+
+### Validacoes nao executadas
+
+- Browser E2E real: nao executado porque nao existe runner browser/E2E aprovado
+  em `real_dev/web/package.json`.
+- Commits, push ou PR: nao executados, conforme `PERMITIR_COMMITS=nao`.
+
+### Alteracoes realizadas nesta execucao
+
+- Actualizado apenas este relatorio tecnico com a seccao global
+  `2026-07-07 - MF8 completa - auditar_implementacao fresh`.
+- Nenhum ficheiro de implementacao, teste, evidence operacional, guia BK,
+  matriz, backlog, prompt, `apps/` ou documento canonico foi alterado por esta
+  execucao.
+- Nenhum commit foi criado.
+
+### Decisao
+
+A MF8 fica `AUDITADO_OK_COM_RESSALVA_E2E`: todos os 17 BKs tem evidencia
+objectiva em codigo, testes, smokes, build, planificacao ou artefactos finais.
+Nao ha findings P0, P1 ou P2 abertos nesta passagem global.
+
+A unica ressalva e o `proof_e2e` browser real, mantido como `TODO (BLOCKER)` por
+ausencia de runner aprovado. A proxima accao recomendada e decidir se a PAP exige
+um runner browser/E2E real; se sim, criar esse runner em escopo proprio e
+reexecutar apenas os gates finais `BK-MF8-15` a `BK-MF8-17`.
+
+## 2026-07-07 - BK-MF8-17 - reauditar_implementacao fresh
+
+### Resultado
+
+- Estado: `AUDITADO_OK_COM_BLOCKER_E2E_DECLARADO`
+- Decisao operacional: `PASS_COM_RESSALVA_E2E`
+- BK auditado: `BK-MF8-17`
+- Macro-fase canonica: `MF8`
+- RF/RNF principal: `RNF29`
+- Modo executado: `auditar_implementacao`
+- Implementacao/evidence alterada nesta execucao: `nao`
+- Docs canonicos alterados: `nao`
+- Relatorio actualizado: `docs/planificacao/guias-bk/AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`
+- Commits criados: `nao`
+
+### Nota de escopo
+
+Esta re-auditoria foi executada a partir do prompt activo com `MF_ALVO=MF8`,
+`BK_IDS=[BK-MF8-17]`, `IMPLEMENTATION_ROOT=real_dev`, `RUN_COMMANDS=true`,
+`STRICT_SCOPE=true`, `CHECK_MF_COHERENCE=true`, `PERMITIR_ALTERAR_DOCS=nao` e
+`PERMITIR_COMMITS=nao`.
+
+Foram auditados `real_dev/api`, `real_dev/web`, `docs/evidence/MF8`, os
+documentos canonicos de rastreabilidade e os relatorios tecnicos existentes.
+`apps/` foi mantido como referencia publica dos guias, nao como raiz real de
+execucao. A pasta `real_dev/` continua ignorada por `.gitignore`, comportamento
+esperado neste checkout.
+
+### Achados reavaliados
+
+| ID | Severidade | Estado actual | Evidencia actual |
+| --- | --- | --- | --- |
+| `ORELLE-MF8-BK17-P1-001` | P1 | `FECHADO` | `docs/evidence/MF8/CORRECOES-FINAIS.md` existe e contem `BK-MF8-17`, `RNF29`, `estado_final=sem_falhas_de_produto`, bloqueios preservados, proofs finais, negativos, privacidade e fecho terminal. |
+| `ORELLE-MF8-BK17-P1-002` | P1 | `FECHADO` | `real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` e `real_dev/api/tests/mf8.final-fixes-contract.test.js` existem; sintaxe e teste focal passaram. |
+| `ORELLE-MF8-BK17-P3-003` | P3 | `NAO_BLOQUEANTE_AMBIENTAL` | `npm --prefix real_dev/api test` falha na sandbox por `listen EPERM`, mas passou fora da sandbox com `41` ficheiros e `284` testes. |
+
+Resumo por severidade:
+
+| Severidade | Quantidade | Estado |
+| --- | ---: | --- |
+| `P0` | 0 | Sem findings confirmados. |
+| `P1` | 0 | Sem findings abertos; `2` findings anteriores fechados. |
+| `P2` | 0 | Sem findings confirmados. |
+| `P3` | 1 | Ambiental, nao bloqueante quando repetido fora da sandbox. |
+
+### Evidencia auditada
+
+| Contrato auditado | Evidencia actual |
+| --- | --- |
+| `RNF29` | `docs/RNF.md` define que erros encontrados nos testes finais devem ser corrigidos e revalidados. |
+| Sequencia canonica | `MATRIZ-CANONICA-BK.md` e `BACKLOG-MVP.md` confirmam `BK-MF8-17` como `P0`, dependente de `BK-MF8-16`, com `proximo_bk = "-"`. |
+| Regra P0 | `PLANO-SPRINTS.md` exige `unit + integration + e2e` e minimo de `3` negativos para BKs P0. |
+| Handoff BK16 | `docs/evidence/MF8/EXECUCAO-FINAL-TESTES.md` declara ausencia de proofs `falhou_por_produto` e preserva `proof_e2e` como `TODO (BLOCKER)`. |
+| Evidence terminal BK17 | `docs/evidence/MF8/CORRECOES-FINAIS.md` materializa `sem_falhas_de_produto`, `proof_reexecucao_afetada`, `proof_privacidade`, `proof_fecho_mf8`, `4` negativos e `0` correcoes de produto abertas. |
+| Contrato/teste BK17 | O contrato exige `RNF29`, source/final evidence, `11` proofs obrigatorias, minimo de `3` negativos, privacy review aprovada e `closure.nextBk = "-"`; o teste cobre caminho positivo e negativos de correcao sem teste afetado, E2E falso, output sensivel e fecho nao terminal. |
+| Runner E2E/browser | `real_dev/web/package.json` nao expoe runner browser/E2E aprovado. O `proof_e2e` permanece blocker honesto, nao sucesso artificial. |
+
+### Coerencia entre MFs e BKs vizinhos
+
+- `MF7 -> MF8`: preservada. A suite API completa passou fora da sandbox e a
+  re-auditoria nao encontrou alteracoes que enfraquecam cookies, roles,
+  consentimento, ownership, privacidade biometrica, provider IA, pagamentos ou
+  endpoints.
+- `BK-MF8-15 -> BK-MF8-16`: preservado. A matriz final, contrato BK16, teste
+  focal BK16 e smoke de artefactos continuam executaveis.
+- `BK-MF8-16 -> BK-MF8-17`: entregue. O BK17 consome o handoff do BK16, nao
+  encontra falhas `falhou_por_produto` e fecha a MF8 com blocker E2E declarado.
+- `BK-MF8-17 -> MF seguinte`: terminal. Nao existe `BK-MF9` canonico neste
+  checkout; qualquer `BK-MF9-01` presente nos testes e apenas negativo de
+  contrato.
+
+### Validacoes executadas nesta re-auditoria
+
+| Comando / verificacao | Resultado |
+| --- | --- |
+| `git status --short --untracked-files=all` | `PASS_COM_NOTA` - havia alteracoes da correcao anterior em relatorios e `docs/evidence/MF8/CORRECOES-FINAIS.md`; nao foram revertidas. |
+| `git check-ignore -v real_dev real_dev/api real_dev/web ...` | `PASS_COM_NOTA` - `real_dev/` e os testes BK17 estao ignorados por `.gitignore`, esperado neste fluxo. |
+| `rg -n "RNF29\|BK-MF8-17\|BK-MF8-16\|unit \\+ integration \\+ e2e" ...` | `PASS` - confirmou requisito, dependencias, terminalidade e regra P0. |
+| `rg -n "BK-MF8-17\|RNF29\|Falhas de produto corrigidas\|Bloqueios preservados\|proof_reexecucao_afetada\|proof_fecho_mf8" docs/evidence/MF8/CORRECOES-FINAIS.md` | `PASS` |
+| `node --check real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` | `PASS` |
+| `node --check real_dev/api/tests/mf8.final-fixes-contract.test.js` | `PASS` |
+| `npm --prefix real_dev/api test -- tests/mf8.final-fixes-contract.test.js` | `PASS` - `1` ficheiro e `5` testes. |
+| `node --check real_dev/api/tests/evidence/bk-mf8-16.evidence-contract.js` | `PASS` |
+| `npm --prefix real_dev/api test -- tests/mf8.final-execution-contract.test.js` | `PASS` - `1` ficheiro e `5` testes. |
+| `node real_dev/web/scripts/check-mf8-final-smoke.mjs` | `PASS` - `BK-MF8-15 fecho de testes validado: 4 artefactos e 18 contratos.` |
+| `npm --prefix real_dev/web run build` | `PASS` - Vite compilou `87` modulos. |
+| `bash scripts/validate-planificacao.sh` | `PASS` - `overall_pass: true`, `44` RF, `31` RNF, `74` BKs/guias. |
+| `npm --prefix real_dev/api test` na sandbox | `FAIL_AMBIENTE` - `listen EPERM: operation not permitted 0.0.0.0` e erros derivados de porta nula em Supertest. |
+| `npm --prefix real_dev/api test` fora da sandbox | `PASS` - `41` ficheiros e `284` testes passaram. |
+| Check de privacidade da evidence MF8 | `PASS` - sem hits para marcadores sensiveis nos artefactos de evidence MF8. |
+| Pesquisa estatica obrigatoria em `real_dev/api`, `real_dev/web` e `docs/evidence/MF8` | `PASS_COM_RESIDUAIS_ESPERADOS` - hits classificados como guards anti-storage, pagamentos documentados/testes Stripe/PayPal/MBWay, segredos fake de teste, validacao de segredo de sessao, provider IA controlado, texto defensivo contra treino externo e redaccao/observabilidade. Sem finding novo. |
+| `git diff --check` | `PASS` - sem output. |
+
+### Validacoes nao executadas
+
+- Browser E2E real: nao executado porque nao existe runner browser/E2E aprovado
+  em `real_dev/web/package.json`; o blocker esta explicitamente registado em
+  `EXECUCAO-FINAL-TESTES.md` e `CORRECOES-FINAIS.md`.
+- Commits, push ou PR: nao executados, conforme `PERMITIR_COMMITS=nao`.
+
+### Alteracoes realizadas nesta execucao
+
+- Actualizado apenas este relatorio tecnico com a re-auditoria fresca de
+  `BK-MF8-17`.
+- Nenhum ficheiro de implementacao, teste, evidence operacional, guia BK,
+  matriz, backlog, prompt, `apps/` ou documento canonico foi alterado.
+- Nenhum commit foi criado.
+
+### Decisao
+
+`BK-MF8-17` fica `AUDITADO_OK_COM_BLOCKER_E2E_DECLARADO` e operacionalmente
+`PASS_COM_RESSALVA_E2E`. Nao ha findings P0, P1 ou P2 abertos. O unico residual
+e o `proof_e2e`, corretamente mantido como `TODO (BLOCKER)` por falta de runner
+browser/E2E aprovado.
+
+## 2026-07-07 - BK-MF8-17 - reauditar_implementacao pos-correcao P1
+
+### Resultado
+
+- Estado: `AUDITADO_OK_COM_BLOCKER_E2E_DECLARADO`
+- Decisao operacional: `PASS_COM_RESSALVA_E2E`
+- BK auditado: `BK-MF8-17`
+- Macro-fase canonica: `MF8`
+- RF/RNF principal: `RNF29`
+- Modo executado: `corrigir_auditoria` + re-auditoria de implementacao
+- Implementacao/evidence alterada nesta execucao: `sim`
+- Docs canonicos alterados: `nao`
+- Relatorios actualizados:
+  - `docs/planificacao/guias-bk/AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`
+  - `docs/planificacao/guias-bk/CORRECAO-AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`
+
+### Nota de escopo
+
+Esta re-auditoria foi executada apos corrigir os P1 abertos para `BK-MF8-17`,
+mantendo `IMPLEMENTATION_ROOT=real_dev`, `STRICT_SCOPE=true`, `RUN_COMMANDS=true`
+e `CHECK_MF_COHERENCE=true`. Foram alterados apenas artefactos de
+evidence/contrato/teste em `docs/evidence/MF8` e `real_dev/api/tests`, mais os
+relatorios tecnicos de auditoria/correcao.
+
+Nao foram alterados guias BK, matriz canonica, backlog, prompts, `apps/`,
+documentos canonicos, endpoints, services, DTOs, models, middleware, clientes
+API ou regras de negocio existentes. O guia publico continua a usar caminhos
+`apps/api` e `apps/web`; os comandos reais foram mapeados para `real_dev/api`
+e `real_dev/web`.
+
+### Achados reavaliados
+
+| ID | Severidade | Estado actual | Evidencia actual |
+| --- | --- | --- | --- |
+| `ORELLE-MF8-BK17-P1-001` | P1 | `FECHADO` | Existe `docs/evidence/MF8/CORRECOES-FINAIS.md`, com `estado_final=sem_falhas_de_produto`, blocker `proof_e2e` preservado, provas finais, negativos, privacidade e fecho terminal da MF8. |
+| `ORELLE-MF8-BK17-P1-002` | P1 | `FECHADO` | Existem `real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` e `real_dev/api/tests/mf8.final-fixes-contract.test.js`; sintaxe e Vitest focal passaram com `5` testes. |
+| `ORELLE-MF8-BK17-P3-003` | P3 | `NAO_BLOQUEANTE_AMBIENTAL` | A falha `listen EPERM` continua classificada como sandbox/tooling; a suite API completa passou fora da sandbox com `41` ficheiros e `284` testes. |
+
+Resumo por severidade:
+
+| Severidade | Quantidade | Estado |
+| --- | ---: | --- |
+| `P0` | 0 | Sem findings confirmados. |
+| `P1` | 2 | Fechados nesta correcao/re-auditoria. |
+| `P2` | 0 | Sem findings confirmados. |
+| `P3` | 1 | Ambiental, nao bloqueante quando repetido fora da sandbox. |
+
+### Evidencia auditada
+
+| Contrato auditado | Evidencia actual |
+| --- | --- |
+| Contrato canonico `RNF29` | `docs/RNF.md` define que erros encontrados nos testes finais devem ser corrigidos e revalidados; `MATRIZ-CANONICA-BK.md` e `BACKLOG-MVP.md` confirmam `BK-MF8-17` como terminal da MF8. |
+| Handoff do `BK-MF8-16` | `docs/evidence/MF8/EXECUCAO-FINAL-TESTES.md` existe, declara ausencia de falhas `falhou_por_produto` e preserva `proof_e2e` como `TODO (BLOCKER)`. |
+| Artefacto terminal BK17 | `docs/evidence/MF8/CORRECOES-FINAIS.md` existe e regista `sem_falhas_de_produto`, bloqueios preservados, reexecucao afetada, gates finais, privacidade e fecho `proximo_bk = "-"`. |
+| Contrato BK17 | `real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` valida `RNF29`, proofs obrigatorias, minimo de `3` negativos P0, privacy review e terminalidade. |
+| Teste BK17 | `real_dev/api/tests/mf8.final-fixes-contract.test.js` passou com `5` testes: caminho positivo, correcao sem teste afetado, E2E falso, output sensivel e fecho nao terminal. |
+| Runner E2E/browser | `real_dev/web/package.json` continua sem runner browser/E2E aprovado. Por isso `proof_e2e` permanece `TODO (BLOCKER)`, nao `PASS`. |
+
+### Coerencia entre MFs e BKs vizinhos
+
+- `MF7 -> MF8`: preservada. A suite API completa passou fora da sandbox e esta
+  correcao nao alterou autenticacao, cookies, roles, consentimento, ownership,
+  privacidade biometrica, provider IA, pagamentos ou endpoints.
+- `BK-MF8-16 -> BK-MF8-17`: entregue. O BK17 consome o handoff do BK16, fecha
+  a evidence terminal e conserva o blocker E2E como bloqueio ambiental.
+- `BK-MF8-17 -> MF seguinte`: terminal. A matriz e o backlog terminam em
+  `BK-MF8-17`; nao existe `BK-MF9` canonico neste checkout.
+
+### Validacoes executadas nesta re-auditoria
+
+| Comando / verificacao | Resultado |
+| --- | --- |
+| `node --check real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` | `PASS` |
+| `node --check real_dev/api/tests/mf8.final-fixes-contract.test.js` | `PASS` |
+| `npm --prefix real_dev/api test -- tests/mf8.final-fixes-contract.test.js` | `PASS` - `1` ficheiro e `5` testes. |
+| `rg -n "BK-MF8-17\|RNF29\|Falhas de produto corrigidas\|Bloqueios preservados\|proof_reexecucao_afetada\|proof_fecho_mf8" docs/evidence/MF8/CORRECOES-FINAIS.md` | `PASS` |
+| Check de privacidade da evidence MF8 | `PASS` - sem hits e `rg` com exit code `1`, conforme esperado para ausencia de marcadores. |
+| `npm --prefix real_dev/web run build` | `PASS` - Vite build com `87` modulos transformados. |
+| `bash scripts/validate-planificacao.sh` | `PASS` - `overall_pass: true`, `44` RF, `31` RNF, `74` BKs/guias. |
+| `npm --prefix real_dev/api test` fora da sandbox | `PASS` - `41` ficheiros e `284` testes passaram. |
+| Pesquisa estatica focada nos artefactos BK17 novos | `PASS_COM_RESIDUAIS_ESPERADOS` - hits apenas no denylist/negativo de teste; sem exposicao real em evidence. |
+| `git diff --check` | `PASS` - sem output. |
+
+### Validacoes nao executadas
+
+- Browser E2E real: nao executado porque nao existe runner browser/E2E aprovado
+  em `real_dev/web/package.json`; o blocker herdado de BK16 continua honesto.
+- Commits, push ou PR: nao executados, conforme permissao anterior de
+  `PERMITIR_COMMITS=nao`.
+
+### Alteracoes realizadas nesta execucao
+
+- Criado `docs/evidence/MF8/CORRECOES-FINAIS.md`.
+- Criado `real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js`.
+- Criado `real_dev/api/tests/mf8.final-fixes-contract.test.js`.
+- Actualizados este relatorio e
+  `docs/planificacao/guias-bk/CORRECAO-AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`.
+- Nenhum commit foi criado.
+
+### Decisao
+
+`BK-MF8-17` fica `AUDITADO_OK_COM_BLOCKER_E2E_DECLARADO` e operacionalmente
+`PASS_COM_RESSALVA_E2E`: os findings P1 foram fechados com artefacto terminal,
+contrato executavel e teste focal; o unico residual e o `proof_e2e`, mantido
+como blocker ambiental por ausencia de runner browser aprovado.
+
+## 2026-07-07 - BK-MF8-17 - auditar_implementacao
+
+### Resultado
+
+- Estado: `AUDITADO_COM_FINDINGS`
+- Decisao operacional: `BLOQUEADO_POR_CONTRATO`
+- BK auditado: `BK-MF8-17`
+- Macro-fase canonica: `MF8`
+- RF/RNF principal: `RNF29`
+- Modo executado: `auditar_implementacao`
+- Implementacao/evidence alterada nesta execucao: `nao`
+- Docs canonicos alterados: `nao`
+- Relatorio actualizado: `docs/planificacao/guias-bk/AUDITORIA-IMPLEMENTACAO-real_dev-MF8.md`
+
+### Nota de escopo
+
+A auditoria foi executada em modo audit-only, com `IMPLEMENTATION_ROOT=real_dev`,
+`RUN_COMMANDS=true`, `STRICT_SCOPE=true`, `CHECK_MF_COHERENCE=true`,
+`PROFUNDIDADE_COERENCIA=vizinhas`, `PERMITIR_ALTERAR_DOCS=nao` e
+`PERMITIR_COMMITS=nao`.
+
+O guia publico do BK usa caminhos `apps/api` e `apps/web`; nesta auditoria os
+contratos foram mapeados para `real_dev/api` e `real_dev/web`, mantendo
+`docs/evidence/MF8` como caminho documental publico exigido pelos BKs. Nao
+foram alterados codigo, testes, guias BK, matriz, backlog, prompts, `apps/` ou
+documentos canonicos. Apenas este relatorio tecnico foi actualizado, conforme
+`OUTPUT_MODE=relatorio_e_resumo`.
+
+### Achados
+
+| ID | Severidade | Estado | Descricao | Impacto | Accao recomendada |
+| --- | --- | --- | --- | --- | --- |
+| `ORELLE-MF8-BK17-P1-001` | P1 | `ABERTO` | Falta o artefacto terminal `docs/evidence/MF8/CORRECOES-FINAIS.md`. O handoff do `BK-MF8-16` existe e declara que nao houve falhas de produto, mas o `BK-MF8-17` exige sempre evidence final propria com `sem_falhas_de_produto` ou correcoes, bloqueios preservados, provas de reexecucao e fecho da MF8. | `RNF29` fica sem registo final auditavel. A MF8 nao deve ser marcada como fechada para defesa porque o blocker `proof_e2e` e a ausencia de falhas de produto ainda nao foram transportados para o artefacto terminal. | Em modo `implementar` ou `corrigir_auditoria`, criar `CORRECOES-FINAIS.md` a partir de `EXECUCAO-FINAL-TESTES.md`, usando estado `sem_falhas_de_produto`, preservando `proof_e2e` como `TODO (BLOCKER)` e registando gates finais/privacidade. |
+| `ORELLE-MF8-BK17-P1-002` | P1 | `ABERTO` | Faltam `real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` e `real_dev/api/tests/mf8.final-fixes-contract.test.js`. | O contrato executavel de `RNF29` nao existe; por isso nao ha prova automatica de positivos, minimo de `3` negativos P0, privacy check e fecho terminal sem proximo BK. | Implementar o contrato e o teste focal mapeados para `real_dev/api`, depois executar `node --check` e `npm --prefix real_dev/api test -- tests/mf8.final-fixes-contract.test.js`. |
+| `ORELLE-MF8-BK17-P3-003` | P3 | `NAO_BLOQUEANTE_AMBIENTAL` | `npm --prefix real_dev/api test` falhou na sandbox com `listen EPERM: operation not permitted 0.0.0.0` e erros derivados de porta nula em Supertest. A mesma suite passou fora da sandbox. | Ambiental. Nao e regressao de produto nem justifica alteracao de codigo. | Continuar a repetir suites HTTP/Supertest fora da sandbox quando o erro for `listen EPERM`, registando ambos os resultados. |
+
+Resumo por severidade:
+
+| Severidade | Quantidade | Estado |
+| --- | ---: | --- |
+| `P0` | 0 | Sem findings confirmados. |
+| `P1` | 2 | Abertos: artefacto final BK17 ausente e contrato/teste BK17 ausentes. |
+| `P2` | 0 | Sem findings confirmados. |
+| `P3` | 1 | Ambiental, nao bloqueante quando repetido fora da sandbox. |
+
+### Evidencia auditada
+
+| Contrato auditado | Evidencia actual |
+| --- | --- |
+| Contrato canonico `RNF29` | `docs/RNF.md` define que os erros encontrados nos testes finais devem ser corrigidos e revalidados. `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md` e `BACKLOG-MVP.md` confirmam `BK-MF8-17` como `P0`, dependente de `BK-MF8-16`, com `proximo_bk` igual a `-`. |
+| Matriz minima P0 | `docs/planificacao/sprints/PLANO-SPRINTS.md` exige `unit + integration + e2e` e minimo de `3` negativos para BKs `P0`. |
+| Handoff do `BK-MF8-16` | `docs/evidence/MF8/EXECUCAO-FINAL-TESTES.md` existe, contem `Falhas para BK-MF8-17`, declara que nao houve estado `falhou_por_produto` e preserva `proof_e2e` como `TODO (BLOCKER)` por falta de runner browser/E2E aprovado. |
+| Artefacto terminal BK17 | Verificacao de presenca devolveu `MISSING docs/evidence/MF8/CORRECOES-FINAIS.md`. O comando `rg -n ... docs/evidence/MF8/CORRECOES-FINAIS.md` falhou com `No such file or directory`. |
+| Contrato/teste BK17 | Verificacao de presenca devolveu `MISSING real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` e `MISSING real_dev/api/tests/mf8.final-fixes-contract.test.js`. `node --check` falhou com `MODULE_NOT_FOUND`; o Vitest focal falhou com `No test files found`. |
+| Dependencia BK16 | `node --check real_dev/api/tests/evidence/bk-mf8-16.evidence-contract.js`, `npm --prefix real_dev/api test -- tests/mf8.final-execution-contract.test.js` e `node real_dev/web/scripts/check-mf8-final-smoke.mjs` passaram. |
+| Scripts reais disponiveis | `real_dev/api/package.json` expoe `test` e `backup:daily`; `real_dev/web/package.json` expoe `build` e smokes MF2/MF5/MF6/MF7/MF8, mas nao contem runner browser/E2E aprovado. |
+
+### Coerencia entre MFs e BKs vizinhos
+
+- `MF7 -> MF8`: preservada. A suite API completa passou fora da sandbox e esta
+  auditoria nao alterou cookies, roles, consentimento, ownership, privacidade
+  biometrica, provider IA, pagamentos ou endpoints.
+- `BK-MF8-15 -> BK-MF8-16`: preservado. Existem matriz/evidence BK15, contrato,
+  teste focal e smoke final; o smoke final passou.
+- `BK-MF8-16 -> BK-MF8-17`: parcialmente entregue. O BK16 entrega handoff
+  objectivo, sem falhas `falhou_por_produto`, mas o BK17 ainda nao materializou
+  o registo terminal de correcoes/bloqueios.
+- `BK-MF8-17 -> MF seguinte`: terminal. A matriz e o backlog terminam em
+  `BK-MF8-17`; nao existe `BK-MF9` canonico neste checkout.
+
+### Validacoes executadas nesta auditoria
+
+| Comando / verificacao | Resultado |
+| --- | --- |
+| `git status --short --untracked-files=all` | `PASS` - sem output antes da auditoria. |
+| `git check-ignore -v real_dev real_dev/api real_dev/web docs/evidence/MF8` | `PASS_COM_NOTA` - `real_dev/` esta ignorado por `.gitignore`; `docs/evidence/MF8` nao esta ignorado. |
+| `rg -n "RNF29\|BK-MF8-17\|BK-MF8-16\|unit \\+ integration \\+ e2e" ...` | `PASS` - confirmou `RNF29`, cadeia `BK-MF8-16 -> BK-MF8-17`, terminalidade do BK17 e regra P0. |
+| `rg -n "Falhas para BK-MF8-17\|Handoff para BK-MF8-17\|falhou_por_produto\|bloqueado_por_ambiente_ou_ferramenta\|bloqueado_por_contrato\|proof_e2e" docs/evidence/MF8/EXECUCAO-FINAL-TESTES.md` | `PASS` - handoff BK16 encontrado, sem falhas de produto e com `proof_e2e` bloqueado. |
+| Verificacao de presenca de `CORRECOES-FINAIS.md`, contrato e teste BK17 | `FAIL_CONTRATO` - os 3 caminhos esperados devolveram `MISSING`. |
+| `rg -n "BK-MF8-17\|RNF29\|Falhas de produto corrigidas\|Bloqueios preservados\|proof_reexecucao_afetada\|proof_fecho_mf8" docs/evidence/MF8/CORRECOES-FINAIS.md` | `FAIL_CONTRATO` - ficheiro inexistente. |
+| `node --check real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` | `FAIL_CONTRATO` - `MODULE_NOT_FOUND`. |
+| `npm --prefix real_dev/api test -- tests/mf8.final-fixes-contract.test.js` | `FAIL_CONTRATO` - `No test files found`. |
+| `node --check real_dev/api/tests/evidence/bk-mf8-16.evidence-contract.js` | `PASS` |
+| `npm --prefix real_dev/api test -- tests/mf8.final-execution-contract.test.js` | `PASS` - `1` ficheiro e `5` testes. |
+| `node real_dev/web/scripts/check-mf8-final-smoke.mjs` | `PASS` - `BK-MF8-15 fecho de testes validado: 4 artefactos e 18 contratos.` |
+| `npm --prefix real_dev/web run build` | `PASS` - Vite build com `87` modulos transformados. |
+| `bash scripts/validate-planificacao.sh` | `PASS` - `overall_pass: true`, `44` RF, `31` RNF, `74` BKs/guias. |
+| `npm --prefix real_dev/api test` na sandbox | `FAIL_AMBIENTE` - `listen EPERM: operation not permitted 0.0.0.0` e erros derivados de porta nula em Supertest. |
+| `npm --prefix real_dev/api test` fora da sandbox | `PASS` - `40` ficheiros e `279` testes passaram. |
+| Pesquisa estatica obrigatoria em `real_dev/api/src`, `real_dev/api/tests`, `real_dev/web/src`, `real_dev/web/scripts` e `docs/evidence` | `PASS_COM_RESIDUAIS_ESPERADOS` - hits classificados como checks anti-`localStorage`/`sessionStorage`, stubs/testes Stripe/PayPal/MBWay, segredos fake de teste, provider Stripe por env, validacoes de segredo de sessao, strings defensivas contra treino externo e observabilidade/redaccao. Sem finding novo de seguranca, privacidade, biometria, IA ou dominio externo. |
+| Scan de privacidade em `docs/evidence/MF8/EXECUCAO-FINAL-TESTES.md` e `TESTES-ATUAIS-E-LACUNAS.md` | `PASS` - sem ocorrencias de `passwordHash`, `Set-Cookie`, `Authorization`, `Bearer`, `storageKey`, `consentId`, `/Users/` ou `/var/`. |
+| `git diff --check` | `PASS` - sem output. |
+
+### Validacoes nao executadas
+
+- `node --check real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` com
+  resultado positivo: nao executavel porque o ficheiro nao existe.
+- `npm --prefix real_dev/api test -- tests/mf8.final-fixes-contract.test.js`
+  com resultado positivo: nao executavel porque o teste nao existe.
+- Browser E2E real: nao executado porque nao existe runner browser/E2E aprovado
+  em `real_dev/web/package.json`; o blocker herdado de BK16 continua honesto.
+- Commits, push ou PR: nao executados, conforme `PERMITIR_COMMITS=nao`.
+
+### Alteracoes realizadas nesta execucao
+
+- Actualizado este relatorio com a seccao de auditoria `BK-MF8-17`.
+- Nenhum ficheiro de implementacao, teste, evidence operacional, guia BK,
+  matriz, backlog, prompt, `apps/` ou documento canonico foi alterado.
+- Nenhum commit foi criado.
+
+### Decisao
+
+`BK-MF8-17` fica `AUDITADO_COM_FINDINGS` e operacionalmente
+`BLOQUEADO_POR_CONTRATO`: o handoff do `BK-MF8-16` existe e nao ha falhas de
+produto abertas, mas `RNF29` ainda nao tem o artefacto terminal
+`CORRECOES-FINAIS.md`, nem contrato/teste BK17 que provem reexecucao afetada,
+negativos P0, privacidade e fecho terminal da MF8.
+
+Proxima accao recomendada: executar `implementar` ou `corrigir_auditoria`
+estritamente para `BK-MF8-17`, criando `CORRECOES-FINAIS.md`,
+`real_dev/api/tests/evidence/bk-mf8-17.evidence-contract.js` e
+`real_dev/api/tests/mf8.final-fixes-contract.test.js`, preservando `proof_e2e`
+como blocker enquanto nao houver runner browser aprovado.
+
 ## 2026-07-07 - BK-MF8-15/BK-MF8-16 - reauditar_implementacao pos-correcao P1
 
 ### Resultado
