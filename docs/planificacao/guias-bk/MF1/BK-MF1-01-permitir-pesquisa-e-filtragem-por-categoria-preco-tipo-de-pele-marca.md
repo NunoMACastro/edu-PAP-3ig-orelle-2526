@@ -38,9 +38,9 @@ Este BK transforma o catálogo administrativo criado em `BK-MF0-07` e organizado
 - Não inventar ranking clínico ou diagnóstico facial.
 
 ## Pré-requisitos
-- `BK-MF0-07`: `server/src/models/product.model.js` e `server/src/services/product.service.js`.
-- `BK-MF0-08`: `server/src/models/category.model.js` e `Product.categoryIds`.
-- `BK-MF0-02`: `client/src/services/apiClient.js` com `credentials: "include"`.
+- `BK-MF0-07`: `apps/api/src/models/product.model.js` e `apps/api/src/services/product.service.js`.
+- `BK-MF0-08`: `apps/api/src/models/category.model.js` e `Product.categoryIds`.
+- `BK-MF0-02`: `apps/web/src/services/apiClient.js` com `credentials: "include"`.
 
 ## Glossário
 - Produto: item do catálogo com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock.
@@ -66,14 +66,14 @@ No frontend, o componente React guarda filtros em `useState`, faz o pedido com `
 - `ProductSearchPage` mostra o catálogo pesquisável.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/validators/catalog-query.validator.js`
-- EDITAR: `server/src/services/product.service.js`
-- CRIAR: `server/src/controllers/catalog.controller.js`
-- CRIAR: `server/src/routes/catalog.routes.js`
-- EDITAR: `server/src/app.js`
-- EDITAR: `client/src/services/apiClient.js`
-- CRIAR: `client/src/pages/ProductSearchPage.jsx`
-- EDITAR: `client/src/App.jsx`
+- CRIAR: `apps/api/src/validators/catalog-query.validator.js`
+- EDITAR: `apps/api/src/services/product.service.js`
+- CRIAR: `apps/api/src/controllers/catalog.controller.js`
+- CRIAR: `apps/api/src/routes/catalog.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- EDITAR: `apps/web/src/services/apiClient.js`
+- CRIAR: `apps/web/src/pages/ProductSearchPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
 
 ## Bloco pedagógico
 
@@ -127,8 +127,8 @@ Segue os passos lineares abaixo e valida backend, frontend e casos vazios antes 
 
 1. Explicação simples do objetivo: transformar query params em filtros seguros antes de chegar ao service.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/catalog-query.validator.js`
-    - REVER: `server/src/models/profile.model.js`
+    - CRIAR: `apps/api/src/validators/catalog-query.validator.js`
+    - REVER: `apps/api/src/models/profile.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o ficheiro abaixo.
 4. Código completo, correto e integrado:
@@ -211,8 +211,8 @@ export function validateCatalogQuery(query) {
 
 1. Explicação simples do objetivo: acrescentar leitura pública ao service já criado em `BK-MF0-07`.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/services/product.service.js`
-    - REVER: `server/src/models/product.model.js`
+    - EDITAR: `apps/api/src/services/product.service.js`
+    - REVER: `apps/api/src/models/product.model.js`
     - LOCALIZAÇÃO: acrescentar as funções abaixo sem remover `createProduct`.
 3. O que fazer: mantém a função `createProduct` existente e acrescenta este bloco no fim do ficheiro.
 4. Código completo, correto e integrado:
@@ -286,7 +286,7 @@ export async function listCatalogProducts(filters) {
 
 1. Explicação simples do objetivo: ligar o validator ao service e devolver HTTP status correto.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/catalog.controller.js`
+    - CRIAR: `apps/api/src/controllers/catalog.controller.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o controller abaixo.
 4. Código completo, correto e integrado:
@@ -315,7 +315,7 @@ export async function listCatalogProductsController(req, res, next) {
 
 1. Explicação simples do objetivo: expor o endpoint público de pesquisa.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/routes/catalog.routes.js`
+    - CRIAR: `apps/api/src/routes/catalog.routes.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria a route abaixo.
 4. Código completo, correto e integrado:
@@ -337,7 +337,7 @@ catalogRoutes.get("/products", listCatalogProductsController);
 
 1. Explicação simples do objetivo: ligar a route ao Express.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: zona dos imports e zona onde as routes são registadas.
 3. O que fazer: adiciona o import e o `app.use` abaixo.
 4. Código completo, correto e integrado:
@@ -356,8 +356,8 @@ app.use("/api/catalog", catalogRoutes);
 
 1. Explicação simples do objetivo: permitir que o cliente use filtros sem escrever URLs manualmente.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/ProductSearchPage.jsx`
-    - REVER: `client/src/services/apiClient.js`
+    - CRIAR: `apps/web/src/pages/ProductSearchPage.jsx`
+    - REVER: `apps/web/src/services/apiClient.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria a página abaixo.
 4. Código completo, correto e integrado:
@@ -501,7 +501,7 @@ export function ProductSearchPage() {
 
 1. Explicação simples do objetivo: tornar a página acessível no fluxo da aplicação.
 2. Ficheiros envolvidos.
-    - EDITAR: `client/src/App.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: imports e zona de navegação.
 3. O que fazer: adiciona a página ao `App`.
 4. Código completo, correto e integrado:

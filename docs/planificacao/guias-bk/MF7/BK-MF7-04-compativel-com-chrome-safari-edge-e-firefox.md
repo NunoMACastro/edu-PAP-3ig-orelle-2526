@@ -20,602 +20,265 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF7-05`
 - `guia_path`: `docs/planificacao/guias-bk/MF7/BK-MF7-04-compativel-com-chrome-safari-edge-e-firefox.md`
-- `last_updated`: `2026-06-26`
+- `last_updated`: `2026-07-11`
+
+> **Contrato vigente:** a prova automatizada usa Playwright em Chromium, Firefox e WebKit, com Axe, teclado e viewports 320/375/768/1280. Chromium cobre o motor da família Chrome/Edge e WebKit cobre o motor usado por Safari; uma execução automatizada não deve ser apresentada como validação manual das aplicações comerciais que não tenham sido realmente abertas. A evidence atual está no [plano vivo OpenAI](../../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
 
 #### Objetivo
 
-Neste BK vais criar uma validação de compatibilidade para os browsers alvo: Chrome, Safari, Edge e Firefox. O objetivo é reduzir código dependente de browser, garantir build Vite estável e produzir evidence de que os fluxos principais podem ser testados em browsers modernos.
-
-`CANONICO`: `RNF15` exige compatibilidade com Chrome, Safari, Edge e Firefox.
+Validar que conta, catálogo, consulta OpenAI, upload, relatório/revisão, pagamento simulado, voucher, privacidade e administração funcionam nos três motores modernos suportados, sem APIs específicas de browser nem UI paralela.
 
 #### Importância
 
-A Orélle usa formulários, upload de fotografias, downloads, checkout e componentes React. Pequenas diferenças entre browsers podem partir upload, estilos, cookies ou downloads. Compatibilidade não é prometer pixel-perfect: é evitar APIs frágeis, validar build e executar smoke manual orientado.
+A Orélle combina cookies, CSRF, multipart, polling, downloads, imagens privadas, modais e navegação por teclado. Diferenças de motor podem afetar estes boundaries mesmo quando o build Vite é verde.
 
 #### Scope-in
 
-- Rever `vite.config.js`.
-- Criar script local de compatibilidade sem dependências novas.
-- Validar ausência de ramificações por browser em `src`.
-- Validar build de produção.
-- Definir checklist manual para Chrome, Safari, Edge e Firefox.
-- Confirmar que upload, sessão, pedidos de privacidade e checkout não dependem de browser específico.
+- Configurar projetos Playwright `chromium`, `firefox` e `webkit`.
+- Iniciar API/web/workers numa base E2E efémera e isolada.
+- Testar rotas canónicas `/consulta`, `/consulta/nova`, `/consulta/ativa`, `/consulta/relatorios/:reportId`, `/consulta/historico` e `/consultoria/revisoes`.
+- Cobrir login, cookies/CSRF, upload, polling/reload, relatório bloqueado e downloads privados.
+- Executar Axe, teclado, responsive e budgets definidos.
+- Guardar apenas screenshots sintéticos e sanitizados em falha; manter trace e vídeo desligados porque podem persistir cookies ou provas CSRF.
 
 #### Scope-out
 
-- Não adicionar Playwright, Cypress ou Selenium.
-- Não criar estilos diferentes por browser.
-- Não prometer suporte a browsers antigos fora de `RNF15`.
-- Não alterar contratos backend.
+- Não criar branches por `userAgent`, vendor ou nome do browser.
+- Não considerar WebKit uma prova manual do Safari comercial.
+- Não usar a MongoDB principal/remota nem credenciais OpenAI reais.
+- Não repetir a viagem destrutiva em paralelo na mesma base.
+- Não restaurar páginas antigas de fotografia, análise, recomendação ou preview.
 
 #### Estado antes e depois
 
-- Antes: a app compila com Vite, mas o guia não explica como provar compatibilidade transversal.
-- Depois: existe validação estática, build e checklist de fluxos críticos para browsers modernos.
+- Antes: build e smoke estático não provavam comportamento em motores distintos.
+- Depois: uma bateria reproduzível valida journeys, acessibilidade, viewports e estados assíncronos em Chromium/Firefox/WebKit.
 
 #### Pre-requisitos
 
-- `BK-MF5-05`: interface responsiva.
-- `BK-MF5-07`: feedback acessível em formulários.
-- `BK-MF6-02`: páginas principais com carga aceitável.
-- `BK-MF7-03`: cookies e cliente API consistentes.
+- `BK-MF5-05` e `BK-MF5-07`: layout responsive e feedback acessível.
+- `BK-MF6-01`: jobs retomáveis e polling.
+- `BK-MF7-03`: cookies, CSRF e cliente same-origin.
+- Runtime E2E com `MongoMemoryReplSet`, workers e catálogo curado.
 
 #### Glossário
 
-- Compatibilidade: a funcionalidade principal comporta-se de forma equivalente nos browsers alvo.
-- Build de produção: versão gerada por Vite em `dist`.
-- Smoke manual: validação curta de fluxos essenciais.
-- Feature detection: verificar capacidade da plataforma em vez de assumir browser por nome.
-- Browser-specific branch: código que escolhe comportamento por nome de browser.
+- **Motor:** implementação base do browser, como Chromium, Gecko ou WebKit.
+- **Journey destrutiva:** cenário que altera dados e exige isolamento/ordem.
+- **Axe:** auditoria automática de acessibilidade.
+- **Trace:** artefacto Playwright útil para diagnóstico, mas deliberadamente desativado neste projeto por poder conter dados de sessão.
+- **Same-origin:** frontend usa `/api`, sem host fixo no bundle.
 
 #### Conceitos teóricos essenciais
 
-React e Vite resolvem grande parte da compatibilidade, mas não protegem contra decisões frágeis no código da app. Evita branches baseadas em browser, usa APIs Web modernas suportadas e mantém mensagens de erro controladas.
+Compatibilidade funcional não significa pixel-perfect. O requisito exige que ações, dados, foco e mensagens permaneçam utilizáveis. As diferenças visuais aceitáveis não podem esconder controlos, criar overflow ou impedir teclado.
 
-Upload, downloads e cookies são os pontos mais sensíveis. Upload usa `FormData`, download usa `Blob` e link temporário, sessão usa cookies HttpOnly enviados por `fetch` com credenciais.
-
-Compatibilidade deve ser provada por build automático e por checklist manual dos quatro browsers, porque Safari e Firefox podem comportar downloads e cookies de forma ligeiramente diferente em desenvolvimento local.
-
-`DERIVADO`: prefixos CSS como `-webkit-font-smoothing` podem existir como compatibilidade visual. O que este BK bloqueia são decisões de JavaScript que mudam comportamento por nome de browser, como `navigator.userAgent`, `navigator.vendor`, `document.all` ou `document.documentMode`.
+Os três projetos Playwright exercitam motores diferentes. As journeys destrutivas podem correr apenas no browser de referência para evitar corridas; os outros motores continuam obrigados a cobrir rotas não destrutivas, Axe, teclado e responsive.
 
 #### Arquitetura do BK
 
-- Configuração: `apps/web/vite.config.js`.
-- Script: `apps/web/scripts/check-mf7-browser-compatibility.mjs`.
-- Cliente API: `apps/web/src/services/apiClient.js`.
-- Páginas críticas: login, upload facial, pedido de privacidade, exportações, checkout.
-- Evidence: output do script, output do build e checklist manual.
+- `apps/web/playwright.config.js`: três projetos, base URL loopback, execução serial, screenshots e timeouts.
+- `apps/web/tests/e2e/client-journey.spec.js`: percurso cliente/consultor.
+- `apps/web/tests/e2e/public-accessibility.spec.js`: páginas públicas e Axe.
+- `apps/web/tests/e2e/responsive-keyboard.spec.js`: teclado e viewports.
+- `apps/web/tests/e2e/performance.spec.js`: budgets browser.
+- `apps/api/scripts/run-e2e.mjs`: base efémera, API, web, workers e teardown.
+- `apps/api/scripts/e2e-runtime.core.mjs`: seed curado e isolamento.
 
 #### Ficheiros a criar/editar/rever
 
-- CRIAR: `apps/web/scripts/check-mf7-browser-compatibility.mjs`
-- EDITAR: `apps/web/package.json`
-- REVER: `apps/web/vite.config.js`
-- REVER: `apps/web/src/services/apiClient.js`
-- REVER: `apps/web/src/pages/FacePhotoUploadPage.jsx`
-- REVER: `apps/web/src/pages/AdminExportsPage.jsx`
-- REVER: `apps/web/src/pages/CheckoutPage.jsx`
+- EDITAR: `apps/web/playwright.config.js`
+- EDITAR: `apps/web/tests/e2e/client-journey.spec.js`
+- EDITAR: `apps/web/tests/e2e/public-accessibility.spec.js`
+- EDITAR: `apps/web/tests/e2e/responsive-keyboard.spec.js`
+- EDITAR: `apps/web/tests/e2e/performance.spec.js`
+- EDITAR: `apps/api/scripts/run-e2e.mjs`
+- EDITAR: `apps/api/scripts/e2e-runtime.core.mjs`
+- REVER: `apps/web/src/features/consultation/`
 
 #### Tutorial técnico linear
 
-### Passo 1 - Confirmar contrato de compatibilidade
+### Passo 1 - Mapear journeys e motores
 
-1. Objetivo funcional do passo no contexto da app.
+Separa o percurso destrutivo principal das verificações repetíveis. Define o que cada projeto cobre e não marques um browser como aprovado se foi omitido, não arrancou ou terminou com falha.
 
-Garantir que `RNF15` fala de browsers modernos alvo, não de suporte universal.
+### Passo 2 - Configurar os três projetos Playwright
 
-2. Ficheiros envolvidos:
-    - REVER: `docs/RNF.md`
-    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
-    - LOCALIZAÇÃO: `RNF15`, `BK-MF7-04`.
-
-3. Instruções do que fazer.
-
-Regista os quatro browsers alvo no PR e associa-os aos fluxos que vais validar.
-
-4. Código completo, correto e integrado com a app final.
-
-Sem código neste passo. É definição de critério de sucesso.
-
-5. Explicação do código.
-
-Sem código. Compatibilidade precisa de uma lista fechada para o aluno saber o que validar.
-
-6. Validação do passo.
-
-Executa `rg -n "RNF15|Chrome|Safari|Edge|Firefox" docs/RNF.md docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
-
-7. Cenário negativo/erro esperado.
-
-Declarar “funciona em todos os browsers” é demasiado vago e não é validável.
-
-### Passo 2 - Rever configuração Vite
-
-1. Objetivo funcional do passo no contexto da app.
-
-Confirmar que o frontend usa build moderno e plugin React oficial.
-
-2. Ficheiros envolvidos:
-    - REVER: `apps/web/vite.config.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-
-3. Instruções do que fazer.
-
-Mantém a configuração simples.
-
-4. Código completo, correto e integrado com a app final.
+Usa devices oficiais e o mesmo `baseURL` validado pelo helper E2E. Mantém um worker, sem paralelismo destrutivo, screenshots apenas em falha e trace/vídeo desligados.
 
 ```js
-// apps/web/vite.config.js
-/**
- * Configuração Vite do frontend Orélle.
- *
- * O plugin React garante transformação JSX consistente em desenvolvimento e build.
- */
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, devices } from "@playwright/test";
+import { getE2EBaseUrl } from "./tests/e2e/helpers/environment.js";
 
+/** Configuração cross-engine da aplicação académica local. */
 export default defineConfig({
-    plugins: [react()],
-});
-```
-
-5. Explicação do código.
-
-O Vite já usa defaults modernos adequados ao projeto. Não é preciso adicionar dependências ou polyfills sem prova de falha. O plugin React trata JSX de forma consistente.
-
-6. Validação do passo.
-
-Executa `npm --prefix apps/web run build`.
-
-7. Cenário negativo/erro esperado.
-
-Se o build falhar, não avances para checklist manual; primeiro corrige imports ou sintaxe.
-
-### Passo 3 - Criar verificação estática de compatibilidade
-
-1. Objetivo funcional do passo no contexto da app.
-
-Detetar código frágil antes do build.
-
-2. Ficheiros envolvidos:
-    - CRIAR: `apps/web/scripts/check-mf7-browser-compatibility.mjs`
-    - LOCALIZAÇÃO: ficheiro completo.
-
-3. Instruções do que fazer.
-
-Cria o script abaixo e mantém a lista de padrões curta e objetiva.
-
-4. Código completo, correto e integrado com a app final.
-
-```js
-// apps/web/scripts/check-mf7-browser-compatibility.mjs
-import { readdir, readFile, stat } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const WEB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SRC_DIR = path.join(WEB_ROOT, "src");
-const SOURCE_EXTENSIONS = new Set([".js", ".jsx"]);
-const BLOCKED_PATTERNS = [
-    { label: "browser-name-branch:userAgent", pattern: /navigator\.userAgent/i },
-    { label: "browser-name-branch:vendor", pattern: /navigator\.vendor/i },
-    { label: "legacy-ie-branch:document-all", pattern: /document\.all/i },
-    { label: "legacy-ie-branch:document-mode", pattern: /document\.documentMode/i },
-];
-
-/**
- * Indica se um ficheiro deve ser analisado pelo smoke de compatibilidade.
- *
- * @function isSourceFile
- * @param {string} filename - Nome do ficheiro encontrado dentro de `src`.
- * @returns {boolean} `true` para JavaScript/JSX da app, `false` para CSS/assets.
- */
-function isSourceFile(filename) {
-    // Prefixos CSS legítimos não são branches por browser; por isso o smoke analisa JS/JSX.
-    return SOURCE_EXTENSIONS.has(path.extname(filename));
-}
-
-/**
- * Lista recursivamente os ficheiros JavaScript/JSX do frontend.
- *
- * @function listSourceFiles
- * @param {string} dir - Diretoria inicial a percorrer.
- * @returns {Promise<string[]>} Caminhos absolutos dos ficheiros analisáveis.
- */
-async function listSourceFiles(dir) {
-    const entries = await readdir(dir);
-    const files = [];
-
-    for (const entry of entries) {
-        const fullPath = path.join(dir, entry);
-        const info = await stat(fullPath);
-
-        if (info.isDirectory()) {
-            files.push(...(await listSourceFiles(fullPath)));
-        } else if (isSourceFile(entry)) {
-            files.push(fullPath);
-        }
-    }
-
-    return files;
-}
-
-/**
- * Procura decisões frágeis que escolhem comportamento pelo nome do browser.
- *
- * @function findBrowserBranches
- * @param {string[]} files - Ficheiros JavaScript/JSX a analisar.
- * @returns {Promise<string[]>} Lista de findings com caminho relativo e regra violada.
- */
-async function findBrowserBranches(files) {
-    const findings = [];
-
-    for (const file of files) {
-        const content = await readFile(file, "utf8");
-        for (const rule of BLOCKED_PATTERNS) {
-            if (rule.pattern.test(content)) {
-                // O caminho relativo deixa o erro acionável para o aluno sem expor paths internos da máquina.
-                findings.push(`${path.relative(WEB_ROOT, file)}: ${rule.label}`);
-            }
-        }
-    }
-
-    return findings;
-}
-
-/**
- * Executa o smoke de compatibilidade do BK-MF7-04.
- *
- * @function main
- * @returns {Promise<void>} Termina com exit code `0` quando não há branches por browser.
- */
-async function main() {
-    const files = await listSourceFiles(SRC_DIR);
-    const findings = await findBrowserBranches(files);
-
-    if (findings.length > 0) {
-        // Falhar cedo evita soluções específicas para um browser sem necessidade real.
-        console.error(findings.join("\n"));
-        process.exit(1);
-    }
-
-    console.log(`MF7 browser compatibility static check OK (${files.length} ficheiros).`);
-}
-
-main().catch((error) => {
-    console.error(error);
-    process.exit(1);
-});
-```
-
-5. Explicação do código.
-
-O script encontra a raiz `apps/web` a partir do próprio ficheiro, por isso funciona tanto quando é executado pelo `npm --prefix apps/web` como quando é executado dentro de `apps/web`. Depois percorre apenas ficheiros `.js` e `.jsx` em `src`, lê o conteúdo e falha se encontrar decisões por nome de browser. Isto força a equipa a resolver problemas com APIs standard, CSS responsivo e build, em vez de criar caminhos diferentes para cada browser.
-
-O script não reprova prefixos CSS como `-webkit-font-smoothing`, porque esses prefixos são compatibilidade visual e não mudam regras de negócio, sessão, upload, download ou checkout.
-
-6. Validação do passo.
-
-Dentro de `apps/web`, executa `node scripts/check-mf7-browser-compatibility.mjs`. A partir da raiz do repositório, usa `npm --prefix apps/web run smoke:mf7-compat` depois de ligares o script no passo seguinte.
-
-7. Cenário negativo/erro esperado.
-
-Se alguém introduzir `navigator.userAgent` para tratar Safari manualmente, o script deve falhar.
-
-### Passo 4 - Ligar script ao package.json
-
-1. Objetivo funcional do passo no contexto da app.
-
-Permitir execução repetível da verificação.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `apps/web/package.json`
-    - LOCALIZAÇÃO: objeto `scripts`.
-
-3. Instruções do que fazer.
-
-Adiciona o script sem remover os existentes.
-
-4. Código completo, correto e integrado com a app final.
-
-```json
-{
-    "name": "orelle-web",
-    "version": "0.1.0",
-    "private": true,
-    "type": "module",
-    "scripts": {
-        "dev": "vite --host 127.0.0.1",
-        "build": "vite build",
-        "preview": "vite preview",
-        "smoke:mf2": "node scripts/smoke-mf2-recommendations.mjs",
-        "smoke:mf5-privacy-request": "node scripts/check-mf5-biometric-request-client.mjs",
-        "smoke:mf5-feedback": "node scripts/check-mf5-feedback.mjs",
-        "smoke:mf5-theme": "node scripts/check-mf5-theme.mjs",
-        "smoke:mf7-compat": "node scripts/check-mf7-browser-compatibility.mjs"
+    testDir: "./tests/e2e",
+    fullyParallel: false,
+    workers: 1,
+    use: {
+        baseURL: getE2EBaseUrl(),
+        trace: "off",
+        video: "off",
+        screenshot: "only-on-failure",
     },
-    "dependencies": { "@vitejs/plugin-react": "^4.3.1", "vite": "^5.3.5", "react": "^18.3.1", "react-dom": "^18.3.1" }
-}
+    projects: [
+        { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+        { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+        { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    ],
+});
 ```
 
-5. Explicação do código.
+### Passo 3 - Isolar o runtime E2E
 
-O comando permite repetir a verificação antes da defesa. Mantém `build` separado porque compatibilidade precisa de duas provas: estática e build real.
+`apps/api/scripts/run-e2e.mjs` cria `MongoMemoryReplSet`, aplica migrations 001–015, cura produtos `aiEligible`, inicia worker IA e worker de ficheiros e só depois abre os browsers. O teardown corre sempre.
 
-6. Validação do passo.
+### Passo 4 - Cobrir as rotas canónicas da consulta
 
-Executa `npm --prefix apps/web run smoke:mf7-compat`.
+Testa `/consulta/nova` para objetivos/consentimento/fotos, `/consulta/ativa` para análise/perguntas/retry, `/consulta/relatorios/:reportId` para teaser/revisão/freeze/unlock/voucher/preview e `/consultoria/revisoes` para a role consultor. Redirects temporários não são uma segunda implementação.
 
-7. Cenário negativo/erro esperado.
+### Passo 5 - Validar boundaries Web sensíveis
 
-Se substituíres todos os scripts do `package.json`, vais apagar comandos já usados por MFs anteriores.
+Confirma cookies `HttpOnly`, `X-CSRF-Token`, `Origin`, `FormData`, `AbortSignal`, respostas `401/403/409`, imagens `no-store`, download e foco depois de navegação/pergunta. Nenhum teste introduz URL absoluta localhost no código publicado.
 
-### Passo 5 - Rever fluxos web sensíveis
+### Passo 6 - Executar Axe, teclado e responsive
 
-1. Objetivo funcional do passo no contexto da app.
+Em cada motor, valida skip-link, um `main`, ordem de foco, modal com focus trap, touch targets e ausência de overflow a 320/375/768/1280. Axe não pode ter violações serious/critical nas rotas principais.
 
-Confirmar que os pontos críticos usam APIs Web standard.
+### Passo 7 - Medir performance sem claims falsos
 
-2. Ficheiros envolvidos:
-    - REVER: `apps/web/src/pages/FacePhotoUploadPage.jsx`
-    - REVER: `apps/web/src/pages/AdminExportsPage.jsx`
-    - REVER: `apps/web/src/pages/CheckoutPage.jsx`
-    - LOCALIZAÇÃO: submit de upload, download de exportação e checkout.
+No perfil definido, mede LCP ≤ 3 s, CLS ≤ 0,1, JS inicial comprimido ≤ 200 KiB, thumbnail ≤ 120 KiB e imagem crítica ≤ 300 KiB. Se uma métrica ou browser não correr, regista `SKIP/BLOQUEADO`, não `PASS`.
 
-3. Instruções do que fazer.
+### Passo 8 - Executar cenários negativos obrigatórios (mínimo 3)
 
-Confirma que upload usa `FormData`, downloads usam `Blob` e checkout usa link normal quando há `checkoutUrl`.
-
-4. Código completo, correto e integrado com a app final.
-
-```jsx
-/**
- * Descarrega um Blob no browser sem expor o conteúdo no DOM.
- *
- * @function downloadBlob
- * @param {Blob} blob - Conteúdo binário recebido da API.
- * @param {string} filename - Nome do ficheiro.
- * @returns {void}
- */
-function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = filename;
-    document.body.append(link);
-    link.click();
-    link.remove();
-
-    // Revogar o URL temporário evita acumular memória após vários downloads.
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-}
-```
-
-5. Explicação do código.
-
-`Blob`, `URL.createObjectURL` e elemento `<a>` são APIs Web comuns nos browsers alvo. A função não coloca o conteúdo do PDF ou CSV no DOM e limpa o URL temporário depois do clique.
-
-6. Validação do passo.
-
-Faz download de CSV e PDF no browser principal de desenvolvimento e confirma que o ficheiro tem nome e extensão corretos.
-
-7. Cenário negativo/erro esperado.
-
-Se o download abrir texto sensível no DOM, a implementação fica insegura.
-
-### Passo 6 - Executar build e checklist manual
-
-1. Objetivo funcional do passo no contexto da app.
-
-Produzir evidence objetiva e guiar teste nos browsers alvo.
-
-2. Ficheiros envolvidos:
-    - REVER: `apps/web/package.json`
-    - REVER: `apps/web/dist/`
-    - LOCALIZAÇÃO: output de build e checklist da defesa.
-
-3. Instruções do que fazer.
-
-Executa os comandos e preenche checklist manual.
-
-4. Código completo, correto e integrado com a app final.
-
-```bash
-npm --prefix apps/web run smoke:mf7-compat
-npm --prefix apps/web run build
-```
-
-5. Explicação do código.
-
-O primeiro comando procura decisões frágeis no código. O segundo confirma que Vite consegue gerar artefactos de produção. Juntos não substituem teste manual, mas evitam fechar o BK sem prova técnica.
-
-6. Validação do passo.
-
-Abre a app em Chrome, Safari, Edge e Firefox e valida login, upload facial, pedido de privacidade, exportação e checkout.
-
-7. Cenário negativo/erro esperado.
-
-Se um browser falhar só num fluxo, regista o fluxo exato, erro observado e ficheiro provável.
-
-### Passo 7 - Registar evidence de compatibilidade
-
-1. Objetivo funcional do passo no contexto da app.
-
-Deixar a prova pronta para PR e defesa.
-
-2. Ficheiros envolvidos:
-    - CRIAR: `docs/evidence/MF7/BK-MF7-04-browser-compatibility.md`
-    - LOCALIZAÇÃO: ficheiro completo.
-
-3. Instruções do que fazer.
-
-Cria uma evidence curta com comandos, browsers e resultados.
-
-4. Código completo, correto e integrado com a app final.
-
-```md
-<!-- A evidence separa browsers e fluxos para provar compatibilidade sem prometer pixel-perfect. -->
-# Evidence BK-MF7-04 - Compatibilidade
-
-## Comandos
-- `npm --prefix apps/web run smoke:mf7-compat`
-- `npm --prefix apps/web run build`
-
-## Browsers testados
-- Chrome: login, upload facial, pedido de privacidade, exportação, checkout.
-- Safari: login, upload facial, pedido de privacidade, exportação, checkout.
-- Edge: login, upload facial, pedido de privacidade, exportação, checkout.
-- Firefox: login, upload facial, pedido de privacidade, exportação, checkout.
-
-## Resultado
-- Sem ramificações por nome de browser.
-- Build Vite concluído.
-- Fluxos críticos validados manualmente.
-```
-
-5. Explicação do código.
-
-Este ficheiro é evidence documental. Não muda a app. Serve para mostrar, na defesa, que `RNF15` foi testado com critérios claros e não apenas assumido.
-
-6. Validação do passo.
-
-Confirma que o ficheiro tem resultado para os quatro browsers.
-
-7. Cenário negativo/erro esperado.
-
-Se um browser não foi testado, marca esse ponto como pendente em vez de declarar compatibilidade total.
+1. Forçar indisponibilidade de um browser e confirmar gate bloqueado, não verde.
+2. Simular timeout/401/409 durante a consulta e provar que transcript/conteúdo carregado permanece.
+3. Abrir relatório bloqueado e confirmar que o conteúdo integral não existe no DOM.
+4. Testar upload sem consentimento/foto inválida e confirmar que a OpenAI não é chamada.
+5. Tentar fotografia de revisão sem grant e confirmar 403/404 auditado.
 
 #### Expected results
 
-- `smoke:mf7-compat` passa sem findings.
-- `npm --prefix apps/web run build` gera `dist`.
-- Fluxos críticos funcionam nos browsers alvo.
-- Não existem branches por nome de browser.
-- Downloads e upload usam APIs Web standard.
+- Playwright executa Chromium, Firefox e WebKit no mesmo estado de código.
+- Rotas OpenAI-only são conduzidas por `flowState` e retomam após reload.
+- Relatório bloqueado não contém dados escondidos no HTML.
+- Pagamento/voucher continuam exclusivamente simulados.
+- Axe, teclado, responsive e budgets produzem evidence separada.
+- Browser não executado nunca é convertido em sucesso.
 
 #### Critérios de aceite
 
-- Compatibilidade comprovada por script, build e checklist.
-- Sem dependências novas.
-- Sem caminhos específicos por browser.
-- Upload, sessão, pedidos de privacidade, exportação e checkout validados.
-- Evidence guardada em `docs/evidence/MF7/`.
-- `### Matriz mínima de testes por prioridade`: `P0 = smoke estático + build frontend + checklist manual nos 4 browsers + mínimo 3 negativos`.
-- Cenários negativos concluídos: mínimo `3`, cobrindo branch por `navigator.userAgent`, build falhado e browser não testado marcado como pendente.
-- Evidência de testes por camada registada com output do smoke, output do build e checklist manual por browser.
+- Projetos Chromium/Firefox/WebKit configurados e identificáveis no output.
+- Journey crítica, rotas não destrutivas e roles cobertas sem base remota.
+- Upload, cookies/CSRF, polling, imagens privadas e downloads testados.
+- Zero violações Axe serious/critical nas rotas principais.
+- Viewports definidos sem overflow.
+- Cenarios negativos concluídos: mínimo `3`.
+- Evidencia de testes por camada: contract, build, E2E cross-engine, Axe e performance.
+
+### Matriz mínima de testes por prioridade
+
+| Prioridade | Camada | Prova mínima |
+|---|---|---|
+| P0 | Contract/build | config, rotas, cliente same-origin e bundle |
+| P0 | E2E | Chromium, Firefox e WebKit |
+| P0 | Acessibilidade | Axe, teclado, foco e viewports |
+| P0 | Negativos | pelo menos três cenários materiais |
 
 #### Validação final
 
-- `npm --prefix apps/web run smoke:mf7-compat`
-- `npm --prefix apps/web run build`
-- Checklist manual nos quatro browsers.
-- `rg -n "navigator\\.userAgent|navigator\\.vendor|document\\.all|document\\.documentMode" apps/web/src`
-- Executar cenários negativos obrigatórios (mínimo 3): inserir temporariamente uma branch por `navigator.userAgent`, simular build falhado por import inválido e deixar um browser da checklist como pendente para confirmar que a evidence não declara compatibilidade total.
+- [ ] Output identifica os três projetos Playwright.
+- [ ] Consulta, relatório, revisão e pagamento simulado estão cobertos.
+- [ ] Relatório bloqueado não envia conteúdo integral ao browser.
+- [ ] Axe/viewports/budgets ficam separados do claim manual de browsers comerciais.
 - [ ] Negativos: mínimo `3` cenários com resultado controlado.
-- Evidência de testes por camada: smoke estático, build frontend, checklist manual e registo dos negativos.
+- [ ] Falhas e skips permanecem visíveis na evidence.
 
 #### Evidence para PR/defesa
 
-- Output do smoke.
-- Output do build.
-- Checklist manual preenchida.
-- Screenshot ou nota por browser, com data e fluxo testado.
+Guarda summary Playwright, browsers/projetos executados, skips justificados, Axe, viewports e budgets. Screenshots usam apenas dados sintéticos e não contêm fotografias reais, cookies ou tokens; trace e vídeo permanecem desligados.
 
 #### Handoff
 
-O `BK-MF7-05` deve usar esta base para garantir que exportação PDF descarrega corretamente nos browsers alvo sem expor conteúdo sensível no DOM.
-
-#### Changelog
-
-- 2026-06-26: Guia reescrito para tutorial técnico linear, com script de compatibilidade, build, checklist manual e evidence de RNF15.
-- 2026-06-26: Correção do smoke para evitar falso positivo em prefixos CSS, clarificação dos comandos por diretoria, reforço de JSDoc/comentários didáticos e validação mínima de negativos.
-
-## Suplemento de validacao documental
-Este suplemento fecha lacunas formais detetadas pelo validador de planificacao sem alterar o contrato funcional original do guia.
+O `BK-MF7-05` reutiliza os mesmos browsers para validar download de PDF autenticado, sem tratar um Blob ou link público como equivalente.
 
 ## Bloco pedagogico
+
 ### Objetivo
-O aluno deve completar `Compatível com Chrome, Safari, Edge e Firefox.` com rastreabilidade direta a `RNF15`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
+
+Compreender a diferença entre build, smoke estático, motor automatizado e validação manual de um browser comercial.
 
 ### Pre-requisitos
-- Rever `RNF15` nos documentos RF/RNF aplicáveis.
-- Confirmar dependencias declaradas: `-`.
-- Consultar `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md` e o guia atual antes de implementar.
+
+Rever Playwright, async/await, selectors acessíveis, cookies, FormData e foco.
 
 ### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Alterar comportamento sem alinhar matriz, backlog, anexos e guia.
-- Registar evidence sem output, screenshot, request/response ou teste verificavel.
+
+- Correr apenas Chromium e declarar quatro browsers.
+- Paralelizar journeys destrutivas na mesma base.
+- Selecionar elementos por classes visuais frágeis.
+- Esconder skips ou ativar traces com dados sensíveis.
 
 ### Check de compreensao
-- [ ] Sei explicar o objetivo do BK e o requisito associado.
-- [ ] Sei quais sao entradas, saidas, dependencias e criterio de sucesso.
-- [ ] Sei executar o smoke principal e os negativos obrigatorios.
+
+1. Por que WebKit não é automaticamente uma prova manual do Safari instalado?
+2. Que cenários podem correr nos três motores sem conflito?
+3. O que distingue conteúdo bloqueado de conteúdo escondido por CSS?
 
 ## Bloco operacional
+
 ### Entrada
-- BK: `BK-MF7-04`
-- Requisito: `RNF15`
-- Dependencias: `-`
-- Sprint: `S11-S12`
+
+Build verde, browsers Playwright instalados, portas loopback e runtime E2E isolado.
 
 ### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF7-04` e do requisito `RNF15`.
-2. Validar pre-condicoes e dependencias declaradas (`-`).
-3. Rever ficheiros reais ligados ao BK e identificar o fluxo principal.
-4. Consolidar contrato de entrada/saida com validacao, ownership e erros controlados.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Registar evidencia tecnica objetiva antes do handoff.
-7. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-8. Reexecutar validacao afetada e guardar evidence final para defesa/PR.
+
+Arrancar runtime, migrar/seedar, executar projetos, recolher Axe/budgets e fazer teardown.
 
 ### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
 
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
+```bash
+npm --prefix apps/web run build
+npm --prefix apps/api run test:e2e
+```
 
 ### Handoff
-- Proximo BK recomendado: `BK-MF7-05`
-- Registar riscos, dependencias pendentes e validacoes executadas antes do fecho.
+
+Entregar matriz browser × journey, skips justificados e artefactos sanitizados ao `BK-MF7-05`.
 
 ## Criterios de aceite
-- Entrega funcional especifica de `Compatível com Chrome, Safari, Edge e Firefox.` validada contra `RNF15`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
-- Metadados do guia alinhados com matriz, backlog e anexos.
+
+- Compatibilidade é provada por motores executados, não por intenção.
+- Rotas canónicas substituem páginas independentes antigas.
+- Cenarios negativos concluidos: minimo `3`.
+- Evidencia de testes por camada registada.
 
 ## Evidence para PR/defesa
-- `proof_tecnico`: output, log, screenshot ou request/response do fluxo principal.
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_handoff`: estado final, riscos e proximo BK.
+
+Apresentar o output cross-engine, um cenário de retoma e um bloqueio honesto quando um motor não estiver disponível.
 
 ## Snippet tecnico aplicavel
+
 ```js
-const BK_ID = 'BK-MF7-04';
+const BK_ID = "BK-MF7-04";
 const MIN_NEGATIVOS = 3;
 
-export function validarEvidenceDocumental(evidence) {
-  const negativos = Array.isArray(evidence?.negativos) ? evidence.negativos.length : 0;
-
-  if (evidence?.bkId !== BK_ID) {
-    throw new Error('Evidence fora do contrato do BK');
-  }
-
-  if (negativos < 3) {
-    throw new Error('Cenarios negativos abaixo do minimo exigido');
-  }
-
-  return { bkId: BK_ID, estado: 'validado' };
+/** Valida evidence cross-engine antes do handoff. */
+export function validarEvidenceBkMf704(evidence) {
+    const browsers = new Set(evidence?.browsers ?? []);
+    const negativos = Array.isArray(evidence?.negativos) ? evidence.negativos.length : 0;
+    const engines = ["chromium", "firefox", "webkit"];
+    if (evidence?.bkId !== BK_ID || negativos < MIN_NEGATIVOS) {
+        throw new Error("Evidence incompleta para BK-MF7-04");
+    }
+    if (!engines.every((engine) => browsers.has(engine))) {
+        throw new Error("Cobertura cross-engine incompleta");
+    }
+    return true;
 }
 ```
 
 ## Changelog
-- `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.
+
+- `2026-07-11`: guia alinhado a Playwright Chromium/Firefox/WebKit, rotas OpenAI-only, Axe, responsive, performance e evidence honesta.
+- `2026-07-10`: checklist manual e páginas do fluxo anterior ficaram supersedidos; o histórico permanece nos relatórios datados.

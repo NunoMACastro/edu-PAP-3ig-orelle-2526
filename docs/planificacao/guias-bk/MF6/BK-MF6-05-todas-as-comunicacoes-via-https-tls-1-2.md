@@ -20,7 +20,9 @@
 - `kpi_secundario`: `taxa_conformidade_gates`
 - `proximo_bk`: `BK-MF6-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF6/BK-MF6-05-todas-as-comunicacoes-via-https-tls-1-2.md`
-- `last_updated`: `2026-06-24`
+- `last_updated`: `2026-07-10`
+
+> **Contrato vigente:** `X-Forwarded-Proto` só pode influenciar `req.secure` quando o socket remoto pertence à allowlist explícita `TRUSTED_PROXY_CIDRS`. O arranque recusa `true`, `1`, `*`, IPs e CIDRs inválidos; sem allowlist, `trust proxy=false`. O middleware lê apenas `req.secure`, nunca o header bruto. Liveness e readiness usam `/api/health/live` e `/api/health/ready`.
 
 #### Objetivo
 
@@ -37,7 +39,7 @@ A Orélle processa sessão, perfil, fotografias, relatórios e checkout. Sem HTT
 - Criar middleware que exige HTTPS em produção.
 - Configurar `trust proxy` para ambientes com reverse proxy.
 - Enviar header HSTS em produção.
-- Validar `VITE_API_BASE_URL` com HTTPS em build publicado.
+- Usar `/api` same-origin no bundle e proxy Vite apenas no desenvolvimento local.
 - Criar testes para desenvolvimento, produção segura e produção insegura.
 
 #### Scope-out
@@ -67,7 +69,8 @@ A Orélle processa sessão, perfil, fotografias, relatórios e checkout. Sem HTT
 - TLS: camada criptográfica de transporte.
 - Reverse proxy: componente que recebe HTTPS e encaminha para Node.
 - HSTS: header que instrui o browser a preferir HTTPS no domínio.
-- `x-forwarded-proto`: header usado por proxies para indicar protocolo original.
+- `x-forwarded-proto`: header interpretado pelo Express apenas quando o emissor pertence à allowlist de proxies confiáveis.
+- `TRUSTED_PROXY_CIDRS`: lista explícita de IPs/CIDRs autorizados a fornecer headers de proxy.
 
 #### Conceitos teóricos essenciais
 
@@ -75,11 +78,11 @@ Numa aplicação Node publicada, o certificado TLS costuma ficar numa plataforma
 
 Localhost pode usar HTTP para desenvolvimento. O gate deve distinguir `development` de `production`, caso contrário os alunos bloqueiam o próprio ambiente local.
 
-`CANONICO`: `RNF09` exige HTTPS/TLS 1.2+. `DERIVADO`: validar `x-forwarded-proto` e aplicar HSTS são decisões técnicas padrão para Express atrás de proxy.
+`CANONICO`: `RNF09` exige HTTPS/TLS 1.2+. `DERIVADO`: validar uma allowlist de proxies, usar `req.secure` e aplicar HSTS são decisões técnicas padrão para Express atrás de proxy.
 
 O aluno deve perceber que a app não "inventa TLS" no controller. O código valida ambiente, proxy, cookies e URL pública; o certificado real fica fora da app, na plataforma ou reverse proxy.
 
-Erros a evitar neste BK: obrigar HTTPS em localhost, assumir que CORS substitui HTTPS, deixar `VITE_API_BASE_URL` de produção com `http://` e devolver detalhes internos quando há pedido inseguro.
+Erros a evitar neste BK: obrigar HTTPS no servidor local, assumir que CORS substitui HTTPS, embutir host/porta de desenvolvimento no bundle e devolver detalhes internos quando há pedido inseguro.
 
 #### Arquitetura do BK
 
@@ -176,7 +179,7 @@ Isolar a regra que decide se o pedido original chegou por HTTPS.
 
 3. Instruções do que fazer.
 
-Cria o ficheiro do middleware e começa por exportar `isSecureRequest`. A função deve aceitar HTTPS direto (`req.secure`) e HTTPS terminado num proxy (`x-forwarded-proto`).
+Cria o ficheiro do middleware e começa por exportar `isSecureRequest`. A função usa exclusivamente `req.secure`: HTTPS direto ativa-o pelo socket; HTTPS terminado num proxy só o ativa depois de o Express validar o emissor contra `TRUSTED_PROXY_CIDRS`.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -189,25 +192,25 @@ import { AppError } from "./error.middleware.js";
  *
  * @function isSecureRequest
  * @param {import("express").Request} req - Pedido HTTP recebido pela API.
- * @returns {boolean} Verdadeiro quando Express ou o proxy indicam HTTPS.
+ * @returns {boolean} Verdadeiro quando Express validou o transporte como HTTPS.
  */
 export function isSecureRequest(req) {
-    // Em produção com proxy, Express precisa deste header para conhecer o protocolo original.
-    return req.secure || req.get("x-forwarded-proto") === "https";
+    // Express só considera X-Forwarded-Proto quando o socket remoto é confiável.
+    return req.secure;
 }
 ```
 
 5. Explicação do código.
 
-`isSecureRequest` não cria TLS; apenas interpreta a informação disponível no pedido. `req.secure` cobre o caso em que Express recebe HTTPS diretamente. `x-forwarded-proto` cobre a publicação comum em que um proxy recebe HTTPS e encaminha para Node. Esta função prepara o middleware do próximo passo e evita duplicar a regra em vários controllers.
+`isSecureRequest` não cria TLS. `req.secure` cobre HTTPS direto e, quando existe proxy, só incorpora `X-Forwarded-Proto` depois da validação do endereço remoto pelo Express. Ler o header bruto permitiria a qualquer cliente fingir que usou HTTPS.
 
 6. Validação do passo.
 
-Num teste unitário, `isSecureRequest` deve devolver `true` quando `req.secure` é verdadeiro ou quando `req.get("x-forwarded-proto")` devolve `"https"`.
+Num teste unitário, `isSecureRequest` deve devolver `true` apenas quando `req.secure` é verdadeiro. Num teste HTTP, um header `X-Forwarded-Proto: https` enviado por origem não confiável não pode tornar o pedido seguro.
 
 7. Cenário negativo/erro esperado.
 
-Se o header vier como `"http"`, a função deve devolver `false` para permitir bloqueio em produção.
+Um pedido HTTP direto com `X-Forwarded-Proto: https` deve continuar inseguro quando não existe proxy confiável configurado.
 
 ### Passo 4 - Criar middleware HTTPS e HSTS
 
@@ -234,11 +237,10 @@ import { AppError } from "./error.middleware.js";
  *
  * @function isSecureRequest
  * @param {import("express").Request} req - Pedido HTTP recebido pela API.
- * @returns {boolean} Verdadeiro quando Express ou o proxy indicam HTTPS.
+ * @returns {boolean} Verdadeiro quando Express validou o transporte como HTTPS.
  */
 export function isSecureRequest(req) {
-    // Em produção com proxy, Express precisa deste header para conhecer o protocolo original.
-    return req.secure || req.get("x-forwarded-proto") === "https";
+    return req.secure;
 }
 
 /**
@@ -256,7 +258,7 @@ export function requireHttps(env) {
 
         if (!isSecureRequest(req)) {
             // A mensagem não revela topologia interna, nomes de proxy ou portas privadas.
-            return next(new AppError(403, "Comunicação HTTPS obrigatória."));
+            return next(new AppError(426, "HTTPS obrigatório para comunicações Orélle."));
         }
 
         // HSTS só é enviado depois de confirmar HTTPS para reforçar o browser em produção.
@@ -268,15 +270,15 @@ export function requireHttps(env) {
 
 5. Explicação do código.
 
-`requireHttps` recebe `env` para ser testável sem alterar variáveis globais. Em `development`, o aluno continua a usar `http://localhost`. Em `production`, pedidos sem HTTPS são bloqueados com `403` e mensagem segura. Quando o pedido é seguro, HSTS reduz o risco de o browser voltar a usar HTTP naquele domínio. O middleware não lê cookies, não devolve paths internos e não altera rotas funcionais.
+`requireHttps` recebe `env` para ser testável sem alterar variáveis globais. Em `development`, o aluno continua a usar `http://localhost`. Em `production`, pedidos sem HTTPS são bloqueados com `426` e mensagem segura. Quando o pedido é seguro, HSTS reduz o risco de o browser voltar a usar HTTP naquele domínio. O middleware não lê cookies, headers brutos de proxy, paths internos nem rotas funcionais.
 
 6. Validação do passo.
 
-Em produção simulada com header `x-forwarded-proto: https`, o pedido deve seguir e a resposta deve receber `Strict-Transport-Security`.
+Em produção simulada, um proxy pertencente à allowlist com `x-forwarded-proto: https` deve produzir `req.secure=true` e a resposta deve receber `Strict-Transport-Security`.
 
 7. Cenário negativo/erro esperado.
 
-Em produção simulada com `x-forwarded-proto: http`, a API deve devolver erro `403` com a mensagem `Comunicação HTTPS obrigatória.`.
+Sem proxy confiável, ou com transporte efetivo HTTP, a API deve devolver `426` com a mensagem segura definida no middleware, mesmo que o cliente tente enviar `x-forwarded-proto: https`.
 
 ### Passo 5 - Aplicar o middleware na app
 
@@ -290,26 +292,44 @@ Ativar validação HTTPS no ponto de entrada comum da API.
 
 3. Instruções do que fazer.
 
-Adiciona `app.set("trust proxy", 1)` e aplica `requireHttps(env)` antes das rotas. Mantém as rotas existentes depois dos middlewares globais.
+Valida `TRUSTED_PROXY_CIDRS`, configura `trust proxy` com a lista explícita ou `false` e aplica `requireHttps(env)` antes das rotas. Mantém as rotas e health checks separados definidos no BK anterior.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
 // apps/api/src/app.js
+import mongoose from "mongoose";
+import { env, parseTrustedProxyCidrs } from "./config/env.js";
 import { requireHttps } from "./middlewares/secure-transport.middleware.js";
 
-export function createApp() {
+export function createApp({
+    trustedProxies = env.trustedProxyCidrs,
+    readinessCheck = () => mongoose.connection.readyState === 1,
+} = {}) {
     const app = express();
+    const validatedTrustedProxies = parseTrustedProxyCidrs(
+        trustedProxies.join(","),
+    );
 
-    app.set("trust proxy", 1);
+    app.set(
+        "trust proxy",
+        validatedTrustedProxies.length > 0 ? validatedTrustedProxies : false,
+    );
+    app.use(requireHttps(env));
     app.use(cors({ origin: env.clientOrigin, credentials: true }));
     app.use(express.json());
     app.use(cookieParser());
-    app.use(requireHttps(env));
 
-    app.get("/api/health", (req, res) => {
-        // Health check continua sem dados sensíveis e passa pelo gate HTTPS em produção.
-        res.json({ status: "ok", app: "orelle" });
+    app.get("/api/health/live", (req, res) => {
+        res.json({ status: "ok", app: "orelle", checks: { http: "ok" } });
+    });
+    app.get("/api/health/ready", async (req, res) => {
+        const mongoReady = await readinessCheck();
+        res.status(mongoReady ? 200 : 503).json({
+            status: mongoReady ? "ready" : "not_ready",
+            app: "orelle",
+            checks: { mongodb: mongoReady ? "ok" : "unavailable" },
+        });
     });
 
     return app;
@@ -318,70 +338,71 @@ export function createApp() {
 
 5. Explicação do código.
 
-`trust proxy` permite que Express interprete corretamente headers do proxy. O middleware fica antes das rotas para proteger toda a API. No ficheiro real, mantém todas as rotas existentes depois do health check; não removas controllers nem middlewares de autenticação.
+`parseTrustedProxyCidrs` recusa configurações amplas ou inválidas. O default `false` impede spoofing local; uma lista explícita permite ao Express interpretar headers apenas desses proxies. O middleware fica antes das rotas e os dois health checks mantêm responsabilidades diferentes.
 
 6. Validação do passo.
 
-O health check local continua a funcionar com `NODE_ENV=development`.
+Liveness local continua a funcionar com `NODE_ENV=development`; readiness devolve `503` quando a dependência não está pronta.
 
 7. Cenário negativo/erro esperado.
 
-Se esqueceres `trust proxy`, a API pode rejeitar pedidos HTTPS encaminhados pelo proxy.
+Configurações `true`, `1`, `*`, IP/CIDR inválido ou header de origem não confiável devem falhar no arranque ou continuar inseguros; nunca devem ser aceites por conveniência.
 
-### Passo 6 - Validar base URL do frontend
+### Passo 6 - Fixar o cliente same-origin e o proxy apenas no desenvolvimento
 
 1. Objetivo funcional do passo no contexto da app.
 
-Evitar que o frontend publicado aponte para API `http://`.
+Evitar que o frontend publicado contenha qualquer host ou porta de desenvolvimento.
 
 2. Ficheiros envolvidos:
     - EDITAR: `apps/web/src/services/apiClient.js`
-    - LOCALIZAÇÃO: definição de `API_BASE_URL`.
+    - EDITAR: `apps/web/vite.config.js`
+    - LOCALIZAÇÃO: definição de `API_BASE_URL` e proxy de desenvolvimento.
 
 3. Instruções do que fazer.
 
-Cria uma função de validação que só bloqueia quando o build está em produção.
+Usa sempre `/api` no código enviado ao browser. O Vite encaminha esse prefixo para a API local apenas no dev server; a configuração do proxy não entra no bundle.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
 // apps/web/src/services/apiClient.js
-const configuredApiBaseUrl =
-    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
+export const API_BASE_URL = "/api";
+```
 
-/**
- * Valida a URL pública da API no frontend.
- *
- * @function resolveApiBaseUrl
- * @param {string} value - URL configurada.
- * @returns {string} URL pronta a usar pelo cliente HTTP.
- * @throws {Error} Quando produção usa HTTP inseguro.
- */
-export function resolveApiBaseUrl(value) {
-    const isProduction = import.meta.env.PROD;
+```js
+// apps/web/vite.config.js
+import { defineConfig, loadEnv } from "vite";
+import react from "@vitejs/plugin-react";
 
-    if (isProduction && value.startsWith("http://")) {
-        throw new Error("VITE_API_BASE_URL deve usar HTTPS em produção.");
-    }
+export default defineConfig(({ mode }) => {
+    const localEnv = loadEnv(mode, process.cwd(), "VITE_API_PROXY_TARGET");
 
-    // Em desenvolvimento, localhost pode usar HTTP para facilitar testes.
-    return value;
-}
-
-export const API_BASE_URL = resolveApiBaseUrl(configuredApiBaseUrl);
+    return {
+        plugins: [react()],
+        server: {
+            proxy: {
+                "/api": {
+                    target: localEnv.VITE_API_PROXY_TARGET || "http://127.0.0.1:3001",
+                    changeOrigin: false,
+                },
+            },
+        },
+    };
+});
 ```
 
 5. Explicação do código.
 
-O frontend mantém HTTP local, mas impede build publicado com API insegura. Isto fecha uma falha comum: backend exigir HTTPS, mas frontend chamar uma URL HTTP. A função não altera cookies nem guarda dados.
+O browser chama sempre a própria origem. Em desenvolvimento, o dev server trata o proxy local; em build, não existe fallback absoluto nem variável `VITE_API_BASE_URL` embutida. Cookies, CSRF e Origin ficam coerentes com o contrato same-origin.
 
 6. Validação do passo.
 
-Build local sem `VITE_API_BASE_URL` deve continuar a funcionar.
+Build e preview devem funcionar sem `VITE_API_BASE_URL`; pesquisa no `dist` não pode encontrar `localhost`, `127.0.0.1` nem `VITE_API_PROXY_TARGET`.
 
 7. Cenário negativo/erro esperado.
 
-Build de produção com `VITE_API_BASE_URL=http://api.exemplo.pt/api` deve falhar.
+Se o cliente voltar a conter uma URL absoluta ou se o bundle incluir o target do proxy, o scan pós-build deve falhar.
 
 ### Passo 7 - Criar testes de transporte seguro
 
@@ -395,31 +416,33 @@ Provar desenvolvimento local, produção segura e produção insegura.
 
 3. Instruções do que fazer.
 
-Testa o middleware diretamente para não depender de certificados reais.
+Testa o middleware diretamente e acrescenta um pedido Supertest para o cenário de spoofing, sem depender de certificados reais.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
 // apps/api/tests/mf6.secure-transport.test.js
 import { describe, expect, it, vi } from "vitest";
+import express from "express";
+import request from "supertest";
 import { requireHttps } from "../src/middlewares/secure-transport.middleware.js";
 
-function buildReq(proto = "http") {
-    // O mock representa o protocolo original recebido do proxy sem depender de certificados reais.
-    return { secure: false, get: () => proto };
+function buildReq(secure = false) {
+    // O middleware consome apenas a decisão já validada pelo Express.
+    return { secure };
 }
 
 describe("BK-MF6-05 transporte seguro", () => {
     it("permite desenvolvimento local por HTTP", () => {
         const next = vi.fn();
-        requireHttps({ nodeEnv: "development" })(buildReq("http"), {}, next);
+        requireHttps({ nodeEnv: "development" })(buildReq(false), {}, next);
         expect(next).toHaveBeenCalledWith();
     });
 
     it("permite produção quando proxy indica HTTPS", () => {
         const next = vi.fn();
         const res = { setHeader: vi.fn() };
-        requireHttps({ nodeEnv: "production" })(buildReq("https"), res, next);
+        requireHttps({ nodeEnv: "production" })(buildReq(true), res, next);
         // HSTS só deve surgir no caminho seguro para não mascarar pedidos de produção inseguros.
         expect(res.setHeader).toHaveBeenCalledWith(
             "Strict-Transport-Security",
@@ -429,16 +452,31 @@ describe("BK-MF6-05 transporte seguro", () => {
 
     it("bloqueia produção insegura", () => {
         const next = vi.fn();
-        requireHttps({ nodeEnv: "production" })(buildReq("http"), {}, next);
+        requireHttps({ nodeEnv: "production" })(buildReq(false), {}, next);
         // O erro é controlado e não revela detalhes da infraestrutura.
-        expect(next.mock.calls[0][0]).toMatchObject({ statusCode: 403 });
+        expect(next.mock.calls[0][0]).toMatchObject({ statusCode: 426 });
+    });
+
+    it("não confia em X-Forwarded-Proto sem proxy autorizado", async () => {
+        const app = express();
+        app.set("trust proxy", false);
+        app.use(requireHttps({ nodeEnv: "production" }));
+        app.get("/probe", (_req, res) => res.sendStatus(204));
+        app.use((error, _req, res, _next) => {
+            res.status(error.statusCode ?? 500).json({ message: error.message });
+        });
+
+        await request(app)
+            .get("/probe")
+            .set("X-Forwarded-Proto", "https")
+            .expect(426);
     });
 });
 ```
 
 5. Explicação do código.
 
-Os testes validam a regra sem precisar de certificado real. A produção segura recebe HSTS; a produção insegura é bloqueada; desenvolvimento continua simples. Isto prova `RNF09` no código que está sob controlo dos alunos.
+Os testes validam a regra sem certificado real. A produção segura recebe HSTS; a insegura é bloqueada; desenvolvimento continua simples. O teste Supertest prova que um cliente direto não transforma HTTP em HTTPS ao falsificar `X-Forwarded-Proto`.
 
 6. Validação do passo.
 
@@ -475,7 +513,7 @@ Não há código novo. A evidence mostra que `RNF09` foi aplicado no backend e n
 
 6. Validação do passo.
 
-Confirma que existem pelo menos três negativos registados: produção HTTP bloqueada, URL pública HTTP bloqueada e localhost permitido sem falso bloqueio.
+Confirma que existem pelo menos três negativos registados: produção HTTP bloqueada, `X-Forwarded-Proto` falsificado por origem não confiável bloqueado e scan do bundle a rejeitar host/porta de desenvolvimento.
 
 7. Cenário negativo/erro esperado.
 
@@ -484,8 +522,9 @@ Se a evidence só mostrar build web e não mostrar o negativo HTTPS, o BK não d
 #### Expected results
 
 - Desenvolvimento local permite HTTP.
-- Produção com `x-forwarded-proto: https` segue.
-- Produção com `x-forwarded-proto: http` devolve `403`.
+- Produção através de proxy pertencente à allowlist e transporte HTTPS segue.
+- Header `x-forwarded-proto: https` vindo de origem não confiável não contorna o bloqueio `426`.
+- `TRUSTED_PROXY_CIDRS=true|1|*` ou CIDR inválido é recusado.
 - HSTS aparece em produção segura.
 
 #### Critérios de aceite
@@ -494,10 +533,10 @@ Se a evidence só mostrar build web e não mostrar o negativo HTTPS, o BK não d
 
 - Cenarios negativos concluidos: minimo `3`.
 - Matriz minima de testes por prioridade: `P0 = unit + integration + e2e/smoke + minimo 3 negativos`.
-- Evidencia de testes por camada: unit do middleware, build frontend e validação manual de headers.
+- Evidencia de testes por camada: unit do middleware, integração de spoofing, build frontend e scan do bundle.
 - Gate HTTPS não quebra localhost.
 - Cookies de sessão continuam HttpOnly e seguros em produção.
-- Frontend publicado não usa `http://` para API.
+- Frontend publicado usa `/api` same-origin e não contém host/porta local.
 - Evidence inclui testes do middleware e validação de build.
 
 #### Validação final
@@ -515,7 +554,7 @@ bash scripts/validate-planificacao.sh
 #### Evidence para PR/defesa
 
 - `proof_tecnico`: output dos testes de transporte seguro.
-- `proof_negativos`: produção HTTP bloqueada, URL pública HTTP bloqueada, localhost permitido.
+- `proof_negativos`: produção HTTP bloqueada, spoof de proxy bloqueado e bundle sem host/porta de desenvolvimento.
 - `proof_privacidade`: sessão, fotografias, relatórios e checkout exigem canal seguro em produção.
 
 #### Handoff
@@ -524,6 +563,7 @@ bash scripts/validate-planificacao.sh
 
 #### Changelog
 
+- `2026-07-10`: frontend alinhado a `/api` same-origin com proxy apenas em Vite; teste HTTPS passou a consumir só `req.secure` e inclui spoof negativo de `X-Forwarded-Proto`.
 - `2026-06-24`: removidas secções estruturais antigas, preservados conceitos essenciais dentro do contrato `####` e reforçados comentários didáticos no teste de transporte.
 - `2026-06-22`: guia reescrito para gate HTTPS/TLS, HSTS, validação de base URL e testes de `RNF09`.
 
@@ -613,4 +653,5 @@ export function validarEvidenceDocumental(evidence) {
 ```
 
 ## Changelog
+- `2026-07-10`: proxy endurecido com allowlist CIDR explícita, `req.secure`, negativos de spoofing e health live/ready.
 - `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.

@@ -75,14 +75,14 @@ Produtos indisponíveis devem ser comunicados. O fluxo pode adicionar os produto
 - `PurchaseHistoryPage.jsx`: adiciona botão de recompra.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/services/reorder.service.js`
-- CRIAR: `server/src/validators/reorder.validator.js`
-- CRIAR: `server/src/controllers/reorder.controller.js`
-- CRIAR: `server/src/routes/reorder.routes.js`
-- EDITAR: `server/src/app.js`
-- EDITAR: `client/src/pages/PurchaseHistoryPage.jsx`
-- REVER: `server/src/models/order.model.js`
-- REVER: `server/src/services/cart.service.js`
+- CRIAR: `apps/api/src/services/reorder.service.js`
+- CRIAR: `apps/api/src/validators/reorder.validator.js`
+- CRIAR: `apps/api/src/controllers/reorder.controller.js`
+- CRIAR: `apps/api/src/routes/reorder.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- EDITAR: `apps/web/src/pages/PurchaseHistoryPage.jsx`
+- REVER: `apps/api/src/models/order.model.js`
+- REVER: `apps/api/src/services/cart.service.js`
 
 ## Bloco pedagógico
 ### Objetivo
@@ -163,15 +163,15 @@ Sem código novo neste passo.
 
 1. Explicação simples do objetivo: adicionar produtos de encomenda anterior ao carrinho.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/reorder.service.js`
-    - REVER: `server/src/models/order.model.js`
-    - REVER: `server/src/models/product.model.js`
+    - CRIAR: `apps/api/src/services/reorder.service.js`
+    - REVER: `apps/api/src/models/order.model.js`
+    - REVER: `apps/api/src/models/product.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: validar encomenda, produto e stock.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/services/reorder.service.js
+// apps/api/src/services/reorder.service.js
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 import { addItemToCart, getMyCart } from "./cart.service.js";
@@ -224,14 +224,14 @@ export async function reorderFromOrder(userId, orderId) {
 
 1. Explicação simples do objetivo: validar o ID da encomenda e ligar route ao service.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/reorder.validator.js`
-    - CRIAR: `server/src/controllers/reorder.controller.js`
+    - CRIAR: `apps/api/src/validators/reorder.validator.js`
+    - CRIAR: `apps/api/src/controllers/reorder.controller.js`
     - LOCALIZAÇÃO: ficheiros completos.
 3. O que fazer: criar validator de params e chamar `reorderFromOrder`.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/validators/reorder.validator.js
+// apps/api/src/validators/reorder.validator.js
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
 
@@ -253,7 +253,7 @@ export function validateReorderParams(params) {
 ```
 
 ```js
-// server/src/controllers/reorder.controller.js
+// apps/api/src/controllers/reorder.controller.js
 import { reorderFromOrder } from "../services/reorder.service.js";
 import { validateReorderParams } from "../validators/reorder.validator.js";
 
@@ -283,13 +283,13 @@ export async function reorderController(req, res, next) {
 
 1. Explicação simples do objetivo: expor ação de recompra.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/routes/reorder.routes.js`
+    - CRIAR: `apps/api/src/routes/reorder.routes.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: proteger endpoint.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/routes/reorder.routes.js
+// apps/api/src/routes/reorder.routes.js
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import { reorderController } from "../controllers/reorder.controller.js";
@@ -310,7 +310,7 @@ reorderRoutes.post("/me/orders/:orderId/reorder", requireAuth, reorderController
 
 1. Explicação simples do objetivo: ligar recompra ao Express.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: imports e routes.
 3. O que fazer: montar `reorderRoutes`.
 4. Código completo, correto e integrado.
@@ -329,13 +329,13 @@ app.use("/api", reorderRoutes);
 
 1. Explicação simples do objetivo: criar botão de recompra com feedback visível.
 2. Ficheiros envolvidos.
-    - EDITAR: `client/src/pages/PurchaseHistoryPage.jsx`
+    - EDITAR: `apps/web/src/pages/PurchaseHistoryPage.jsx`
     - LOCALIZAÇÃO: ficheiro completo atualizado a partir do `BK-MF3-04`.
 3. O que fazer: chamar endpoint de recompra, mostrar avisos e bloquear clique duplicado enquanto o pedido está em curso.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/pages/PurchaseHistoryPage.jsx
+// apps/web/src/pages/PurchaseHistoryPage.jsx
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -453,8 +453,8 @@ export function PurchaseHistoryPage() {
 
 1. Explicação simples do objetivo: provar que recompra é segura.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/services/reorder.service.js`
-    - REVER: `server/src/routes/reorder.routes.js`
+    - REVER: `apps/api/src/services/reorder.service.js`
+    - REVER: `apps/api/src/routes/reorder.routes.js`
     - LOCALIZAÇÃO: testes ou outputs.
 3. O que fazer: testar sem sessão, ID inválido, encomenda de outro utilizador e produto sem stock.
 4. Código completo, correto e integrado.

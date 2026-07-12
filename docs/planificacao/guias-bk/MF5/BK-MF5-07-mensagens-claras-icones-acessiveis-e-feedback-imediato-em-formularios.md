@@ -20,7 +20,23 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-08`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-07-mensagens-claras-icones-acessiveis-e-feedback-imediato-em-formularios.md`
-- `last_updated`: `2026-06-22`
+- `last_updated`: `2026-07-11`
+
+> **Contrato canónico ativo — 2026-07-11:** o formulário sensível de fotografias vive em `apps/web/src/features/consultation/NewConsultationPage.jsx`. A UI recolhe objetivos, consentimento OpenAI v2 e duas fotografias, executa preflight local, apresenta hard failures/warnings e só depois envia os campos `frontal` e `perfil`. Mensagens usam `role="alert"`/`role="status"`, preservam o formulário em 401/409/timeout e nunca mostram paths, landmarks, prompts ou detalhes técnicos.
+
+> **Substituição obrigatória:** o Passo 6 inferior baseado em `FacePhotoUploadPage.jsx`, consentimento `face-analysis-v1` e upload autónomo é histórico e **não deve ser executado**. Deve ser aplicado como padrão de acessibilidade a `NewConsultationPage`, sem duplicar o estado `flowState` do backend nem criar uma página/rota facial paralela. Ver [plano canónico da consulta OpenAI](../../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
+
+### Critérios de aceitação ativos
+
+- `FeedbackMessage` e `SubmitButton` são reutilizados no registo e na nova consulta.
+- Hard failures, warnings confirmáveis, loading, 401, 409, timeout e retry têm mensagens distintas e sanitizadas.
+- O formulário conserva objetivos, ficheiros selecionados e warnings perante falha; nunca persiste fotografias ou respostas em storage.
+- O smoke e os testes referenciam `NewConsultationPage.jsx` e consentimento OpenAI v2.
+
+<details class="historical-archive">
+<summary><strong>Anexo histórico do upload facial v1 — não executar</strong></summary>
+
+> Todo o conteúdo restante deste ficheiro, incluindo passos, código, `face-analysis-v1`, smoke, checklists e evidence, pertence ao formulário autónomo substituído. É mantido apenas para rastreabilidade e não constitui instrução ativa.
 
 #### Objetivo
 
@@ -989,3 +1005,5 @@ Se os negativos forem menos de 3, a evidência P0 fica incompleta e o BK não de
 
 - `2026-06-18`: guia reescrito para RNF03 com componentes de feedback, botão ocupado, CSS de mensagens e exemplo integrado em formulário.
 - `2026-06-20`: paths corrigidos para `apps/web`, 8 passos P0 adicionados, comentários didáticos incluídos nos blocos de código, explicações expandidas, integração em formulário sensível, smoke sem dependências novas, matriz mínima de testes acrescentada e bloco `package.json` focalizado no script novo.
+
+</details>

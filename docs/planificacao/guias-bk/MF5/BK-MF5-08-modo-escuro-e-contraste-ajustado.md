@@ -20,7 +20,23 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF6-01`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-08-modo-escuro-e-contraste-ajustado.md`
-- `last_updated`: `2026-06-22`
+- `last_updated`: `2026-07-11`
+
+> **Contrato atual (2026-07-10):** `localStorage` pode persistir exclusivamente a preferência visual validada (`light`, `dark` ou `contrast`) sob uma chave dedicada. Sessão, role, tokens, consentimento, PII, fotografias, relatórios e qualquer outro estado funcional continuam proibidos. Se o runtime ainda não ler/escrever esta chave e não existir teste de reload, a implementação permanece em correção; este guia não constitui evidência de execução.
+
+> **Integração canónica — 2026-07-11:** o tema aplica-se às rotas atuais da consulta (`ConsultationDashboardPage`, `NewConsultationPage`, `ActiveConsultationPage`, `ConsultationReportPage`, `ConsultationHistoryPage` e `ConsultationReviewsPage`) sem guardar estado funcional. O exemplo inferior de `page-stack` com páginas faciais, recomendações e antes/depois independentes é histórico e **não deve ser executado**. Ver [plano canónico da consulta OpenAI](../../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
+
+### Critérios de aceitação ativos
+
+- Apenas `light`, `dark` ou `contrast` são persistidos na chave visual dedicada.
+- As seis páginas atuais da consulta herdam os tokens sem duplicar páginas ou estado.
+- Foco, feedback, gráficos e estados mantêm contraste mínimo e informação não dependente apenas de cor.
+- Reload, storage indisponível, valor inválido e Axe fazem parte do teste focal.
+
+<details class="historical-archive">
+<summary><strong>Anexo histórico da integração por page-stack — não executar</strong></summary>
+
+> Todo o conteúdo restante deste ficheiro é preservado como tutorial anterior. O código, passos, checklists e handoffs que montam páginas faciais/recomendações/antes-depois independentes não são instruções atuais.
 
 #### Objetivo
 
@@ -36,6 +52,7 @@ Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orél
 - Criar `useThemePreference` em `apps/web`.
 - Criar `ThemeControls` em `apps/web`.
 - Aplicar o tema no atributo `data-theme` do elemento HTML raiz.
+- Persistir apenas o valor visual validado numa chave local dedicada e tolerante a storage indisponível.
 - Integrar os controlos de tema no header da aplicação.
 - Validar contraste visual em botões, inputs, mensagens e cartões.
 - Formalizar validação `P2` com teste focal e 1 cenário negativo obrigatório.
@@ -43,7 +60,7 @@ Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orél
 #### Scope-out
 
 - Não alterar autenticação, autorização, roles, consentimento ou endpoints.
-- Não guardar tokens, cookies, fotografias, relatórios ou dados pessoais em preferências visuais.
+- Não guardar tokens, cookies, sessão, role, consentimento, fotografias, relatórios, PII ou dados funcionais no armazenamento do browser.
 - Não criar preferência persistente no backend.
 - Não mudar conteúdo funcional das páginas.
 - Não instalar biblioteca visual.
@@ -52,7 +69,7 @@ Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orél
 #### Estado antes e depois
 
 - Antes: a UI tem base clara e tokens visuais, mas não oferece alternância explícita entre tema claro, escuro e contraste.
-- Depois: a UI consegue alternar entre `light`, `dark` e `contrast`, preservando legibilidade, foco, mensagens e feedback acessível.
+- Depois: a UI consegue alternar entre `light`, `dark` e `contrast`, preserva a escolha visual após reload e mantém legibilidade, foco, mensagens e feedback acessível.
 
 #### Pre-requisitos
 
@@ -71,6 +88,7 @@ Neste BK vais acrescentar modo escuro e contraste ajustado à interface da Orél
 - Token CSS: variável CSS reutilizada por componentes.
 - Dataset: atributo `data-theme` no elemento HTML raiz.
 - Preferência do sistema: escolha visual indicada pelo sistema operativo do utilizador.
+- Preferência visual persistida: uma única string validada em `localStorage`, sem identidade nem dados funcionais.
 - Foco visível: indicação clara de que um input, botão ou controlo está ativo por teclado.
 
 #### Conceitos teóricos essenciais
@@ -81,7 +99,7 @@ O tema é apenas preferência visual. Não transporta identidade, sessão, permi
 
 Alto contraste não é o mesmo que modo escuro. Modo escuro reduz luminosidade; alto contraste aumenta a diferença entre texto, fundo, contorno e foco para facilitar leitura.
 
-`data-theme` é uma fronteira simples entre React e CSS. React decide o tema ativo; CSS responde a esse atributo com tokens diferentes. Esta solução evita dependências novas e mantém a app fácil de testar.
+`data-theme` é uma fronteira simples entre React e CSS. React decide o tema ativo; CSS responde a esse atributo com tokens diferentes. `localStorage` guarda apenas a escolha visual explícita; uma leitura ausente, inválida ou indisponível recua para a preferência do sistema sem quebrar a aplicação.
 
 `DERIVADO`: os nomes `useThemePreference`, `ThemeControls`, `light`, `dark`, `contrast`, `.theme-controls` e `.theme-controls__button` são decisões técnicas mínimas para cumprir `RNF04` dentro do frontend atual.
 
@@ -103,7 +121,7 @@ Este BK também ensina uma fronteira importante: tema é preferência visual loc
 
 ### Erros comuns
 
-- Usar `localStorage`, cookies ou backend para guardar a preferência visual antes de existir contrato explícito de persistência.
+- Usar `localStorage` para qualquer valor além da chave visual permitida, ou confiar num valor armazenado sem o normalizar.
 - Criar classes duplicadas para cada tema em vez de trocar tokens por `data-theme`.
 - Fazer alto contraste como se fosse apenas modo escuro, deixando texto secundário, foco ou botões pouco visíveis.
 - Remover gates de role ao mexer no header da aplicação.
@@ -126,13 +144,13 @@ Este BK também ensina uma fronteira importante: tema é preferência visual loc
 - Componente novo: `apps/web/src/components/ThemeControls.jsx`.
 - Integração React: `apps/web/src/App.jsx`.
 - Contrato canónico: `RNF04`, `BK-MF5-08`, handoff de `BK-MF5-06` e `BK-MF5-07`.
-- Em execução privada, se a prompt declarar `IMPLEMENTATION_ROOT=real_dev`, remapear os caminhos operacionais para `real_dev/web` apenas no relatório técnico; o guia de aluno continua a publicar `apps/web`.
+- Paths pedagógicos permanecem exclusivamente em `apps/web`; qualquer mapeamento privado pertence ao relatório técnico externo ao guia.
 
 ### Passos
 
 1. Confirmar que `RNF04` é visual e não altera API, sessão, roles ou dados sensíveis.
 2. Criar tokens `light`, `dark` e `contrast` em `styles.css`, preservando aliases visuais existentes.
-3. Criar `useThemePreference` com lista fechada `["light", "dark", "contrast"]`, `normalizeTheme` e aplicação de `document.documentElement.dataset.theme`.
+3. Criar `useThemePreference` com lista fechada `["light", "dark", "contrast"]`, leitura/escrita segura de `localStorage`, `normalizeTheme` e aplicação de `document.documentElement.dataset.theme`.
 4. Criar `ThemeControls` com botões textuais, `type="button"` e `aria-pressed`.
 5. Integrar `ThemeControls` no header de `App.jsx` sem alterar `AuthProvider`, `useAuth`, `isAdmin`, `canReviewRecommendations` ou a ordem das páginas.
 6. Validar que botões, inputs, cartões, mensagens e foco usam tokens nos três temas.
@@ -144,6 +162,7 @@ Este BK também ensina uma fronteira importante: tema é preferência visual loc
 - [ ] Build: `npm --prefix apps/web run build` termina sem erro.
 - [ ] UI: botões `Claro`, `Escuro` e `Contraste` aparecem no header.
 - [ ] DOM: alternar tema altera `document.documentElement.dataset.theme`.
+- [ ] Persistência: reload mantém apenas a preferência visual validada; storage indisponível não bloqueia a UI.
 - [ ] Acessibilidade: o botão ativo tem `aria-pressed` e foco por teclado visível.
 - [ ] Contraste: inputs, botões, cartões, alertas e feedback ficam legíveis nos três temas.
 - [ ] Negativos: minimo `1` cenarios com resultado observado e corrigido.
@@ -334,7 +353,7 @@ Controlar o tema ativo no frontend sem tocar em sessão, API ou backend.
 
 3. Instruções do que fazer.
 
-Cria a pasta `apps/web/src/hooks` se ainda não existir. Depois cria o hook abaixo. O tema inicial pode respeitar a preferência escura do sistema, mas a escolha do utilizador fica apenas no estado React e no DOM.
+Cria a pasta `apps/web/src/hooks` se ainda não existir. O tema inicial usa primeiro uma preferência visual local válida e, na ausência dela, respeita o sistema. Falhas de acesso ao storage nunca bloqueiam a UI.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -346,6 +365,7 @@ export const THEMES = Object.freeze(["light", "dark", "contrast"]);
 
 const DEFAULT_THEME = "light";
 const DARK_THEME_QUERY = "(prefers-color-scheme: dark)";
+const THEME_STORAGE_KEY = "orelle.visual-theme";
 
 /**
  * Confirma se o browser suporta consulta de preferência escura.
@@ -369,17 +389,52 @@ export function normalizeTheme(candidate) {
 }
 
 /**
- * Obtém o tema inicial a partir da preferência visual do sistema.
+ * Lê apenas a preferência visual permitida.
  *
- * @function getInitialTheme
- * @returns {"light"|"dark"|"contrast"} Tema inicial seguro.
+ * @function readStoredTheme
+ * @returns {"light"|"dark"|"contrast"|null} Tema válido ou null.
  */
-export function getInitialTheme() {
-    if (canReadSystemTheme() && window.matchMedia(DARK_THEME_QUERY).matches) {
-        return "dark";
+export function readStoredTheme() {
+    try {
+        const candidate = window.localStorage.getItem(THEME_STORAGE_KEY);
+        return THEMES.includes(candidate) ? candidate : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Persiste apenas uma string visual validada.
+ *
+ * @function writeStoredTheme
+ * @param {string} theme - Tema já normalizado.
+ * @returns {void}
+ */
+function writeStoredTheme(theme) {
+    try {
+        window.localStorage.setItem(THEME_STORAGE_KEY, normalizeTheme(theme));
+    } catch {
+        // Storage pode estar bloqueado; o tema continua funcional na sessão atual.
+    }
+}
+
+/**
+ * Obtém tema inicial e distingue escolha explícita de fallback do sistema.
+ *
+ * @function getInitialPreference
+ * @returns {{theme: "light"|"dark"|"contrast", explicit: boolean}} Preferência inicial segura.
+ */
+export function getInitialPreference() {
+    const storedTheme = readStoredTheme();
+    if (storedTheme) {
+        return { theme: storedTheme, explicit: true };
     }
 
-    return DEFAULT_THEME;
+    if (canReadSystemTheme() && window.matchMedia(DARK_THEME_QUERY).matches) {
+        return { theme: "dark", explicit: false };
+    }
+
+    return { theme: DEFAULT_THEME, explicit: false };
 }
 
 /**
@@ -389,18 +444,22 @@ export function getInitialTheme() {
  * @returns {{theme: string, themes: readonly string[], selectTheme: (theme: string) => void}} Estado e ação de tema.
  */
 export function useThemePreference() {
-    const [theme, setTheme] = useState(getInitialTheme);
+    const [preference, setPreference] = useState(getInitialPreference);
+    const { theme, explicit } = preference;
 
     useEffect(() => {
         const root = document.documentElement;
 
-        // O tema fica limitado ao DOM; não transporta sessão, role, token ou dados pessoais.
         root.dataset.theme = theme;
         root.style.colorScheme = theme === "dark" ? "dark" : "light";
-    }, [theme]);
+
+        if (explicit) {
+            writeStoredTheme(theme);
+        }
+    }, [explicit, theme]);
 
     useEffect(() => {
-        if (!canReadSystemTheme()) {
+        if (explicit || !canReadSystemTheme()) {
             return undefined;
         }
 
@@ -413,13 +472,9 @@ export function useThemePreference() {
          * @returns {void}
          */
         function handleSystemThemeChange(event) {
-            // O modo de contraste é uma escolha explícita e não deve ser substituído pelo sistema.
-            setTheme((currentTheme) => {
-                if (currentTheme === "contrast") {
-                    return currentTheme;
-                }
-
-                return event.matches ? "dark" : "light";
+            setPreference({
+                theme: event.matches ? "dark" : "light",
+                explicit: false,
             });
         }
 
@@ -428,11 +483,13 @@ export function useThemePreference() {
         return () => {
             mediaQuery.removeEventListener("change", handleSystemThemeChange);
         };
-    }, []);
+    }, [explicit]);
 
     const selectTheme = useCallback((nextTheme) => {
-        // Valores fora da lista voltam ao tema base para impedir data-theme arbitrário.
-        setTheme(normalizeTheme(nextTheme));
+        setPreference({
+            theme: normalizeTheme(nextTheme),
+            explicit: true,
+        });
     }, []);
 
     return { theme, themes: THEMES, selectTheme };
@@ -441,17 +498,17 @@ export function useThemePreference() {
 
 5. Explicação do código.
 
-O hook começa por declarar os temas aceites. `normalizeTheme` impede que valores arbitrários cheguem ao atributo `data-theme`. `getInitialTheme` usa a preferência escura do sistema apenas como ponto de partida. `useEffect` aplica o tema no elemento HTML raiz, que é a ponte entre React e CSS.
+O hook declara os temas aceites. `readStoredTheme` aceita apenas uma das três strings e trata storage indisponível. `getInitialPreference` dá prioridade à escolha explícita e usa a preferência do sistema apenas quando não existe valor local válido. O efeito persiste somente uma escolha explícita já normalizada.
 
-O segundo `useEffect` escuta mudanças do sistema e só alterna entre claro e escuro. O modo `contrast` é preservado porque representa uma decisão explícita de acessibilidade. O hook não chama API, não lê credenciais e não grava dados pessoais. Ao adaptar este hook, podes mudar nomes internos, mas não deves remover a validação da lista `THEMES`.
+O segundo `useEffect` escuta mudanças do sistema apenas enquanto não existe escolha explícita. O hook não chama API, não lê credenciais e nunca grava além de `orelle.visual-theme`. Ao adaptar este hook, não removas a lista fechada, os `try/catch` do storage nem a separação entre preferência visual e dados funcionais.
 
 6. Validação do passo.
 
-Selecionar `dark` deve colocar `data-theme="dark"` no elemento HTML. Selecionar um valor desconhecido através de DevTools deve voltar a `light` quando passar por `selectTheme`.
+Selecionar `dark` deve colocar `data-theme="dark"`, persistir exatamente `dark` e manter o tema após reload. Um valor armazenado desconhecido deve ser ignorado; storage bloqueado deve manter a alternância na sessão atual.
 
 7. Cenário negativo/erro esperado.
 
-Um tema inválido como `danger` não pode ficar aplicado no DOM como valor final.
+Um tema inválido como `danger` não pode ficar aplicado no DOM nem ser persistido. Nenhuma outra chave funcional pode ser criada por este hook.
 
 ### Passo 4 - Criar o componente ThemeControls
 
@@ -755,7 +812,7 @@ Uma integração que remova `useAuth`, apague páginas ou mostre páginas admin 
 
 1. Objetivo funcional do passo no contexto da app.
 
-Provar que o BK compila, que os três temas são testáveis e que o cenário negativo mínimo de `P2` foi executado.
+Provar que o BK compila, que os três temas persistem corretamente e que valores inválidos/storage indisponível não quebram a UI.
 
 2. Ficheiros envolvidos:
     - REVER: `apps/web/package.json`
@@ -766,18 +823,19 @@ Provar que o BK compila, que os três temas são testáveis e que o cenário neg
 
 3. Instruções do que fazer.
 
-Executar cenários negativos obrigatórios (mínimo 1). O cenário negativo obrigatório deste BK é tentar selecionar um tema inválido e confirmar que `normalizeTheme` devolve `light`, sem manter valor arbitrário no DOM.
+Executar cenários negativos obrigatórios. Grava `danger` na chave visual e confirma que é ignorado; simula `localStorage` a lançar `SecurityError` e confirma que a alternância continua no estado React/DOM. Confirma ainda que nenhuma chave de sessão ou domínio é escrita.
 
 4. Código completo, correto e integrado com a app final.
 
 ```bash
+npm --prefix apps/web run test:unit -- useThemePreference
 npm --prefix apps/web run build
 bash scripts/validate-planificacao.sh
 ```
 
 5. Explicação do código.
 
-O primeiro comando valida o frontend Vite no root operativo. O segundo comando valida a planificação e a qualidade documental. A validação manual completa estes comandos porque contraste visual precisa de observação em ecrã real ou browser.
+O teste unitário valida normalização e storage; o build valida o frontend Vite; o validador cobre a planificação. Um teste de browser/reload e Axe complementa estes comandos para contraste e persistência reais.
 
 6. Validação do passo.
 
@@ -786,9 +844,11 @@ Confirma estes pontos:
 - `npm --prefix apps/web run build` termina sem erro.
 - `ThemeControls` aparece no header.
 - `light`, `dark` e `contrast` alteram `data-theme`.
+- Selecionar `contrast`, recarregar e montar a app mantém `contrast` a partir de `orelle.visual-theme`.
 - Inputs, botões, mensagens e cartões continuam legíveis.
 - O foco por teclado continua visível nos três temas.
-- O cenário inválido volta a `light` e não deixa tema arbitrário aplicado.
+- O cenário inválido volta a um tema seguro e nunca persiste a string inválida.
+- `SecurityError` no storage não impede a mudança de tema na sessão atual.
 
 7. Cenário negativo/erro esperado.
 
@@ -798,7 +858,7 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 
 - A aplicação compila em `apps/web`.
 - O header mostra controlos `Claro`, `Escuro` e `Contraste`.
-- O tema ativo é refletido em `document.documentElement.dataset.theme`.
+- O tema ativo é refletido em `document.documentElement.dataset.theme` e a escolha explícita válida sobrevive a reload.
 - Inputs, botões, mensagens, cartões e foco mantêm legibilidade.
 - Não há alteração de endpoints, sessão, roles, consentimento, fotografias ou relatórios.
 - `BK-MF6-01` pode medir performance sem desfazer o sistema de temas.
@@ -809,11 +869,15 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 - `apps/web/src/components/ThemeControls.jsx` existe e usa `aria-pressed`.
 - `apps/web/src/styles.css` define tokens para `light`, `dark` e `contrast`.
 - `apps/web/src/App.jsx` integra `ThemeControls` no header.
+- `localStorage` contém apenas a chave `orelle.visual-theme` com uma das três strings permitidas.
+- Valor inválido e storage indisponível têm fallback seguro e testes.
+- Se estes testes ainda não passarem no runtime, o BK não pode ser marcado como concluído.
+- `npm --prefix apps/web run test:unit -- useThemePreference` passa.
 - `npm --prefix apps/web run build` passa.
 - `bash scripts/validate-planificacao.sh` foi executado e o resultado ficou registado.
 - Cenários negativos concluídos: mínimo `1`.
-- Evidência de testes por camada registada para static/build, UI manual e negativo.
-- Nenhuma alteração deste BK guarda sessão, role, token, consentimento, fotografia, relatório ou dados pessoais.
+- Evidência de testes por camada registada para unit, build, browser/reload, acessibilidade e negativos.
+- Nenhuma alteração deste BK guarda algo além da preferência visual validada; sessão, role, token, consentimento, fotografia, relatório e PII permanecem proibidos.
 
 #### Validação final
 
@@ -821,25 +885,26 @@ Se `selectTheme("danger")` mantiver `data-theme="danger"`, a validação de tema
 
 | Prioridade | Teste focal | Negativos mínimos | Evidence esperada |
 | --- | --- | ---: | --- |
-| `P2` | Build do frontend, teste visual dos três temas e validação de tema inválido | 1 | Output do build, screenshot ou descrição visual, resultado do negativo e resultado do validador |
+| `P2` | Unit do hook + build + browser/reload dos três temas + tema inválido/storage indisponível | 2 | Output unit/build, prova de reload, screenshot/axe, negativos e validador |
 
+- [ ] Unit: `npm --prefix apps/web run test:unit -- useThemePreference`.
 - [ ] Build: `npm --prefix apps/web run build`.
 - [ ] Static/doc: `bash scripts/validate-planificacao.sh`.
-- [ ] UI manual: alternar `Claro`, `Escuro` e `Contraste`.
+- [ ] Browser: alternar `Claro`, `Escuro` e `Contraste`, recarregar e confirmar persistência.
 - [ ] Acessibilidade: confirmar foco por teclado e `aria-pressed`.
-- [ ] Negativos: mínimo `1` cenários com resultado controlado.
+- [ ] Negativos: tema armazenado inválido e storage indisponível têm resultado controlado.
 - [ ] Sem regressão: sessão, roles e páginas continuam com o mesmo comportamento.
 
 ## Evidence para PR/defesa
 
 Evidência de testes por camada:
 
-- Static/build: output do `npm --prefix apps/web run build`.
+- Unit/build: outputs do teste focal e do `npm --prefix apps/web run build`.
 - Documental: output de `bash scripts/validate-planificacao.sh`.
-- UI manual: registo dos três temas testados em desktop e mobile.
+- Browser: registo dos três temas testados, reload e conteúdo sanitizado da única chave visual.
 - Acessibilidade: confirmação de foco visível e `aria-pressed`.
-- Negativo: `selectTheme("danger")` ou chamada equivalente volta a `light`.
-- Segurança/privacidade: confirmação de que tema não guarda credenciais, sessão, consentimento, fotografias, relatórios ou dados pessoais.
+- Negativos: valor armazenado `danger` é ignorado e `SecurityError` não bloqueia a UI.
+- Segurança/privacidade: scan confirma que só `orelle.visual-theme` é escrito e não contém credenciais, sessão, consentimento, fotografias, relatórios ou dados pessoais.
 
 #### Handoff
 
@@ -849,5 +914,8 @@ Evidência de testes por camada:
 
 #### Changelog
 
+- `2026-07-10`: persistência limitada à preferência visual validada em `localStorage`, com fallback seguro, teste de reload e estado de implementação não presumido pelo guia.
 - `2026-06-22`: acrescentados `Bloco pedagogico`, `Bloco operacional`, `Criterios de aceite` e `Evidence para PR/defesa` no formato esperado pelo validador canónico, sem alterar o contrato funcional do BK.
 - `2026-06-20`: corrigido o guia para `apps/web`, formalizada a matriz `P2`, acrescentados negativos obrigatórios e reforçados comentários didáticos nos blocos de código.
+
+</details>

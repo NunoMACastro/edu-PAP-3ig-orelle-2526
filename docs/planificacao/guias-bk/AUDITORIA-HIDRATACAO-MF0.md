@@ -1,5 +1,7 @@
 # Auditoria de hidratacao pedagogica/tecnica - MF0
 
+> **Nota de supersessão (2026-07-11):** este documento é um snapshot histórico da hidratação de 2026-05-29 e conserva caminhos/decisões entretanto substituídos. Não deve ser usado como contrato atual nem como evidence de runtime. O contrato OpenAI-only e a evidência atuais estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md); a coerência documental atual é verificada por `bash scripts/validate-planificacao.sh`. Os guias canónicos publicados usam `apps/api` e `apps/web`.
+
 ## Header
 - `doc_id`: `AUDITORIA-HIDRATACAO-MF0`
 - `macro`: `MF0`

@@ -80,7 +80,7 @@ A Orélle já tem muitos fluxos sensíveis, como sessão, fotografias faciais, r
 - REVER: `apps/api/src/app.js`
 - CRIAR: `apps/api/src/constants/domain.constants.js`
 - CRIAR: `apps/api/src/utils/encryption.util.js`
-- EDITAR: `apps/api/src/services/encryption.service.js`
+- REVER: `apps/api/src/services/encryption.service.js` e remover imports/reexports de compatibilidade legacy do contrato runtime.
 - EDITAR: `apps/api/src/models/face-report.model.js`
 - EDITAR: `apps/api/src/models/product.model.js`
 - EDITAR: `apps/api/src/models/profile.model.js`
@@ -242,7 +242,7 @@ const DOMAIN_CONSTANT_NAMES = new Set([
     "BIOMETRIC_REQUEST_RESOURCES",
     "BIOMETRIC_REQUEST_STATUSES",
     "ORDER_STATUS",
-    "PAYMENT_GATEWAYS",
+    "PAYMENT_MODE",
     "PAYMENT_STATUS",
     "NOTIFICATION_TYPES",
     "NOTIFICATION_TYPE_VALUES"
@@ -516,7 +516,7 @@ Atualizar os pontos reais que o contrato de modularidade acusa: constantes de do
 2. Ficheiros envolvidos:
     - CRIAR: `apps/api/src/constants/domain.constants.js`
     - CRIAR: `apps/api/src/utils/encryption.util.js`
-    - EDITAR: `apps/api/src/services/encryption.service.js`
+    - REVER: `apps/api/src/services/encryption.service.js` sem reexportar compatibilidade plaintext/v1 ou helpers exclusivos de migrations.
     - EDITAR: `apps/api/src/models/face-report.model.js`
     - EDITAR: `apps/api/src/models/product.model.js`
     - EDITAR: `apps/api/src/models/profile.model.js`
@@ -537,7 +537,7 @@ Atualizar os pontos reais que o contrato de modularidade acusa: constantes de do
 
 3. Instruções do que fazer.
 
-Primeiro cria contratos neutros que podem ser importados por models, validators, services e providers sem atravessar a fronteira de persistência. Usa uma estratégia única: `apps/api/src/constants/domain.constants.js` passa a ser a fonte dos enums partilhados e os models deixam de exportar esses enums. Depois move a encriptação usada por schemas para `utils`, mantendo `services/encryption.service.js` como fachada compatível. Por fim adiciona JSDoc diretamente antes das funções exportadas que o teste acusou.
+Primeiro cria contratos neutros que podem ser importados por models, validators, services e providers sem atravessar a fronteira de persistência. Usa uma estratégia única: `apps/api/src/constants/domain.constants.js` passa a ser a fonte dos enums partilhados e os models deixam de exportar esses enums. Depois mantém a encriptação contextual usada por schemas em `utils`, sem fachada runtime para plaintext/v1 e sem reexportar `decryptJsonForMigration`. Por fim adiciona JSDoc diretamente antes das funções exportadas que o teste acusou.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -575,24 +575,25 @@ export const BIOMETRIC_REQUEST_STATUSES = Object.freeze({
     COMPLETED: "completed"
 });
 
-// Pagamentos continuam separados de encomendas para preservar o contrato da MF3.
+// Pagamento e logística são estados independentes. A aplicação académica só
+// suporta simulação explícita e nunca inicia uma transação financeira.
 export const ORDER_STATUS = Object.freeze({
     PENDENTE: "pendente",
     ENVIADO: "enviado",
-    ENTREGUE: "entregue"
+    ENTREGUE: "entregue",
+    CANCELLED: "cancelled"
 });
 
-export const PAYMENT_GATEWAYS = Object.freeze({
-    STRIPE: "stripe",
-    PAYPAL: "paypal",
-    MBWAY: "mbway"
+export const PAYMENT_MODE = Object.freeze({
+    SIMULATED: "simulated",
+    SIMULATED_LEGACY: "simulated_legacy"
 });
 
 export const PAYMENT_STATUS = Object.freeze({
-    REQUIRES_PAYMENT: "requires_payment",
-    PENDING_MANUAL_CONFIRMATION: "pending_manual_confirmation",
-    PAID: "paid",
-    FAILED: "failed"
+    AWAITING_SIMULATION: "awaiting_simulation",
+    SIMULATED_PAID: "simulated_paid",
+    SIMULATED_FAILED: "simulated_failed",
+    CANCELLED_LEGACY: "cancelled_legacy"
 });
 
 export const NOTIFICATION_TYPES = Object.freeze({
@@ -610,179 +611,73 @@ export const NOTIFICATION_TYPE_VALUES = Object.freeze(
 
 ```js
 // apps/api/src/utils/encryption.util.js
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
-import { env } from "../config/env.js";
-import { AppError } from "../middlewares/error.middleware.js";
+// A implementação AES-256-GCM contextual é construída no BK-MF6-07.
+// Em runtime, JSON sensível usa exclusivamente estes helpers estritos.
+export function encryptJsonWithContext(value, context) {
+    if (value === null || value === undefined) return value;
 
-export const DATA_ENCRYPTION_ALGORITHM = "aes-256-gcm";
-const KEY_BYTES = 32;
-const IV_BYTES = 12;
-
-/**
- * Confirma se um valor já tem o formato cifrado interno.
- *
- * @param {unknown} value - Valor candidato.
- * @returns {boolean} Verdadeiro quando parece payload cifrado da Orélle.
- */
-export function isEncryptedPayload(value) {
-    return (
-        Boolean(value) &&
-        typeof value === "object" &&
-        value.encrypted === true &&
-        value.algorithm === DATA_ENCRYPTION_ALGORITHM &&
-        typeof value.iv === "string" &&
-        typeof value.authTag === "string" &&
-        typeof value.ciphertext === "string"
-    );
-}
-
-/**
- * Converte uma chave textual numa chave AES-256.
- *
- * @param {string|undefined} rawKey - Chave em base64, hex ou texto forte.
- * @returns {Buffer} Chave com 32 bytes.
- * @throws {AppError} Quando a chave está ausente ou é fraca.
- */
-export function parseDataEncryptionKey(rawKey) {
-    const value = String(rawKey ?? "").trim();
-
-    if (!value) {
-        throw new AppError(500, "Chave de encriptação inválida.");
+    if (isContextualEncryptedPayload(value)) {
+        // Autentica a AAD antes de aceitar um envelope já cifrado.
+        decryptBufferWithContext(value, context);
+        return value;
     }
-
-    const base64Candidate = Buffer.from(value, "base64");
-    if (base64Candidate.length === KEY_BYTES) return base64Candidate;
-
-    const hexCandidate = /^[a-f0-9]+$/i.test(value)
-        ? Buffer.from(value, "hex")
-        : Buffer.alloc(0);
-    if (hexCandidate.length === KEY_BYTES) return hexCandidate;
-
-    if (Buffer.byteLength(value, "utf8") >= KEY_BYTES) {
-        return createHash("sha256").update(value).digest();
-    }
-
-    throw new AppError(500, "Chave de encriptação inválida.");
-}
-
-/**
- * Resolve a chave ativa, exigindo segredo dedicado em produção.
- *
- * @returns {Buffer} Chave AES-256 para cifra/decifra.
- * @throws {AppError} Quando a configuração de produção não tem chave.
- */
-function getActiveDataEncryptionKey() {
-    if (env.dataEncryptionKey) {
-        return parseDataEncryptionKey(env.dataEncryptionKey);
-    }
-
-    if (env.nodeEnv === "production") {
-        throw new AppError(500, "DATA_ENCRYPTION_KEY obrigatória em produção.");
-    }
-
-    // A chave de desenvolvimento vem de outro segredo local e nunca deve ser usada para produção.
-    return createHash("sha256")
-        .update(`orelle-dev-data-key:${env.sessionSecret}`)
-        .digest();
-}
-
-/**
- * Encripta bytes sensíveis com AES-256-GCM.
- *
- * @param {Buffer} plainBuffer - Conteúdo a cifrar.
- * @returns {{encrypted: true, algorithm: string, iv: string, authTag: string, ciphertext: string}} Payload cifrado.
- */
-export function encryptBuffer(plainBuffer) {
-    const iv = randomBytes(IV_BYTES);
-    const cipher = createCipheriv(
-        DATA_ENCRYPTION_ALGORITHM,
-        getActiveDataEncryptionKey(),
-        iv
-    );
-    const ciphertext = Buffer.concat([cipher.update(plainBuffer), cipher.final()]);
-
-    return {
-        encrypted: true,
-        algorithm: DATA_ENCRYPTION_ALGORITHM,
-        iv: iv.toString("base64"),
-        authTag: cipher.getAuthTag().toString("base64"),
-        ciphertext: ciphertext.toString("base64")
-    };
-}
-
-/**
- * Decifra bytes previamente cifrados pela Orélle.
- *
- * @param {object} payload - Payload AES-256-GCM.
- * @returns {Buffer} Conteúdo original.
- * @throws {AppError} Quando o payload é inválido ou foi adulterado.
- */
-export function decryptBuffer(payload) {
-    if (!isEncryptedPayload(payload)) {
-        throw new AppError(500, "Payload de encriptação inválido.");
-    }
-
-    try {
-        const decipher = createDecipheriv(
-            DATA_ENCRYPTION_ALGORITHM,
-            getActiveDataEncryptionKey(),
-            Buffer.from(payload.iv, "base64")
+    if (isEncryptedPayload(value)) {
+        throw new AppError(
+            500,
+            "Payload legado só pode ser convertido pela migração de dados.",
         );
-        decipher.setAuthTag(Buffer.from(payload.authTag, "base64"));
-
-        return Buffer.concat([
-            decipher.update(Buffer.from(payload.ciphertext, "base64")),
-            decipher.final()
-        ]);
-    } catch {
-        throw new AppError(500, "Conteúdo encriptado inválido.");
     }
+
+    return encryptBufferWithContext(
+        Buffer.from(JSON.stringify(value, contextualJsonReplacer), "utf8"),
+        context,
+    );
 }
 
-/**
- * Encripta um valor JSON mantendo tipo lógico na decifra.
- *
- * @param {unknown} value - Valor serializável a proteger.
- * @returns {object} Payload cifrado.
- */
-export function encryptJson(value) {
-    if (isEncryptedPayload(value)) return value;
+export function decryptJsonWithContext(value, context) {
+    if (value === null || value === undefined) return value;
 
-    // Os schemas usam este setter para proteger relatórios sem chamar services.
-    return encryptBuffer(Buffer.from(JSON.stringify(value), "utf8"));
-}
-
-/**
- * Decifra um valor JSON, aceitando dados antigos ainda em claro.
- *
- * @param {unknown} value - Valor cifrado ou legado em claro.
- * @returns {unknown} Valor lógico para services e DTOs.
- */
-export function decryptJson(value) {
-    if (!isEncryptedPayload(value)) return value;
-
-    return JSON.parse(decryptBuffer(value).toString("utf8"));
+    // decryptBufferWithContext exige keyVersion=2, aadHash e AAD exata.
+    return JSON.parse(
+        decryptBufferWithContext(value, context).toString("utf8"),
+        contextualJsonReviver,
+    );
 }
 ```
+
+O contrato runtime não aceita plaintext nem envelope v1 e não é reexportado por `services/encryption.service.js`. Um consumidor técnico passa sempre AAD completa:
 
 ```js
-// apps/api/src/services/encryption.service.js
-export {
-    DATA_ENCRYPTION_ALGORITHM,
-    decryptBuffer,
-    decryptJson,
-    encryptBuffer,
-    encryptJson,
-    isEncryptedPayload,
-    parseDataEncryptionKey
-} from "../utils/encryption.util.js";
+// apps/api/src/utils/contextual-encryption.example.js
+import {
+    decryptJsonWithContext,
+    encryptJsonWithContext,
+} from "./encryption.util.js";
+
+const context = {
+    collection: "facereports",
+    owner: userId,
+    field: "cosmeticSummary",
+};
+
+// O envelope inclui keyVersion=2 e aadHash; trocar owner/campo/coleção falha.
+const envelope = encryptJsonWithContext(cosmeticSummary, context);
+const logicalValue = decryptJsonWithContext(envelope, context);
 ```
 
-Substitui os imports nos models para usarem os contratos neutros. Remove dos models os blocos `export const SKIN_TYPES`, `export const GENDERS`, `export const ORDER_STATUS`, `export const PAYMENT_GATEWAYS`, `export const PAYMENT_STATUS`, `export const NOTIFICATION_TYPES`, `export const NOTIFICATION_TYPE_VALUES`, `export const BIOMETRIC_REQUEST_ACTIONS`, `export const BIOMETRIC_REQUEST_RESOURCES` e `export const BIOMETRIC_REQUEST_STATUSES`.
+`decryptJsonForMigration` é a única fronteira que pode ler plaintext/v1. Importa-a diretamente de `utils/encryption.util.js` apenas nas migrations `005`, `006`, `008` e `009`, recifra imediatamente com `encryptJsonWithContext` e nunca a exponhas numa fachada de runtime, model, controller ou service.
+
+Substitui os imports nos models para usarem os contratos neutros. Remove dos models os blocos `export const SKIN_TYPES`, `export const GENDERS`, `export const ORDER_STATUS`, `export const PAYMENT_MODE`, `export const PAYMENT_STATUS`, `export const NOTIFICATION_TYPES`, `export const NOTIFICATION_TYPE_VALUES`, `export const BIOMETRIC_REQUEST_ACTIONS`, `export const BIOMETRIC_REQUEST_RESOURCES` e `export const BIOMETRIC_REQUEST_STATUSES`.
 
 ```js
 // apps/api/src/models/face-report.model.js
-import { decryptJson, encryptJson } from "../utils/encryption.util.js";
+import { contextualEncryptedField } from "../utils/contextual-encrypted-field.util.js";
+
+const cosmeticSummary = contextualEncryptedField({
+    collection: "facereports",
+    field: "cosmeticSummary",
+    required: true,
+});
 
 // apps/api/src/models/product.model.js
 import { SKIN_TYPES } from "../constants/domain.constants.js";
@@ -793,7 +688,7 @@ import { GENDERS, SKIN_TYPES } from "../constants/domain.constants.js";
 // apps/api/src/models/order.model.js
 import {
     ORDER_STATUS,
-    PAYMENT_GATEWAYS,
+    PAYMENT_MODE,
     PAYMENT_STATUS
 } from "../constants/domain.constants.js";
 
@@ -824,7 +719,7 @@ import { SKIN_TYPES } from "../constants/domain.constants.js";
 import { SKIN_TYPES } from "../constants/domain.constants.js";
 
 // apps/api/src/validators/checkout.validator.js
-import { PAYMENT_GATEWAYS } from "../constants/domain.constants.js";
+// O checkout não importa métodos: valida body vazio e Idempotency-Key.
 
 // apps/api/src/validators/notification.validator.js
 import {
@@ -869,7 +764,7 @@ import { BiometricDataRequest } from "../models/biometric-data-request.model.js"
 
 // apps/api/src/providers/payment.provider.js
 import {
-    PAYMENT_GATEWAYS,
+    PAYMENT_MODE,
     PAYMENT_STATUS
 } from "../constants/domain.constants.js";
 ```
@@ -1036,7 +931,7 @@ export async function runRoutineAlertsController(req, res, next) {
 
 `domain.constants.js` retira enums partilhados de dentro dos models. Assim, models, validators, services e providers usam o mesmo contrato sem depender da camada de persistência para ler constantes. Isto evita duplicação, impede imports partidos e mantém alinhados schemas, DTOs, services e provider de pagamento.
 
-`encryption.util.js` fica fora de `services` porque os schemas usam `encryptJson` e `decryptJson` em getters/setters. O model pode depender de um utilitário técnico neutro, mas não deve depender de um service de regra de negócio. A fachada `services/encryption.service.js` preserva imports antigos de services sem obrigar uma migração ampla no mesmo BK.
+`encryption.util.js` e `contextual-encrypted-field.util.js` ficam fora de `services` porque os schemas usam `encryptJsonWithContext`/`decryptJsonWithContext` através de `contextualEncryptedField`. O model pode depender de um utilitário técnico neutro, mas não de um service de regra de negócio. Plaintext e v1 falham fechados em runtime; `decryptJsonForMigration` é importado diretamente apenas por `005`, `006`, `008` e `009`, nunca reexportado pela fachada de services.
 
 Os controllers de notificações e alertas passam a ter JSDoc junto de cada função exportada. A explicação deixa claro que o userId vem da sessão, que a validação é feita no backend e que os erros seguem para o middleware global.
 
@@ -1086,6 +981,8 @@ Se um comando não existir ou falhar por ambiente, regista o motivo em vez de ma
 - O teste `mf8.modularidade.contract.test.js` termina sem violações de fronteira entre models, validators, services, controllers e routes.
 - As constantes de domínio partilhadas ficam fora dos models, em `apps/api/src/constants/domain.constants.js`.
 - Models, validators, services e providers importam enums partilhados de `domain.constants.js`, sem exports de constantes a partir dos models.
+- Campos JSON sensíveis usam envelopes contextuais v2 com `keyVersion`, `aadHash` e AAD `collection`/`owner`/`field`; plaintext/v1 falha em runtime.
+- `decryptJsonForMigration` só é importado diretamente pelas migrations 005/006/008/009 e não é reexportado por services.
 - As respostas públicas não expõem passwords, tokens, cookies, storage interno, fotografias, relatórios sensíveis ou detalhes internos de servidor.
 - Executar cenários negativos obrigatórios (mínimo 3) com resultado controlado.
 - O próximo BK consegue consumir o handoff sem criar contrato paralelo.
@@ -1096,6 +993,7 @@ Se um comando não existir ou falhar por ambiente, regista o motivo em vez de ma
 - Imports de validators, models, services, controllers e routes sem saltos de camada proibidos pelo teste.
 - Constantes de domínio partilhadas centralizadas em `apps/api/src/constants/domain.constants.js`, sem consumidores a importarem esses enums a partir de models.
 - Exports públicos críticos documentados com JSDoc direto ou documentação de módulo aceite pelo contrato.
+- Models usam `contextualEncryptedField` ou os helpers `*WithContext`; não usam `encryptJson`/`decryptJson` legacy nem a fachada de services.
 - Cenários negativos concluídos: mínimo `3` com resultado controlado.
 - Evidência de testes por camada conforme prioridade (`P0`).
 
@@ -1111,6 +1009,8 @@ Se um comando não existir ou falhar por ambiente, regista o motivo em vez de ma
 - [ ] Negativos: mínimo `3` cenários com resultado controlado.
 - [ ] Técnico: imports, endpoints, DTOs, schemas, services e componentes sem duplicação ou nomes contraditórios.
 - [ ] Modularidade: `npm --prefix apps/api test -- tests/mf8.modularidade.contract.test.js` sem violações de fronteira, constantes vindas de models nem documentação em falta.
+- [ ] Cifra contextual: `rg -n "decryptJsonForMigration" apps/api/src` só encontra utilitário e migrations 005/006/008/009; nenhum model/controller/service runtime o importa ou reexporta.
+- [ ] Contrato estrito: testes negativos trocam owner, coleção e campo e confirmam falha; plaintext/v1 não é devolvido como valor lógico em runtime.
 - [ ] Segurança/privacidade: regras de sessão, role, ownership, consentimento e minimização validadas nos fluxos alterados.
 - [ ] Handoff: próximo BK documentado e risco restante registado.
 - Marcadores de estrutura reconhecíveis no checklist da planificação: `## Bloco pedagogico`, `### Objetivo`, `### Pre-requisitos`, `### Erros comuns`, `### Check de compreensao`, `## Bloco operacional`, `### Entrada`, `### Passos`, `### Validacao`, `### Handoff`, `## Criterios de aceite`, `## Evidence para PR/defesa`.
@@ -1131,6 +1031,7 @@ Se um comando não existir ou falhar por ambiente, regista o motivo em vez de ma
 
 #### Changelog
 
+- `2026-07-10`: solução final de cifra corrigida para `encryptJsonWithContext`/`decryptJsonWithContext`, AAD coleção/owner/campo e envelope v2; removida a instrução de aceitar plaintext/v1 ou reexportar compatibilidade por services, ficando legacy confinado às migrations 005/006/008/009.
 - `2026-06-30`: guia revisto para a estrutura tutorial MF8, com caminhos públicos `apps/...`, teste de modularidade, negativos mínimos e handoff explícito.
 - `2026-07-01`: guia completado para fechar o finding `ORELLE-MF8-BK01-P1-003`, com constantes partilhadas, utilitário de encriptação neutro, imports corrigidos e JSDoc nos controllers acusados.
 - `2026-07-01`: guia completado para fechar o finding `ORELLE-MF8-BK01-P1-004`, cobrindo todos os consumidores reais de enums em models, validators, services e providers.

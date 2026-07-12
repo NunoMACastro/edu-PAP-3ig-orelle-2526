@@ -1,9 +1,59 @@
 # Funções Fundamentais Da Aplicação - Orélle
 
-Data do levantamento: 2026-07-07
+Data do levantamento histórico: 2026-07-07
 Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
-## Critérios
+> **Snapshot histórico supersedido em 2026-07-11.** O inventário AST integral e as contagens abaixo representam o runtime de 2026-07-07, com uma reconciliação parcial de 2026-07-10. A arquitetura OpenAI-only removeu entrypoints antigos e acrescentou jobs, relatórios v2, desbloqueio/voucher, edição de imagem e frontend integrado. Por isso, as contagens e entradas sob “Inventário AST histórico” não devem ser citadas como estado atual. O estado e a evidência correntes estão no [`PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md`](../planificacao/PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
+
+## Inventário corrente essencial da consulta OpenAI (2026-07-11)
+
+Esta secção foi verificada diretamente contra os módulos atuais; é uma seleção pedagógica de funções essenciais, não uma nova contagem AST exaustiva.
+
+### Objetivos, sessão e jobs
+
+- `getPublicAiConsultationGoals()` e `buildGoalSlotPlan(...)` expõem os sete objetivos versionados e os slots mínimos usados para escolher 5–8 perguntas.
+- `createAiConsultationSession(...)`, `beginAiConsultationAnalysis(...)`, `answerAiConsultationQuestion(...)`, `submitAiConsultationSession(...)`, `retryAiConsultationOperation(...)` e `cancelAiConsultationSession(...)` implementam o ciclo próprio do cliente sem aceitar `userId` do browser.
+- `handleAnalyzePhotosJob(...)` e `handleSelectNextQuestionJob(...)` executam análise e escolha da pergunta; `selectCanonicalFallbackQuestion(...)` é o único fallback canónico permitido depois de falharem os modelos OpenAI.
+- `enqueueAiJob(...)`, `claimNextAiJob(...)`, `renewAiJobLease(...)`, `completeAiJob(...)`, `failAiJob(...)`, `runAiJobWorkerOnce(...)` e `startAiJobWorker(...)` implementam claim atómico, lease, heartbeat, retry, idempotência e recuperação após restart.
+
+### Provider OpenAI e relatório v2
+
+- `getOpenAiCapabilities(...)`, `assertOpenAiAvailable(...)` e `createOpenAiResponsesClient(...)` controlam o arranque degradado, os deadlines, retry limitado e fallback para outro modelo OpenAI.
+- `analyzeSkinPhotosWithOpenAiV2(...)`, `selectNextQuestionWithOpenAi(...)` e `generateCosmeticReportWithOpenAi(...)` usam Structured Outputs e validação local; não existe resultado cosmético local de substituição.
+- `buildCatalogCandidateAllowlist(...)`, `validateOpenAiRecommendationSelections(...)` e `generateConsultationReportForJob(...)` limitam a OpenAI a produtos/variantes pré-filtrados e persistem snapshots do relatório.
+- `calculateMinimumRecommendationCoverage(...)` permite declarar cobertura limitada sem inventar produtos quando o catálogo não suporta 3–5 recomendações válidas.
+
+### Revisão, congelamento, 10% e voucher
+
+- `getFaceReportController(...)`, `finalizeFaceReportController(...)`, `requestFaceReportReviewController(...)`, `cancelFaceReportReviewController(...)` e `unlockFaceReportController(...)` expõem teaser/conteúdo segundo o acesso e coordenam revisão, congelamento e desbloqueio.
+- `listAiConsultationReviewsController(...)`, `getAiConsultationReviewController(...)`, `decideAiConsultationReviewController(...)` e `getAiConsultationReviewPhotoController(...)` implementam fila, detalhe, CAS e fotografia privada/auditada.
+- `calculateRecommendedTotalCents(...)`, `calculateAcademicDepositCents(...)`, `freezeReportUnlockSnapshot(...)` e `unlockReportWithSimulatedPayment(...)` congelam o total elegível, calculam `ceil(total × 10%)` e criam desbloqueio/voucher de forma transacional e idempotente.
+
+### Edição OpenAI de maquilhagem
+
+- `createMakeupSimulationForReport(...)`, `generateMakeupPreviewForJob(...)`, `getMakeupSimulationForUser(...)`, `readMakeupSimulationImageForUser(...)`, `revokeMakeupSimulationConsent(...)` e `expireMakeupSimulationOutputs(...)` protegem ownership, consentimento, job, imagem cifrada e TTL.
+- `editMakeupPhotoWithOpenAi(...)` chama exclusivamente o endpoint de edição OpenAI com prompt controlado a partir do `simulationSpec` congelado; não aceita prompt livre.
+
+### Frontend integrado
+
+- `NewConsultationPage`, `ActiveConsultationPage`, `ConsultationReportPage`, `ConsultationHistoryPage`, `ConsultationDashboardPage` e `ConsultationReviewsPage` implementam as rotas integradas de cliente/consultor.
+- `inspectPhotoFile(...)`, `inspectFaceWithMediaPipe(...)` e `assessFaceLandmarkerResult(...)` fazem preflight local; a indisponibilidade de MediaPipe degrada para validações nativas/backend.
+- `getSessionDestination(...)`, `shouldPollConsultation(...)`, `getConsultationPollDelay(...)`, `getReportPhase(...)` e `isReportUnlocked(...)` derivam a UI do `flowState` do backend sem máquina de estados paralela.
+- `createConsultationSession(...)`, `startConsultationAnalysis(...)`, `answerConsultationQuestion(...)`, `submitConsultationSession(...)`, `requestConsultationReportReview(...)`, `unlockConsultationReport(...)` e `createMakeupSimulation(...)` formam o cliente HTTP same-origin do percurso.
+
+## Inventário AST histórico de 2026-07-07/10
+
+### Adenda histórica posterior ao levantamento AST
+
+- Privacidade: `createMyBiometricDataRequestController`, `listMyBiometricDataRequestsController`, `listBiometricDataRequestsController`, `decideBiometricDataRequestController` e `retryBiometricDataRequestController` implementam os endpoints canónicos `privacy-requests`; `eraseOwnAccountController` expõe `DELETE /api/me/account`.
+- Consentimento facial: `getFaceConsentController`/`getFaceConsentForUser` implementam `GET /api/face-consent`; `revokeFaceConsentController`/`revokeFaceConsentForUser` implementam `DELETE /api/face-consent` de forma idempotente. A API self-service já existe; só uma ação visual dedicada de revogação continua ausente na página de upload.
+- Pagamento simulado: `simulateOrderPayment` compara o hash SHA-256 da `Idempotency-Key`, persiste snapshots internos em `paymentAttempts` e reproduz exatamente resultados terminais `simulated_paid` e `simulated_failed`. `CheckoutPage` já implementa criação do resumo e ação separada “Simular pagamento”, sem gateway ou I/O externo.
+- Remoção física: `enqueueFileDeletionJobs`, `processFileDeletionJobs`, `deleteAndConfirmFile`, `isFilePhysicallyAbsent` e `areFileDeletionJobsCompleted` asseguram deduplicação/retry e impedem `completed` antes da ausência dos bytes; `eraseOwnAccount` aplica o tombstone terminal e revoga sessões.
+- Consulta/revisão: `validateRecommendationGenerationInput` recusa IDs de sessão do browser; a geração resolve a última sessão submetida. `createOrRefreshAiConsultationReviewForSession` preserva `humanOverride`; list/detail/decision são auditados e `decideAiConsultationReview` usa CAS transacional.
+- Fairness: `buildFairnessSafeRankingInputs` cria a allowlist antes do score; `assertRecommendationFairness` e `assertRespectfulPublicText` são defesas complementares com limitações públicas.
+- Comparação: `listSkinComparisonOptions`, `getOwnedSkinAnalysisImage` e `createSkinComparison` suportam selects por data/`selectionKey`, imagem autenticada `no-store` e tabela de métricas sem inputs de IDs.
+
+## Critérios do snapshot histórico
 
 - A lista foi extraída por AST a partir do código real em `real_dev`.
 - Inclui funções/métodos nomeados de runtime com JSDoc: controllers, services, validators, middlewares, providers, componentes React, páginas, hooks, clientes HTTP e helpers nomeados.
@@ -11,13 +61,13 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 - Exclui testes, scripts de smoke externos a `src`, callbacks anónimos inline, construtores, artefactos gerados, `node_modules`, `dist`, reports e storage runtime.
 - Cada entrada mostra a assinatura curta, o tipo de símbolo, a descrição principal, as entradas documentadas e o valor devolvido.
 
-## Resumo
+## Resumo histórico
 
 - Backend: 434 funções/métodos em 122 ficheiros.
 - Frontend: 181 funções/métodos em 58 ficheiros.
 - Total: 615 funções/métodos fundamentais em 180 ficheiros.
 
-## Backend
+## Backend histórico
 
 ### `real_dev/api/src/app.js`
 
@@ -66,7 +116,7 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 - `listAdminUsersController(req, res, next)` (exportada; função) - Lista utilizadores para administracao. Entradas: `req`: Pedido admin autenticado; `res`: Resposta Express; `next`: Proximo middleware. Devolve: Resposta 200 com lista segura.
 - `updateUserRoleController(req, res, next)` (exportada; função) - Atualiza a role de um utilizador alvo. Entradas: `req`: Pedido admin autenticado; `res`: Resposta Express; `next`: Proximo middleware. Devolve: Resposta 200 com utilizador atualizado.
 - `updateUserStatusController(req, res, next)` (exportada; função) - Atualiza estado administrativo da conta. Entradas: `req`: Pedido admin autenticado; `res`: Resposta Express; `next`: Proximo middleware. Devolve: Resposta 200 com utilizador atualizado.
-- `deleteUserAccountController(req, res, next)` (exportada; função) - Executa eliminacao logica de uma conta. Entradas: `req`: Pedido admin autenticado; `res`: Resposta Express; `next`: Proximo middleware. Devolve: Resposta 200 com conta eliminada logicamente.
+- `deleteUserAccountController(req, res, next)` (exportada; função) - Executa a ação administrativa reversível “Desativar”: preserva os dados, grava `suspended` e revoga as sessões na mesma transação. Entradas: `req`: Pedido admin autenticado; `res`: Resposta Express; `next`: Próximo middleware. Devolve: Resposta 200 com a conta desativada; nunca cria o estado terminal `deleted`.
 
 ### `real_dev/api/src/controllers/ai-consultation-review.controller.js`
 
@@ -133,8 +183,10 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/api/src/controllers/face-photo.controller.js`
 
+- `getFaceConsentController(req, res, next)` (exportada; função) - Consulta, com `no-store`, o consentimento facial do utilizador autenticado e o requisito do provider configurado. Entradas: `req`: Pedido autenticado; `res`: Resposta Express; `next`: Próximo middleware. Devolve: Resposta 200 com estado atual ou null.
 - `acceptFaceConsentController(req, res, next)` (exportada; função) - Aceita consentimento facial do utilizador autenticado. Entradas: `req`: Pedido autenticado; `res`: Resposta Express; `next`: Proximo middleware. Devolve: Resposta com consentimento.
-- `collectUploadedFilesForCleanup(files)` (top-level; função) - Normaliza ficheiros recebidos para limpeza em caso de erro. Entradas: `files`: Ficheiros Multer. Devolve: Ficheiros para cleanup.
+- `revokeFaceConsentController(req, res, next)` (exportada; função) - Revoga idempotentemente o consentimento do titular e impede novo processamento sem apagar dados existentes. Entradas: `req`: Pedido autenticado; `res`: Resposta Express; `next`: Próximo middleware. Devolve: Resposta 200 com estado revogado ou null.
+- `collectUploadedFilesForCleanup(files)` (top-level; função) - Normaliza temporários recebidos pelo parser Busboy para limpeza em caso de erro. Entradas: `files`: Ficheiros temporários. Devolve: Ficheiros para cleanup.
 - `uploadFacePhotosController(req, res, next)` (exportada; função) - Guarda fotografias faciais frontal e de perfil. Entradas: `req`: Pedido multipart; `res`: Resposta Express; `next`: Proximo middleware. Devolve: Resposta com metadados seguros.
 
 ### `real_dev/api/src/controllers/face-report.controller.js`
@@ -154,7 +206,8 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/api/src/controllers/order.controller.js`
 
-- `checkoutController(req, res, next)` (exportada; função) - Cria encomenda e inicia pagamento a partir do carrinho. Entradas: `req`: Pedido autenticado; `res`: Resposta Express; `next`: Middleware de erro. Devolve: Resposta 201.
+- `checkoutController(req, res, next)` (exportada; função) - Cria ou reutiliza uma encomenda pendente a partir do carrinho, sem consumir stock, voucher ou carrinho. Entradas: `req`: Pedido autenticado com body vazio; `res`: Resposta Express; `next`: Middleware de erro. Devolve: Resposta 201.
+- `simulateOrderPaymentController(req, res, next)` (exportada; função) - Executa o momento explícito de pagamento simulado com ownership e `Idempotency-Key`, encaminhando também o `AbortSignal` do pedido. Entradas: `req`: Pedido autenticado com `orderId` e header validado; `res`: Resposta Express; `next`: Middleware de erro. Devolve: Resposta 200 nova ou replay exato de sucesso/falha terminal.
 - `listMyOrdersController(req, res, next)` (exportada; função) - Lista historico de encomendas do cliente autenticado. Entradas: `req`: Pedido autenticado; `res`: Resposta Express; `next`: Middleware de erro. Devolve: Resposta 200.
 
 ### `real_dev/api/src/controllers/preferences.controller.js`
@@ -295,11 +348,9 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/api/src/providers/payment.provider.js`
 
-- `appendStripeLineItems(params, items)` (top-level; função) - Converte itens da encomenda para parametros aceites pela API Stripe. Entradas: `params`: Params form-urlencoded; `items`: Itens da encomenda. Devolve: não devolve payload explícito.
-- `assertPaymentGatewayReady(gateway)` (exportada; função) - Valida se o gateway pedido pode iniciar o fluxo esperado. Esta pre-validacao corre antes da criacao da encomenda para evitar que um checkout Stripe sem configuracao persista uma encomenda sem URL de pagamento e limpe o carrinho do cliente. Entradas: `gateway`: Gateway ja validado pelo DTO. Devolve: não devolve payload explícito.
-- `createStripeCheckoutSession(order, idempotencyKey)` (top-level; função) - Cria sessao de checkout Stripe com fetch nativo. Entradas: `order`: Encomenda persistida; `idempotencyKey`: Chave estavel da tentativa de checkout. Devolve: Estado de pagamento.
-- `createManualGatewayStub(gateway, order)` (top-level; função) - Cria estado stub funcional para PayPal ou MBWay. Entradas: `gateway`: Gateway validado; `order`: Encomenda persistida. Devolve: Estado pendente.
-- `createPaymentSession(order, gateway, idempotencyKey)` (exportada; função) - Cria a sessao/estado de pagamento para uma encomenda. Entradas: `order`: Encomenda persistida; `gateway`: Gateway validado; `idempotencyKey`: Chave estavel para evitar sessoes duplicadas. Devolve: Dados seguros de pagamento.
+- `createAwaitingSimulationPayment()` (exportada; função) - Cria o estado inicial `awaiting_simulation`, sem referência externa ou cobrança. Entradas: sem entradas explícitas. Devolve: Estado persistível do checkout pendente.
+- `createSuccessfulSimulationPayment(order, options = {})` (exportada; função) - Cria um resultado local `simulated_paid` com referência e data simuladas. Entradas: `order`: Encomenda validada; `options`: relógio e gerador injetáveis em testes. Devolve: Estado final inequívoco de demonstração.
+- `createFailedSimulationPayment(order, options = {})` (exportada; função) - Cria um resultado local `simulated_failed` sem consumir stock, voucher ou carrinho. Entradas: `order`: Encomenda validada; `options`: dependências determinísticas. Devolve: Estado final de simulação falhada.
 
 ### `real_dev/api/src/providers/skin-analysis.provider.js`
 
@@ -309,7 +360,7 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 - `assertImagePurposeAllowed(input)` (top-level; função) - Valida que a analise usa apenas a finalidade cosmetica autorizada. Entradas: `input`: Politica definida pelo backend. Devolve: não devolve payload explícito.
 - `assertValidAnalysisPhotos(input)` (top-level; função) - Valida fotografias antes de qualquer análise local ou externa. Entradas: `input`: Fotografias escolhidas pelo backend. Devolve: Fotografias e politica validadas.
 - `analyzeSkinPhotosLocally(input)` (top-level; função) - Analisa fotografias faciais já validadas com baseline local. Entradas: `input`: Fotos escolhidas pelo backend. Devolve: Resultado estruturado da análise.
-- `analyzeSkinPhotos(input)` (exportada; função) - Analisa fotografias com o provider configurado e fallback local explícito. Entradas: `input`: Fotos já validadas pelo backend. Devolve: Resultado estruturado da análise.
+- `analyzeSkinPhotos(input)` (exportada; função) - No runtime auditado ainda faz dispatch com fallback local; este comportamento está aberto em `ORELLE-AUD-P1-005` e não representa o contrato final. O alvo exige `demo` explícito e erro controlado em `openai`/`external`, sem fallback silencioso. Entradas: `input`: Fotos já validadas pelo backend. Devolve: Resultado estruturado da análise.
 
 ### `real_dev/api/src/services/admin-dashboard.service.js`
 
@@ -317,7 +368,8 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/api/src/services/admin-export.service.js`
 
-- `escapeCsv(value)` (top-level; função) - Escapa valor CSV para manter compatibilidade com Excel. Entradas: `value`: Valor a serializar. Devolve: Campo CSV seguro.
+- `neutralizeSpreadsheetFormula(value)` (top-level; função) - Prefixa com apóstrofo células iniciadas por `=`, `+`, `-`, `@`, tab ou CR, impedindo interpretação como fórmula. Entradas: `value`: Valor controlável pelo utilizador. Devolve: Texto seguro para escape CSV.
+- `escapeCsv(value)` (top-level; função) - Neutraliza fórmulas e escapa aspas para manter o conteúdo como texto numa folha de cálculo. Entradas: `value`: Valor a serializar. Devolve: Campo CSV seguro.
 - `buildCsvText(headers, rows)` (top-level; função) - Constroi CSV a partir de linhas simples. Entradas: `headers`: Cabecalhos; `rows`: Linhas. Devolve: Conteudo CSV.
 - `buildCsv(headers, rows)` (exportada; função) - Constroi CSV descarregavel a partir de linhas simples. Entradas: `headers`: Cabecalhos; `rows`: Linhas. Devolve: Conteudo CSV em UTF-8 com BOM para Excel.
 - `buildSimplePdf(title, body)` (exportada; função) - Constroi um PDF textual minimo sem dependencias externas. Entradas: `title`: Titulo do documento; `body`: Conteudo textual minimizado. Devolve: Representacao PDF simples.
@@ -336,7 +388,7 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 - `listAdminUsers()` (exportada; função) - Lista utilizadores para administracao, sempre com DTO minimizado. Entradas: sem entradas explícitas. Devolve: Utilizadores seguros para painel admin.
 - `updateUserRole({ targetUserId, role, actorUserId })` (exportada; função) - Atualiza a role de outro utilizador. Entradas: `params`: Dados da operacao admin. Devolve: Utilizador atualizado.
 - `setUserAccountStatus({ targetUserId, status, actorUserId })` (exportada; função) - Suspende ou reativa uma conta sem alterar a role. Entradas: `params`: Acao admin. Devolve: Utilizador atualizado.
-- `softDeleteUserAccount({ targetUserId, actorUserId })` (exportada; função) - Aplica eliminacao logica no ambito de RF33. Entradas: `params`: Acao admin. Devolve: Utilizador eliminado logicamente.
+- `softDeleteUserAccount({ targetUserId, actorUserId })` (exportada; função) - Aplica desativação administrativa reversível no âmbito de RF33: preserva email/dados, grava `suspended` e revoga sessões na mesma transação. Entradas: `params`: ação admin. Devolve: utilizador desativado de forma reversível; nunca cria `deleted`.
 
 ### `real_dev/api/src/services/ai-consultation-review.service.js`
 
@@ -481,6 +533,8 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 - `toFacePhotoResponse(photo)` (top-level; função) - Converte uma fotografia facial para resposta segura. Entradas: `photo`: Documento Mongoose ou mock equivalente. Devolve: Metadados publicos.
 - `removeUploadedFiles(uploadedFiles = [])` (exportada; função) - Remove ficheiros recem-recebidos quando a persistencia falha. Entradas: `uploadedFiles`: Ficheiros a limpar. Devolve: Conclui mesmo que algum ficheiro ja nao exista.
 - `acceptFaceConsent(userId, input)` (exportada; função) - Aceita ou renova consentimento facial do utilizador. Entradas: `userId`: Utilizador autenticado; `input`: Consentimento validado. Devolve: Consentimento seguro.
+- `getFaceConsentForUser(userId)` (exportada; função) - Consulta o consentimento facial atual do titular, incluindo estado revogado. Entradas: `userId`: Utilizador autenticado. Devolve: DTO seguro ou null quando nunca existiu consentimento.
+- `revokeFaceConsentForUser(userId)` (exportada; função) - Revoga por compare-and-set o consentimento facial ativo e preserva o primeiro `revokedAt` em replay. Entradas: `userId`: Utilizador autenticado. Devolve: DTO revogado ou null.
 - `saveFacePhotos(userId, uploadedFiles, activeConsent)` (exportada; função) - Guarda metadados de fotografias faciais com ownership da sessao. Entradas: `userId`: Utilizador autenticado; `uploadedFiles`: Ficheiros validados; `activeConsent`: Consentimento ja confirmado na rota. Devolve: Fotografias seguras.
 
 ### `real_dev/api/src/services/face-report.service.js`
@@ -526,12 +580,22 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/api/src/services/order.service.js`
 
-- `toOrderResponse(order)` (exportada; função) - Converte encomenda para DTO publico. Entradas: `order`: Documento Mongoose ou mock equivalente. Devolve: Encomenda sem userId nem detalhes internos.
-- `buildOrderItemsFromCart(cartItems)` (top-level; função) - Rele produtos atuais e constroi linhas de encomenda seguras. Entradas: `cartItems`: Itens do carrinho. Devolve: Itens revalidados.
-- `buildCheckoutKey(userId, cart, gateway)` (top-level; função) - Cria chave idempotente para a tentativa atual de checkout. Entradas: `userId`: ID autenticado pelo cookie HttpOnly; `cart`: Carrinho autenticado; `gateway`: Gateway validado. Devolve: Chave estavel para a mesma tentativa de checkout.
-- `findReusableCheckoutOrder(userId, checkoutKey)` (top-level; função) - Procura uma encomenda ja criada para a mesma tentativa de checkout. Entradas: `userId`: ID autenticado; `checkoutKey`: Chave idempotente calculada pelo backend. Devolve: Encomenda reaproveitavel ou null.
-- `markCheckoutPaymentFailed(order, gateway)` (top-level; função) - Guarda falha controlada de pagamento sem marcar a encomenda como paga. Entradas: `order`: Encomenda persistida; `gateway`: Gateway que falhou. Devolve: Promise resolvida quando a operação termina.
-- `checkoutMyCart(userId, input)` (exportada; função) - Cria encomenda a partir do carrinho autenticado e inicia pagamento. Entradas: `userId`: ID autenticado; `input`: Gateway validado. Devolve: Encomenda criada.
+- `toOrderResponse(order)` (exportada; função) - Converte encomenda para DTO público e limita `payment` a mode, status, referência/data simuladas e mensagem. Entradas: `order`: Documento Mongoose ou mock equivalente. Devolve: Encomenda sem userId, checkoutKey ou hash idempotente.
+- `withOptionalSession(query, session)` (top-level; função) - Liga uma query Mongoose a uma transação quando existe sessão. Entradas: `query`; `session`. Devolve: Query pronta a aguardar.
+- `buildOrderItemsFromCart(cartItems, session)` (top-level; função) - Relê produtos e revalida existência, preço e stock. Entradas: `cartItems`; `session` opcional. Devolve: Linhas seguras de encomenda.
+- `buildItemsSignature(items)` (top-level; função) - Cria assinatura canónica de produto e quantidade. Entradas: `items`. Devolve: Assinatura ordenada.
+- `buildCheckoutKey(userId, cart)` (top-level; função) - Cria SHA-256 estável para o mesmo carrinho e utilizador, sem depender de método financeiro. Entradas: `userId`; `cart`. Devolve: Chave opaca do checkout.
+- `buildCommercialSnapshot(userId, items, session)` (top-level; função) - Calcula subtotal e preview de voucher exclusivamente no backend. Entradas: `userId`; `items`; `session` opcional. Devolve: Totais e voucher aplicável.
+- `applyCommercialSnapshot(order, snapshot)` (top-level; função) - Copia o snapshot validado para a encomenda. Entradas: `order`; `snapshot`. Devolve: não devolve payload explícito.
+- `checkoutMyCart(userId)` (exportada; função) - Cria ou reutiliza checkout `awaiting_simulation` sem alterar stock, voucher ou carrinho. Entradas: `userId`. Devolve: Encomenda pendente pública.
+- `assertCartMatchesOrder(cart, order)` (top-level; função) - Impede pagar um checkout depois de o carrinho mudar. Entradas: `cart`; `order`. Devolve: não devolve payload explícito.
+- `assertPricesUnchanged(order, currentItems)` (top-level; função) - Impede surpresa de preço entre resumo e simulação. Entradas: `order`; `currentItems`. Devolve: não devolve payload explícito.
+- `decrementStock(items, session)` (top-level; função) - Reduz stock com compare-and-set dentro da transação. Entradas: `items`; `session`. Devolve: Promise sem payload.
+- `normalizeSimulationResult(result)` (top-level; função) - Restringe o resultado injetado ao contrato académico permitido. Entradas: `result`. Devolve: Resultado normalizado.
+- `findPaymentAttemptResponse(order, idempotencyKeyHash)` (top-level; função) - Procura no histórico interno o snapshot terminal associado ao hash e devolve uma cópia defensiva. Entradas: `order`; `idempotencyKeyHash`. Devolve: Snapshot público ou null.
+- `persistPaymentAttempt(order, idempotencyKeyHash, session)` (top-level; função) - Persiste atomicamente o hash, estado terminal e snapshot público sem alterar timestamps. Entradas: `order`; `idempotencyKeyHash`; `session`. Devolve: Snapshot público persistido.
+- `preserveLegacyPaymentAttempt(order)` (top-level; função) - Transfere uma tentativa terminal legada para o histórico interno antes de uma nova tentativa válida. Entradas: `order`. Devolve: não devolve payload explícito.
+- `simulateOrderPayment(userId, orderId, idempotencyKey, options = {})` (exportada; função) - Compara o hash da chave e devolve primeiro qualquer snapshot terminal já persistido. Para uma chave nova, revalida ownership/carrinho/preços/stock/voucher e aplica voucher, stock, encomenda e limpeza do carrinho numa única transação cancelável. Entradas: `userId`; `orderId`; `idempotencyKey`; hooks de teste/`AbortSignal` opcionais. Devolve: Encomenda final ou replay exato de `simulated_paid`/`simulated_failed`.
 - `listMyOrders(userId)` (exportada; função) - Lista historico de compras do cliente autenticado. Entradas: `userId`: ID autenticado. Devolve: Encomendas ordenadas por data.
 
 ### `real_dev/api/src/services/performance-budget.service.js`
@@ -734,7 +798,8 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/api/src/validators/checkout.validator.js`
 
-- `validateCheckoutPayload(body)` (exportada; função) - Valida gateway de checkout. Entradas: `body`: Corpo HTTP. Devolve: Gateway normalizado.
+- `validateCheckoutPayload(body)` (exportada; função) - Exige body vazio e rejeita método, preço ou dados de pagamento vindos do cliente. Entradas: `body`: Corpo HTTP. Devolve: Objeto vazio canónico.
+- `validatePaymentIdempotencyKey(headers)` (exportada; função) - Exige `Idempotency-Key` entre 8 e 128 caracteres seguros. Entradas: `headers`: Headers Express normalizados. Devolve: Chave pronta para hashing interno.
 - `validateOrderIdParam(params)` (exportada; função) - Valida parametro `orderId`. Entradas: `params`: Params Express. Devolve: ID normalizado.
 
 ### `real_dev/api/src/validators/client-ai-insight.validator.js`
@@ -819,7 +884,7 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 - `validateProductStockParams(params)` (exportada; função) - Valida parametro de produto em rotas admin de stock. Entradas: `params`: Params Express. Devolve: ID validado.
 - `validateStockPayload(body)` (exportada; função) - Valida payload de ajuste manual de stock. Entradas: `body`: Corpo HTTP. Devolve: Stock normalizado.
 
-## Frontend
+## Frontend histórico
 
 ### `real_dev/web/src/App.jsx`
 
@@ -844,7 +909,7 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 - `HomeActionButton({ children, onClick, variant = "primary", className = "" })` (top-level; função) - Renderiza um botao reutilizavel da home mockup. Entradas: `props`: Texto e comportamento do botao. Devolve: Botao visual da home.
 - `AIConsultantPreview({ onStartConsultation })` (top-level; função) - Mostra a demonstração visual da consulta IA sem simular backend. Entradas: `props`: Callback para abrir o hub real. Devolve: Secção de consultoria com preview visual.
-- `OrelleMockupHome({...})` (exportada; função) - Renderiza a home principal e-commerce/consultoria. Entradas: `props`: Conteudo e navegacao real. Devolve: Home alinhada com o mockup.
+- `OrelleMockupHome({...})` (exportada; função) - Renderiza a home principal e-commerce/consultoria. Entradas: `props`: Conteudo e navegacao real. Devolve: Home com linguagem visual local; a árvore `mockup/` está disponível, mas alinhamento e aprovação continuam dependentes de comparação manual.
 
 ### `real_dev/web/src/components/PagePerformanceNotice.jsx`
 
@@ -930,7 +995,7 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/web/src/pages/AssistedConsultationHubPage.jsx`
 
-- `AssistedConsultationHero({ user = null })` (top-level; função) - Renderiza o hero partilhado pelos estados da consulta assistida. Entradas: `props`: Sessao autenticada, quando existe. Devolve: Hero visual alinhado com o mockup aprovado.
+- `AssistedConsultationHero({ user = null })` (top-level; função) - Renderiza o hero partilhado pelos estados da consulta assistida. Entradas: `props`: Sessao autenticada, quando existe. Devolve: Hero visual local, pronto para comparação manual com `mockup/`, sem alegar aprovação ou alinhamento já validado.
 - `renderAssistedConsultationPanel(panelId, setRecommendations)` (top-level; função) - Renderiza o painel selecionado da consulta assistida. Entradas: `panelId`: Identificador do painel ativo; `setRecommendations`: Sincroniza recomendacoes para paineis dependentes. Devolve: Painel React correspondente.
 - `AssistedConsultationHubPage()` (exportada; função) - Integra consulta guiada, historico IA, recomendacoes, insights e revisao humana. Entradas: sem entradas explícitas. Devolve: Pagina integrada com acabamento visual RNF26.
 
@@ -971,8 +1036,12 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/web/src/pages/CheckoutPage.jsx`
 
-- `CheckoutPage()` (exportada; função) - Cria encomenda a partir do carrinho e inicia gateway selecionado. Entradas: sem entradas explícitas. Devolve: UI de checkout.
-- `handleCheckout()` (interna; função) - Submete checkout ao backend. Entradas: sem entradas explícitas. Devolve: Promise resolvida quando a operação termina.
+- `formatPrice(priceCents)` (top-level; função) - Formata valores guardados em cêntimos para euros em `pt-PT`. Entradas: `priceCents`. Devolve: Texto monetário legível.
+- `formatSimulatedAt(value)` (top-level; função) - Formata a data terminal da simulação quando é válida. Entradas: `value`: Data recebida da API. Devolve: Data legível ou null.
+- `CheckoutPage()` (exportada; função) - Implementa checkout académico em dois passos, com aviso permanente, resumo `awaiting_simulation` e ação explícita “Simular pagamento”, sem navegação financeira externa. Entradas: sem entradas explícitas. Devolve: UI de checkout exclusivamente simulado.
+- `handleCheckout()` (interna; função) - Cria ou reutiliza o resumo através de body vazio, sem consumir stock, voucher ou carrinho. Entradas: sem entradas explícitas. Devolve: Promise resolvida quando o primeiro passo termina.
+- `handleSimulatePayment()` (interna; função) - Envia a confirmação separada com uma `Idempotency-Key` estável em retries; após uma falha terminal prepara outra chave apenas para uma nova ação explícita. Entradas: sem entradas explícitas. Devolve: Promise resolvida com o resultado novo ou reproduzido.
+- `loadVouchers()` (interna; função) - Carrega vouchers académicos sem apagar dados já visíveis quando o refresh falha. Entradas: sem entradas explícitas. Devolve: Promise resolvida quando a operação termina.
 
 ### `real_dev/web/src/pages/ClientAiInsightsPage.jsx`
 
@@ -1162,7 +1231,7 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 ### `real_dev/web/src/services/mockupAlignmentChecklist.js`
 
-- `buildMockupAlignmentChecklist({ hasMockup, reviewedAreas = [] })` (exportada; função) - Cria a matriz de evidence visual do BK-MF8-14. Entradas: `options`: Contexto da comparacao visual. Devolve: Checklist normalizado.
+- `buildMockupAlignmentChecklist({ hasMockup, reviewedAreas = [] })` (exportada; função) - Cria a checklist preparatória do BK-MF8-14. Entradas: `options`: Contexto da comparação visual. Devolve: Checklist normalizada; com `mockup/` disponível, a evidence exige revisão humana, screenshots e desvios documentados, não apenas `hasMockup: true`.
 - `assertMockupAlignmentEvidence(evidence)` (exportada; função) - Valida se a equipa recolheu evidence visual minima para o BK. Entradas: `evidence`: Evidence recolhida para PR/defesa. Devolve: Resultado resumido.
 
 ### `real_dev/web/src/utils/imageOptimization.js`
@@ -1175,4 +1244,3 @@ Base do levantamento: `real_dev/api/src` e `real_dev/web/src`
 
 - `findMainPageDefinition(pageKey)` (exportada; função) - Procura a definicao de uma area principal. Entradas: `pageKey`: Identificador tecnico da area. Devolve: Definicao encontrada.
 - `evaluatePageLoad({ pageKey, label, durationMs })` (exportada; função) - Avalia uma medicao face ao orcamento canonico de 3 segundos. Entradas: `input`: Dados tecnicos da medicao. Devolve: Resultado minimizado.
-

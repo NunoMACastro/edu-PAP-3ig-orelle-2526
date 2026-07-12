@@ -6,10 +6,16 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-06-30`
+- `last_updated`: `2026-07-11`
 
 ## Objetivo
 Mapear requisitos nao funcionais (`RNF`) para BKs, sprint e guia correspondente.
+
+## Regra de leitura do núcleo OpenAI
+
+- `RNF05`, `RNF11–RNF12`, `RNF18`, `RNF23–RNF25` e `RNF30–RNF31` são transversais à consulta: jobs retomáveis com deadlines, cifra/minimização, consentimentos separados, Structured Outputs, allowlist, provenance, revisão auditada e histórico sem conteúdo bloqueado.
+- “Fallback” significa uma repetição limitada do modelo primário e uma tentativa noutro modelo OpenAI. Só a seleção da próxima pergunta pode usar o banco canónico; análise, relatório e imagem ficam `failed_retryable` quando a OpenAI não responde validamente.
+- O alvo é académico/local. Sem chave OpenAI, a aplicação arranca degradada e preserva funcionalidades não IA; esta condição não comprova o teste opt-in `test:ai:live`.
 
 ## Mapeamento RNF -> BKs
 | rnf | bk_id | macro | owner | sprint | prioridade | guia_path |
@@ -30,7 +36,7 @@ Mapear requisitos nao funcionais (`RNF`) para BKs, sprint e guia correspondente.
 | RNF14 | BK-MF7-03 | MF7 | Aline | S11-S12 | P0 | docs/planificacao/guias-bk/MF7/BK-MF7-03-sessoes-autenticadas-com-cookies-httponly.md |
 | RNF15 | BK-MF7-04 | MF7 | Bruna | S11-S12 | P0 | docs/planificacao/guias-bk/MF7/BK-MF7-04-compativel-com-chrome-safari-edge-e-firefox.md |
 | RNF16 | BK-MF7-05 | MF7 | Daniel Bulica | S11-S12 | P1 | docs/planificacao/guias-bk/MF7/BK-MF7-05-exportacao-de-relatorios-em-pdf.md |
-| RNF17 | BK-MF7-06 | MF7 | Bruna | S11-S12 | P0 | docs/planificacao/guias-bk/MF7/BK-MF7-06-integracao-com-gateways-de-pagamento-stripe-paypal-mbway.md |
+| RNF17 | BK-MF7-06 | MF7 | Bruna | S11-S12 | P0 | docs/planificacao/guias-bk/MF7/BK-MF7-06-validar-pagamento-simulado-sem-integracao-externa.md |
 | RNF18 | BK-MF7-07 | MF7 | Aline | S11-S12 | P1 | docs/planificacao/guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md |
 | RNF19 | BK-MF8-01 | MF8 | Izelicks | S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md |
 | RNF20 | BK-MF8-02 | MF8 | Daniel Bulica | S12 | P1 | docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md |
@@ -47,6 +53,8 @@ Mapear requisitos nao funcionais (`RNF`) para BKs, sprint e guia correspondente.
 | RNF31 | BK-MF8-11 | MF8 | Aline | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
 
 ## Changelog
+- `2026-07-11`: leitura transversal sincronizada com OpenAI-only, jobs, consentimento v2, fallback entre modelos OpenAI, allowlist, provenance e revisão/histórico seguros.
+- `2026-07-09`: path de RNF17 atualizado para o guia canónico de Pagamento simulado; RNF21 ligado ao snapshot EJSON cifrado e ao restore isolado de `BK-MF8-04`, com prova replica-set pendente; RNF22 mantido no scope académico/local definido em `docs/RNF.md`.
 - `2026-06-30`: RNF26-RNF29 renumerados para BK-MF8-14..17 e adicionados RNF30/RNF31.
 - `2026-06-29`: MF8 expandida na primeira versão de fecho para cobrir mockup, testes finais e correção/revalidação.
 - `2026-04-14`: anexo criado para rastreabilidade nao funcional canónica.

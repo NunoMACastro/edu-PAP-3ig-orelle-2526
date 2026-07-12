@@ -20,7 +20,7 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-05`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md`
-- `last_updated`: `2026-06-22`
+- `last_updated`: `2026-07-11`
 
 #### Objetivo
 
@@ -28,7 +28,7 @@ Neste BK vais criar auditoria de acessos a dados biométricos e alertas simples 
 
 #### Importância
 
-Mesmo quando um consultor ou administrador tem permissão, o acesso a dados biométricos deve deixar rasto. A auditoria protege o utilizador, ajuda a defesa PAP e prepara governação futura sem transformar logs em novo ponto de fuga de dados.
+Mesmo quando um ator tem uma permissão legítima e limitada, o acesso a dados biométricos deve deixar rasto. Apenas administradores listam, decidem ou repetem pedidos destrutivos de privacidade. Consultores ficam limitados ao domínio separado de revisão cosmética e só acedem a fotografias através de um grant explícito por relatório; esses acessos também são auditados, mas nunca lhes conferem autoridade sobre privacy requests.
 
 #### Scope-in
 
@@ -141,16 +141,16 @@ Consegues identificar ator, sujeito, ação, recurso e resultado num evento de a
 
 #### Ficheiros a criar/editar/rever
 
-- CRIAR: `real_dev/api/src/models/biometric-access-log.model.js`
-- CRIAR: `real_dev/api/src/services/biometric-audit.service.js`
-- CRIAR: `real_dev/api/src/controllers/biometric-audit.controller.js`
-- CRIAR: `real_dev/api/src/routes/biometric-audit.routes.js`
-- EDITAR: `real_dev/api/src/services/biometric-data-request.service.js`
-- EDITAR: `real_dev/api/src/controllers/biometric-data-request.controller.js`
-- EDITAR: `real_dev/api/src/app.js`
-- CRIAR: `real_dev/web/src/pages/BiometricAuditPage.jsx`
-- EDITAR: `real_dev/web/src/App.jsx`
-- CRIAR: `real_dev/api/tests/mf5.biometric-audit.test.js`
+- CRIAR: `apps/api/src/models/biometric-access-log.model.js`
+- CRIAR: `apps/api/src/services/biometric-audit.service.js`
+- CRIAR: `apps/api/src/controllers/biometric-audit.controller.js`
+- CRIAR: `apps/api/src/routes/biometric-audit.routes.js`
+- EDITAR: `apps/api/src/services/biometric-data-request.service.js`
+- EDITAR: `apps/api/src/controllers/biometric-data-request.controller.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/BiometricAuditPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- CRIAR: `apps/api/tests/mf5.biometric-audit.test.js`
 
 #### Tutorial técnico linear
 
@@ -168,7 +168,7 @@ Escolher que ações sobre dados biométricos geram evento de auditoria.
 
 3. Instruções do que fazer.
 
-Regista como auditáveis: listar pedidos biométricos, decidir pedido, consultar log de auditoria e qualquer leitura futura de fotografia/relatório por consultor/admin.
+Regista como auditáveis: listagem, decisão e retry administrativos de pedidos de privacidade; consulta administrativa do log global; e, num domínio separado, leitura de fotografia/relatório por consultor quando existe grant explícito da revisão cosmética. Os primeiros eventos só podem ter um ator `ADMIN`; o último nunca autoriza o consultor a gerir pedidos destrutivos.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -195,8 +195,8 @@ Auditar apenas erros não permite perceber acessos bem-sucedidos indevidos.
 Persistir eventos minimizados e calcular alerta por volume de acessos.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/src/models/biometric-access-log.model.js`
-    - CRIAR: `real_dev/api/src/services/biometric-audit.service.js`
+    - CRIAR: `apps/api/src/models/biometric-access-log.model.js`
+    - CRIAR: `apps/api/src/services/biometric-audit.service.js`
     - LOCALIZAÇÃO: ficheiros completos.
 
 3. Instruções do que fazer.
@@ -206,7 +206,7 @@ Cria o model sem campos de imagem, path ou relatório completo. No service, limi
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/models/biometric-access-log.model.js
+// apps/api/src/models/biometric-access-log.model.js
 import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
@@ -296,7 +296,7 @@ export const BiometricAccessLog = model(
 ```
 
 ```js
-// real_dev/api/src/services/biometric-audit.service.js
+// apps/api/src/services/biometric-audit.service.js
 import {
     BIOMETRIC_AUDIT_ACTIONS,
     BIOMETRIC_AUDIT_RESULTS,
@@ -336,17 +336,21 @@ function toAuditLogResponse(log) {
  * @async
  * @function recordBiometricAccess
  * @param {{actorId: string, actorRole: string, subjectUserId?: string|null, action: string, resourceType: string, resourceId?: string, result?: string, reason?: string}} event - Evento validado pelo ponto de chamada.
+ * @param {{session?: import("mongoose").ClientSession|null}} [options] - Sessão da operação auditada.
  * @returns {Promise<object>} Evento registado.
  */
-export async function recordBiometricAccess(event) {
+export async function recordBiometricAccess(event, { session = null } = {}) {
     const since = new Date(Date.now() - ALERT_WINDOW_MINUTES * 60 * 1000);
     // A janela curta torna o alerta previsível para alunos e evita depender de ferramentas externas.
-    const recentCount = await BiometricAccessLog.countDocuments({
+    const recentCountQuery = BiometricAccessLog.countDocuments({
         actorId: event.actorId,
         createdAt: { $gte: since },
     });
+    const recentCount = session
+        ? await recentCountQuery.session(session)
+        : await recentCountQuery;
 
-    const log = await BiometricAccessLog.create({
+    const payload = {
         actorId: event.actorId,
         actorRole: event.actorRole,
         subjectUserId: event.subjectUserId ?? null,
@@ -357,7 +361,10 @@ export async function recordBiometricAccess(event) {
         reason: event.reason ?? "",
         // O alerta não bloqueia a ação; apenas sinaliza revisão administrativa.
         alertRaised: recentCount + 1 > ALERT_EVENT_LIMIT,
-    });
+    };
+    const log = session
+        ? (await BiometricAccessLog.create([payload], { session }))[0]
+        : await BiometricAccessLog.create(payload);
 
     return toAuditLogResponse(log);
 }
@@ -399,7 +406,7 @@ export { BIOMETRIC_AUDIT_ACTIONS, BIOMETRIC_AUDIT_RESULTS };
 
 5. Explicação do código.
 
-O model separa `actorId` de `subjectUserId`, porque quem acede e quem é dono dos dados podem ser pessoas diferentes. `resourceType` e `resourceId` identificam o alvo sem guardar conteúdo sensível. O service calcula `recentCount` antes de criar o evento e marca `alertRaised` se o limite for ultrapassado. O alerta não bloqueia a ação para não criar perda de dados operacionais; ele sinaliza revisão.
+O model separa `actorId` de `subjectUserId`, porque quem acede e quem é dono dos dados podem ser pessoas diferentes. `resourceType` e `resourceId` identificam o alvo sem guardar conteúdo sensível. O service calcula `recentCount` antes de criar o evento e marca `alertRaised` se o limite for ultrapassado. Quando recebe `{ session }`, tanto a contagem como o insert participam na mesma transação da decisão: não pode existir decisão confirmada sem o respetivo evento `allowed`, nem evento de sucesso para uma decisão que fez rollback. O alerta não bloqueia a ação; sinaliza revisão.
 
 6. Validação do passo.
 
@@ -413,21 +420,21 @@ Guardar `cosmeticSummary` ou `storageKey` no log transformaria a auditoria num n
 
 1. Objetivo funcional do passo no contexto da app.
 
-Registar quando consultor/admin lista ou decide pedidos de dados biométricos.
+Registar quando um administrador lista, decide ou repete pedidos de dados biométricos. O consultor não entra neste service: os seus acessos legítimos pertencem à revisão cosmética/grant fotográfico e usam o audit trail próprio desse fluxo.
 
 2. Ficheiros envolvidos:
-    - EDITAR: `real_dev/api/src/services/biometric-data-request.service.js`
-    - EDITAR: `real_dev/api/src/controllers/biometric-data-request.controller.js`
+    - EDITAR: `apps/api/src/services/biometric-data-request.service.js`
+    - EDITAR: `apps/api/src/controllers/biometric-data-request.controller.js`
     - LOCALIZAÇÃO: chamadas a `listBiometricDataRequestsForReview` e `decideBiometricDataRequest`.
 
 3. Instruções do que fazer.
 
-Passa ator autenticado para o service e chama `recordBiometricAccess` depois de cada ação controlada.
+Passa ator autenticado para o service. Leituras independentes podem chamar `recordBiometricAccess` sem sessão; rejeição, finalização de aprovação e finalização de retry têm de chamar `recordBiometricAccess(..., { session })` dentro da mesma transação que confirma a decisão. Eventos `denied` relativos a uma tentativa falhada ficam fora dessa transação e nunca substituem o evento `allowed` obrigatório no commit de sucesso.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/services/biometric-data-request.service.js
+// apps/api/src/services/biometric-data-request.service.js
 import {
     BIOMETRIC_AUDIT_ACTIONS,
     recordBiometricAccess,
@@ -438,7 +445,7 @@ import {
  *
  * @async
  * @function listBiometricDataRequestsForReview
- * @param {{id: string, role: string}} actor - Consultor/admin autenticado.
+ * @param {{id: string, role: "admin"}} actor - Administrador autenticado e autorizado pela rota.
  * @returns {Promise<object[]>} Pedidos minimizados.
  */
 export async function listBiometricDataRequestsForReview(actor) {
@@ -460,82 +467,83 @@ export async function listBiometricDataRequestsForReview(actor) {
 ```
 
 ```js
-// real_dev/api/src/services/biometric-data-request.service.js
-/**
- * Decide pedido pendente e regista auditoria da decisão.
- *
- * @async
- * @function decideBiometricDataRequest
- * @param {string} requestId - Pedido a decidir.
- * @param {{id: string, role: string}} actor - Consultor/admin autenticado.
- * @param {{decision: "approved"|"rejected", decisionReason: string}} input - Decisão validada.
- * @returns {Promise<object>} Pedido atualizado e minimizado.
- */
-export async function decideBiometricDataRequest(requestId, actor, input) {
-    const request = await BiometricDataRequest.findById(requestId);
-
-    if (!request) {
-        // Tentativas falhadas também interessam: podem indicar enumeração de pedidos sensíveis.
-        await recordBiometricAccess({
-            actorId: actor.id,
-            actorRole: actor.role,
-            action: BIOMETRIC_AUDIT_ACTIONS.DECIDE_REQUEST,
-            resourceType: "request",
-            resourceId: requestId,
-            result: "denied",
-            reason: "Tentativa de decidir pedido inexistente.",
-        });
-        throw new AppError(404, "Pedido não encontrado");
-    }
-
-    if (request.status !== BIOMETRIC_REQUEST_STATUSES.PENDING) {
-        // Decisões repetidas são registadas para detetar abuso ou erro operacional.
-        await recordBiometricAccess({
+// apps/api/src/services/biometric-data-request.service.js
+async function recordDecisionAudit(actor, request, reason, { session } = {}) {
+    await recordBiometricAccess(
+        {
             actorId: actor.id,
             actorRole: actor.role,
             subjectUserId: request.requesterId.toString(),
             action: BIOMETRIC_AUDIT_ACTIONS.DECIDE_REQUEST,
             resourceType: "request",
             resourceId: request._id.toString(),
-            result: "denied",
-            reason: "Tentativa de decidir pedido já tratado.",
-        });
-        throw new AppError(409, "Pedido já foi decidido");
-    }
+            result: "allowed",
+            reason,
+        },
+        { session },
+    );
+}
 
-    request.status = input.decision;
-    request.reviewerId = actor.id;
-    request.decisionReason = input.decisionReason;
-    request.reviewedAt = new Date();
+async function rejectPrivacyRequest(requestId, actor, input) {
+    return runPrivacyTransaction(async (session) => {
+        // O CAS e o evento append-only pertencem ao mesmo commit.
+        const request = await BiometricDataRequest.findOneAndUpdate(
+            { _id: requestId, status: BIOMETRIC_REQUEST_STATUSES.PENDING },
+            {
+                $set: {
+                    status: BIOMETRIC_REQUEST_STATUSES.REJECTED,
+                    reviewerId: actor.id,
+                    decisionReason: input.decisionReason,
+                    reviewedAt: new Date(),
+                },
+            },
+            { new: true, session },
+        );
+        if (!request) throw new AppError(409, "Pedido já foi decidido");
 
-    if (input.decision === BIOMETRIC_REQUEST_STATUSES.APPROVED) {
-        await applyApprovedBiometricDataRequest(request);
-        request.status = BIOMETRIC_REQUEST_STATUSES.COMPLETED;
-        request.completedAt = new Date();
-    }
-
-    await request.save();
-
-    // A auditoria fica depois da ação para registar o resultado real aplicado.
-    await recordBiometricAccess({
-        actorId: actor.id,
-        actorRole: actor.role,
-        subjectUserId: request.requesterId.toString(),
-        action: BIOMETRIC_AUDIT_ACTIONS.DECIDE_REQUEST,
-        resourceType: "request",
-        resourceId: request._id.toString(),
-        result: "allowed",
-        reason: `Decisão ${input.decision} aplicada a pedido biométrico.`,
+        await recordDecisionAudit(
+            actor,
+            request,
+            "Pedido de privacidade rejeitado por revisor autorizado.",
+            { session },
+        );
+        return request;
     });
+}
 
-    return toBiometricDataRequestResponse(request);
+async function finalizePrivacyRequest(request, leaseToken, actor, auditReason) {
+    return runPrivacyTransaction(async (session) => {
+        // A verificação de ausência física/documental ocorre antes deste CAS,
+        // dentro deste mesmo handler transacional, como detalhado no BK-MF7-02.
+        const completed = await BiometricDataRequest.findOneAndUpdate(
+            {
+                _id: request._id,
+                status: BIOMETRIC_REQUEST_STATUSES.PROCESSING,
+                "lease.token": leaseToken,
+            },
+            {
+                $set: {
+                    status: BIOMETRIC_REQUEST_STATUSES.COMPLETED,
+                    completedAt: new Date(),
+                    "lease.token": null,
+                    "lease.expiresAt": null,
+                },
+            },
+            { new: true, session },
+        );
+        if (!completed) throw new AppError(409, "Lease deixou de ser válido");
+
+        // Aprovação e retry chamam este helper com razões seguras distintas.
+        await recordDecisionAudit(actor, completed, auditReason, { session });
+        return completed;
+    });
 }
 ```
 
 ```js
-// real_dev/api/src/controllers/biometric-data-request.controller.js
+// apps/api/src/controllers/biometric-data-request.controller.js
 /**
- * Lista pedidos biométricos para consultor/admin.
+ * Lista pedidos biométricos exclusivamente para administrador.
  *
  * @async
  * @function listBiometricDataRequestsController
@@ -600,21 +608,21 @@ Se a auditoria for chamada antes da autorização por role, pode registar evento
 Permitir que administradores vejam eventos e alertas biométricos minimizados.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/src/controllers/biometric-audit.controller.js`
-    - CRIAR: `real_dev/api/src/routes/biometric-audit.routes.js`
-    - EDITAR: `real_dev/api/src/app.js`
-    - CRIAR: `real_dev/web/src/pages/BiometricAuditPage.jsx`
-    - EDITAR: `real_dev/web/src/App.jsx`
+    - CRIAR: `apps/api/src/controllers/biometric-audit.controller.js`
+    - CRIAR: `apps/api/src/routes/biometric-audit.routes.js`
+    - EDITAR: `apps/api/src/app.js`
+    - CRIAR: `apps/web/src/pages/BiometricAuditPage.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: ficheiros completos.
 
 3. Instruções do que fazer.
 
-Protege a leitura de auditoria apenas para `administrador`. O consultor pode gerar eventos no BK anterior, mas não precisa de ver todos os logs.
+Protege a leitura de auditoria apenas para `administrador`. Um consultor pode originar eventos apenas ao abrir uma revisão cosmética ou fotografia coberta por grant; nunca através da listagem, decisão ou retry de pedidos de privacidade e nunca pode ver o log global.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/src/controllers/biometric-audit.controller.js
+// apps/api/src/controllers/biometric-audit.controller.js
 import {
     listBiometricAuditAlerts,
     listBiometricAuditLogs,
@@ -664,7 +672,7 @@ export async function listBiometricAuditAlertsController(req, res, next) {
 ```
 
 ```js
-// real_dev/api/src/routes/biometric-audit.routes.js
+// apps/api/src/routes/biometric-audit.routes.js
 import { Router } from "express";
 import {
     listBiometricAuditAlertsController,
@@ -692,14 +700,14 @@ biometricAuditRoutes.get(
 biometricAuditRoutes.get(
     "/biometric-audit/alerts",
     requireAuth,
-    // Consultores podem gerar eventos, mas não precisam de ver auditoria global.
+    // Consultores recebem 403; os seus acessos auditáveis existem apenas no fluxo separado de revisão cosmética/grant.
     requireRole(ROLES.ADMIN),
     listBiometricAuditAlertsController,
 );
 ```
 
 ```js
-// real_dev/api/src/app.js
+// apps/api/src/app.js
 import { biometricAuditRoutes } from "./routes/biometric-audit.routes.js";
 
 /**
@@ -714,7 +722,7 @@ app.use("/api/admin", biometricAuditRoutes);
 ```
 
 ```jsx
-// real_dev/web/src/pages/BiometricAuditPage.jsx
+// apps/web/src/pages/BiometricAuditPage.jsx
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -789,7 +797,7 @@ export function BiometricAuditPage() {
 ```
 
 ```jsx
-// real_dev/web/src/App.jsx
+// apps/web/src/App.jsx
 import { BiometricAuditPage } from "./pages/BiometricAuditPage.jsx";
 
 /**
@@ -828,9 +836,9 @@ Uma resposta que inclua `cosmeticSummary`, `storageKey` ou dados completos do re
 Provar que a auditoria cumpre `RF44` sem transformar logs, alertas ou UI administrativa numa cópia de dados biométricos sensíveis.
 
 2. Ficheiros envolvidos:
-    - REVER: `real_dev/api/src/services/biometric-audit.service.js`
-    - REVER: `real_dev/api/src/controllers/biometric-audit.controller.js`
-    - REVER: `real_dev/web/src/pages/BiometricAuditPage.jsx`
+    - REVER: `apps/api/src/services/biometric-audit.service.js`
+    - REVER: `apps/api/src/controllers/biometric-audit.controller.js`
+    - REVER: `apps/web/src/pages/BiometricAuditPage.jsx`
     - LOCALIZAÇÃO: DTOs devolvidos por `toAuditLogDto`, `listBiometricAccessLogs`, `listBiometricAccessAlerts` e renderização da página.
 
 3. Instruções do que fazer.
@@ -840,7 +848,7 @@ Confirma que cada resposta contém apenas metadados auditáveis: identificador d
 4. Código completo, correto e integrado com a app final.
 
 ```bash
-rg -n "storageKey|cosmeticSummary|passwordHash|orelle_session|cookie|token" real_dev/api/src/services/biometric-audit.service.js real_dev/api/src/controllers/biometric-audit.controller.js real_dev/web/src/pages/BiometricAuditPage.jsx
+rg -n "storageKey|cosmeticSummary|passwordHash|orelle_session|cookie|token" apps/api/src/services/biometric-audit.service.js apps/api/src/controllers/biometric-audit.controller.js apps/web/src/pages/BiometricAuditPage.jsx
 ```
 
 5. Explicação do código.
@@ -862,17 +870,18 @@ Se `BiometricAuditPage` renderizar `storageKey` ou `cosmeticSummary`, a correç�
 Garantir que os acessos são registados, os alertas aparecem e a consulta é restrita.
 
 2. Ficheiros envolvidos:
-    - CRIAR: `real_dev/api/tests/mf5.biometric-audit.test.js`
+    - CRIAR: `apps/api/tests/mf5.biometric-audit.test.js`
+    - EDITAR: `apps/api/tests/privacy-requests.replset.integration.test.js`
     - LOCALIZAÇÃO: ficheiro completo de testes.
 
 3. Instruções do que fazer.
 
-Testa criação de evento, alerta por volume, listagem administrativa minimizada e bloqueio de consultor na leitura de logs. Executar cenarios negativos obrigatorios (minimo 2): tentativa sem role de administrador e tentativa de devolver campos sensíveis.
+Testa criação de evento, alerta por volume, listagem administrativa minimizada e bloqueio de consultor na leitura de logs. No replica set efémero, injeta falha no insert append-only e prova os dois limites atómicos: a rejeição regressa a `pending`; uma aprovação/retry nunca fica `completed` sem o evento `allowed` do mesmo commit. Executar cenarios negativos obrigatorios (minimo 2): tentativa sem role de administrador e falha de auditoria durante decisão.
 
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// real_dev/api/tests/mf5.biometric-audit.test.js
+// apps/api/tests/mf5.biometric-audit.test.js
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../src/app.js";
@@ -1059,19 +1068,112 @@ describe("MF5 - auditoria biométrica", () => {
             .get("/api/admin/biometric-audit/logs")
             .set("Cookie", cookieFor(ROLES.CONSULTOR, consultantId));
 
-        // Consultores geram eventos noutros fluxos, mas a auditoria global é só de administrador.
+        // Consultores só geram eventos no fluxo separado de revisão cosmética/grant; a auditoria global é administrativa.
         expect(response.status).toBe(403);
     });
 });
 ```
 
+No teste de integração com `MongoMemoryReplSet`, acrescenta a failure injection abaixo dentro do `describe` já existente. Aqui não se mocka a transação: só o insert do audit é forçado a falhar.
+
+```js
+// apps/api/tests/privacy-requests.replset.integration.test.js
+it("faz rollback da rejeição quando o audit append-only falha", async () => {
+    const request = await BiometricDataRequest.create({
+        requesterId: new mongoose.Types.ObjectId(),
+        scope: "biometric",
+        action: "delete",
+        resources: ["reports"],
+        reason: "Pedido com failure injection de audit.",
+    });
+    const actor = {
+        id: new mongoose.Types.ObjectId().toString(),
+        role: "administrador",
+    };
+    const auditSpy = vi
+        .spyOn(BiometricAccessLog, "create")
+        .mockRejectedValueOnce(new Error("falha-injetada-audit-rejeicao"));
+
+    try {
+        await expect(
+            decideBiometricDataRequest(request._id.toString(), actor, {
+                decision: "rejected",
+                decisionReason: "Rejeição exige audit atómico.",
+            }),
+        ).rejects.toThrow("falha-injetada-audit-rejeicao");
+    } finally {
+        auditSpy.mockRestore();
+    }
+
+    // A mutação e o ALLOWED abortam juntos; o DENIED da tentativa falhada é separado.
+    expect(await BiometricDataRequest.findById(request._id).lean()).toMatchObject({
+        status: "pending",
+        reviewerId: null,
+    });
+    expect(await BiometricAccessLog.countDocuments({
+        resourceId: request._id.toString(),
+        result: "allowed",
+    })).toBe(0);
+
+    await expect(
+        decideBiometricDataRequest(request._id.toString(), actor, {
+            decision: "rejected",
+            decisionReason: "Rejeição confirmada no retry.",
+        }),
+    ).resolves.toMatchObject({ status: "rejected" });
+    expect(await BiometricAccessLog.countDocuments({
+        resourceId: request._id.toString(),
+        result: "allowed",
+    })).toBe(1);
+});
+
+it("não confirma aprovação sem audit e o retry conclui uma única vez", async () => {
+    const fixture = await createPrivacyFixture("approval-audit-rollback");
+    const actor = {
+        id: new mongoose.Types.ObjectId().toString(),
+        role: "administrador",
+    };
+    const auditSpy = vi
+        .spyOn(BiometricAccessLog, "create")
+        .mockRejectedValueOnce(new Error("falha-injetada-audit-aprovacao"));
+
+    try {
+        await expect(
+            decideBiometricDataRequest(fixture.request._id.toString(), actor, {
+                decision: "approved",
+                decisionReason: "Aprovação exige audit atómico.",
+            }),
+        ).rejects.toThrow("falha-injetada-audit-aprovacao");
+    } finally {
+        auditSpy.mockRestore();
+    }
+
+    expect(await BiometricDataRequest.findById(fixture.request._id).lean())
+        .toMatchObject({ status: "failed", completedAt: null });
+    expect(await BiometricAccessLog.countDocuments({
+        resourceId: fixture.request._id.toString(),
+        result: "allowed",
+    })).toBe(0);
+
+    await expect(
+        retryBiometricDataRequest(fixture.request._id.toString(), actor, {
+            decisionReason: "Retry depois da indisponibilidade do audit.",
+        }),
+    ).resolves.toMatchObject({ status: "completed", attempts: 2 });
+    expect(await BiometricAccessLog.countDocuments({
+        resourceId: fixture.request._id.toString(),
+        result: "allowed",
+    })).toBe(1);
+});
+```
+
 5. Explicação do código.
 
-O teste valida o contrato central: guardar metadados sem copiar dados biométricos. O primeiro cenário confirma o cálculo de alerta quando o ator já tem muitos acessos recentes. O segundo confirma os endpoints administrativos, a resposta minimizada e a lista de alertas. O terceiro é o negativo de autorização: consultores podem gerar eventos noutros fluxos, mas não podem consultar a auditoria global. Os duplos de teste isolam a suite da base de dados, sem substituir a implementação final descrita nos passos anteriores.
+O teste unitário valida o contrato central: guardar metadados sem copiar dados biométricos. A integração prova a propriedade que mocks não conseguem demonstrar: decisão e evento `allowed` usam a mesma sessão MongoDB. Se o audit falhar, a rejeição faz rollback para `pending`; a aprovação não fica `completed` e o retry volta a concluir com exatamente um evento de sucesso. O evento `denied` da tentativa falhada pode persistir fora da transação, mas nunca conta como prova de uma decisão aplicada.
 
 6. Validação do passo.
 
-Executa `npm --prefix real_dev/api test` e confirma que há pelo menos: evento com `alertRaised=true`, `200` para administrador, `403` para consultor e ausência de `storageKey`/`cosmeticSummary` na resposta HTTP.
+Executa `npm --prefix apps/api test -- mf5.biometric-audit.test.js privacy-requests.replset.integration.test.js` e confirma: alerta por volume, `403` para consultor, ausência de dados sensíveis, rollback de rejeição, aprovação sem falso `completed` e retry com um único `allowed`. Depois executa a suite integral.
 
 7. Cenário negativo/erro esperado.
 
@@ -1084,10 +1186,13 @@ Se `JSON.stringify(log)` contiver texto de relatório, o teste deve falhar.
 - `GET /api/admin/biometric-audit/alerts` devolve eventos com `alertRaised=true`.
 - Consultor sem role admin recebe `403` na leitura de auditoria completa.
 - Logs não contêm imagens, paths internos, cookies, tokens ou relatório completo.
+- Rejeição, conclusão de aprovação e conclusão de retry gravam o evento `allowed` na mesma transação da decisão.
+- Falha injetada no audit faz rollback da rejeição e impede falso `completed`; o retry idempotente pode concluir depois.
 
 ## Criterios de aceite
 
 - Todos os acessos sensíveis definidos neste BK geram evento.
+- `recordBiometricAccess(event, { session })` participa na sessão da mutação quando o evento prova uma decisão aplicada.
 - Evento identifica ator, role, sujeito, ação, recurso e resultado.
 - Alertas são calculados por volume recente do ator.
 - Auditoria completa é visível apenas a administrador.
@@ -1099,8 +1204,8 @@ Se `JSON.stringify(log)` contiver texto de relatório, o teste deve falhar.
 
 - Confirmar que `recordBiometricAccess` é chamado nos services que tratam pedidos biométricos.
 - Confirmar que `BiometricAccessLog` não guarda dados biométricos brutos.
-- Executar `npm --prefix real_dev/api test`.
-- Executar `rg -n 'apps/(api|web)' docs/planificacao/guias-bk/MF5/BK-MF5-04-registo-auditoria-de-acessos-a-dados-biometricos-com-alertas-para-usos-indevidos.md` e confirmar que não há resultados.
+- Executar `npm --prefix apps/api test`.
+- Confirmar que todos os paths pedagógicos do guia começam por `apps/api/` ou `apps/web/`.
 - [ ] Negativos: minimo `2` cenarios controlados com `403` e ausência de dados sensíveis na resposta.
 
 ### Matriz mínima de testes por prioridade
@@ -1124,5 +1229,7 @@ Se `JSON.stringify(log)` contiver texto de relatório, o teste deve falhar.
 
 #### Changelog
 
+- `2026-07-10`: decisão de privacidade e audit `allowed` tornados um único limite transacional em rejeição, aprovação e retry; adicionadas failure injections para rollback e recuperação idempotente.
+- `2026-07-10`: paths pedagógicos normalizados para a estrutura pública `apps/api/` e `apps/web/`.
 - `2026-06-20`: acrescentados campos core dual no header e passo 5 autónomo para minimização de DTOs, fechando a granularidade P1 do guia.
 - `2026-06-18`: guia reescrito para RF44 com modelo de auditoria, service de alertas, integração com pedidos biométricos, endpoints admin, UI e testes.

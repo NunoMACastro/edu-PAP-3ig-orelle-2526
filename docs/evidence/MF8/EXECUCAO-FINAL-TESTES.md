@@ -1,5 +1,7 @@
 # EXECUCAO-FINAL-TESTES - MF8 Orelle
 
+> **Nota de supersessão — 2026-07-11:** evidence histórica da bateria de 2026-07-07. O estado atual, comandos e retestes vigentes estão no [plano canónico da consulta OpenAI](../../planificacao/PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). As contagens e a conclusão `PASSOU_COM_BLOCKER_E2E_DECLARADO` abaixo não constituem um gate final da árvore atual.
+
 ## Metadados
 
 - `doc_id`: `EXECUCAO-FINAL-TESTES-MF8`

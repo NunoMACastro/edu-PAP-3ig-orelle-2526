@@ -1,5 +1,7 @@
 # Harmonia visual real_dev/web
 
+> **Nota de supersessão — 2026-07-11:** este log preserva a intervenção visual datada. A evidence operacional vigente está no [plano canónico da consulta OpenAI](../../planificacao/PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). Smokes, builds e navegação parcial registados abaixo não substituem Axe, métricas, viewports e browser/E2E exigidos pelo gate atual. A revisão manual/Figma foi dispensada no alvo académico/local e RNF26 está `ACEITE_RISCO`; não existe aprovação humana nem prova de paridade.
+
 ## Objetivo
 
 Harmonizar as páginas de `real_dev/web` com a home da Orélle como referência visual, preservando rotas, API, autenticação, autorização e comportamento funcional.

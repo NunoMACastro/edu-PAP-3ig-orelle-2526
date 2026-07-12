@@ -1,13 +1,14 @@
-# BK-MF1-07 - Gerar um relatório personalizado com diagnóstico e sugestões de rotina
+# BK-MF1-07 - Gerar relatório OpenAI v2, revisão/freeze e desbloqueio simulado de 10% com voucher
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF1-07`
 - `bk_id`: `BK-MF1-07`
 - `macro`: `MF1`
 - `owner`: `Bruna`
 - `apoio`: `Izelicks`
 - `prioridade`: `P0`
-- `estado`: `DONE`
+- `estado`: `TODO`
 - `esforco`: `M`
 - `dependencias`: `BK-MF0-02, BK-MF1-06`
 - `rf_rnf`: `RF15`
@@ -16,521 +17,337 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-08`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-07-gerar-um-relatorio-personalizado-com-diagnostico-e-sugestoes-de-rotina.md`
-- `last_updated`: `2026-05-31`
+- `last_updated`: `2026-07-11`
+
+> O slug histórico contém a palavra “diagnóstico”, mas o contrato atual é uma **avaliação cosmética assistida**, não um diagnóstico médico. O relatório v2 é gerado exclusivamente pela OpenAI, pode ser revisto opcionalmente por um consultor, é congelado antes do desbloqueio e só fica completo após pagamento académico simulado ou desbloqueio gratuito quando não existe total elegível.
+
+## Contexto do BK
+
+O relatório é o ponto em que se juntam:
+
+- objetivos escolhidos;
+- análise das fotografias;
+- respostas às 5–8 perguntas;
+- catálogo pré-filtrado;
+- recomendações e variantes validadas;
+- rotina, utilização, cautelas e limitações;
+- provenance da OpenAI;
+- eventual revisão humana.
+
+Não existe geração direta a partir de um ID fornecido pela UI. O utilizador submete a sua sessão atual; o backend cria/reutiliza o job `generate_report`.
 
 ## Objetivo
-Neste BK vais gerar um relatório personalizado a partir da análise facial mais recente do utilizador autenticado.
+
+Gerar um relatório OpenAI v2 estruturado e imutável, permitir revisão humana opcional, congelar a versão final e aplicar o desbloqueio simulado de 10% com voucher do mesmo valor.
 
 ## Importância
-O relatório transforma sinais técnicos da análise em linguagem compreensível para o cliente. Deve explicar limites, resumir pontos observados e sugerir rotina cosmética sem prometer efeito clínico.
+
+O relatório é simultaneamente um artefacto sensível, um snapshot histórico e a base do valor simulado/voucher. Se o conteúdo pudesse mudar depois do cálculo, se o teaser expusesse o relatório ou se o frontend calculasse os 10%, o contrato deixaria de ser auditável.
 
 ## Scope-in
-- Criar modelo `FaceReport`.
-- Criar endpoint `POST /api/face-reports/latest`.
-- Gerar diagnóstico cosmético limitado.
-- Gerar sugestões de rotina de manhã e noite.
-- Mostrar relatório no frontend.
+
+- Criar/reutilizar o job `generate_report` a partir da sessão completa.
+- Pré-filtrar e minimizar candidatos do catálogo no backend.
+- Exigir output estruturado e IDs dentro da allowlist.
+- Produzir relatório com 3–5 recomendações quando o catálogo o permitir.
+- Guardar `machineResult` imutável e separar `humanOverride`.
+- Devolver apenas teaser enquanto o relatório estiver bloqueado.
+- Permitir “Continuar com relatório IA” ou “Pedir revisão humana”.
+- Congelar a versão final com `contentHash` e snapshots de preço/stock.
+- Calcular 10% no backend e simular o pagamento de forma idempotente.
+- Criar um voucher exatamente igual ao valor simulado.
 
 ## Scope-out
-- Não recomendar produtos personalizados; isso fica para `BK-MF2-02`.
-- Não exportar PDF; isso pertence a `RNF16`.
-- Não adicionar produtos ao carrinho.
-- Não apresentar diagnóstico médico definitivo.
+
+- Não executar uma cobrança, gateway, redirect ou webhook.
+- Não enviar todos os produtos para a OpenAI.
+- Não aceitar IDs de produto/variante fora da allowlist.
+- Não esconder relatório completo por CSS; dados bloqueados não entram no DTO/DOM.
+- Não recalcular o depósito histórico quando preço ou stock mudarem.
+- Não gerar uma evolução artificial da pele.
 
 ## Pré-requisitos
-- `BK-MF1-06`: `FaceAnalysis`.
-- `BK-MF0-02`: `requireAuth`.
-- `RNF23`: explicabilidade.
+
+- Sessão com análise utilizável e recolha de factos concluída.
+- Catálogo com metadata `aiEligible`, restrições e variantes.
+- Worker e provider OpenAI operacionais.
+- Transações MongoDB disponíveis para freeze, unlock e voucher.
+- Contrato de pagamento exclusivamente simulado.
 
 ## Glossário
-- Relatório: resumo interpretável da análise facial.
-- Diagnóstico cosmético: leitura limitada ao contexto de pele e rotina, sem valor médico.
-- Rotina: conjunto de cuidados sugeridos para manhã e noite.
+
+- **Allowlist:** conjunto de produtos/variantes candidatos que a OpenAI pode selecionar.
+- **Teaser:** DTO reduzido de um relatório bloqueado.
+- **Freeze:** operação que fixa conteúdo, recomendações, preços, stock e hash.
+- **Machine result:** versão original produzida pela OpenAI, nunca sobrescrita.
+- **Human override:** revisão humana separada, rastreável e opcional.
+- **Depósito simulado:** 10% do total elegível, sem transação financeira.
 
 ## Conceitos teóricos
-Relatório personalizado não é histórico completo. Este BK gera um documento associado a uma análise. O histórico de relatórios e análises será organizado em `BK-MF1-08`.
 
-Um relatório seguro deve indicar fontes e limitações. Se a análise tem confiança baixa, o relatório deve explicar essa incerteza em vez de fingir precisão. O termo diagnóstico, neste projeto, significa diagnóstico cosmético limitado, sem valor médico.
+O backend começa por filtrar o catálogo segundo objetivos, tipo de pele, alergias, ingredientes a evitar, orçamento e `aiEligible`. Ordena os disponíveis primeiro e envia no máximo 15 candidatos minimizados. A OpenAI só escolhe IDs/variant IDs dessa lista. Depois, o backend valida novamente existência, restrições, preço e stock.
 
-As sugestões de rotina são orientações gerais de cuidado, não recomendações personalizadas de produto nem ordens de compra. A recomendação comercial ligada a produtos fica para `RF18`/`BK-MF2-02`; este BK apenas transforma a análise em resumo, rotina de manhã/noite, fontes e limitações.
+O relatório v2 contém:
 
-Como o relatório agrega dados derivados de fotografias faciais, a resposta deve continuar minimizada e ligada ao utilizador autenticado. O service não recebe `analysisId` do frontend; escolhe a análise concluída mais recente do próprio utilizador para reduzir risco de acesso cruzado.
+- objetivos e qualidade das fotografias;
+- observações cosméticas;
+- resumo das respostas;
+- avaliação específica para os objetivos;
+- rotina/plano com instruções e cautelas;
+- 3–5 snapshots de produtos quando houver cobertura;
+- razão, utilização e cautelas de cada recomendação;
+- plano visual ou `simulationSpec` quando maquilhagem é objetivo;
+- limitações e aviso não médico;
+- provider, modelo, request ID e versões de prompt/schema;
+- estado da revisão humana.
+
+Produtos sem stock podem aparecer identificados como indisponíveis, mas não entram no total elegível nem têm CTA de compra. A cobertura pode ser inferior a três produtos quando o orçamento ou o catálogo válido não permite mais; o relatório explica a limitação em vez de inventar produtos.
+
+O valor usa inteiros em cêntimos:
+
+```text
+recommendedTotalCents = soma de uma unidade de cada recomendação disponível no freeze
+depositCents = ceil(recommendedTotalCents × 1000 / 10000)
+voucher.valueCents = depositCents
+```
+
+Se não existir nenhum produto disponível, o relatório é desbloqueado sem pagamento e sem voucher de valor zero.
 
 ## Arquitetura do BK
-- `FaceReport`
-- `generateReportFromLatestAnalysis`
-- `POST /api/face-reports/latest`
-- `FaceReportPage`
+
+- `POST /api/ai-consultation/sessions/:sessionId/submit`
+- `GET /api/face-reports/:reportId`
+- `POST /api/face-reports/:reportId/finalize`
+- `POST|DELETE /api/face-reports/:reportId/review-request`
+- `POST /api/face-reports/:reportId/unlock/simulate-payment` com header obrigatório `Idempotency-Key`
+- `AiJob` + `FaceReport` + `ProductRecommendation` + `ReportUnlock` + `Voucher`
+- `ConsultationReportPage`
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/models/face-report.model.js`
-- CRIAR: `server/src/services/face-report.service.js`
-- CRIAR: `server/src/controllers/face-report.controller.js`
-- CRIAR: `server/src/routes/face-report.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/FaceReportPage.jsx`
-- EDITAR: `client/src/App.jsx`
 
-## Bloco pedagógico
+- EDITAR: `apps/api/src/models/face-report.model.js`
+- EDITAR: `apps/api/src/models/product-recommendation.model.js`
+- EDITAR: `apps/api/src/models/report-unlock.model.js`
+- EDITAR: `apps/api/src/providers/openai-report.provider.js`
+- EDITAR: `apps/api/src/services/consultation-report.service.js`
+- EDITAR: `apps/api/src/services/report-access.service.js`
+- EDITAR: `apps/api/src/services/face-report.service.js`
+- EDITAR: `apps/api/src/routes/face-report.routes.js`
+- EDITAR: `apps/web/src/features/consultation/ConsultationReportPage.jsx`
+- EDITAR: `apps/web/src/features/consultation/consultationApi.js`
+- EDITAR: `apps/web/src/features/consultation/consultationModel.js`
+
+## Bloco pedagogico
 
 ### Objetivo
-Gerar um relatório personalizado a partir da última análise concluída do próprio utilizador.
 
-### Pré-requisitos
-- Ter análise facial criada em `BK-MF1-06`.
-- Saber distinguir leitura cosmética de diagnóstico médico.
-- Saber persistir documento ligado a utilizador e análise.
+Aprender a transformar uma saída de IA num contrato de negócio validado, versionado e protegido por paywall real no backend.
+
+### Pre-requisitos
+
+- Perceber transações e idempotência.
+- Saber distinguir snapshot histórico de dados atuais.
+- Conhecer validação estrutural e semântica.
+- Ter concluído `BK-MF1-06`.
 
 ### Erros comuns
-- Criar relatório sem análise concluída.
-- Sugerir compra automática.
-- Esconder limites e fontes da análise.
+
+- Pedir à OpenAI para consultar diretamente a base de dados.
+- Confiar em IDs, preços ou stock devolvidos pelo modelo.
+- Devolver o relatório completo e escondê-lo com CSS.
+- Sobrescrever `machineResult` durante revisão humana.
+- Calcular os 10% no browser ou com números de ponto flutuante.
+- Desbloquear antes de concluir/rejeitar a revisão pendente.
 
 ### Check de compreensao
-- De onde vem a análise usada no relatório?
-- Porque é que o relatório não cria encomendas?
-- Que mensagem protege o utilizador contra excesso de confiança?
+
+- Porque é que a OpenAI recebe no máximo 15 candidatos?
+- Que dados são imutáveis depois do freeze?
+- Porque é que disponibilidade histórica e disponibilidade atual são mostradas separadamente?
+- Quando é que o relatório pode ser desbloqueado sem voucher?
+
+### Tempo estimado
+
+`M` — geração, revisão/freeze, paywall e UI.
 
 ## Bloco operacional
 
 ### Entrada
-- Sessão autenticada.
-- Última `FaceAnalysis` concluída do utilizador.
-- Modelo `FaceReport`.
+
+- Sessão em `ready_for_report`.
+- Factos mínimos recolhidos ou limitações registadas ao atingir oito perguntas.
+- Catálogo curado e perfil/restrições do titular.
+
+### Saída
+
+- Relatório v2 draft, revisto opcionalmente e congelado.
+- Teaser enquanto bloqueado.
+- Relatório completo após unlock.
+- Voucher do mesmo valor do depósito simulado, quando aplicável.
 
 ### Passos
-Executar cenários negativos obrigatórios (mínimo 3).
 
-Segue os passos lineares abaixo e valida sem sessão, sem análise e com análise ainda não concluída.
+Executar cenarios negativos obrigatorios (minimo 3).
 
-## Passos lineares
+#### Passo 1 - Criar o job do relatório
 
-### Passo 1 - Confirmar limites do relatório
+`POST .../submit` cria ou reutiliza `generate_report`. O job guarda referências e provenance sanitizada, nunca fotografias, respostas ou prompt sensível em claro.
 
-1. Explicação simples do objetivo: impedir promessas médicas e compra automática.
-2. Ficheiros envolvidos.
-    - REVER: `docs/RF.md`
-    - REVER: `docs/RNF.md`
-    - LOCALIZAÇÃO: `RF15`, `RF18`, `RF19`, `RNF23`.
-3. O que fazer: confirma que este BK gera relatório, não recomendação personalizada.
-4. Código completo, correto e integrado: sem código novo neste passo.
-5. Explicação do código: a separação mantém o fluxo pedagógico e evita overengineering.
-6. Como validar este passo: o relatório não deve conter botão de compra automática.
-7. Erros comuns ou cenário negativo: sugerir produto específico com motivo pertence a `RF18`/`RF19`.
+#### Passo 2 - Construir a allowlist
 
-### Passo 2 - Criar modelo de relatório
+Filtra catálogo por objetivo, tipo de pele, alergias, INCI, orçamento, elegibilidade e variantes. Envia até 15 candidatos minimizados e ordena stock disponível antes do indisponível.
 
-1. Explicação simples do objetivo: guardar relatório ligado a análise e utilizador.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/models/face-report.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o modelo.
-4. Código completo, correto e integrado:
+#### Passo 3 - Validar a saída OpenAI
+
+Exige Structured Output. Rejeita produto/variante fora da allowlist, total acima do orçamento, `simulationSpec` incoerente ou recomendações que violem restrições. Repete no primário e fallback OpenAI dentro da política definida.
+
+#### Passo 4 - Persistir o relatório v2
+
+Guarda `machineResult`, provenance e snapshots. Liga as recomendações por relatório/revisão/produto/variante. O conteúdo sensível é cifrado com AAD.
+
+#### Passo 5 - Servir o teaser bloqueado
+
+Antes do unlock, `GET /api/face-reports/:reportId` devolve objetivos, data, versão, estado de revisão, quantidade de produtos, total elegível e 10%. Não devolve observações, rotina, razões ou cautelas completas.
 
 ```js
-import mongoose from "mongoose";
-
-const { Schema, model } = mongoose;
-
-const routineStepSchema = new Schema(
-    {
-        period: {
-            type: String,
-            enum: ["manha", "noite"],
-            required: true,
-        },
-        title: {
-            type: String,
-            required: true,
-        },
-        reason: {
-            type: String,
-            required: true,
-        },
-    },
-    { _id: false },
-);
-
-const faceReportSchema = new Schema(
-    {
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-            index: true,
-        },
-        analysisId: {
-            type: Schema.Types.ObjectId,
-            ref: "FaceAnalysis",
-            required: true,
-            index: true,
-        },
-        cosmeticSummary: {
-            type: String,
-            required: true,
-        },
-        routineSuggestions: {
-            type: [routineStepSchema],
-            required: true,
-        },
-        sources: {
-            type: [String],
-            required: true,
-        },
-        limitations: {
-            type: [String],
-            required: true,
-        },
-    },
-    { timestamps: true },
-);
-
-export const FaceReport = model("FaceReport", faceReportSchema);
-```
-
-5. Explicação do código: o relatório guarda resumo, rotina, fontes e limitações ligados a `userId` e `analysisId`. Esta ligação permite auditoria, histórico e exportação futura sem voltar a processar fotografias nem perder a origem da conclusão.
-6. Como validar este passo: confirma que `analysisId` é obrigatório.
-7. Erros comuns ou cenário negativo: guardar relatório sem ligação à análise impede auditoria.
-
-### Passo 3 - Criar service de relatório
-
-1. Explicação simples do objetivo: gerar relatório a partir da última análise do próprio utilizador.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/face-report.service.js`
-    - REVER: `server/src/models/face-analysis.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o service.
-4. Código completo, correto e integrado:
-
-```js
-import { AppError } from "../middlewares/error.middleware.js";
-import { FaceAnalysis } from "../models/face-analysis.model.js";
-import { FaceReport } from "../models/face-report.model.js";
-
-function buildCosmeticSummary(analysis) {
-    const { skinType, acne, manchas, rugas, oleosidade } = analysis.findings;
-
-    return [
-        `Tipo de pele estimado: ${skinType.label}.`,
-        `Acne: ${acne.label}.`,
-        `Manchas: ${manchas.label}.`,
-        `Rugas: ${rugas.label}.`,
-        `Oleosidade: ${oleosidade.label}.`,
-        "Esta leitura é cosmética e deve ser interpretada com as limitações indicadas.",
-    ].join(" ");
-}
-
-function buildRoutineSuggestions(analysis) {
-    const oleosidade = analysis.findings.oleosidade.label;
-
-    return [
-        {
-            period: "manha",
-            title: "Limpeza suave",
-            reason: `Ajuda a preparar a pele sem assumir tratamento médico. Oleosidade observada: ${oleosidade}.`,
-        },
-        {
-            period: "manha",
-            title: "Cuidado emoliente leve",
-            reason: "O cuidado emoliente apoia conforto da pele e não substitui avaliação profissional.",
-        },
-        {
-            period: "noite",
-            title: "Remover impurezas",
-            reason: "A rotina noturna reduz acumulação de resíduos do dia.",
-        },
-        {
-            period: "noite",
-            title: "Reforçar cuidado noturno",
-            reason: "Apoia consistência da rotina sem prometer resultado clínico.",
-        },
-    ];
-}
-
-function toFaceReportResponse(report) {
+function serializeLockedReport(report, access, review = null) {
     return {
         id: report._id.toString(),
-        analysisId: report.analysisId.toString(),
-        cosmeticSummary: report.cosmeticSummary,
-        routineSuggestions: report.routineSuggestions,
-        sources: report.sources,
-        limitations: report.limitations,
+        schemaVersion: report.schemaVersion,
+        version: report.version,
+        lifecycleStatus: report.lifecycleStatus,
+        objectives: report.objectives,
         createdAt: report.createdAt,
+        frozenAt: report.frozenAt,
+        review: review
+            ? { id: review._id.toString(), status: review.status }
+            : null,
+        access: {
+            status: access.status,
+            recommendationCount: access.recommendationCount,
+            availableRecommendationCount:
+                access.availableRecommendationCount,
+            recommendedTotalCents: access.recommendedTotalCents,
+            depositCents: access.depositCents,
+            requiresPayment: access.requiresPayment,
+            payment: access.payment,
+        },
+        locked: true,
     };
 }
-
-export async function generateReportFromLatestAnalysis(userId) {
-    const analysis = await FaceAnalysis.findOne({ userId, status: "completed" })
-        .sort({ createdAt: -1 });
-
-    if (!analysis) {
-        throw new AppError(400, "Análise facial concluída obrigatória");
-    }
-
-    const report = await FaceReport.create({
-        userId,
-        analysisId: analysis._id,
-        cosmeticSummary: buildCosmeticSummary(analysis),
-        routineSuggestions: buildRoutineSuggestions(analysis),
-        sources: analysis.sources,
-        limitations: analysis.limitations,
-    });
-
-    return toFaceReportResponse(report);
-}
 ```
 
-5. Explicação do código: o service lê apenas análises concluídas do próprio utilizador, ordena pela mais recente e cria sugestões genéricas de rotina, não produtos. A resposta reutiliza `sources` e `limitations` da análise para manter explicabilidade e não esconder incerteza.
-6. Como validar este passo: tenta gerar relatório sem análise e confirma `400`.
-7. Erros comuns ou cenário negativo: usar a última análise global permitiria relatório de outro utilizador.
+#### Passo 6 - Resolver a revisão opcional
 
-### Passo 4 - Criar controller e route
+O utilizador escolhe continuar com a versão IA ou pedir revisão. Enquanto a revisão estiver pendente, o botão de pagamento fica inativo. Pode retirar um pedido ainda não decidido. O fluxo detalhado fica em `BK-MF2-06`.
 
-1. Explicação simples do objetivo: disponibilizar geração do relatório pela API.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/face-report.controller.js`
-    - CRIAR: `server/src/routes/face-report.routes.js`
-    - LOCALIZAÇÃO: ficheiros completos.
-3. O que fazer: cria controller e route.
-4. Código completo, correto e integrado:
+#### Passo 7 - Congelar a versão final
+
+`POST .../finalize` escolhe a versão IA aceite ou a versão humana aprovada, calcula `contentHash` e guarda snapshots de preços/stock. Um ciclo `needs_clarification` pode criar uma nova revisão **antes** do freeze. Depois de `frozen_locked`, não se aceitam novos pedidos nem decisões de revisão e a versão congelada nunca é alterada.
+
+#### Passo 8 - Simular pagamento e emitir voucher
+
+`POST .../unlock/simulate-payment` exige `Idempotency-Key`. O frontend cria uma chave opaca com `crypto.randomUUID()` uma vez por montagem do relatório, mantém-na em memória e reutiliza exatamente a mesma chave em todos os retries dessa ação. A operação marca o desbloqueio, regista o pagamento como simulado e cria o voucher na mesma transação. Replay com a mesma chave devolve o mesmo resultado; rollback não deixa unlock sem voucher nem voucher duplicado.
 
 ```js
-// server/src/controllers/face-report.controller.js
-import { generateReportFromLatestAnalysis } from "../services/face-report.service.js";
+const idempotencyKey = `report.${reportId}.${crypto.randomUUID()}`;
 
-export async function generateLatestFaceReportController(req, res, next) {
-    try {
-        const report = await generateReportFromLatestAnalysis(req.user.id);
-        return res.status(201).json({ report });
-    } catch (err) {
-        return next(err);
-    }
-}
+await apiRequest(`/face-reports/${reportId}/unlock/simulate-payment`, {
+    method: "POST",
+    headers: { "Idempotency-Key": idempotencyKey },
+});
 ```
 
-```js
-// server/src/routes/face-report.routes.js
-import { Router } from "express";
-import { requireAuth } from "../middlewares/auth.middleware.js";
-import { generateLatestFaceReportController } from "../controllers/face-report.controller.js";
+### Cenarios negativos recomendados
 
-export const faceReportRoutes = Router();
+- Output contém ID/variant ID fora da allowlist: rejeitar.
+- Alergia ou ingrediente proibido: remover/rejeitar recomendação.
+- Menos de três produtos válidos: cobertura limitada explícita.
+- Relatório bloqueado: conteúdo completo ausente do JSON e DOM.
+- Revisão pendente: freeze/pagamento bloqueado.
+- Dois pedidos de unlock: um único unlock e voucher.
+- Header `Idempotency-Key` ausente/inválido: recusar antes da transação.
+- Retry com a mesma chave: devolver o mesmo unlock/voucher; uma nova montagem gera uma chave nova sem duplicar o resultado já terminal.
+- Falha entre unlock e voucher: rollback integral.
+- Nenhum produto disponível: unlock gratuito sem voucher zero.
 
-faceReportRoutes.post(
-    "/face-reports/latest",
-    requireAuth,
-    generateLatestFaceReportController,
-);
-```
+### Validacao
 
-5. Explicação do código: a rota usa a sessão para escolher o utilizador. O frontend não envia IDs de análise.
-6. Como validar este passo: sem sessão, espera `401`.
-7. Erros comuns ou cenário negativo: aceitar `analysisId` vindo do cliente pode quebrar ownership.
+- [ ] Negativos: minimo 3 cenarios materiais executados.
+- Gate documental: falhar se `negativos < 3`.
+- Testes de allowlist, alergias, variantes, stock, preço e orçamento.
+- Testes de imutabilidade e `contentHash`.
+- Testes de teaser a provar ausência do conteúdo protegido.
+- Testes de 10%, arredondamento, rollback e concorrência.
+- Teste E2E draft → revisão/aceitação → freeze → unlock → voucher.
 
-### Passo 5 - Registar route na app
+### Matriz minima de testes por prioridade
 
-1. Explicação simples do objetivo: ligar relatórios ao Express.
-2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
-    - LOCALIZAÇÃO: imports e routes.
-3. O que fazer: adiciona a route.
-4. Código completo, correto e integrado:
+| Prioridade | Cenário | Resultado esperado |
+|---|---|---|
+| P0 | ID inventado pela OpenAI | relatório não é persistido como válido |
+| P0 | relatório locked | conteúdo completo não sai da API |
+| P0 | unlock concorrente | um unlock e um voucher |
+| P0 | sem `Idempotency-Key` | pedido recusado sem unlock/voucher |
+| P0 | replay com a mesma chave | mesmo unlock/voucher, sem duplicados |
+| P0 | falha transacional | nenhum estado parcial |
+| P1 | produto sem stock | visível, mas excluído dos 10% |
+| P1 | cobertura limitada | menos de três produtos e limitação explícita |
+| P1 | preço muda depois | snapshot histórico mantém o depósito |
 
-```js
-import { faceReportRoutes } from "./routes/face-report.routes.js";
+### Evidencia de testes por camada
 
-app.use("/api", faceReportRoutes);
-```
-
-5. Explicação do código: o endpoint final é `POST /api/face-reports/latest`. A palavra `latest` indica que o backend escolhe a análise concluída mais recente do utilizador autenticado; o frontend não decide qual análise de outra pessoa usar.
-6. Como validar este passo: confirma que a rota existe e não devolve `404`.
-7. Erros comuns ou cenário negativo: colocar a rota antes do parser JSON não afeta este endpoint, mas manter ordem consistente facilita leitura.
-
-### Passo 6 - Criar página do relatório
-
-1. Explicação simples do objetivo: permitir gerar e ler o relatório no frontend.
-2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/FaceReportPage.jsx`
-    - EDITAR: `client/src/App.jsx`
-    - LOCALIZAÇÃO: ficheiro completo e imports do `App`.
-3. O que fazer: cria e regista a página.
-4. Código completo, correto e integrado:
-
-```jsx
-// client/src/pages/FaceReportPage.jsx
-import { useState } from "react";
-import { apiRequest } from "../services/apiClient.js";
-
-export function FaceReportPage() {
-    const [report, setReport] = useState(null);
-    const [status, setStatus] = useState("idle");
-    const [error, setError] = useState("");
-
-    async function handleGenerate() {
-        setStatus("loading");
-        setError("");
-        setReport(null);
-
-        try {
-            const data = await apiRequest("/face-reports/latest", {
-                method: "POST",
-            });
-            setReport(data.report);
-            setStatus("success");
-        } catch (err) {
-            setError(err.message);
-            setStatus("error");
-        }
-    }
-
-    return (
-        <section>
-            <h1>Relatório personalizado</h1>
-            <button onClick={handleGenerate} disabled={status === "loading"}>
-                {status === "loading" ? "A gerar..." : "Gerar relatório"}
-            </button>
-            {status === "error" && <p role="alert">{error}</p>}
-            {status === "success" && report && (
-                <article>
-                    <p>{report.cosmeticSummary}</p>
-                    <h2>Rotina sugerida</h2>
-                    <ul>
-                        {report.routineSuggestions.map((step) => (
-                            <li key={`${step.period}-${step.title}`}>
-                                <strong>{step.period}: {step.title}</strong>
-                                <p>{step.reason}</p>
-                            </li>
-                        ))}
-                    </ul>
-                    <h2>Limitações</h2>
-                    <ul>
-                        {report.limitations.map((item) => (
-                            <li key={item}>{item}</li>
-                        ))}
-                    </ul>
-                </article>
-            )}
-        </section>
-    );
-}
-```
-
-```jsx
-// client/src/App.jsx
-import { FaceReportPage } from "./pages/FaceReportPage.jsx";
-
-export function App() {
-    return (
-        <>
-            <ProductSearchPage />
-            <ProductDetailsPage />
-            <ProductReviewPage />
-            <RelatedProductsPage />
-            <FacePhotoUploadPage />
-            <FaceAnalysisPage />
-            <FaceReportPage />
-        </>
-    );
-}
-```
-
-5. Explicação do código: a UI mostra resumo, rotina e limitações. Isto torna o resultado explicável para o cliente.
-6. Como validar este passo: tenta gerar relatório antes da análise e confirma erro.
-7. Erros comuns ou cenário negativo: esconder limitações cria confiança excessiva no resultado.
-
-### Passo 7 - Validar ausência de compra automática
-
-1. Explicação simples do objetivo: confirmar que o relatório não cria carrinho, encomenda ou recomendação comercial automática.
-2. Ficheiros envolvidos.
-    - REVER: `server/src/services/face-report.service.js`
-    - REVER: `server/src/controllers/face-report.controller.js`
-    - REVER: `client/src/pages/FaceReportPage.jsx`
-3. O que fazer: procura chamadas ou imports relacionados com carrinho, encomenda ou checkout nos ficheiros do relatório.
-4. Código completo, correto e integrado:
-
-```bash
-rg -n "cart|checkout|order|purchase|Product" server/src/services/face-report.service.js server/src/controllers/face-report.controller.js client/src/pages/FaceReportPage.jsx
-```
-
-5. Explicação do código: o comando deve ficar sem resultados para confirmar que o relatório se mantém cosmético.
-6. Como validar este passo: executa o comando e confirma que não há referências comerciais no fluxo do relatório.
-7. Erros comuns ou cenário negativo: criar encomenda a partir de sinais cosméticos altera o contrato e exige consentimentos e regras adicionais.
-
-### Passo 8 - Validar negativos do relatório
-
-1. Explicação simples do objetivo: garantir que o relatório só nasce a partir de uma análise concluída do próprio utilizador.
-2. Ficheiros envolvidos.
-    - REVER: `server/src/services/face-report.service.js`
-    - REVER: `server/src/routes/face-report.routes.js`
-3. O que fazer: testa sem sessão, com sessão sem análise e com sessão cujo último registo ainda não esteja concluído.
-4. Código completo, correto e integrado:
-
-```bash
-curl -i -X POST http://localhost:3001/api/face-reports/latest
-curl -i -X POST http://localhost:3001/api/face-reports/latest \
-    -H "Cookie: orelle_session=COOKIE_CLIENTE_SEM_ANALISE"
-curl -i -X POST http://localhost:3001/api/face-reports/latest \
-    -H "Cookie: orelle_session=COOKIE_CLIENTE_COM_ANALISE_PENDENTE"
-```
-
-5. Explicação do código: os pedidos confirmam autenticação e dependência de uma análise concluída. Os pedidos autenticados usam o cookie `orelle_session` criado no login do `BK-MF0-02`; no browser, o `apiClient` envia esse cookie com `credentials: "include"` e não envia token.
-6. Como validar este passo: confirma `401` no primeiro pedido e `400` nos restantes.
-7. Erros comuns ou cenário negativo: usar qualquer análise existente na coleção pode expor dados de outro utilizador; validar com header de autorização por token incentivaria um segundo sistema de autenticação.
-
-### Validação
-- [ ] Negativos: mínimo `3` cenários.
-- [ ] Sem sessão devolve `401`.
-- [ ] Sem análise concluída devolve `400`.
-- [ ] Relatório não cria carrinho, encomenda ou checkout.
-- [ ] Resposta inclui resumo, rotina, sources e limitations.
-
-### Matriz mínima de testes por prioridade
-
-| Camada | Evidência |
-| --- | --- |
-| Model | `FaceReport` guarda resumo, rotina, sources e limitations. |
-| Service | Usa apenas análise do próprio utilizador. |
-| Controller/route | Endpoint cria relatório com `201`. |
-| UI | Página mostra resumo, rotina e limites. |
-
-Evidência de testes por camada:
-- API: output de relatório criado e erro sem análise.
-- Service: teste de ausência de análise concluída.
-- UI: screenshot do relatório.
-
-## Snippet técnico aplicável
-
-O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
-
-## Expected results
-- Com análise concluída: `201` com `{ "report": ... }`.
-- Sem sessão: `401`.
-- Sem análise: `400`.
-- A resposta inclui resumo, rotina, fontes e limitações.
-
-## Critérios de aceite
-- Cenários negativos concluídos: mínimo `3`.
-- Evidência de testes por camada documentada.
-- Relatório pertence ao utilizador autenticado.
-- Não existem recomendações automáticas de compra.
-- O texto deixa claro que a leitura é cosmética.
-- O relatório prepara histórico em `BK-MF1-08`.
-
-## Validação final
-- Fazer análise no BK anterior.
-- Gerar relatório.
-- Repetir sem análise num utilizador novo e confirmar `400`.
-
-## Evidence para PR/defesa
-- Output de relatório com `201`.
-- Output sem análise com `400`.
-- Screenshot do relatório com rotina e limitações.
-
-## Handoff
+- Unit: schema, semântica, allowlist e cálculo em cêntimos.
+- Integração: geração, freeze, transação de unlock e voucher.
+- Frontend/E2E: teaser, revisão opcional, desbloqueio e conteúdo completo.
+- Segurança: paywall, ownership e ausência de gateway financeiro.
 
 ### Handoff
 
-`BK-MF1-08` deve listar análises e relatórios do próprio utilizador, preservando ownership e ordem temporal.
+`BK-MF1-08` lista sessões e relatórios próprios sem ultrapassar o boundary locked/unlocked. `BK-MF2-02` aprofunda seleção e snapshots de recomendações.
+
+## Expected results
+
+- Um único relatório v2 por revisão da sessão.
+- Machine result e human override separados.
+- Teaser seguro antes do unlock.
+- Freeze auditável com hash e snapshots.
+- Pagamento inequivocamente simulado e voucher igual ao valor de 10%.
+
+## Snippet tecnico aplicavel
+
+O serializer do Passo 5 ilustra a regra mais importante do paywall: não enviar o conteúdo protegido.
+
+## Criterios de aceite
+
+- Cenarios negativos concluidos: minimo 3.
+- Relatório contém objetivos, qualidade, observações, respostas, avaliação, rotina, recomendações, cautelas, plano visual, limitações e provenance.
+- Produtos e variantes pertencem à allowlist e passam validação local.
+- `machineResult` nunca é sobrescrito.
+- Revisão humana é opcional e termina antes do freeze.
+- Conteúdo locked não está no DTO.
+- Depósito é 10% em cêntimos, calculado no servidor.
+- Unlock e voucher são idempotentes e transacionais.
+- Nenhuma cobrança ou integração financeira existe.
+
+## Validação final
+
+Executa testes de contratos OpenAI, integração MongoDB, concorrência, frontend, E2E e pesquisa estática por gateways/URLs de pagamento proibidos.
+
+## Evidence para PR/defesa
+
+- DTO locked sanitizado e DTO unlocked comparável.
+- Teste de allowlist com ID inventado.
+- Cálculo de 10% e voucher com valores de fronteira.
+- Replay concorrente sem duplicação.
+- Não incluir relatório real, PII, respostas, fotografias ou segredos.
+
+## Handoff
+
+O histórico usa os snapshots congelados. A revisão humana e a edição de maquilhagem referenciam o `reportId`; não criam um segundo sistema de recomendações.
 
 ## Changelog
-- `2026-05-31`: guia revisto com modelo de relatório, service, route, UI, limites cosméticos e handoff para histórico.
+
+- `2026-05-31`: guia inicial de relatório personalizado.
+- `2026-07-10`: substituição de “diagnóstico” por avaliação cosmética e cifragem de derivados.
+- `2026-07-11`: relatório OpenAI v2, allowlist, revisão opcional, freeze, teaser e unlock simulado de 10% com voucher.

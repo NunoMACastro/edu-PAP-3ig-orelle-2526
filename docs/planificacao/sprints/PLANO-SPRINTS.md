@@ -6,7 +6,7 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-06-30`
+- `last_updated`: `2026-07-11`
 
 ## Conversao S/M/L
 - `S`: 1 unidade
@@ -72,7 +72,20 @@
 - `OPERACAO-DEPLOY-ROLLBACK.md`
 - `ANEXO-CORE-DUAL-BK.md`
 
+## Gates operacionais adicionais
+
+- `G2`: pagamento simulado só fecha com prova em replica set de rollback, replay e 25 pedidos concorrentes; testes unitários/de contrato são evidência intermédia.
+- `RNF21`: backup só fecha com ciclo local real `create -> restore _restore -> verify`, incluindo comparação de documentos e índices e cleanup do destino efémero.
+- `CSV`: exports devem manter como texto qualquer célula controlada iniciada por `=`, `+`, `-`, `@`, TAB ou CR.
+- `CORE-IA/OpenAI`: o percurso de sprint fecha apenas com os sete objetivos, consentimento v2, frontal + perfil, qualidade, 5–8 perguntas, catálogo allowlisted, relatório v2 e retoma de jobs demonstrados sem provider `demo` ou alternativo.
+- `REVISÃO/FREEZE`: `machineResult` permanece imutável, `humanOverride` é opcional/auditado e o relatório congelado mantém `contentHash` e snapshots de produtos/preços/stock.
+- `10%/VOUCHER`: o desbloqueio usa `ceil(recommendedTotalCents × 1000 / 10000)`, exclui produtos indisponíveis e só fecha com pagamento simulado e voucher atómicos/idempotentes.
+- `IMAGEM`: `gpt-image-2` só pode editar a frontal depois do desbloqueio, com consentimento próprio e variantes congeladas de maquilhagem; falha da imagem não invalida relatório nem voucher.
+- `DEGRADADO/LIVE`: arranque sem chave deve preservar áreas não IA. `test:ai:live` é opt-in; sem chave fica `SKIP/BLOQUEADO`, nunca `PASS`.
+
 ## Changelog
+- `2026-07-11`: adicionados gates de consulta OpenAI-only, sete objetivos, jobs, revisão/freeze, 10%/voucher, `gpt-image-2` e distinção entre modo degradado e teste live.
+- `2026-07-09`: explicitados os gates persistentes de G2/RNF21 e o negativo obrigatório de CSV Formula Injection.
 - `2026-06-30`: carga recalculada após expansão da MF8 para 17 BKs e 74 BKs totais.
 - `2026-06-29`: carga recalculada na primeira expansão da MF8.
 - `2026-04-18`: plano de sprints normalizado para contrato canónico v2 cross-PAP.

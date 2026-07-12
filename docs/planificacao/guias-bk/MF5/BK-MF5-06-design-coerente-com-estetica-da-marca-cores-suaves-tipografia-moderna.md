@@ -61,16 +61,13 @@ Design consistente não é decoração. Numa aplicação de cosmética, a interf
 - `apps/web/package.json` com script `build`.
 - Conhecimentos básicos de CSS custom properties, estados de foco e inspeção visual em browser.
 
-#### Política de paths para aluno e validação real_dev
+#### Política de paths pedagógicos
 
-Este guia é um documento canónico de aluno, por isso mantém `apps/web` como raiz publicada de implementação. Quando uma prompt operacional do professor indicar `IMPLEMENTATION_ROOT=real_dev`, aplica o mesmo contrato técnico por remapeamento controlado:
+Este guia é um documento canónico de aluno e usa exclusivamente `apps/web` como raiz publicada de implementação. Qualquer auditoria privada mapeia o contrato fora deste tutorial e nunca altera os paths que o aluno deve seguir.
 
 | Contexto | Raiz a usar | Exemplo |
 | --- | --- | --- |
 | Guia entregue aos alunos | `apps/web` | `apps/web/src/styles.css` |
-| Auditoria/correção operacional privada | `real_dev/web` | `real_dev/web/src/styles.css` |
-
-Não edites `apps/web` durante uma execução operacional que declare `IMPLEMENTATION_ROOT=real_dev`. Nessa situação, usa o guia como contrato e executa os comandos equivalentes em `real_dev/web`, registando no relatório técnico que o path foi remapeado.
 
 #### Glossário
 
@@ -112,7 +109,7 @@ Este BK também ensina compatibilidade incremental. Como a app já usa tokens an
 - Saber correr o build do frontend com `npm --prefix apps/web run build`.
 - Ter o `BK-MF5-05` concluído, porque este BK não recria a shell responsiva.
 - Confirmar `RNF02` em `docs/RNF.md` e o mapeamento `BK-MF5-06` nos anexos de RNF.
-- Distinguir path canónico de aluno (`apps/web`) de path operacional privado (`real_dev/web`) quando uma prompt de auditoria/correção assim o declarar.
+- Distinguir o path canónico publicado de qualquer raiz privada usada apenas por auditorias do professor.
 
 ### Erros comuns
 
@@ -127,7 +124,7 @@ Este BK também ensina compatibilidade incremental. Como a app já usa tokens an
 - Consegues explicar a diferença entre um token visual novo e um alias de compatibilidade?
 - Consegues justificar por que `BK-MF5-06` não altera endpoints, roles, cookies, payloads ou regras de negócio?
 - Consegues indicar que tokens serão reutilizados por `BK-MF5-07` para feedback e por `BK-MF5-08` para tema/contraste?
-- Consegues executar o mesmo contrato em `real_dev/web` quando a prompt operacional pedir `IMPLEMENTATION_ROOT=real_dev`, sem mudar o guia de aluno?
+- Consegues aplicar o contrato sem trocar os paths pedagógicos publicados no guia?
 
 ## Bloco operacional
 
@@ -136,7 +133,6 @@ Este BK também ensina compatibilidade incremental. Como a app já usa tokens an
 - Ficheiro principal: `apps/web/src/styles.css`.
 - Ficheiros de revisão: `apps/web/src/App.jsx`, `apps/web/src/pages/*.jsx` e `apps/web/package.json`.
 - Contrato canónico: `RNF02`, `BK-MF5-06`, handoff de `BK-MF5-05` e handoff para `BK-MF5-07`/`BK-MF5-08`.
-- Em validação privada, remapear `apps/web` para `real_dev/web` apenas quando a prompt operacional declarar `IMPLEMENTATION_ROOT=real_dev`.
 
 ### Passos
 
@@ -157,7 +153,7 @@ Este BK também ensina compatibilidade incremental. Como a app já usa tokens an
 - [ ] Mensagens: `role="alert"` e `role="status"` ficam legíveis.
 - [ ] Compatibilidade: tokens antigos continuam definidos como aliases.
 - [ ] Negativos: mínimo `2` cenários com resultado observado e corrigido.
-- [ ] Remapeamento: se a execução usar `real_dev/web`, o relatório técnico explicita que o guia canónico continua a publicar `apps/web`.
+- [ ] Paths: o guia e a evidence pedagógica continuam a usar apenas `apps/web`.
 
 ### Handoff
 

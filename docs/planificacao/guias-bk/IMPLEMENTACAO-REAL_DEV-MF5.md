@@ -1,5 +1,7 @@
 # IMPLEMENTACAO-REAL_DEV-MF5
 
+> **Nota de supersessão — 2026-07-11:** documento histórico de implementação. O contrato OpenAI-only e respetiva evidence estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md); não interpretar estados abaixo como conclusão atual.
+
 ## Execucao atual - BK-MF5-08
 
 ### Metadados

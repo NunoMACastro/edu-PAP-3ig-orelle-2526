@@ -80,16 +80,16 @@ O `priceSnapshotCents` existe para o cliente perceber o total atual do carrinho.
 - `CartPage.jsx`: permite consultar, atualizar e remover itens.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/models/cart.model.js`
-- CRIAR: `server/src/validators/cart.validator.js`
-- CRIAR: `server/src/services/cart.service.js`
-- CRIAR: `server/src/controllers/cart.controller.js`
-- CRIAR: `server/src/routes/cart.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/CartPage.jsx`
-- EDITAR: `client/src/App.jsx`
-- REVER: `server/src/models/product.model.js`
-- REVER: `client/src/services/apiClient.js`
+- CRIAR: `apps/api/src/models/cart.model.js`
+- CRIAR: `apps/api/src/validators/cart.validator.js`
+- CRIAR: `apps/api/src/services/cart.service.js`
+- CRIAR: `apps/api/src/controllers/cart.controller.js`
+- CRIAR: `apps/api/src/routes/cart.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/CartPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/product.model.js`
+- REVER: `apps/web/src/services/apiClient.js`
 
 ## Bloco pedagógico
 ### Objetivo
@@ -174,13 +174,13 @@ Sem código novo neste passo.
 
 1. Explicação simples do objetivo: guardar um carrinho por utilizador.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/models/cart.model.js`
+    - CRIAR: `apps/api/src/models/cart.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria schema com `userId`, itens e timestamps.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/models/cart.model.js
+// apps/api/src/models/cart.model.js
 import mongoose from "mongoose";
 
 const { Schema, model } = mongoose;
@@ -225,13 +225,13 @@ export const Cart = model("Cart", cartSchema);
 
 1. Explicação simples do objetivo: validar entrada antes do service.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/cart.validator.js`
+    - CRIAR: `apps/api/src/validators/cart.validator.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: valida `productId` e `quantity`.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/validators/cart.validator.js
+// apps/api/src/validators/cart.validator.js
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
 
@@ -297,14 +297,14 @@ export function validateCartProductParam(params) {
 
 1. Explicação simples do objetivo: concentrar regras de negócio do carrinho.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/cart.service.js`
-    - REVER: `server/src/models/product.model.js`
+    - CRIAR: `apps/api/src/services/cart.service.js`
+    - REVER: `apps/api/src/models/product.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: implementar listagem, adição, atualização e remoção.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/services/cart.service.js
+// apps/api/src/services/cart.service.js
 import { Cart } from "../models/cart.model.js";
 import { Product } from "../models/product.model.js";
 import { AppError } from "../middlewares/error.middleware.js";
@@ -474,14 +474,14 @@ export async function clearCart(userId) {
 
 1. Explicação simples do objetivo: expor o carrinho por HTTP.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/cart.controller.js`
-    - CRIAR: `server/src/routes/cart.routes.js`
+    - CRIAR: `apps/api/src/controllers/cart.controller.js`
+    - CRIAR: `apps/api/src/routes/cart.routes.js`
     - LOCALIZAÇÃO: ficheiros completos.
 3. O que fazer: criar controllers e proteger routes.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/controllers/cart.controller.js
+// apps/api/src/controllers/cart.controller.js
 import {
     addItemToCart,
     getMyCart,
@@ -548,7 +548,7 @@ export async function removeCartItemController(req, res, next) {
 ```
 
 ```js
-// server/src/routes/cart.routes.js
+// apps/api/src/routes/cart.routes.js
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import {
@@ -577,7 +577,7 @@ cartRoutes.delete("/cart/items/:productId", requireAuth, removeCartItemControlle
 
 1. Explicação simples do objetivo: ligar as routes ao Express.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: zona de imports e zona onde a app monta routes.
 3. O que fazer: importar e montar `cartRoutes`.
 4. Código completo, correto e integrado.
@@ -596,15 +596,15 @@ app.use("/api", cartRoutes);
 
 1. Explicação simples do objetivo: permitir ao cliente ver e gerir o carrinho.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/CartPage.jsx`
-    - EDITAR: `client/src/App.jsx`
-    - REVER: `client/src/services/apiClient.js`
+    - CRIAR: `apps/web/src/pages/CartPage.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
+    - REVER: `apps/web/src/services/apiClient.js`
     - LOCALIZAÇÃO: ficheiro completo e registo de rota/página no `App`.
 3. O que fazer: criar página com estados e chamadas à API.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/pages/CartPage.jsx
+// apps/web/src/pages/CartPage.jsx
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -735,8 +735,8 @@ export function CartPage() {
 
 1. Explicação simples do objetivo: provar que o carrinho é seguro e funcional.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/routes/cart.routes.js`
-    - REVER: `server/src/services/cart.service.js`
+    - REVER: `apps/api/src/routes/cart.routes.js`
+    - REVER: `apps/api/src/services/cart.service.js`
     - LOCALIZAÇÃO: testes de integração da API ou registos de execução.
 3. O que fazer: executar smoke e negativos.
 4. Código completo, correto e integrado.

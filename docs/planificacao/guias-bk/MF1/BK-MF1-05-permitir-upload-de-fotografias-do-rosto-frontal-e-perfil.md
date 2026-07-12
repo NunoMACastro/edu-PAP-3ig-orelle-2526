@@ -1,6 +1,7 @@
-# BK-MF1-05 - Permitir upload de fotografias do rosto (frontal e perfil)
+# BK-MF1-05 - Recolher frontal e perfil com consentimento e controlo de qualidade
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF1-05`
 - `bk_id`: `BK-MF1-05`
 - `macro`: `MF1`
@@ -16,759 +17,274 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-05-permitir-upload-de-fotografias-do-rosto-frontal-e-perfil.md`
-- `last_updated`: `2026-05-31`
+- `last_updated`: `2026-07-11`
+
+> **Contrato canónico OpenAI-only:** as fotografias são recolhidas dentro de uma consulta em `/consulta/nova`, depois da escolha dos objetivos e da aceitação do consentimento v2. O browser faz um preflight local com MediaPipe quando o módulo está disponível; o backend repete as verificações técnicas com Sharp. A OpenAI faz a decisão final de qualidade cosmética antes de produzir observações. O preflight nunca substitui consentimento, autorização ou validação no servidor.
+
+## Contexto do BK
+
+Este BK prepara a entrada sensível do fluxo:
+
+`objetivos → consentimento v2 → guia fotográfico → frontal + perfil → qualidade técnica → análise OpenAI`
+
+As fotografias não são anexos genéricos. São dados privados ligados ao titular, à versão do consentimento e à sessão da consulta que as vai utilizar.
 
 ## Objetivo
-Neste BK vais implementar upload autenticado de duas fotografias faciais: uma frontal e uma de perfil.
+
+Implementar o upload autenticado de uma fotografia frontal e uma fotografia de perfil/lateral, com instruções claras, preflight no browser, normalização no backend, cifra e substituição segura do par anterior.
 
 ## Importância
-As fotografias faciais são dados biométricos sensíveis. Antes de guardar ficheiros, a Orélle deve confirmar consentimento, validar tipo/tamanho e associar tudo ao utilizador autenticado.
+
+Uma imagem com pose errada, pouca luz, blur ou mais do que um rosto reduz a qualidade da consulta. Uma imagem armazenada sem controlo de ownership, sem remoção de EXIF ou sem cifra cria um risco de privacidade. Este BK resolve os dois problemas antes de qualquer chamada à OpenAI.
 
 ## Scope-in
-- Criar consentimento mínimo para análise facial.
-- Criar upload com `Multer`.
-- Aceitar exatamente `frontal` e `perfil`.
-- Guardar ficheiros fora de pasta pública.
-- Guardar metadados em MongoDB sem devolver caminho interno.
+
+- Pedir consentimento v2 para fotografias, respostas, perfil mínimo e envio à OpenAI.
+- Explicar como tirar as fotografias frontal e lateral.
+- Fazer preflight local com MediaPipe carregado dinamicamente e assets servidos pela aplicação.
+- Tratar falhas duras e warnings confirmáveis.
+- Receber apenas os campos multipart `frontal` e `perfil`.
+- Validar formato, bytes, dimensões e número de píxeis.
+- Auto-orientar, re-encodar para WebP e remover EXIF com Sharp.
+- Cifrar os bytes e guardar apenas metadados mínimos na base de dados.
+- Associar o par à sessão de consulta do próprio utilizador.
 
 ## Scope-out
-- Não analisar fotografias com IA; isso fica para `BK-MF1-06`.
-- Não gerar relatório; isso fica para `BK-MF1-07`.
-- Não criar painel de eliminação/anonimização; isso fica para `BK-MF5-01`.
+
+- Não executar análise cosmética neste BK; fica em `BK-MF1-06`.
+- Não guardar landmarks, vetores faciais ou resultados MediaPipe.
+- Não enviar fotografias para a OpenAI durante o preflight.
+- Não permitir upload anónimo, URL pública ou escolha de `userId`/`photoId` pelo frontend.
+- Não promover consentimentos v1 para v2 automaticamente.
 
 ## Pré-requisitos
-- `BK-MF0-02`: sessão com cookie HttpOnly e `requireAuth`.
-- `BK-MF0-03`: perfil do cliente.
-- `RNF12`: consentimento explícito para análise facial.
+
+- Sessão opaca autenticada e proteção CSRF.
+- `DATA_ENCRYPTION_KEY` configurada no backend.
+- Storage privado e serviço de cifra disponíveis.
+- Dependências `busboy` e `sharp` na API.
+- `@mediapipe/tasks-vision` e assets locais no frontend.
 
 ## Glossário
-- Fotografia frontal: imagem tirada de frente para a câmara.
-- Fotografia de perfil: imagem lateral do rosto.
-- Consentimento: confirmação explícita de que o cliente aceita tratamento das fotografias para análise facial.
-- Minimização: guardar apenas o necessário para o fluxo.
+
+- **Preflight:** verificação rápida antes do upload para ajudar o utilizador a corrigir a fotografia.
+- **Falha dura:** condição que impede avançar, por exemplo rosto ausente, múltiplos rostos, pose errada, blur ou resolução insuficiente.
+- **Warning:** condição que pode avançar depois de confirmação explícita, por exemplo óculos, cabelo sobre o rosto ou luz desigual.
+- **Normalização:** descodificar, auto-orientar e voltar a codificar a imagem num formato controlado.
+- **Consentimento v2:** autorização explícita para o fluxo OpenAI, sem reaproveitamento silencioso de versões antigas.
 
 ## Conceitos teóricos
-Upload facial não é análise facial. Este BK só guarda fotografias e metadados; a IA começa no próximo BK.
 
-O backend usa `requireAuth` para saber quem é o utilizador. O frontend nunca envia `userId`. O storage privado guarda ficheiros fora de uma pasta pública, e a API devolve apenas IDs e metadados seguros. `storageKey` fica no backend porque revela onde o ficheiro vive e pode abrir caminho a acesso indevido se escapar para o cliente.
+O browser melhora a experiência, mas não é uma fronteira de segurança. MediaPipe pode indicar presença, quantidade, posição e pose do rosto; esses valores ajudam o utilizador a corrigir a fotografia antes de gastar rede. Como JavaScript pode ser alterado pelo cliente, o backend tem de voltar a validar tudo o que consegue observar tecnicamente.
 
-Fotografias faciais são dados sensíveis. Nesta fase, a proteção mínima é consentimento explícito, validação de formato/tamanho, ownership por sessão, pasta privada e resposta minimizada. A encriptação de ficheiros, eliminação/anonimização e auditoria de acessos ficam preparadas para BKs posteriores, mas este BK não deve bloquear esses requisitos futuros.
+Sharp valida o ficheiro realmente descodificado, não apenas o MIME declarado. Deve limitar a imagem a 25 MP, exigir pelo menos 720 px no lado menor, auto-orientar e produzir WebP sem metadados. O original tem no máximo 5 MiB. A quota persistida continua a ser aplicada ao resultado normalizado e não ao nome ou tipo fornecido pelo browser.
 
-Também existe uma falha operacional importante: o ficheiro pode chegar ao disco e a gravação em MongoDB falhar. O service deve limpar ficheiros recém-recebidos se a persistência falhar, reduzindo risco de ficheiros órfãos com dados biométricos.
+O perfil de qualidade v1 usa estes limites:
 
-`Multer` é usado porque o Express não processa multipart/form-data sozinho. A alternativa seria escrever um parser manual, mas isso aumenta risco e complexidade sem valor pedagógico.
+- exatamente um rosto, confiança mínima `0,70`;
+- rosto entre `30%` e `85%` do enquadramento;
+- desvio do centro até `20%`;
+- pose frontal até `20°` e lateral entre `35°` e `75°`;
+- luminosidade média entre `45` e `210`;
+- no máximo `20%` de píxeis subexpostos ou sobre-expostos;
+- blur abaixo do limiar versionado é rejeitado.
+
+Se MediaPipe não carregar, a consulta não fica inutilizada: a UI informa a limitação, executa as verificações nativas disponíveis e deixa a decisão final de qualidade à OpenAI. Isto é degradação controlada, não uma aprovação fictícia.
 
 ## Arquitetura do BK
-- `POST /api/face-consent`
+
+- `GET|POST|DELETE /api/face-consent`
 - `POST /api/face-photos`
-- `FaceConsent`
-- `FacePhoto`
-- `ensureActiveFaceConsent`
-- `uploadFacePhotos`
-- `FacePhotoUploadPage`
+- `FaceConsent` e `FacePhoto`
+- Busboy → Sharp → cifra → storage privado
+- `NewConsultationPage` → `mediapipeFacePreflight` → `consultationApi`
 
 ## Ficheiros a criar/editar/rever
-- EDITAR: `server/package.json`
-- CRIAR: `server/src/models/face-consent.model.js`
-- CRIAR: `server/src/models/face-photo.model.js`
-- CRIAR: `server/src/validators/face-photo.validator.js`
-- CRIAR: `server/src/middlewares/face-photo-upload.middleware.js`
-- CRIAR: `server/src/services/face-photo.service.js`
-- CRIAR: `server/src/controllers/face-photo.controller.js`
-- CRIAR: `server/src/routes/face-photo.routes.js`
-- EDITAR: `server/src/app.js`
-- EDITAR: `client/src/services/apiClient.js`
-- CRIAR: `client/src/pages/FacePhotoUploadPage.jsx`
-- EDITAR: `client/src/App.jsx`
 
-## Bloco pedagógico
+- EDITAR: `apps/api/src/models/face-consent.model.js`
+- EDITAR: `apps/api/src/models/face-photo.model.js`
+- EDITAR: `apps/api/src/middlewares/face-photo-upload.middleware.js`
+- EDITAR: `apps/api/src/services/face-photo-normalization.service.js`
+- EDITAR: `apps/api/src/services/face-photo.service.js`
+- EDITAR: `apps/api/src/routes/face-photo.routes.js`
+- EDITAR: `apps/web/src/features/consultation/NewConsultationPage.jsx`
+- EDITAR: `apps/web/src/features/consultation/mediapipeFacePreflight.js`
+- EDITAR: `apps/web/src/features/consultation/photoPreflight.js`
+- EDITAR: `apps/web/src/features/consultation/consultationApi.js`
+- REVER: `apps/web/public/mediapipe/models/face_landmarker.task`
+- REVER: `apps/web/public/mediapipe/wasm/`
+
+## Bloco pedagogico
 
 ### Objetivo
-Permitir upload seguro de fotografias frontal e perfil com consentimento mínimo antes de qualquer processamento.
 
-### Pré-requisitos
-- Ter autenticação por sessão em `BK-MF0-02`.
-- Ter perfil de cliente em `BK-MF0-03`.
-- Compreender que fotografia facial e dado sensível.
+Perceber como uma funcionalidade de upload combina UX, validação, privacidade e consistência transacional.
+
+### Pre-requisitos
+
+- Saber enviar `FormData` sem definir manualmente o boundary.
+- Distinguir validação no cliente de validação autoritativa no servidor.
+- Conhecer `try/catch/finally`, streams e operações assíncronas.
 
 ### Erros comuns
-- Guardar fotografias em pasta pública.
-- Aceitar ficheiros sem validar tipo, tamanho e quantidade.
-- Devolver `storageKey` ou path interno na API.
+
+- Confiar no atributo `accept` ou no MIME enviado pelo browser.
+- Guardar landmarks ou fotografias em `localStorage`.
+- Carregar o modelo MediaPipe a partir de CDN sem necessidade.
+- Enviar o multipart antes de confirmar consentimento ativo.
+- Substituir fotografias usadas por uma consulta em curso sem reset coerente.
 
 ### Check de compreensao
-- Porque é que o consentimento vem antes do upload?
-- Que campos de ficheiro são obrigatórios?
-- Que dados nunca devem voltar para o frontend?
+
+- Porque é que o backend precisa de Sharp mesmo depois do preflight?
+- Qual é a diferença entre warning e falha dura?
+- O que deve acontecer se o módulo MediaPipe não carregar?
+- Porque é que um consentimento antigo não pode ser promovido automaticamente?
+
+### Tempo estimado
+
+`M` — implementação e testes de integração.
 
 ## Bloco operacional
 
 ### Entrada
-- Sessão autenticada.
-- Consentimento ativo.
-- FormData com `frontal` e `perfil`.
+
+- Utilizador autenticado.
+- Objetivo principal e até dois objetivos secundários já escolhidos.
+- Consentimento v2 aceite.
+- Ficheiros `frontal` e `perfil` em JPEG, PNG ou WebP.
+
+### Saída
+
+- Par WebP normalizado, cifrado e privado.
+- DTO mínimo com IDs, vistas e métricas não sensíveis necessárias ao fluxo.
+- Sessão em `collecting_photos`, pronta para criar o job de análise.
 
 ### Passos
-Executar cenários negativos obrigatórios (mínimo 3).
 
-Segue os passos lineares abaixo e valida sem sessão, sem consentimento, ficheiro inválido e falta de uma fotografia.
+Executar cenarios negativos obrigatorios (minimo 3).
 
-## Passos lineares
+#### Passo 1 - Apresentar o guia de captura
 
-### Passo 1 - Adicionar dependência de upload
+Explica: luz natural uniforme, lente limpa, sem filtros/beauty mode, expressão neutra, rosto centrado, cabelo afastado e, para análise de pele, sem maquilhagem. Mostra exemplos textuais; não inventes screenshots ou aprovação visual.
 
-1. Explicação simples do objetivo: permitir receber `multipart/form-data`.
-2. Ficheiros envolvidos.
-    - EDITAR: `server/package.json`
-    - LOCALIZAÇÃO: objeto `dependencies`.
-3. O que fazer: adiciona `multer`.
-4. Código completo, correto e integrado:
+#### Passo 2 - Recolher consentimento v2
 
-```json
-{
-  "dependencies": {
-    "multer": "^2.0.0"
-  }
-}
-```
+Obtém primeiro `providerConsentRequirement` por `GET /api/face-consent` e envia `POST /api/face-consent` com o contrato v2 completo: `{ accepted: true, version: "face-analysis-v2", providerConsentAccepted: true, provider: "openai", noticeVersion }`. O `noticeVersion` é exatamente o publicado pelo backend; `generativeEditAccepted` e `consultantPhotoAccessAccepted` começam `false` e são pedidos nos fluxos próprios. `GET` retoma o estado e `DELETE` revoga. A revogação impede novas operações e cancela jobs ainda não concluídos.
 
-5. Explicação do código: `multer` fica responsável por receber ficheiros e aplicar limites antes do controller.
-6. Como validar este passo: executar `npm install` dentro de `server`.
-7. Erros comuns ou cenário negativo: aceitar ficheiros sem middleware permite pedidos sem limite de tamanho.
+#### Passo 3 - Carregar MediaPipe localmente
 
-### Passo 2 - Criar modelo de consentimento
+Faz import dinâmico de `@mediapipe/tasks-vision` apenas na etapa das fotografias. Usa o WASM e o modelo em `apps/web/public/mediapipe/`; não persistas landmarks nem os envies para a API.
 
-1. Explicação simples do objetivo: guardar prova de consentimento por utilizador.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/models/face-consent.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o modelo.
-4. Código completo, correto e integrado:
+#### Passo 4 - Classificar a qualidade no browser
+
+Aplica os limites versionados a cada vista. Uma falha dura bloqueia o botão. Um warning exige confirmação visível e registada apenas como decisão da sessão, nunca como biometria adicional.
 
 ```js
-import mongoose from "mongoose";
-
-const { Schema, model } = mongoose;
-
-const faceConsentSchema = new Schema(
-    {
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-            unique: true,
-            index: true,
-        },
-        acceptedAt: {
-            type: Date,
-            required: true,
-        },
-        version: {
-            type: String,
-            required: true,
-            default: "face-analysis-v1",
-        },
-        purpose: {
-            type: String,
-            required: true,
-            default: "analise_facial_cosmetica",
-        },
-        revokedAt: {
-            type: Date,
-            default: null,
-        },
-    },
-    { timestamps: true },
-);
-
-export const FaceConsent = model("FaceConsent", faceConsentSchema);
-```
-
-5. Explicação do código: o consentimento fica ligado ao utilizador por `userId`. `revokedAt` prepara revogação futura sem apagar o histórico de decisão.
-6. Como validar este passo: cria consentimento para o mesmo utilizador duas vezes e confirma que é atualizado, não duplicado.
-7. Erros comuns ou cenário negativo: guardar consentimento apenas no frontend não prova nada no backend.
-
-### Passo 3 - Criar modelo de fotografia facial
-
-1. Explicação simples do objetivo: guardar metadados dos ficheiros sem expor caminho interno.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/models/face-photo.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o modelo.
-4. Código completo, correto e integrado:
-
-```js
-import mongoose from "mongoose";
-
-const { Schema, model } = mongoose;
-
-const facePhotoSchema = new Schema(
-    {
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-            index: true,
-        },
-        kind: {
-            type: String,
-            enum: ["frontal", "perfil"],
-            required: true,
-        },
-        storageKey: {
-            type: String,
-            required: true,
-            select: false,
-        },
-        originalName: {
-            type: String,
-            required: true,
-        },
-        mimeType: {
-            type: String,
-            required: true,
-        },
-        sizeBytes: {
-            type: Number,
-            required: true,
-            min: 1,
-        },
-        consentId: {
-            type: Schema.Types.ObjectId,
-            ref: "FaceConsent",
-            required: true,
-        },
-        status: {
-            type: String,
-            enum: ["active", "deleted"],
-            default: "active",
-        },
-    },
-    { timestamps: true },
-);
-
-facePhotoSchema.index({ userId: 1, kind: 1, createdAt: -1 });
-
-export const FacePhoto = model("FacePhoto", facePhotoSchema);
-```
-
-5. Explicação do código: `storageKey` usa `select: false` para não sair por engano em consultas comuns.
-6. Como validar este passo: faz uma consulta normal e confirma que `storageKey` não aparece.
-7. Erros comuns ou cenário negativo: devolver caminho físico do ficheiro expõe estrutura interna do servidor.
-
-### Passo 4 - Criar validação e middleware de upload
-
-1. Explicação simples do objetivo: aceitar apenas imagens pequenas e nos campos certos.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/face-photo.validator.js`
-    - CRIAR: `server/src/middlewares/face-photo-upload.middleware.js`
-    - LOCALIZAÇÃO: ficheiros completos.
-3. O que fazer: cria os dois ficheiros.
-4. Código completo, correto e integrado:
-
-```js
-// server/src/validators/face-photo.validator.js
-import { AppError } from "../middlewares/error.middleware.js";
-
-export function validateFaceConsentInput(body) {
-    if (body.accepted !== true) {
-        throw new AppError(400, "Consentimento facial obrigatorio");
-    }
-
-    return {
-        version: String(body.version ?? "face-analysis-v1"),
-    };
-}
-
-export function validateUploadedFaceFiles(files) {
-    const frontal = files?.frontal?.[0];
-    const perfil = files?.perfil?.[0];
-
-    if (!frontal || !perfil) {
-        throw new AppError(400, "Fotografia frontal e de perfil são obrigatórias");
-    }
-
-    return [
-        { kind: "frontal", file: frontal },
-        { kind: "perfil", file: perfil },
-    ];
+export function mayUploadPhoto(preflight) {
+    if (preflight.hardFailures.length > 0) return false;
+    return preflight.warnings.length === 0 || preflight.warningsConfirmed === true;
 }
 ```
 
-```js
-// server/src/middlewares/face-photo-upload.middleware.js
-import crypto from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
-import multer from "multer";
-import { AppError } from "./error.middleware.js";
-import { FaceConsent } from "../models/face-consent.model.js";
+#### Passo 5 - Enviar o par em multipart
 
-const PRIVATE_UPLOAD_DIR = path.resolve("storage/private/facial-photos");
-const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+Usa os nomes exatos `frontal` e `perfil`. Não envies `userId`, paths, landmarks ou IDs escolhidos manualmente.
 
-fs.mkdirSync(PRIVATE_UPLOAD_DIR, { recursive: true });
+#### Passo 6 - Validar e normalizar no backend
 
-const storage = multer.diskStorage({
-    destination: PRIVATE_UPLOAD_DIR,
-    filename(req, file, callback) {
-        const extension = path.extname(file.originalname).toLowerCase();
-        const safeName = `${crypto.randomUUID()}${extension}`;
-        callback(null, safeName);
-    },
-});
+Busboy limita campos, partes e bytes e limpa temporários em erro/abort. Sharp descodifica com limite de píxeis, valida dimensões, rejeita imagem animada/multipágina, auto-orienta e re-encoda para WebP sem EXIF.
 
-export async function ensureActiveFaceConsent(req, res, next) {
-    try {
-        const consent = await FaceConsent.findOne({
-            userId: req.user.id,
-            revokedAt: null,
-        });
+#### Passo 7 - Substituir o par de forma coerente
 
-        if (!consent) {
-            return next(new AppError(403, "Consentimento facial em falta"));
-        }
+Guarda o novo par numa transação. Se a consulta ainda só recolhe fotografias, cancela jobs da tentativa anterior e limpa a análise associada. Se a consulta já avançou, bloqueia uma substituição que tornaria o snapshot incoerente. A eliminação física do par anterior usa outbox idempotente.
 
-        req.faceConsent = consent;
-        return next();
-    } catch (err) {
-        return next(err);
-    }
-}
+#### Passo 8 - Integrar a navegação
 
-function fileFilter(req, file, callback) {
-    if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
-        return callback(new AppError(400, "Formato de imagem não permitido"));
-    }
+Depois do upload bem-sucedido, mantém o utilizador no fluxo canónico e encaminha-o para `/consulta/ativa`. Um reload obtém o estado pelo backend; os `File` e landmarks nunca ficam em storage do browser.
 
-    return callback(null, true);
-}
+### Cenarios negativos recomendados
 
-export const uploadFacePhotos = multer({
-    storage,
-    fileFilter,
-    limits: {
-        fileSize: 5 * 1024 * 1024,
-        files: 2,
-    },
-}).fields([
-    { name: "frontal", maxCount: 1 },
-    { name: "perfil", maxCount: 1 },
-]);
-```
+- Sem sessão: `401`.
+- Sem consentimento v2 ativo: `403`.
+- Campo extra, duplicado ou falta de uma vista: `400`/`422`.
+- MIME falso, ficheiro corrompido, mais de 5 MiB ou mais de 25 MP: rejeição e cleanup.
+- Zero ou dois rostos, pose errada, blur ou luz extrema: não iniciar análise normal.
+- Falha de MediaPipe: warning de degradação, sem fingir que o preflight passou.
+- Duplo clique/reload: não criar pares ativos duplicados.
 
-5. Explicação do código: `ensureActiveFaceConsent` corre depois de `requireAuth` e antes do upload. Assim, se o cliente ainda não tiver consentimento ativo, o pedido termina com `403` antes de `multer.diskStorage` escrever qualquer fotografia no disco. Depois disso, `uploadFacePhotos` limita formato, tamanho e quantidade antes do controller validar se chegaram as duas imagens obrigatórias.
-6. Como validar este passo: tenta enviar imagens sem consentimento ativo e confirma `403`; confirma que não apareceu ficheiro novo em `storage/private/facial-photos`. Depois envia um ficheiro `.txt` com consentimento ativo e confirma `400`.
-7. Erros comuns ou cenário negativo: guardar em `public/` permitiria acesso direto sem autorização; colocar a validação de consentimento só no service deixaria o ficheiro chegar ao disco antes da decisão de privacidade.
+### Validacao
 
-### Passo 5 - Criar service de consentimento e fotografias
+- [ ] Negativos: minimo 3 cenarios materiais executados.
+- Gate documental: falhar se `negativos < 3`.
+- Testes unitários dos limiares de qualidade.
+- Testes de integração multipart com ficheiros válidos e inválidos.
+- Teste de ausência de EXIF no WebP normalizado.
+- Teste de substituição/rollback e ausência de ficheiros órfãos.
+- Teste frontend com MediaPipe indisponível.
 
-1. Explicação simples do objetivo: guardar consentimento e metadados com ownership.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/face-photo.service.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o service.
-4. Código completo, correto e integrado:
+### Matriz minima de testes por prioridade
 
-```js
-import { unlink } from "node:fs/promises";
-import { AppError } from "../middlewares/error.middleware.js";
-import { FaceConsent } from "../models/face-consent.model.js";
-import { FacePhoto } from "../models/face-photo.model.js";
+| Prioridade | Cenário | Resultado esperado |
+|---|---|---|
+| P0 | consentimento ausente/revogado | nenhum byte é persistido nem enviado à OpenAI |
+| P0 | imagem tecnicamente inválida | erro controlado e temporários eliminados |
+| P0 | par válido | duas vistas cifradas e associadas ao titular/sessão |
+| P1 | warning confirmado | upload permitido com estado explícito |
+| P1 | MediaPipe indisponível | fluxo degradado, nunca aprovação fictícia |
+| P1 | upload concorrente | no máximo um par ativo e snapshot coerente |
 
-function toFacePhotoResponse(photo) {
-    return {
-        id: photo._id.toString(),
-        kind: photo.kind,
-        originalName: photo.originalName,
-        mimeType: photo.mimeType,
-        sizeBytes: photo.sizeBytes,
-        status: photo.status,
-        createdAt: photo.createdAt,
-    };
-}
+### Evidencia de testes por camada
 
-export async function removeUploadedFiles(uploadedFiles = []) {
-    await Promise.all(
-        uploadedFiles.map(({ file }) => {
-            if (!file?.path) return undefined;
-            return unlink(file.path).catch(() => undefined);
-        }),
-    );
-}
-
-export async function acceptFaceConsent(userId, input) {
-    const consent = await FaceConsent.findOneAndUpdate(
-        { userId },
-        {
-            $set: {
-                version: input.version,
-                purpose: "analise_facial_cosmetica",
-                acceptedAt: new Date(),
-                revokedAt: null,
-            },
-        },
-        { upsert: true, new: true, runValidators: true },
-    );
-
-    return {
-        id: consent._id.toString(),
-        version: consent.version,
-        acceptedAt: consent.acceptedAt,
-        purpose: consent.purpose,
-    };
-}
-
-export async function saveFacePhotos(userId, uploadedFiles, activeConsent) {
-    try {
-        const consent =
-            activeConsent ??
-            (await FaceConsent.findOne({ userId, revokedAt: null }));
-
-        if (!consent) {
-            throw new AppError(403, "Consentimento facial em falta");
-        }
-
-        const photos = await FacePhoto.insertMany(
-            uploadedFiles.map(({ kind, file }) => ({
-                userId,
-                kind,
-                storageKey: file.path,
-                originalName: file.originalname,
-                mimeType: file.mimetype,
-                sizeBytes: file.size,
-                consentId: consent._id,
-            })),
-        );
-
-        return photos.map(toFacePhotoResponse);
-    } catch (err) {
-        await removeUploadedFiles(uploadedFiles);
-        throw err;
-    }
-}
-```
-
-5. Explicação do código: o service recebe o consentimento já confirmado pela route, mas volta a ter defesa se for chamado noutro contexto. A resposta não inclui `storageKey`. Se faltar consentimento nessa segunda verificação, se o insert em MongoDB falhar ou se qualquer erro acontecer depois de o upload escrever ficheiros no disco, `removeUploadedFiles` tenta apagar os ficheiros recém-recebidos para não deixar dados sensíveis órfãos.
-6. Como validar este passo: simula falha de persistência e confirma que os ficheiros recém-recebidos não ficam na pasta privada; chama o service sem consentimento ativo e confirma `403` com limpeza.
-7. Erros comuns ou cenário negativo: ignorar falhas intermédias cria ficheiros faciais sem registo associado e dificulta eliminação/anonymização futura.
-
-### Passo 6 - Criar controller e route
-
-1. Explicação simples do objetivo: expor consentimento e upload em endpoints protegidos.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/face-photo.controller.js`
-    - CRIAR: `server/src/routes/face-photo.routes.js`
-    - LOCALIZAÇÃO: ficheiros completos.
-3. O que fazer: cria controller e route.
-4. Código completo, correto e integrado:
-
-```js
-// server/src/controllers/face-photo.controller.js
-import {
-    acceptFaceConsent,
-    removeUploadedFiles,
-    saveFacePhotos,
-} from "../services/face-photo.service.js";
-import {
-    validateFaceConsentInput,
-    validateUploadedFaceFiles,
-} from "../validators/face-photo.validator.js";
-
-export async function acceptFaceConsentController(req, res, next) {
-    try {
-        const input = validateFaceConsentInput(req.body);
-        const consent = await acceptFaceConsent(req.user.id, input);
-
-        return res.status(200).json({ consent });
-    } catch (err) {
-        return next(err);
-    }
-}
-
-function collectUploadedFilesForCleanup(files) {
-    return Object.values(files ?? {})
-        .flat()
-        .map((file) => ({ file }));
-}
-
-export async function uploadFacePhotosController(req, res, next) {
-    try {
-        const uploadedFiles = validateUploadedFaceFiles(req.files);
-        const photos = await saveFacePhotos(
-            req.user.id,
-            uploadedFiles,
-            req.faceConsent,
-        );
-
-        return res.status(201).json({ photos });
-    } catch (err) {
-        await removeUploadedFiles(collectUploadedFilesForCleanup(req.files));
-        return next(err);
-    }
-}
-```
-
-```js
-// server/src/routes/face-photo.routes.js
-import { Router } from "express";
-import { requireAuth } from "../middlewares/auth.middleware.js";
-import {
-    ensureActiveFaceConsent,
-    uploadFacePhotos,
-} from "../middlewares/face-photo-upload.middleware.js";
-import {
-    acceptFaceConsentController,
-    uploadFacePhotosController,
-} from "../controllers/face-photo.controller.js";
-
-export const facePhotoRoutes = Router();
-
-facePhotoRoutes.post(
-    "/face-consent",
-    requireAuth,
-    acceptFaceConsentController,
-);
-
-facePhotoRoutes.post(
-    "/face-photos",
-    requireAuth,
-    ensureActiveFaceConsent,
-    uploadFacePhotos,
-    uploadFacePhotosController,
-);
-```
-
-5. Explicação do código: os dois endpoints exigem sessão. O `userId` vem da sessão e não do frontend. Na rota de fotografias, a ordem é importante: primeiro autenticação, depois consentimento ativo, só depois upload. O controller ainda limpa ficheiros se a validação das duas fotografias falhar depois de o multipart já ter sido recebido.
-6. Como validar este passo: sem cookie, ambos devem responder `401`; com cookie mas sem consentimento, `/api/face-photos` deve responder `403` sem criar ficheiro; com apenas uma fotografia, deve responder `400` e apagar a fotografia recebida.
-7. Erros comuns ou cenário negativo: permitir upload anónimo torna impossível provar ownership; colocar `uploadFacePhotos` antes de `ensureActiveFaceConsent` volta a permitir ficheiros biométricos sem consentimento.
-
-### Passo 7 - Registar route e adaptar apiClient para FormData
-
-1. Explicação simples do objetivo: ligar a API e permitir envio de ficheiros pelo frontend.
-2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
-    - EDITAR: `client/src/services/apiClient.js`
-    - LOCALIZAÇÃO: imports, routes e função `apiRequest`.
-3. O que fazer: adiciona a route e atualiza o cliente API.
-4. Código completo, correto e integrado:
-
-```js
-// server/src/app.js
-import { facePhotoRoutes } from "./routes/face-photo.routes.js";
-
-app.use("/api", facePhotoRoutes);
-```
-
-```js
-// client/src/services/apiClient.js
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
-
-export async function apiRequest(path, options = {}) {
-    const isFormData = options.body instanceof FormData;
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-        credentials: "include",
-        headers: isFormData
-            ? options.headers
-            : {
-                  "Content-Type": "application/json",
-                  ...(options.headers ?? {}),
-              },
-        ...options,
-    });
-
-    if (response.status === 204) return null;
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(data?.error?.message ?? "Pedido falhou");
-    }
-
-    return data;
-}
-```
-
-5. Explicação do código: em `FormData`, o browser define o boundary do multipart. Definir manualmente `Content-Type` quebraria o upload.
-6. Como validar este passo: envia um `FormData` e confirma que o backend recebe `req.files`.
-7. Erros comuns ou cenário negativo: esquecer `credentials: "include"` faz o upload falhar por falta de sessão.
-
-### Passo 8 - Criar página de upload facial
-
-1. Explicação simples do objetivo: permitir aceitar consentimento e enviar as duas fotografias.
-2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/FacePhotoUploadPage.jsx`
-    - EDITAR: `client/src/App.jsx`
-    - LOCALIZAÇÃO: ficheiro completo e imports do `App`.
-3. O que fazer: cria a página e regista no `App`.
-4. Código completo, correto e integrado:
-
-```jsx
-// client/src/pages/FacePhotoUploadPage.jsx
-import { useState } from "react";
-import { apiRequest } from "../services/apiClient.js";
-
-export function FacePhotoUploadPage() {
-    const [accepted, setAccepted] = useState(false);
-    const [frontal, setFrontal] = useState(null);
-    const [perfil, setPerfil] = useState(null);
-    const [status, setStatus] = useState("idle");
-    const [message, setMessage] = useState("");
-
-    async function handleSubmit(event) {
-        event.preventDefault();
-        setStatus("loading");
-        setMessage("");
-
-        try {
-            await apiRequest("/face-consent", {
-                method: "POST",
-                body: JSON.stringify({ accepted, version: "face-analysis-v1" }),
-            });
-
-            const formData = new FormData();
-            formData.append("frontal", frontal);
-            formData.append("perfil", perfil);
-
-            const data = await apiRequest("/face-photos", {
-                method: "POST",
-                body: formData,
-            });
-
-            setStatus("success");
-            setMessage(`${data.photos.length} fotografias guardadas.`);
-        } catch (err) {
-            setStatus("error");
-            setMessage(err.message);
-        }
-    }
-
-    return (
-        <section>
-            <h1>Fotografias para análise facial</h1>
-            <form onSubmit={handleSubmit}>
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={accepted}
-                        onChange={(event) => setAccepted(event.target.checked)}
-                    />
-                    Aceito o tratamento destas fotografias para análise facial cosmética.
-                </label>
-                <label>
-                    Fotografia frontal
-                    <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        onChange={(event) => setFrontal(event.target.files[0])}
-                    />
-                </label>
-                <label>
-                    Fotografia de perfil
-                    <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        onChange={(event) => setPerfil(event.target.files[0])}
-                    />
-                </label>
-                <button
-                    type="submit"
-                    disabled={!accepted || !frontal || !perfil || status === "loading"}
-                >
-                    {status === "loading" ? "A enviar..." : "Enviar fotografias"}
-                </button>
-            </form>
-            {message && <p role={status === "error" ? "alert" : undefined}>{message}</p>}
-        </section>
-    );
-}
-```
-
-```jsx
-// client/src/App.jsx
-import { FacePhotoUploadPage } from "./pages/FacePhotoUploadPage.jsx";
-
-export function App() {
-    return (
-        <>
-            <ProductSearchPage />
-            <ProductDetailsPage />
-            <ProductReviewPage />
-            <RelatedProductsPage />
-            <FacePhotoUploadPage />
-        </>
-    );
-}
-```
-
-5. Explicação do código: a UI bloqueia envio sem consentimento e sem as duas imagens, mas a segurança real continua no backend.
-6. Como validar este passo: tenta enviar sem marcar consentimento, sem login e com ficheiro não imagem.
-7. Erros comuns ou cenário negativo: confiar só na checkbox visual permitiria chamada direta à API sem consentimento guardado.
-
-### Validação
-- [ ] Negativos: mínimo `3` cenários.
-- [ ] Sem sessão devolve `401`.
-- [ ] Sem consentimento devolve `403`.
-- [ ] Ficheiro inválido devolve `400`.
-- [ ] Upload incompleto devolve `400` e não deixa ficheiro órfão.
-- [ ] Resposta não inclui `storageKey` nem path interno.
-
-### Matriz mínima de testes por prioridade
-
-| Camada | Evidência |
-| --- | --- |
-| Middleware | Consentimento ativo antes do upload; tipo e tamanho de ficheiro validados. |
-| Service | Consentimento, ownership e limpeza em erro verificados. |
-| Controller/route | Endpoints devolvem contrato público e limpam upload incompleto. |
-| UI | Formulário envia `FormData` com duas fotografias. |
-
-Evidência de testes por camada:
-- API: output de upload válido e rejeicoes.
-- Service: teste de consentimento ausente.
-- UI: screenshot do formulário com sucesso.
-
-## Snippet técnico aplicável
-
-O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
-
-## Expected results
-- `POST /api/face-consent` autenticado responde `200`.
-- `POST /api/face-photos` com duas imagens válidas responde `201`.
-- Sem sessão responde `401`.
-- Sem consentimento responde `403`.
-- Ficheiro inválido responde `400`.
-- Upload incompleto responde `400` sem deixar ficheiro órfão.
-
-## Critérios de aceite
-- Cenários negativos concluídos: mínimo `3`.
-- Evidência de testes por camada documentada.
-- O backend exige sessão.
-- O backend exige consentimento ativo.
-- O backend exige `frontal` e `perfil`.
-- A rota confirma consentimento antes de `multer.diskStorage`.
-- Erros depois do upload limpam ficheiros recém-recebidos.
-- A resposta não devolve `storageKey`.
-- O frontend não guarda tokens no `localStorage`.
-
-## Validação final
-- Enviar consentimento.
-- Fazer upload com `frontal` e `perfil`.
-- Repetir upload sem consentimento num utilizador novo e confirmar `403`.
-- Enviar só `frontal` com consentimento ativo e confirmar `400` e ausência de ficheiro órfão.
-
-## Evidence para PR/defesa
-- Output de consentimento com `200`.
-- Output de upload com `201`.
-- Screenshot da página com mensagem de sucesso.
-- Output de tentativa sem sessão com `401`.
-- Output de tentativa sem consentimento com `403` e evidência de que não foi criado ficheiro.
-
-## Handoff
+- Unit: classificação de falhas duras e warnings.
+- Integração: multipart, Sharp, cifra, transação e cleanup.
+- Frontend/E2E: guia, preflight, fallback e navegação.
+- Segurança: ownership, consentimento e ausência de EXIF/órfãos.
 
 ### Handoff
 
-`BK-MF1-06` deve usar `FacePhoto` e `FaceConsent`. A análise não deve procurar ficheiros por caminho público nem aceitar `userId` vindo do frontend.
+`BK-MF1-06` recebe apenas referências às fotografias validadas do próprio utilizador. Nunca recebe paths públicos nem IDs escolhidos pela UI.
+
+## Expected results
+
+- A UI ensina a tirar as duas fotografias.
+- O preflight melhora a qualidade sem se tornar autoridade de segurança.
+- O backend normaliza, remove EXIF, cifra e aplica ownership.
+- O fluxo recupera de reload e falhas sem perder coerência.
+
+## Snippet tecnico aplicavel
+
+O snippet completo relevante está no Passo 4. O detalhe do parser e da cifra pertence aos módulos indicados; não dupliques essa lógica no controller.
+
+## Criterios de aceite
+
+- Cenarios negativos concluidos: minimo 3.
+- Consentimento v2 explícito precede o upload.
+- Apenas `frontal` e `perfil` são aceites.
+- Originais têm no máximo 5 MiB e imagens até 25 MP.
+- O lado menor tem pelo menos 720 px.
+- WebP persistido não contém EXIF.
+- MediaPipe é local, dinâmico e não persiste landmarks.
+- Falhas não deixam temporários, bytes órfãos ou pares duplicados.
+
+## Validação final
+
+Executa os testes focais da API e frontend, o lint e o build. A ausência de browser real ou de mockup é registada como blocker externo; não é convertida em `PASS`.
+
+## Evidence para PR/defesa
+
+- Comandos e exit codes dos testes.
+- DTO sanitizado do consentimento e do upload.
+- Metadata Sharp do WebP sem EXIF.
+- Resultado do cenário MediaPipe indisponível.
+- Nunca anexar fotografias reais, cookies, chaves ou URI MongoDB.
+
+## Handoff
+
+O próximo BK cria o job `analyze_photos` e pede à OpenAI uma avaliação cosmética estruturada, preservando o par e o consentimento usados no snapshot da sessão.
 
 ## Changelog
-- `2026-05-31`: guia revisto com consentimento mínimo antes do upload, limpeza de ficheiros em erro, storage privado, ownership e frontend com `FormData`.
+
+- `2026-05-31`: guia inicial de consentimento e upload privado.
+- `2026-07-10`: alinhamento com Busboy, Sharp, WebP, remoção de EXIF e cleanup.
+- `2026-07-11`: integração no fluxo OpenAI-only, consentimento v2 e qualidade MediaPipe + Sharp + OpenAI.

@@ -59,12 +59,12 @@ O controller não decide regras de negócio; chama o service. O service válida 
 - `ProductDetailsPage`
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/validators/product-id.validator.js`
-- EDITAR: `server/src/services/product.service.js`
-- CRIAR: `server/src/controllers/product-details.controller.js`
-- EDITAR: `server/src/routes/catalog.routes.js`
-- CRIAR: `client/src/pages/ProductDetailsPage.jsx`
-- EDITAR: `client/src/App.jsx`
+- CRIAR: `apps/api/src/validators/product-id.validator.js`
+- EDITAR: `apps/api/src/services/product.service.js`
+- CRIAR: `apps/api/src/controllers/product-details.controller.js`
+- EDITAR: `apps/api/src/routes/catalog.routes.js`
+- CRIAR: `apps/web/src/pages/ProductDetailsPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
 
 ## Bloco pedagógico
 
@@ -117,7 +117,7 @@ Segue os passos lineares abaixo e fecha o BK apenas depois de validar ID inváli
 
 1. Explicação simples do objetivo: impedir consultas com IDs inválidos.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/product-id.validator.js`
+    - CRIAR: `apps/api/src/validators/product-id.validator.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o validator.
 4. Código completo, correto e integrado:
@@ -145,8 +145,8 @@ export function validateProductIdParam(params) {
 
 1. Explicação simples do objetivo: obter um produto público pelo ID.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/services/product.service.js`
-    - REVER: `server/src/models/product.model.js`
+    - EDITAR: `apps/api/src/services/product.service.js`
+    - REVER: `apps/api/src/models/product.model.js`
     - LOCALIZAÇÃO: acrescentar no fim do ficheiro.
 3. O que fazer: adiciona a função abaixo.
 4. Código completo, correto e integrado:
@@ -193,7 +193,7 @@ export async function getCatalogProductDetails(productId) {
 
 1. Explicação simples do objetivo: ligar validação, service e resposta HTTP.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/product-details.controller.js`
+    - CRIAR: `apps/api/src/controllers/product-details.controller.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o controller.
 4. Código completo, correto e integrado:
@@ -222,7 +222,7 @@ export async function getProductDetailsController(req, res, next) {
 
 1. Explicação simples do objetivo: acrescentar rota de detalhe ao ficheiro criado no BK anterior.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/routes/catalog.routes.js`
+    - EDITAR: `apps/api/src/routes/catalog.routes.js`
     - LOCALIZAÇÃO: imports e rotas.
 3. O que fazer: adiciona o import e a rota.
 4. Código completo, correto e integrado:
@@ -241,8 +241,8 @@ catalogRoutes.get("/products/:productId", getProductDetailsController);
 
 1. Explicação simples do objetivo: mostrar o produto e tratar todos os estados de UI.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/ProductDetailsPage.jsx`
-    - REVER: `client/src/services/apiClient.js`
+    - CRIAR: `apps/web/src/pages/ProductDetailsPage.jsx`
+    - REVER: `apps/web/src/services/apiClient.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria a página.
 4. Código completo, correto e integrado:
@@ -333,7 +333,7 @@ export function ProductDetailsPage() {
 
 1. Explicação simples do objetivo: permitir validação visual do detalhe.
 2. Ficheiros envolvidos.
-    - EDITAR: `client/src/App.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: imports e JSX principal.
 3. O que fazer: acrescenta a página junto da pesquisa.
 4. Código completo, correto e integrado:
@@ -360,9 +360,9 @@ export function App() {
 
 1. Explicação simples do objetivo: confirmar que o contrato do detalhe falha de forma controlada.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/validators/product-id.validator.js`
-    - REVER: `server/src/services/product.service.js`
-    - REVER: `server/src/controllers/product-details.controller.js`
+    - REVER: `apps/api/src/validators/product-id.validator.js`
+    - REVER: `apps/api/src/services/product.service.js`
+    - REVER: `apps/api/src/controllers/product-details.controller.js`
 3. O que fazer: executa pedidos com ID inválido e com ID bem formado que não existe na base de dados.
 4. Código completo, correto e integrado:
 

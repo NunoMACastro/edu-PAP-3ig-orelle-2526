@@ -1,4 +1,4 @@
-# BK-MF4-03 - Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores)
+# BK-MF4-03 - Exportação administrativa para Excel/PDF, com relatórios IA apenas em metadados
 
 ## Header
 - `doc_id`: `GUIA-BK-MF4-03`
@@ -16,19 +16,23 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF4-04`
 - `guia_path`: `docs/planificacao/guias-bk/MF4/BK-MF4-03-exportacao-de-dados-para-excel-pdf-vendas-relatorios-de-ia-utilizadores.md`
-- `last_updated`: `2026-06-15`
+- `last_updated`: `2026-07-11`
+
+> **Estado atual da implementação de referência — 2026-07-10:** a neutralização de CSV Formula Injection tem prova para `=`, `+`, `-`, `@`, TAB e CR. O writer manual foi substituído por `pdf-lib@1.17.1`; `13/13` testes focais passaram e uma amostra PDF 1.7/A4 de duas páginas passou `pdfinfo` com exit code `0` e sem warnings. Esta evidence valida a correção de `ORELLE-AUD-P3-002` no runtime de referência; a checklist abaixo continua a ser trabalho executável no projeto dos alunos.
+
+> **Contrato de privacidade reconciliado — 2026-07-11:** o dataset `ai-reports` é estritamente `metadata-only`. Pode exportar `id`, `schemaVersion`, `lifecycleStatus`, contagem de recomendações, estados de revisão/desbloqueio/pagamento simulado, depósito e data. Não pode selecionar nem serializar `userId`, `analysisId`, objetivos, provider/modelo, resumo cosmético, fontes, limitações, `machineResult`, `humanOverride` ou qualquer conteúdo do relatório. A rota continua exclusivamente administrativa e as respostas CSV/PDF usam `Cache-Control: private, no-store, max-age=0`.
 
 #### Objetivo
-Criar exportação administrativa de vendas, relatórios de IA e utilizadores em formatos descarregáveis, sem expor fotografias, caminhos internos, `passwordHash`, cookies ou relatórios completos com dados sensíveis.
+Criar exportação administrativa de vendas, metadados operacionais de relatórios IA e utilizadores em formatos descarregáveis, sem expor fotografias, identificadores do titular/análise, conteúdo cosmético, caminhos internos, `passwordHash` ou cookies.
 
 #### Importância
 `RF35` ajuda a defesa PAP e a gestão da loja, mas exportar dados é uma zona de risco. Um ficheiro descarregado pode circular fora da app, por isso deve conter apenas campos necessários, minimizados e adequados à finalidade.
 
 #### Scope-in
-- Criar exportação `CSV` compatível com Excel.
-- Criar exportação `PDF` textual mínimo sem dependências novas.
+- Criar exportação `CSV` compatível com Excel e neutralizar prefixos interpretados como fórmulas.
+- Criar exportação `PDF` estruturalmente válida com `pdf-lib`.
 - Exportar vendas agregadas a partir de `Order`.
-- Exportar resumo de relatórios de IA sem fotografias nem texto sensível integral.
+- Exportar apenas metadados operacionais de relatórios IA, sem `userId`, `analysisId` ou conteúdo do relatório.
 - Exportar utilizadores sem `passwordHash` e sem dados biométricos.
 - Criar página admin para descarregar ficheiros.
 
@@ -36,12 +40,13 @@ Criar exportação administrativa de vendas, relatórios de IA e utilizadores em
 - Não criar dashboards novos; `BK-MF3-07` já entregou métricas.
 - Não exportar imagens faciais.
 - Não exportar ficheiros originais de relatórios completos.
-- Não adicionar biblioteca externa de PDF/Excel neste BK.
+- Não exportar objetivos, provider/modelo, resumo, fontes, limitações, resultados da máquina ou revisão humana.
+- Não construir objetos PDF, xref ou trailers manualmente.
 - Não criar envios por email.
 
 #### Estado antes e depois
 - Antes: existia dashboard admin, mas não havia endpoints de exportação.
-- Depois: admin consegue descarregar CSV e PDF textual com dados minimizados e rastreáveis.
+- Depois: admin consegue descarregar CSV neutralizado e PDF estruturalmente válido com dados minimizados e rastreáveis.
 
 #### Pre-requisitos
 - `BK-MF3-07`: dashboard admin e agregados comerciais.
@@ -51,7 +56,7 @@ Criar exportação administrativa de vendas, relatórios de IA e utilizadores em
 
 #### Glossário
 - CSV: ficheiro de texto tabular que o Excel abre sem dependência adicional.
-- PDF textual mínimo: documento PDF gerado com texto simples, suficiente para evidência e defesa.
+- PDF estruturalmente válido: documento criado por uma biblioteca PDF e aceite por `pdfinfo` sem warnings.
 - Minimização: exportar apenas campos necessários.
 - Agregado: valor resumido, como total de vendas por estado.
 - Conteúdo sensível: imagens, relatórios integrais, caminhos internos, hashes e identificadores técnicos desnecessários.
@@ -59,9 +64,9 @@ Criar exportação administrativa de vendas, relatórios de IA e utilizadores em
 #### Conceitos teóricos essenciais
 Exportar dados muda o risco: a informação sai da interface protegida e passa para um ficheiro. Por isso, o backend deve escolher campos explicitamente e nunca serializar documentos Mongoose completos.
 
-CSV é uma forma segura e simples de cumprir o uso em Excel sem dependência nova. Para PDF, este BK usa um gerador textual mínimo no backend. `RNF16` volta ao tema de PDF em `BK-MF7-05`, onde pode haver uma solução mais rica se for aprovada.
+CSV é uma forma simples de cumprir o uso tabular, desde que os valores controlados sejam neutralizados antes do escape. Para PDF, o conteúdo pode ser textual, mas a estrutura deve ser criada por `pdf-lib` e validada com `pdfinfo`; um gerador manual não é suficiente.
 
-Relatórios de IA podem conter dados derivados de análise facial. Neste BK, exporta-se apenas resumo operacional: data, estado e contagens ou limitações públicas, nunca fotografias, storage keys ou texto completo sensível.
+Relatórios IA podem conter dados derivados de análise facial. Neste BK, a exportação administrativa contém apenas metadados operacionais que não revelam o titular, a análise ou o conteúdo: versão do schema, estado do ciclo de vida, contagens, estados de revisão/desbloqueio/pagamento simulado, depósito e data. `userId`, `analysisId`, objetivos, provider/modelo, resumo, fontes, limitações e payloads cifrados ficam sempre fora da projeção e das linhas.
 
 #### Arquitetura do BK
 - `admin-export.validator.js`: valida dataset e formato.
@@ -96,11 +101,11 @@ separar exportação administrativa de dashboard visual.
    - LOCALIZAÇÃO: `RF35`, `RNF16`, `BK-MF4-03`.
 3. Instruções do que fazer.
 
-assumir `CSV` para Excel e PDF textual mínimo sem nova dependência.
+assumir `CSV` neutralizado para Excel e PDF textual gerado por `pdf-lib`.
 4. Código completo, correto e integrado com a app final.
 
 ```text
-Decisão DERIVADO: Excel é entregue por CSV; PDF é textual e minimizado. Exportação PDF avançada volta em RNF16.
+Decisão DERIVADO: Excel é entregue por CSV neutralizado; PDF é textual e minimizado, mas estruturalmente válido por `pdf-lib`.
 ```
 
 5. Explicação do código.
@@ -172,7 +177,7 @@ aceitar nome de coleção por query abre risco de exposição de dados.
 
 1. Objetivo funcional do passo no contexto da app.
 
-gerar ficheiros sem dependência nova.
+gerar CSV neutralizado e PDF através da dependência justificada `pdf-lib`.
 2. Ficheiros envolvidos:
    - CRIAR: `apps/api/src/services/admin-export.service.js`
    - LOCALIZAÇÃO: início do ficheiro.
@@ -183,8 +188,12 @@ criar `buildCsv` e `buildTextPdf`.
 
 ```js
 // apps/api/src/services/admin-export.service.js
+import { PDFDocument, StandardFonts } from "pdf-lib";
+import { AiConsultationReview } from "../models/ai-consultation-review.model.js";
+import { PAYMENT_STATUS } from "../constants/domain.constants.js";
 import { FaceReport } from "../models/face-report.model.js";
-import { Order, PAYMENT_STATUS } from "../models/order.model.js";
+import { Order } from "../models/order.model.js";
+import { ReportUnlock } from "../models/report-unlock.model.js";
 import { User } from "../models/user.model.js";
 
 /**
@@ -194,8 +203,13 @@ import { User } from "../models/user.model.js";
  * @param {unknown} value - Valor bruto.
  * @returns {string} Valor seguro para CSV.
  */
-function escapeCsvValue(value) {
+function neutralizeSpreadsheetFormula(value) {
     const text = String(value ?? "");
+    return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+}
+
+function escapeCsvValue(value) {
+    const text = neutralizeSpreadsheetFormula(value);
     return `"${text.replaceAll('"', '""')}"`;
 }
 
@@ -207,7 +221,7 @@ function escapeCsvValue(value) {
  * @param {Array<Record<string, unknown>>} rows - Linhas normalizadas.
  * @returns {Buffer} Conteúdo CSV em UTF-8 com BOM.
  */
-function buildCsv(headers, rows) {
+export function buildCsv(headers, rows) {
     const lines = [
         headers.map(escapeCsvValue).join(","),
         ...rows.map((row) => headers.map((header) => escapeCsvValue(row[header])).join(",")),
@@ -217,60 +231,34 @@ function buildCsv(headers, rows) {
 }
 
 /**
- * Escapa texto para uma stream PDF simples.
- *
- * @function escapePdfText
- * @param {unknown} value - Valor bruto.
- * @returns {string} Texto escapado para PDF.
- */
-function escapePdfText(value) {
-    return String(value ?? "")
-        .replaceAll("\\", "\\\\")
-        .replaceAll("(", "\\(")
-        .replaceAll(")", "\\)");
-}
+async function buildTextPdf(title, lines) {
+    const document = await PDFDocument.create();
+    const page = document.addPage([595, 842]);
+    const font = await document.embedFont(StandardFonts.Helvetica);
 
-/**
- * Gera PDF textual mínimo para defesa e operação.
- *
- * @function buildTextPdf
- * @param {string} title - Título do documento.
- * @param {string[]} lines - Linhas de texto.
- * @returns {Buffer} PDF mínimo.
- */
-function buildTextPdf(title, lines) {
-    const content = [`BT /F1 14 Tf 50 780 Td (${escapePdfText(title)}) Tj`];
-
+    page.drawText(String(title), { x: 50, y: 790, size: 14, font });
     lines.slice(0, 40).forEach((line, index) => {
-        content.push(`0 -${index === 0 ? 28 : 18} Td (${escapePdfText(line)}) Tj`);
+        page.drawText(String(line).slice(0, 120), {
+            x: 50,
+            y: 755 - index * 17,
+            size: 9,
+            font,
+        });
     });
 
-    content.push("ET");
-    const stream = content.join("\n");
-    const pdf = `%PDF-1.4
-1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
-2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
-3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj
-4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
-5 0 obj << /Length ${Buffer.byteLength(stream)} >> stream
-${stream}
-endstream endobj
-trailer << /Root 1 0 R >>
-%%EOF`;
-
-    return Buffer.from(pdf, "utf8");
+    return Buffer.from(await document.save());
 }
 ```
 
 5. Explicação do código.
 
-O CSV é construído com cuidado para ser aberto pelo Excel sem perder acentos, por isso começa com BOM (`\uFEFF`). A função também escapa aspas e quebras de linha, evitando ficheiros partidos quando um campo textual tem vírgulas. O PDF é simples de propósito: serve para demonstrar um ficheiro PDF válido sem introduzir uma dependência nova nem criar relatórios visuais complexos. Em ambos os casos, a lição é a mesma: o formato é secundário; a seleção segura dos dados é a parte crítica.
+O CSV começa com BOM (`\uFEFF`), neutraliza os seis prefixos de fórmula e só depois aplica escape RFC 4180. `pdf-lib` gera a estrutura interna, xref e trailer; não basta um buffer começar por `%PDF`. A seleção segura dos dados continua a ser obrigatória nos dois formatos.
 6. Validação do passo.
 
-abrir CSV no Excel/LibreOffice e PDF no browser.
+abrir CSV no Excel/LibreOffice e validar o PDF com `pdfinfo`.
 7. Cenário negativo/erro esperado.
 
-gerar CSV sem escaping permite quebrar colunas com vírgulas ou aspas.
+gerar CSV sem neutralização permite executar uma fórmula ao abrir o ficheiro; construir PDF manualmente pode produzir um ficheiro que o browser tolera mas `pdfinfo` rejeita.
 
 ### Passo 4 - Recolher dados minimizados
 
@@ -303,31 +291,77 @@ async function getExportRows(dataset) {
 
         return {
             title: "Exportação de vendas",
-            headers: ["createdAt", "status", "paymentStatus", "totalEuros"],
+            headers: ["createdAt", "status", "paymentStatus", "simulatedPaid", "totalEuros"],
             rows: orders.map((order) => ({
                 createdAt: order.createdAt?.toISOString() ?? "",
                 status: order.status,
                 paymentStatus: order.payment.status,
                 totalEuros: (order.totalCents / 100).toFixed(2),
-                paid: order.payment.status === PAYMENT_STATUS.PAID ? "sim" : "nao",
+                simulatedPaid:
+                    order.payment.status === PAYMENT_STATUS.SIMULATED_PAID
+                        ? "sim"
+                        : "nao",
             })),
         };
     }
 
     if (dataset === "ai-reports") {
-        const reports = await FaceReport.find({})
-            .select("analysisId limitations createdAt")
+        const reports = await FaceReport.find({ privacyStatus: "active" })
+            .select("schemaVersion lifecycleStatus finalRecommendationIds createdAt")
             .sort({ createdAt: -1 })
             .limit(100);
 
+        const reportIds = reports.map(({ _id }) => _id);
+        const [reviews, unlocks] = reportIds.length
+            ? await Promise.all([
+                  AiConsultationReview.find({ reportId: { $in: reportIds } })
+                      .select("reportId status")
+                      .lean(),
+                  ReportUnlock.find({ reportId: { $in: reportIds } })
+                      .select("reportId status depositCents simulatedPayment.status")
+                      .lean(),
+              ])
+            : [[], []];
+        const reviewsByReport = new Map(
+            reviews.map((review) => [review.reportId.toString(), review]),
+        );
+        const unlocksByReport = new Map(
+            unlocks.map((unlock) => [unlock.reportId.toString(), unlock]),
+        );
+
         return {
             title: "Exportação de relatórios IA",
-            headers: ["createdAt", "analysisId", "limitationsCount"],
-            rows: reports.map((report) => ({
-                createdAt: report.createdAt?.toISOString() ?? "",
-                analysisId: report.analysisId.toString(),
-                limitationsCount: report.limitations?.length ?? 0,
-            })),
+            headers: [
+                "id",
+                "schemaVersion",
+                "lifecycleStatus",
+                "recommendationCount",
+                "reviewStatus",
+                "unlockStatus",
+                "simulatedPaymentStatus",
+                "depositCents",
+                "createdAt",
+            ],
+            rows: reports.map((report) => {
+                const id = report._id.toString();
+                const review = reviewsByReport.get(id);
+                const unlock = unlocksByReport.get(id);
+
+                return {
+                    id,
+                    schemaVersion: Number(report.schemaVersion ?? 1),
+                    lifecycleStatus: report.lifecycleStatus ?? "legacy",
+                    recommendationCount: Array.isArray(report.finalRecommendationIds)
+                        ? report.finalRecommendationIds.length
+                        : 0,
+                    reviewStatus: review?.status ?? "not_requested",
+                    unlockStatus: unlock?.status ?? "not_created",
+                    simulatedPaymentStatus:
+                        unlock?.simulatedPayment?.status ?? "not_started",
+                    depositCents: Number(unlock?.depositCents ?? 0),
+                    createdAt: report.createdAt?.toISOString() ?? "",
+                };
+            }),
         };
     }
 
@@ -352,10 +386,10 @@ async function getExportRows(dataset) {
 
 5. Explicação do código.
 
-Cada query usa `.select(...)` para aproximar o código do princípio da minimização: pedir à base de dados só aquilo que a exportação precisa. O export de utilizadores não pede `passwordHash`; o export de relatórios IA transforma relatórios em linhas resumidas e não devolve fotografias, `storageKey` ou relatório facial integral. Isto ensina que segurança também se faz antes de montar a resposta, reduzindo a quantidade de dados sensíveis que sequer entram na memória da função.
+Cada query usa `.select(...)` como barreira de minimização. O export de utilizadores não pede `passwordHash`. O dataset `ai-reports` não pede campos cifrados nem os identificadores `userId`/`analysisId`: cruza apenas estados de revisão e desbloqueio através do `reportId` interno e produz metadados operacionais. Assim, os getters sensíveis nem sequer precisam de ser executados durante a exportação.
 6. Validação do passo.
 
-procurar no ficheiro exportado por `passwordHash`, `storageKey`, `image`, `cookie`; não deve haver matches.
+procurar no ficheiro exportado por `passwordHash`, `storageKey`, `userId`, `analysisId`, `cosmeticSummary`, `machineResult`, `humanOverride`, `image` e `cookie`; não deve haver matches.
 7. Cenário negativo/erro esperado.
 
 usar `find({})` sem `.select(...)` pode exportar campos privados por acidente.
@@ -391,7 +425,7 @@ export async function buildAdminExport(input) {
         );
 
         return {
-            buffer: buildTextPdf(data.title, lines),
+            buffer: await buildTextPdf(data.title, lines),
             contentType: "application/pdf",
             filename: `${input.dataset}.pdf`,
         };
@@ -423,6 +457,10 @@ export async function downloadAdminExportController(req, res, next) {
 
         res.setHeader("Content-Type", file.contentType);
         res.setHeader("Content-Disposition", `attachment; filename="${file.filename}"`);
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        res.setHeader("X-Orelle-Export-Rows", String(file.rowCount));
+        res.setHeader("Cache-Control", "private, no-store, max-age=0");
+        res.setHeader("Pragma", "no-cache");
         return res.status(200).send(file.buffer);
     } catch (err) {
         return next(err);
@@ -432,10 +470,10 @@ export async function downloadAdminExportController(req, res, next) {
 
 5. Explicação do código.
 
-O controller fica pequeno porque a responsabilidade pesada está no service. Esta separação ajuda o aluno a testar: o validator decide se o pedido é permitido, o service constrói o ficheiro, e o controller só liga isso ao HTTP com `Content-Type`, `Content-Disposition` e status correto. Quando controllers começam a montar CSV/PDF diretamente, ficam difíceis de testar e misturam protocolo HTTP com regra de negócio.
+O controller fica pequeno porque a responsabilidade pesada está no service. Esta separação ajuda o aluno a testar: o validator decide se o pedido é permitido, o service constrói o ficheiro, e o controller só liga isso ao HTTP com headers de download, `nosniff` e proibição explícita de cache. Quando controllers começam a montar CSV/PDF diretamente, ficam difíceis de testar e misturam protocolo HTTP com regra de negócio.
 6. Validação do passo.
 
-confirmar `Content-Disposition` e nome de ficheiro.
+confirmar `Content-Disposition`, nome de ficheiro, `Cache-Control: private, no-store, max-age=0` e `Pragma: no-cache`.
 7. Cenário negativo/erro esperado.
 
 devolver JSON em vez de ficheiro não cumpre o fluxo de exportação.
@@ -482,8 +520,8 @@ adminExportRoutes.get(
 // apps/web/src/pages/AdminExportsPage.jsx
 import React from "react";
 
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
+// Downloads usam a mesma origem; o proxy Vite resolve /api apenas em desenvolvimento.
+const API_BASE_URL = "/api";
 
 /**
  * Página de exportações administrativas.
@@ -545,17 +583,34 @@ testar autorização, validação e ausência de campos proibidos.
 ```js
 // apps/api/tests/mf4.admin-exports.test.js
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PDFDocument } from "pdf-lib";
 import { validateAdminExportRequest } from "../src/validators/admin-export.validator.js";
-import { buildAdminExport } from "../src/services/admin-export.service.js";
+import {
+    buildAdminExport,
+    buildCsv,
+} from "../src/services/admin-export.service.js";
+import { AiConsultationReview } from "../src/models/ai-consultation-review.model.js";
 import { FaceReport } from "../src/models/face-report.model.js";
+import { ReportUnlock } from "../src/models/report-unlock.model.js";
 import { User } from "../src/models/user.model.js";
+
+vi.mock("../src/models/ai-consultation-review.model.js", () => ({
+    AiConsultationReview: { find: vi.fn() },
+}));
 
 vi.mock("../src/models/face-report.model.js", () => ({
     FaceReport: { find: vi.fn() },
 }));
 
+vi.mock("../src/models/report-unlock.model.js", () => ({
+    ReportUnlock: { find: vi.fn() },
+}));
+
+vi.mock("../src/constants/domain.constants.js", () => ({
+    PAYMENT_STATUS: Object.freeze({ SIMULATED_PAID: "simulated_paid" }),
+}));
+
 vi.mock("../src/models/order.model.js", () => ({
-    PAYMENT_STATUS: Object.freeze({ PAID: "paid" }),
     Order: { find: vi.fn() },
 }));
 
@@ -579,10 +634,25 @@ function queryRows(rows) {
     };
 }
 
+function queryMetadata(rows) {
+    return {
+        select: vi.fn().mockReturnThis(),
+        lean: vi.fn().mockResolvedValue(rows),
+    };
+}
+
 describe("BK-MF4-03 admin exports", () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
+
+    it.each(["=1+1", "+cmd", "-2+3", "@SUM(A1:A2)", "\tformula", "\rformula"])(
+        "mantém payload CSV perigoso como texto: %s",
+        (payload) => {
+            const csv = buildCsv(["value"], [{ value: payload }]).toString("utf8");
+            expect(csv).toContain(`"'${payload}"`);
+        },
+    );
 
     it("bloqueia datasets desconhecidos no validator", () => {
         expect(() =>
@@ -623,16 +693,35 @@ describe("BK-MF4-03 admin exports", () => {
         expect(text).not.toContain("private/path");
     });
 
-    it("gera PDF de relatórios IA apenas com resumo minimizado", async () => {
-        // O relatório falso tem `storageKey` privado para provar que o PDF final
-        // não exporta caminhos internos nem ficheiros de análise facial.
-        FaceReport.find.mockReturnValueOnce(
-            queryRows([
+    it("gera PDF de relatórios IA estritamente metadata-only", async () => {
+        const reportId = objectId("report-1");
+        // O fixture inclui deliberadamente conteúdo proibido. A projeção segura
+        // e o mapping metadata-only impedem que esse conteúdo chegue ao ficheiro.
+        const reportQuery = queryRows([
                 {
+                    _id: reportId,
+                    userId: objectId("owner-1"),
                     analysisId: objectId("analysis-1"),
-                    limitations: ["Luz irregular", "Resultado indicativo"],
+                    schemaVersion: 2,
+                    lifecycleStatus: "unlocked",
+                    finalRecommendationIds: [objectId("recommendation-1")],
+                    cosmeticSummary: "conteúdo-cosmético-proibido",
+                    limitations: ["limitação-proibida"],
                     storageKey: "faces/raw/report.json",
                     createdAt: new Date("2026-06-15T10:00:00.000Z"),
+                },
+            ]);
+        FaceReport.find.mockReturnValueOnce(reportQuery);
+        AiConsultationReview.find.mockReturnValueOnce(
+            queryMetadata([{ reportId, status: "approved" }]),
+        );
+        ReportUnlock.find.mockReturnValueOnce(
+            queryMetadata([
+                {
+                    reportId,
+                    status: "unlocked",
+                    depositCents: 250,
+                    simulatedPayment: { status: "simulated_paid" },
                 },
             ]),
         );
@@ -641,20 +730,60 @@ describe("BK-MF4-03 admin exports", () => {
             dataset: "ai-reports",
             format: "pdf",
         });
-        const text = result.buffer.toString("utf8");
+        const pdfDocument = await PDFDocument.load(result.buffer);
 
         expect(result.contentType).toBe("application/pdf");
-        expect(text).toContain("%PDF-1.4");
-        expect(text).toContain("limitationsCount");
-        expect(text).not.toContain("storageKey");
-        expect(text).not.toContain("faces/raw/report.json");
+        expect(pdfDocument.getPageCount()).toBeGreaterThan(0);
+        expect(reportQuery.select).toHaveBeenCalledWith(
+            "schemaVersion lifecycleStatus finalRecommendationIds createdAt",
+        );
+        expect(result.buffer.includes(Buffer.from("storageKey"))).toBe(false);
+        expect(result.buffer.includes(Buffer.from("faces/raw/report.json"))).toBe(false);
+        expect(result.buffer.includes(Buffer.from("owner-1"))).toBe(false);
+        expect(result.buffer.includes(Buffer.from("analysis-1"))).toBe(false);
+        expect(result.buffer.includes(Buffer.from("conteúdo-cosmético-proibido"))).toBe(false);
+    });
+
+    it("prova em CSV que ai-reports não contém IDs pessoais nem conteúdo", async () => {
+        const reportId = objectId("report-safe-id");
+        FaceReport.find.mockReturnValueOnce(
+            queryRows([
+                {
+                    _id: reportId,
+                    userId: "private-user-marker",
+                    analysisId: "private-analysis-marker",
+                    schemaVersion: 2,
+                    lifecycleStatus: "frozen_locked",
+                    finalRecommendationIds: [],
+                    cosmeticSummary: "private-content-marker",
+                    createdAt: new Date("2026-07-11T10:00:00.000Z"),
+                },
+            ]),
+        );
+        AiConsultationReview.find.mockReturnValueOnce(queryMetadata([]));
+        ReportUnlock.find.mockReturnValueOnce(queryMetadata([]));
+
+        const result = await buildAdminExport({
+            dataset: "ai-reports",
+            format: "csv",
+        });
+        const csv = result.buffer.toString("utf8");
+
+        expect(csv).toContain("schemaVersion");
+        expect(csv).toContain("lifecycleStatus");
+        expect(csv).toContain("recommendationCount");
+        expect(csv).not.toContain("userId");
+        expect(csv).not.toContain("analysisId");
+        expect(csv).not.toContain("private-user-marker");
+        expect(csv).not.toContain("private-analysis-marker");
+        expect(csv).not.toContain("private-content-marker");
     });
 });
 ```
 
 5. Explicação do código.
 
-Os testes cobrem duas ideias. Primeiro, o validator recusa datasets fora da lista branca, mostrando que a API não exporta coleções arbitrárias. Segundo, os exports são inspecionados como texto para confirmar ausência de campos sensíveis. Isto é didático porque transforma segurança em prova concreta: não basta dizer "não exporta `passwordHash`"; o teste coloca `passwordHash` no mock e confirma que ele não aparece no ficheiro final.
+Os testes cobrem quatro ideias. Primeiro, o validator recusa datasets fora da lista branca. Segundo, o CSV de utilizadores exclui segredos. Terceiro, a projeção de `FaceReport` contém apenas campos metadata-only e o PDF abre com `PDFDocument.load`. Quarto, o CSV de `ai-reports` permite inspecionar diretamente headers/linhas e prova que `userId`, `analysisId` e conteúdo cosmético não saem. A prova externa com `pdfinfo` completa a validação estrutural.
 6. Validação do passo.
 
 abrir ficheiros e procurar termos sensíveis antes de anexar evidence.
@@ -667,31 +796,42 @@ validar apenas status `200` não prova minimização.
 - `GET /api/admin/exports/users?format=pdf` devolve `200` e `application/pdf`.
 - Cliente sem role admin recebe `403`.
 - Dataset ou formato inválido devolve `400`.
+- `ai-reports` contém apenas metadados operacionais e não inclui `userId`, `analysisId`, objetivos, provider/modelo, resumo, fontes, limitações ou payloads do relatório.
 - Ficheiros não incluem `passwordHash`, fotografias, paths internos, cookies ou relatórios faciais integrais.
+- Células iniciadas por `=`, `+`, `-`, `@`, TAB ou CR permanecem texto.
+- Na implementação de referência, o PDF é aceite porque é gerado por `pdf-lib` e passou `pdfinfo` sem warnings; no projeto dos alunos, a mesma prova continua obrigatória.
 
 #### Critérios de aceite
-- Entrega funcional especifica de `Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores)` validada contra `RF35`.
+- Entrega funcional específica de `Exportação administrativa para Excel/PDF, com relatórios IA apenas em metadados` validada contra `RF35`.
 - Cenários negativos concluídos: mínimo `2` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P1`).
-- CSV abre no Excel ou ferramenta compatível.
-- PDF textual abre no browser e contém apenas dados minimizados.
+- CSV abre no Excel ou ferramenta compatível sem interpretar payloads controlados como fórmulas.
+- PDF contém apenas dados minimizados e `pdfinfo` não emite warnings.
+- Testes negativos colocam `userId`, `analysisId` e conteúdo no fixture e provam que nenhum desses campos/valores entra no CSV/PDF.
+- O runtime de referência já não usa o builder manual e a correção de `ORELLE-AUD-P3-002` tem evidence focal e estrutural válida.
 
 #### Validação final
 - Executar testes de API.
 - Descarregar pelo menos um CSV e um PDF.
 - Fazer pesquisa textual nos ficheiros gerados por campos sensíveis.
+- Executar `pdfinfo <ficheiro.pdf>` e guardar exit code `0` sem warnings.
 - Executar `bash scripts/validate-planificacao.sh`.
 
 #### Evidence para PR/defesa
 - `proof_tecnico`: headers HTTP e ficheiros descarregados.
 - `proof_negativos`: `403`, `400` e ausência de campos sensíveis.
-- `proof_privacidade`: lista de campos exportados por dataset.
+- `proof_privacidade`: allowlist de campos por dataset e asserts negativos para `userId`, `analysisId` e conteúdo de relatório.
 - `proof_ui`: screenshot da página de exportações.
 
 #### Handoff
 `BK-MF4-04` pode usar dados de encomendas para notificações, mas não deve enviar exports por mensagens. `BK-MF7-05` pode evoluir o PDF, mantendo a mesma regra de minimização.
 
 #### Changelog
+- `2026-07-11`: `ai-reports` alinhado ao runtime metadata-only: removidos `userId`, `analysisId`, limitações e qualquer conteúdo; adicionada prova CSV/PDF com fixtures hostis.
+- `2026-07-10` (histórico, substituído em 2026-07-11): a projeção então incluía `userId` para decifra de limitações; o contrato atual já não seleciona nem exporta esse conteúdo.
+- `2026-07-10`: links de download alinhados a `/api` same-origin, sem fallback localhost no bundle.
+- `2026-07-10`: estado PDF reconciliado com a implementação de referência: `pdf-lib@1.17.1`, `13/13` testes e `pdfinfo` sem warnings numa amostra PDF 1.7/A4 de duas páginas.
+- `2026-07-09`: CSV alinhado à neutralização de `= + - @ TAB CR`; builder PDF manual marcado como não conforme e alvo atualizado para `pdf-lib` + `pdfinfo`, sem fechar antecipadamente P3-002.
 - `2026-06-15`: guia reescrito para exportação admin segura em CSV/PDF textual, sem dependências novas e com negativos `P1`.
 
 ## Suplemento de validacao documental
@@ -699,7 +839,7 @@ Este suplemento fecha lacunas formais detetadas pelo validador de planificacao s
 
 ## Bloco pedagogico
 ### Objetivo
-O aluno deve completar `Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores).` com rastreabilidade direta a `RF35`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
+O aluno deve completar `Exportação administrativa para Excel/PDF, com relatórios IA apenas em metadados.` com rastreabilidade direta a `RF35`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
 
 ### Pre-requisitos
 - Rever `RF35` nos documentos RF/RNF aplicáveis.
@@ -747,7 +887,7 @@ O aluno deve completar `Exportação de dados para Excel/PDF (vendas, relatório
 - Registar riscos, dependencias pendentes e validacoes executadas antes do fecho.
 
 ## Criterios de aceite
-- Entrega funcional especifica de `Exportação de dados para Excel/PDF (vendas, relatórios de IA, utilizadores).` validada contra `RF35`.
+- Entrega funcional específica de `Exportação administrativa para Excel/PDF, com relatórios IA apenas em metadados.` validada contra `RF35`.
 - Cenarios negativos concluidos: minimo `2` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P1`).
 - Metadados do guia alinhados com matriz, backlog e anexos.
@@ -778,4 +918,5 @@ export function validarEvidenceDocumental(evidence) {
 ```
 
 ## Changelog
+- `2026-07-10`: fixture alinhada a `SIMULATED_PAID`; PDF passou a ser validado estruturalmente com `PDFDocument.load`/`pdfinfo`, sem assumir `%PDF-1.4`.
 - `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.

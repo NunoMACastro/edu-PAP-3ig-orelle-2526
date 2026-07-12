@@ -16,7 +16,9 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF8-03`
 - `guia_path`: `docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md`
-- `last_updated`: `2026-07-01`
+- `last_updated`: `2026-07-10`
+
+> **Contrato vigente:** observabilidade mede liveness em `/api/health/live` e readiness em `/api/health/ready`. `trust proxy` usa apenas a allowlist validada `TRUSTED_PROXY_CIDRS`; nunca usa `1`, `true`, `*` nem confia diretamente em headers encaminhados pelo cliente.
 
 #### Objetivo
 
@@ -634,7 +636,8 @@ Agora substitui `apps/api/src/app.js` por esta versão completa:
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import { env } from "./config/env.js";
+import mongoose from "mongoose";
+import { env, parseTrustedProxyCidrs } from "./config/env.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { adminDashboardRoutes } from "./routes/admin-dashboard.routes.js";
 import { adminExportRoutes } from "./routes/admin-export.routes.js";
@@ -642,20 +645,19 @@ import { adminReviewRoutes } from "./routes/admin-review.routes.js";
 import { adminUsersRoutes } from "./routes/admin-users.routes.js";
 import { adminProductsRoutes } from "./routes/admin-products.routes.js";
 import { adminCategoriesRoutes } from "./routes/admin-categories.routes.js";
-import { beforeAfterVisualizationRoutes } from "./routes/before-after-visualization.routes.js";
+import { aiConsultationRoutes } from "./routes/ai-consultation.routes.js";
+import { aiConsultationReviewRoutes } from "./routes/ai-consultation-review.routes.js";
 import { biometricAuditRoutes } from "./routes/biometric-audit.routes.js";
 import { biometricDataRequestRoutes } from "./routes/biometric-data-request.routes.js";
 import { cartRoutes } from "./routes/cart.routes.js";
 import { catalogRoutes } from "./routes/catalog.routes.js";
 import { dailyRoutineRoutes } from "./routes/daily-routine.routes.js";
-import { faceAnalysisRoutes } from "./routes/face-analysis.routes.js";
 import { facePhotoRoutes } from "./routes/face-photo.routes.js";
 import { faceReportRoutes } from "./routes/face-report.routes.js";
 import { makeupSimulationRoutes } from "./routes/makeup-simulation.routes.js";
 import { preferencesRoutes } from "./routes/preferences.routes.js";
 import { profileRoutes } from "./routes/profile.routes.js";
 import { notificationRoutes } from "./routes/notification.routes.js";
-import { recommendationReviewRoutes } from "./routes/recommendation-review.routes.js";
 import { recommendationRoutes } from "./routes/recommendation.routes.js";
 import { orderRoutes } from "./routes/order.routes.js";
 import { reorderRoutes } from "./routes/reorder.routes.js";
@@ -681,12 +683,19 @@ import {
  * @function createApp
  * @returns {import("express").Express} Aplicação Express pronta a usar.
  */
-export function createApp() {
+export function createApp({
+    trustedProxies = env.trustedProxyCidrs,
+    readinessCheck = () => mongoose.connection.readyState === 1,
+} = {}) {
     const app = express();
+    const validatedTrustedProxies = parseTrustedProxyCidrs(
+        trustedProxies.join(","),
+    );
 
-    if (env.forceHttps) {
-        app.set("trust proxy", 1);
-    }
+    app.set(
+        "trust proxy",
+        validatedTrustedProxies.length > 0 ? validatedTrustedProxies : false,
+    );
 
     app.use(requestContextMiddleware);
     app.use(securityTransportHeaders);
@@ -697,9 +706,19 @@ export function createApp() {
     app.use(express.json());
     app.use(cookieParser());
 
-    // O health check também recebe requestId e métrica, o que ajuda a diagnosticar arranque e ambiente de testes.
-    app.get("/api/health", (req, res) => {
+    // Liveness recebe requestId/métrica, mas não consulta dependências.
+    app.get("/api/health/live", (req, res) => {
         res.json({ status: "ok", app: "orelle", checks: { http: "ok" } });
+    });
+
+    // Readiness pode ficar vermelho sem expor URI, host ou credenciais MongoDB.
+    app.get("/api/health/ready", async (req, res) => {
+        const mongoReady = await readinessCheck();
+        res.status(mongoReady ? 200 : 503).json({
+            status: mongoReady ? "ready" : "not_ready",
+            app: "orelle",
+            checks: { mongodb: mongoReady ? "ok" : "unavailable" },
+        });
     });
 
     app.use("/api/auth", authRoutes);
@@ -707,15 +726,14 @@ export function createApp() {
     app.use("/api/preferences", preferencesRoutes);
     app.use("/api/catalog", catalogRoutes);
     app.use("/api", facePhotoRoutes);
-    app.use("/api", faceAnalysisRoutes);
     app.use("/api", faceReportRoutes);
+    app.use("/api", aiConsultationRoutes);
     app.use("/api", skinHistoryRoutes);
     app.use("/api", skinEvolutionRoutes);
     app.use("/api", recommendationRoutes);
     app.use("/api", dailyRoutineRoutes);
-    app.use("/api", recommendationReviewRoutes);
+    app.use("/api", aiConsultationReviewRoutes);
     app.use("/api", makeupSimulationRoutes);
-    app.use("/api", beforeAfterVisualizationRoutes);
     app.use("/api", skinComparisonRoutes);
     app.use("/api", biometricDataRequestRoutes);
     app.use("/api", cartRoutes);
@@ -813,23 +831,6 @@ export class AppError extends Error {
 }
 
 /**
- * Converte erros conhecidos de upload em mensagens seguras para o cliente.
- *
- * @function getMulterErrorMessage
- * @param {Error & {code?: string}} err - Erro emitido pelo Multer.
- * @returns {string} Mensagem HTTP segura.
- */
-function getMulterErrorMessage(err) {
-    const messages = {
-        LIMIT_FILE_SIZE: "Ficheiro excede o tamanho máximo permitido",
-        LIMIT_FILE_COUNT: "Número de ficheiros excede o limite permitido",
-        LIMIT_UNEXPECTED_FILE: "Campo de ficheiro inesperado",
-    };
-
-    return messages[err.code] ?? "Upload inválido";
-}
-
-/**
  * Converte erros da aplicação numa resposta JSON uniforme e segura.
  *
  * @function errorMiddleware
@@ -842,14 +843,10 @@ function getMulterErrorMessage(err) {
 export function errorMiddleware(err, req, res, next) {
     if (res.headersSent) return next(err);
 
-    const isMulterError = err.name === "MulterError";
-    const statusCode = isMulterError ? 400 : err.statusCode ?? 500;
+    const statusCode = err.statusCode ?? 500;
     const errorDetails = err.details;
-    const message = isMulterError
-        ? getMulterErrorMessage(err)
-        : statusCode === 500
-          ? "Erro interno do servidor"
-          : err.message;
+    const message =
+        statusCode === 500 ? "Erro interno do servidor" : err.message;
 
     // O log recebe apenas campos permitidos; nunca recebe req.body, headers, cookies, ficheiros ou dados biométricos.
     writeSafeErrorLog(buildSafeErrorLog({ err, req, statusCode }));
@@ -869,7 +866,7 @@ export function errorMiddleware(err, req, res, next) {
 
 `AppError` continua igual no contrato público: services e validators podem lançar `new AppError(statusCode, message, details)`. A diferença é que `details` já não vai diretamente para o JSON. Primeiro passa por `buildPublicErrorResponse`, que redige campos sensíveis.
 
-`MulterError` continua tratado como erro `400`, com mensagens seguras e sem paths internos. Isto preserva os fluxos de upload facial anteriores.
+O boundary Busboy converte limites, campos inesperados, multipart inválido e aborts em `AppError(400, mensagemSegura)` antes de chegar aqui. O middleware global não depende do tipo de erro de uma biblioteca de upload e nunca inclui paths temporários ou detalhes do parser na resposta.
 
 `writeSafeErrorLog(buildSafeErrorLog(...))` escreve só campos permitidos. O middleware não faz `console.error(err)`, porque isso poderia revelar stack trace, path interno ou dados sensíveis. Para erros `500`, a mensagem pública e a mensagem de log ficam genéricas.
 
@@ -1054,7 +1051,7 @@ describe("BK-MF8-02 - logs seguros e métricas", () => {
     });
 
     it("regista métrica HTTP minimizada sem guardar payload ou cookies", async () => {
-        const response = await request(createApp()).get("/api/health");
+        const response = await request(createApp()).get("/api/health/live");
 
         expect(response.status).toBe(200);
         expect(response.headers["x-request-id"]).toEqual(expect.any(String));
@@ -1062,7 +1059,7 @@ describe("BK-MF8-02 - logs seguros e métricas", () => {
             expect.objectContaining({
                 operation: "http_request",
                 method: "GET",
-                route: "/api/health",
+                route: "/api/health/live",
                 statusCode: 200,
                 status: "success",
                 budgetMs: 3000,
@@ -1086,7 +1083,7 @@ O primeiro teste força um `AppError` com detalhes perigosos: cookie, path de im
 
 O segundo teste força um erro interno com path local no texto. O utilizador deve receber apenas `"Erro interno do servidor"`, sem detalhes. O log também fica genérico, porque logs de produção não devem copiar mensagens internas com paths ou nomes de ficheiros.
 
-O terceiro teste atravessa `createApp()` e confirma que um pedido real a `/api/health` cria métrica `http_request`. A métrica guarda método, rota, status e duração, mas não guarda cookies, passwords ou storage keys.
+O terceiro teste atravessa `createApp()` e confirma que um pedido real a `/api/health/live` cria métrica `http_request`. Readiness deve ter um teste separado para `200/503`. As métricas guardam método, rota, status e duração, mas não guardam cookies, passwords, URI MongoDB ou storage keys.
 
 6. Validação do passo.
 
@@ -1167,7 +1164,8 @@ Se a suíte API falhar com `listen EPERM` dentro do sandbox, isso indica limita�
 
 #### Expected results
 
-- `GET /api/health` devolve `200` e header `X-Request-Id`.
+- `GET /api/health/live` devolve `200` e header `X-Request-Id`.
+- `GET /api/health/ready` devolve `200` quando MongoDB está pronta e `503` sanitizado quando indisponível.
 - Erros `400` devolvem mensagem segura, `requestId` e detalhes sanitizados.
 - Erros `500` devolvem `"Erro interno do servidor"` e `requestId`, sem detalhes internos.
 - Logs de erro têm apenas `level`, `event`, `requestId`, `method`, `route`, `statusCode`, `errorName` e `message`.
@@ -1227,5 +1225,7 @@ Se a suíte API falhar com `listen EPERM` dentro do sandbox, isso indica limita�
 
 #### Changelog
 
+- `2026-07-10`: app do tutorial alinhada à allowlist CIDR de proxy e aos endpoints live/ready, com métricas separadas.
 - `2026-07-01`: guia corrigido para `RNF20`, com código completo para observabilidade segura, métrica HTTP minimizada, resposta pública sanitizada, log seguro, teste Vitest/Supertest e handoff verificável para `BK-MF8-03`.
 - `2026-06-30`: guia revisto para a estrutura tutorial MF8, com caminhos públicos `apps/...`, contrato de evidence, negativos mínimos e handoff explícito.
+- `2026-07-10`: tratamento de erros de upload alinhado com o boundary Busboy, que normaliza limites e aborts para `AppError` seguro e garante cleanup dos temporários.

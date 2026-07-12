@@ -1,5 +1,7 @@
 # AUDITORIA-HIDRATACAO-MF5
 
+> **Nota de supersessão — 2026-07-11:** este relatório preserva uma fotografia histórica da hidratação dos guias. Não deve ser usado para inferir o estado atual da implementação de referência; o contrato OpenAI-only, findings, retestes e blockers vigentes estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). O corpo abaixo é mantido sem reescrita para rastreabilidade.
+
 ## Header
 - `doc_id`: `AUDITORIA-HIDRATACAO-MF5`
 - `project`: `Orelle`

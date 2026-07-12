@@ -1,5 +1,7 @@
 # Auditoria de hidratacao pedagogica/tecnica - MF3
 
+> **Nota de supersessão — 2026-07-11:** este relatório é histórico. O estado operacional e o contrato OpenAI-only atuais estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). Qualquer menção abaixo a Stripe, PayPal, MB Way, gateway ou transação financeira foi substituída pelo método exclusivamente `Pagamento simulado`, sem cobrança nem integração externa. O corpo histórico não constitui evidence atual.
+
 ## Header
 - `doc_id`: `AUDITORIA-HIDRATACAO-MF3`
 - `mf_alvo`: `MF3`

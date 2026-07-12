@@ -16,7 +16,9 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF3-08`
 - `guia_path`: `docs/planificacao/guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md`
-- `last_updated`: `2026-06-13`
+- `last_updated`: `2026-07-10`
+
+> **Contrato vigente:** receita, encomendas vendidas e produtos mais vendidos contam apenas `payment.status="simulated_paid"`, através de `PAYMENT_STATUS.SIMULATED_PAID`. `awaiting_simulation`, `simulated_failed` e estados legacy cancelados não são vendas. Não existem estados de gateway ou confirmação financeira manual neste projeto.
 
 ## Contexto do BK
 - Entrega alvo: implementar `RF31`, dashboard administrativo com vendas, produtos mais vendidos e utilizadores ativos.
@@ -73,14 +75,14 @@ Agregações MongoDB permitem somar vendas e quantidades sem carregar todas as e
 - `AdminDashboardPage.jsx`: apresenta cartões simples.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/services/admin-dashboard.service.js`
-- CRIAR: `server/src/controllers/admin-dashboard.controller.js`
-- CRIAR: `server/src/routes/admin-dashboard.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/AdminDashboardPage.jsx`
-- EDITAR: `client/src/App.jsx`
-- REVER: `server/src/models/order.model.js`
-- REVER: `server/src/models/user.model.js`
+- CRIAR: `apps/api/src/services/admin-dashboard.service.js`
+- CRIAR: `apps/api/src/controllers/admin-dashboard.controller.js`
+- CRIAR: `apps/api/src/routes/admin-dashboard.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/AdminDashboardPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/order.model.js`
+- REVER: `apps/api/src/models/user.model.js`
 
 ## Bloco pedagógico
 ### Objetivo
@@ -162,19 +164,18 @@ Sem código novo neste passo.
 
 1. Explicação simples do objetivo: calcular métricas comerciais.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/admin-dashboard.service.js`
-    - REVER: `server/src/models/order.model.js`
-    - REVER: `server/src/models/user.model.js`
+    - CRIAR: `apps/api/src/services/admin-dashboard.service.js`
+    - REVER: `apps/api/src/models/order.model.js`
+    - REVER: `apps/api/src/models/user.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: agregar encomendas e utilizadores.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/services/admin-dashboard.service.js
+// apps/api/src/services/admin-dashboard.service.js
 import { Order } from "../models/order.model.js";
 import { User } from "../models/user.model.js";
-
-const PAID_PAYMENT_STATUS = "paid";
+import { PAYMENT_STATUS } from "../constants/domain.constants.js";
 
 /**
  * Calcula métricas agregadas para o dashboard administrativo.
@@ -183,7 +184,7 @@ const PAID_PAYMENT_STATUS = "paid";
 export async function getAdminDashboardStats() {
     const [salesSummary] = await Order.aggregate([
         // Só pagamentos confirmados entram em receita.
-        { $match: { "payment.status": PAID_PAYMENT_STATUS } },
+        { $match: { "payment.status": PAYMENT_STATUS.SIMULATED_PAID } },
         {
             $group: {
                 _id: null,
@@ -195,7 +196,7 @@ export async function getAdminDashboardStats() {
 
     const topProducts = await Order.aggregate([
         // O dashboard devolve produtos agregados, nunca clientes individuais.
-        { $match: { "payment.status": PAID_PAYMENT_STATUS } },
+        { $match: { "payment.status": PAYMENT_STATUS.SIMULATED_PAID } },
         { $unwind: "$items" },
         {
             $group: {
@@ -226,21 +227,21 @@ export async function getAdminDashboardStats() {
 }
 ```
 
-5. Explicação do código: o service devolve apenas números e nomes de produtos. Não devolve clientes individuais. `PAID_PAYMENT_STATUS` fixa que vendas e produtos mais vendidos só contam encomendas pagas. Estados como `requires_payment` e `pending_manual_confirmation` continuam a existir, mas não entram em receita. `activeUsers` usa atividade recente como métrica simples e documentada.
-6. Como validar este passo: sem encomendas pagas deve devolver zeros e `topProducts: []`; uma encomenda `requires_payment` não deve aumentar receita.
+5. Explicação do código: o service devolve apenas números e nomes de produtos. Não devolve clientes individuais. `PAYMENT_STATUS.SIMULATED_PAID` fixa que vendas e produtos mais vendidos só contam demonstrações de pagamento concluídas. `awaiting_simulation`, `simulated_failed` e estados legacy cancelados não entram em receita. `activeUsers` usa atividade recente como métrica simples e documentada.
+6. Como validar este passo: sem encomendas com pagamento simulado concluído deve devolver zeros e `topProducts: []`; uma encomenda `awaiting_simulation` ou `simulated_failed` não deve aumentar receita.
 7. Erros comuns ou cenário negativo: contar carrinhos, checkouts iniciados ou pagamentos pendentes como vendas aumenta falsamente receita.
 
 ### Passo 3 - Criar controller
 
 1. Explicação simples do objetivo: devolver estatísticas ao admin.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/admin-dashboard.controller.js`
+    - CRIAR: `apps/api/src/controllers/admin-dashboard.controller.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: chamar service.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/controllers/admin-dashboard.controller.js
+// apps/api/src/controllers/admin-dashboard.controller.js
 import { getAdminDashboardStats } from "../services/admin-dashboard.service.js";
 
 /**
@@ -268,13 +269,13 @@ export async function getAdminDashboardStatsController(req, res, next) {
 
 1. Explicação simples do objetivo: proteger dashboard por role.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/routes/admin-dashboard.routes.js`
+    - CRIAR: `apps/api/src/routes/admin-dashboard.routes.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: usar `requireAuth` e `requireRole`.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/routes/admin-dashboard.routes.js
+// apps/api/src/routes/admin-dashboard.routes.js
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import { requireRole } from "../middlewares/role.middleware.js";
@@ -301,7 +302,7 @@ adminDashboardRoutes.get(
 
 1. Explicação simples do objetivo: ligar dashboard ao Express.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: imports e routes.
 3. O que fazer: montar `adminDashboardRoutes`.
 4. Código completo, correto e integrado.
@@ -320,14 +321,14 @@ app.use("/api", adminDashboardRoutes);
 
 1. Explicação simples do objetivo: apresentar métricas ao administrador.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/AdminDashboardPage.jsx`
-    - EDITAR: `client/src/App.jsx`
+    - CRIAR: `apps/web/src/pages/AdminDashboardPage.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: ficheiro completo e registo de página.
 3. O que fazer: criar UI com loading/error/success.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/pages/AdminDashboardPage.jsx
+// apps/web/src/pages/AdminDashboardPage.jsx
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -372,8 +373,8 @@ export function AdminDashboardPage() {
     if (status === "error") return <p role="alert">{error}</p>;
 
     return (
-        <main>
-            <h1>Dashboard</h1>
+        <section aria-labelledby="dashboard-title">
+            <h1 id="dashboard-title">Dashboard</h1>
             <section>
                 <p>Encomendas pagas: {stats.orderCount}</p>
                 <p>Vendas: {euros(stats.totalSalesCents)}</p>
@@ -393,7 +394,7 @@ export function AdminDashboardPage() {
                     </ol>
                 )}
             </section>
-        </main>
+        </section>
     );
 }
 ```
@@ -406,8 +407,8 @@ export function AdminDashboardPage() {
 
 1. Explicação simples do objetivo: provar segurança e estado vazio.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/routes/admin-dashboard.routes.js`
-    - REVER: `server/src/services/admin-dashboard.service.js`
+    - REVER: `apps/api/src/routes/admin-dashboard.routes.js`
+    - REVER: `apps/api/src/services/admin-dashboard.service.js`
     - LOCALIZAÇÃO: testes ou outputs.
 3. O que fazer: testar sem sessão, cliente e admin.
 4. Código completo, correto e integrado.
@@ -425,12 +426,12 @@ curl -i http://localhost:3000/api/admin/dashboard/stats
 - Cliente autenticado recebe `403`.
 - Sem sessão recebe `401`.
 - Sem vendas pagas devolve zeros.
-- Encomendas com `requires_payment` ou `pending_manual_confirmation` não aumentam receita nem produtos mais vendidos.
+- Encomendas `awaiting_simulation`, `simulated_failed` ou legacy canceladas não aumentam receita nem produtos mais vendidos.
 
 ## Critérios de aceite
 - Endpoint protegido por `administrador`.
 - Resposta contém métricas agregadas.
-- Métricas de vendas usam apenas pagamento `paid`.
+- Métricas de vendas usam apenas `PAYMENT_STATUS.SIMULATED_PAID`.
 - Não devolve dados pessoais sensíveis.
 - Cenários negativos concluídos: mínimo `2`.
 - Evidência de testes por camada conforme prioridade (`P1`).
@@ -449,4 +450,5 @@ curl -i http://localhost:3000/api/admin/dashboard/stats
 O próximo BK usa dados comerciais para alertas de stock e atualização após compra.
 
 ## Changelog
+- `2026-07-10`: dashboard alinhado ao contrato exclusivamente simulado; removidos `paid`, `requires_payment` e `pending_manual_confirmation`.
 - `2026-06-13`: guia reescrito para dashboard administrativo com agregações.

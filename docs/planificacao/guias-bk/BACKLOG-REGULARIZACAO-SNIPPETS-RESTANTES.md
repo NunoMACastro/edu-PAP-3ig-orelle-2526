@@ -5,13 +5,13 @@
 - `path`: `docs/planificacao/guias-bk/BACKLOG-REGULARIZACAO-SNIPPETS-RESTANTES.md`
 - `area`: `project`
 - `owner`: `Nuno`
-- `status`: `ativo`
-- `last_updated`: `2026-06-30`
+- `status`: `historico`
+- `last_updated`: `2026-07-09`
 
 ## Objetivo
-Listar BK com snippet genérico fora do recorte desta vaga (`P0` até gate S4) para regularização futura controlada.
+Preservar o snapshot histórico dos BK que tinham snippets genéricos na vaga original. Esta lista deixou de ser fonte de pendências: vários guias abaixo já foram reescritos e o estado atual deve ser lido no [plano vivo de correção](../PLANO-CORRECAO-AUDITORIA-COMPLETA-real_dev.md) e no resultado de `bash scripts/validate-planificacao.sh`.
 
-## Itens pendentes
+## Itens do snapshot histórico
 | bk_id | macro | sprint | prioridade | guia_path |
 | --- | --- | --- | --- | --- |
 | BK-MF0-04 | MF0 | S01-S02 | P1 | `docs/planificacao/guias-bk/MF0/BK-MF0-04-possibilidade-de-editar-o-perfil-e-atualizar-fotografias-periodicamente.md` |
@@ -29,7 +29,7 @@ Listar BK com snippet genérico fora do recorte desta vaga (`P0` até gate S4) p
 | BK-MF2-08 | MF2 | S05-S06 | P1 | `docs/planificacao/guias-bk/MF2/BK-MF2-08-a-ia-deve-gerar-uma-visualizacao-antes-depois-com-os-produtos-recomendados.md` |
 | BK-MF3-01 | MF3 | S07-S08 | P2 | `docs/planificacao/guias-bk/MF3/BK-MF3-01-o-sistema-deve-permitir-comparar-imagens-antes-vs-apos-30-dias-de-uso.md` |
 | BK-MF3-02 | MF3 | S07-S08 | P0 | `docs/planificacao/guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md` |
-| BK-MF3-03 | MF3 | S07-S08 | P0 | `docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md` |
+| BK-MF3-03 | MF3 | S07-S08 | P0 | `docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-com-pagamento-simulado.md` |
 | BK-MF3-04 | MF3 | S07-S08 | P0 | `docs/planificacao/guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md` |
 | BK-MF3-06 | MF3 | S07-S08 | P1 | `docs/planificacao/guias-bk/MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md` |
 | BK-MF3-07 | MF3 | S07-S08 | P1 | `docs/planificacao/guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md` |
@@ -58,7 +58,7 @@ Listar BK com snippet genérico fora do recorte desta vaga (`P0` até gate S4) p
 | BK-MF7-03 | MF7 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF7/BK-MF7-03-sessoes-autenticadas-com-cookies-httponly.md` |
 | BK-MF7-04 | MF7 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF7/BK-MF7-04-compativel-com-chrome-safari-edge-e-firefox.md` |
 | BK-MF7-05 | MF7 | S11-S12 | P1 | `docs/planificacao/guias-bk/MF7/BK-MF7-05-exportacao-de-relatorios-em-pdf.md` |
-| BK-MF7-06 | MF7 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF7/BK-MF7-06-integracao-com-gateways-de-pagamento-stripe-paypal-mbway.md` |
+| BK-MF7-06 | MF7 | S11-S12 | P0 | `docs/planificacao/guias-bk/MF7/BK-MF7-06-validar-pagamento-simulado-sem-integracao-externa.md` |
 | BK-MF7-07 | MF7 | S11-S12 | P1 | `docs/planificacao/guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md` |
 | BK-MF8-01 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md` |
 | BK-MF8-02 | MF8 | S12 | P1 | `docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md` |
@@ -79,6 +79,7 @@ Listar BK com snippet genérico fora do recorte desta vaga (`P0` até gate S4) p
 | BK-MF8-17 | MF8 | S12 | P0 | `docs/planificacao/guias-bk/MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md` |
 
 ## Changelog
+- `2026-07-09`: paths de BK-MF3-03/BK-MF7-06 atualizados após normalização do Pagamento simulado.
 - `2026-06-30`: lista MF8 atualizada para 17 guias e paths renumerados.
 - `2026-06-29`: lista MF8 expandida na primeira revisão de fecho.
 - `2026-04-18`: backlog fechado criado para fasear regularização semântica remanescente.

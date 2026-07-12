@@ -1,5 +1,7 @@
 # Correcao da auditoria de implementacao real_dev - MF7
 
+> **Nota de supersessão — 2026-07-11:** relatório histórico. O contrato de gateways abaixo foi substituído por `Pagamento simulado`; o estado posterior substituiu o PDF manual por `pdf-lib`. Consultar o [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md); referências inferiores a providers antigos ou PDF pendente permanecem apenas como história desta execução.
+
 ## Execucao atual - BK-MF7-04
 
 - `PROJECT_NAME`: Orelle

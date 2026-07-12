@@ -16,12 +16,14 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF4-01`
 - `guia_path`: `docs/planificacao/guias-bk/MF3/BK-MF3-08-gestao-de-stock-alertas-de-baixo-stock-atualizacao-automatica-apos-compra.md`
-- `last_updated`: `2026-06-13`
+- `last_updated`: `2026-07-10`
+
+> **Contrato vigente:** o stock automático só é elegível para `PAYMENT_STATUS.SIMULATED_PAID`. No fluxo normal, a revalidação e redução condicional de stock pertencem à mesma transação de `POST /api/orders/:orderId/payments/simulate`, juntamente com voucher, `stockReserved`, estado da encomenda e limpeza do carrinho. Este BK não cria confirmação financeira manual nem um segundo commit pós-pagamento.
 
 ## Contexto do BK
 - Entrega alvo: implementar `RF32`, gestão de stock com alertas e atualização automática após compra.
 - CANONICO: alerta quando produto tem menos de 5 unidades.
-- DERIVADO: a atualização automática acontece quando uma encomenda passa para pagamento confirmado ou confirmação manual equivalente.
+- DERIVADO: a atualização automática acontece exclusivamente quando a simulação de pagamento conclui com `simulated_paid`.
 - Este BK fecha a cadeia carrinho -> encomenda -> stock.
 
 ## Objetivo
@@ -75,15 +77,15 @@ A operação de redução deve confirmar que há stock suficiente. Se outro clie
 - `StockAdminPage.jsx`: UI administrativa.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/services/stock.service.js`
-- CRIAR: `server/src/validators/stock.validator.js`
-- CRIAR: `server/src/controllers/stock.controller.js`
-- CRIAR: `server/src/routes/stock.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/StockAdminPage.jsx`
-- EDITAR: `client/src/App.jsx`
-- REVER: `server/src/models/product.model.js`
-- REVER: `server/src/models/order.model.js`
+- CRIAR: `apps/api/src/services/stock.service.js`
+- CRIAR: `apps/api/src/validators/stock.validator.js`
+- CRIAR: `apps/api/src/controllers/stock.controller.js`
+- CRIAR: `apps/api/src/routes/stock.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/StockAdminPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/product.model.js`
+- REVER: `apps/api/src/models/order.model.js`
 
 ## Bloco pedagógico
 ### Objetivo
@@ -167,21 +169,21 @@ Sem código novo neste passo.
 
 1. Explicação simples do objetivo: listar produtos com baixo stock.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/stock.service.js`
-    - REVER: `server/src/models/product.model.js`
+    - CRIAR: `apps/api/src/services/stock.service.js`
+    - REVER: `apps/api/src/models/product.model.js`
     - LOCALIZAÇÃO: início do ficheiro.
 3. O que fazer: criar função de alertas.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/services/stock.service.js
+// apps/api/src/services/stock.service.js
 import mongoose from "mongoose";
+import { PAYMENT_STATUS } from "../constants/domain.constants.js";
 import { Product } from "../models/product.model.js";
 import { Order } from "../models/order.model.js";
 import { AppError } from "../middlewares/error.middleware.js";
 
 const LOW_STOCK_THRESHOLD = 5;
-const STOCK_ELIGIBLE_PAYMENT_STATUS = "paid";
 
 /**
  * Lista produtos com stock abaixo do limite definido por RF32.
@@ -210,7 +212,7 @@ export async function listLowStockProducts() {
 
 1. Explicação simples do objetivo: permitir ao admin corrigir stock.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/services/stock.service.js`
+    - EDITAR: `apps/api/src/services/stock.service.js`
     - LOCALIZAÇÃO: após `listLowStockProducts`.
 3. O que fazer: criar `setProductStock`.
 4. Código completo, correto e integrado.
@@ -255,15 +257,15 @@ export async function setProductStock(productId, stock) {
 
 1. Explicação simples do objetivo: reduzir stock uma vez por encomenda confirmada.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/services/stock.service.js`
+    - EDITAR: `apps/api/src/services/stock.service.js`
     - LOCALIZAÇÃO: fim do ficheiro.
 3. O que fazer: criar `applyOrderStockUpdate`.
 4. Código completo, correto e integrado.
 
 ```js
 /**
- * Reduz stock dos produtos de uma encomenda paga, uma única vez.
- * @param {string} orderId - ID da encomenda paga.
+ * Reduz stock dos produtos de uma encomenda com pagamento simulado concluído, uma única vez.
+ * @param {string} orderId - ID da encomenda `simulated_paid`.
  * @returns {Promise<{ updated: boolean, reason?: string }>} Resultado da atualização.
  * @throws {AppError} Quando a encomenda não existe, não está paga ou não há stock suficiente.
  */
@@ -285,8 +287,8 @@ export async function applyOrderStockUpdate(orderId) {
                 return;
             }
 
-            if (order.payment?.status !== STOCK_ELIGIBLE_PAYMENT_STATUS) {
-                throw new AppError(409, "Stock só pode ser atualizado depois de pagamento confirmado");
+            if (order.payment?.status !== PAYMENT_STATUS.SIMULATED_PAID) {
+                throw new AppError(409, "Stock só pode ser atualizado após pagamento simulado concluído");
             }
 
             // Agrupar evita reduzir o mesmo produto em linhas separadas de forma inconsistente.
@@ -343,7 +345,7 @@ export async function applyOrderStockUpdate(orderId) {
 }
 ```
 
-5. Explicação do código: a função abre uma sessão MongoDB e usa transação para que todas as reduções aconteçam juntas ou nenhuma aconteça. Antes de reduzir, confirma que a encomenda existe, que ainda não atualizou stock e que `payment.status` é `paid`. O agrupamento por produto evita erro quando a mesma encomenda contém o mesmo produto em mais do que uma linha. O preflight confirma stock para todos os produtos; depois cada `updateOne` mantém a condição `stock: { $gte: quantidade }` para proteger contra concorrência.
+5. Explicação do código: a função abre uma sessão MongoDB e usa transação para que todas as reduções aconteçam juntas ou nenhuma aconteça. Antes de reduzir, confirma que a encomenda existe, que ainda não atualizou stock e que `payment.status` é `PAYMENT_STATUS.SIMULATED_PAID`. O agrupamento por produto evita erro quando a mesma encomenda contém o mesmo produto em mais do que uma linha. O preflight confirma stock para todos os produtos; depois cada `updateOne` mantém a condição `stock: { $gte: quantidade }` para proteger contra concorrência. No checkout final, esta lógica deve ser chamada dentro da própria transação de simulação; uma função administrativa separada serve apenas para recuperação idempotente e nunca substitui o commit atómico do pagamento simulado.
 6. Como validar este passo: encomenda com pagamento pendente devolve `409`; stock insuficiente devolve `409` sem reduzir produtos anteriores; chamar duas vezes com a mesma encomenda reduz stock só uma vez.
 7. Erros comuns ou cenário negativo: reduzir stock fora de transação pode deixar inventário parcialmente reduzido; reduzir antes de pagamento confirmado bloqueia produto sem venda real.
 
@@ -351,14 +353,14 @@ export async function applyOrderStockUpdate(orderId) {
 
 1. Explicação simples do objetivo: validar entrada HTTP e expor alertas e ajuste manual.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/stock.validator.js`
-    - CRIAR: `server/src/controllers/stock.controller.js`
+    - CRIAR: `apps/api/src/validators/stock.validator.js`
+    - CRIAR: `apps/api/src/controllers/stock.controller.js`
     - LOCALIZAÇÃO: ficheiros completos.
 3. O que fazer: criar validators e handlers.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/validators/stock.validator.js
+// apps/api/src/validators/stock.validator.js
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
 
@@ -396,7 +398,7 @@ export function validateStockPayload(body) {
 ```
 
 ```js
-// server/src/controllers/stock.controller.js
+// apps/api/src/controllers/stock.controller.js
 import { listLowStockProducts, setProductStock } from "../services/stock.service.js";
 import { validateProductStockParams, validateStockPayload } from "../validators/stock.validator.js";
 
@@ -443,14 +445,14 @@ export async function updateProductStockController(req, res, next) {
 
 1. Explicação simples do objetivo: proteger gestão de stock.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/routes/stock.routes.js`
-    - EDITAR: `server/src/app.js`
+    - CRIAR: `apps/api/src/routes/stock.routes.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: ficheiro completo e registo na app.
 3. O que fazer: criar e montar routes.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/routes/stock.routes.js
+// apps/api/src/routes/stock.routes.js
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import { requireRole } from "../middlewares/role.middleware.js";
@@ -482,14 +484,14 @@ app.use("/api", stockRoutes);
 
 1. Explicação simples do objetivo: dar interface ao admin.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/StockAdminPage.jsx`
-    - EDITAR: `client/src/App.jsx`
+    - CRIAR: `apps/web/src/pages/StockAdminPage.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: ficheiro completo e rota no App.
 3. O que fazer: listar alertas e atualizar stock.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/pages/StockAdminPage.jsx
+// apps/web/src/pages/StockAdminPage.jsx
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -547,8 +549,8 @@ export function StockAdminPage() {
     if (status === "error") return <p role="alert">{error}</p>;
 
     return (
-        <main>
-            <h1>Gestão de stock</h1>
+        <section aria-labelledby="stock-admin-title">
+            <h1 id="stock-admin-title">Gestão de stock</h1>
             {error ? <p role="alert">{error}</p> : null}
             {products.length === 0 ? (
                 <p>Não existem alertas de baixo stock.</p>
@@ -569,7 +571,7 @@ export function StockAdminPage() {
                     </article>
                 ))
             )}
-        </main>
+        </section>
     );
 }
 ```
@@ -582,8 +584,8 @@ export function StockAdminPage() {
 
 1. Explicação simples do objetivo: provar que stock é robusto.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/services/stock.service.js`
-    - REVER: `server/src/routes/stock.routes.js`
+    - REVER: `apps/api/src/services/stock.service.js`
+    - REVER: `apps/api/src/routes/stock.routes.js`
     - LOCALIZAÇÃO: testes ou outputs.
 3. O que fazer: testar permissões, `productId` inválido, stock negativo, pagamento pendente, stock insuficiente e duplicação.
 4. Código completo, correto e integrado.
@@ -607,7 +609,7 @@ curl -i -X PATCH http://localhost:3000/api/admin/products/invalid/stock \
 - Cliente recebe `403`.
 - `productId` mal formado devolve `400`.
 - Stock negativo devolve `400`.
-- Encomenda sem pagamento `paid` devolve `409` e não reduz stock.
+- Encomenda sem `payment.status="simulated_paid"` devolve `409` e não reduz stock.
 - Stock insuficiente ao aplicar encomenda devolve `409`.
 - Segunda execução da mesma encomenda não reduz stock novamente.
 
@@ -615,7 +617,8 @@ curl -i -X PATCH http://localhost:3000/api/admin/products/invalid/stock \
 - Baixo stock usa limite `<5`.
 - Só admin altera stock manualmente.
 - Stock automático não duplica redução.
-- Stock automático só reduz encomendas com pagamento `paid`.
+- Stock automático só reduz encomendas com `PAYMENT_STATUS.SIMULATED_PAID`.
+- No fluxo normal, stock, voucher, `stockReserved`, encomenda e carrinho são confirmados numa única transação de pagamento simulado.
 - Falhas de stock usam transação para não deixar reduções parciais.
 - Cenários negativos concluídos: mínimo `3`.
 - Evidência de testes por camada conforme prioridade (`P0`).
@@ -636,4 +639,5 @@ curl -i -X PATCH http://localhost:3000/api/admin/products/invalid/stock \
 MF4 pode continuar com gestão de utilizadores e notificações sem alterar o contrato de stock criado aqui.
 
 ## Changelog
+- `2026-07-10`: stock alinhado ao pagamento exclusivamente simulado e à transação única de simulação, sem confirmação manual equivalente.
 - `2026-06-13`: guia reescrito para gestão de stock e atualização segura após compra.

@@ -1,4 +1,4 @@
-# BK-MF2-04 - O utilizador pode marcar recomendações como úteis ou não relevantes
+# BK-MF2-04 - Registar feedback sobre recomendações úteis ou não relevantes, sem treino automático
 
 ## Header
 - `doc_id`: `GUIA-BK-MF2-04`
@@ -16,12 +16,35 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF2-05`
 - `guia_path`: `docs/planificacao/guias-bk/MF2/BK-MF2-04-o-utilizador-pode-marcar-recomendacoes-como-uteis-ou-nao-relevantes-para-treinar-o-modelo.md`
-- `last_updated`: `2026-06-08`
+- `last_updated`: `2026-07-11`
+
+> **Contrato canónico ativo — 2026-07-11:** este BK atua sobre recomendações pertencentes a um `FaceReport` v2. O cliente marca `util` ou `nao_relevante` nos cards do relatório em `apps/web/src/features/consultation/ConsultationReportPage.jsx`; a escrita continua protegida por sessão e ownership no backend e nunca desencadeia treino automático. O endpoint de feedback pode conservar `recommendationId`, mas não cria, regenera nem lista recomendações fora da consulta.
+
+> **Substituição obrigatória:** qualquer bloco inferior que mande criar uma página independente `ProductRecommendationsPage`, gerar recomendações diretamente ou navegar para uma rota paralela de recomendações é material pedagógico anterior e **não deve ser executado**. A API devolve recomendações apenas como parte do relatório teaser/completo autorizado; a referência atual é o [plano canónico da consulta OpenAI](../../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
+
+### Handoff atual do BK
+
+- EDITAR: `apps/api/src/services/recommendation.service.js` apenas para validar/persistir feedback da recomendação já existente.
+- EDITAR: `apps/api/src/routes/recommendation.routes.js` apenas para a mutação autenticada de feedback, sem endpoint de geração.
+- EDITAR: `apps/web/src/features/consultation/ConsultationReportPage.jsx` para apresentar o estado e preservar o conteúdo carregado perante erro.
+- TESTAR: ownership, enum inválida, replay e garantia de que o feedback não altera `machineResult`, `humanOverride`, preços, stock ou catálogo.
+
+### Critérios de aceitação ativos
+
+- O feedback só é apresentado para recomendações recebidas no relatório autorizado.
+- A mutação aceita apenas `util` ou `nao_relevante`, filtra pelo utilizador autenticado e não recebe `userId` do browser.
+- Uma falha mantém o relatório e o estado anterior visíveis; duplo clique não gera efeitos divergentes.
+- Não existe CTA, rota ou pedido que gere recomendações fora de `generate_report`.
+
+<details class="historical-archive">
+<summary><strong>Anexo histórico da arquitetura anterior — não executar</strong></summary>
+
+> Todo o conteúdo restante deste ficheiro, incluindo imperativos, código, curls, checklists, validação final e handoff, é preservado apenas para rastreabilidade. Não constitui instrução pedagógica nem critério de aceitação atual.
 
 ## Contexto do BK
 - Entrega alvo: implementar `RF20`, permitindo feedback `util` ou `nao_relevante` sobre recomendações.
 - CANONICO: `RF20` depende de `RF18`.
-- DERIVADO: nesta fase, o feedback é registado como sinal persistido; não há treino automático externo.
+- DERIVADO: nesta fase, o feedback é registado como sinal persistido; não há treino automático de qualquer modelo.
 - Este BK usa `ProductRecommendation.feedback`, criado em `BK-MF2-02`.
 
 ## Objetivo
@@ -37,7 +60,7 @@ O feedback melhora a qualidade futura da recomendação, mas só é útil se for
 - Atualizar a página de recomendações com botões de feedback.
 
 ## Scope-out
-- Não treinar provider externo.
+- Não treinar automaticamente providers internos ou externos.
 - Não aceitar valores livres.
 - Não apagar recomendações.
 - Não permitir feedback anónimo.
@@ -64,7 +87,7 @@ Feedback é uma escrita sobre uma entidade existente. Por isso precisa de duas v
 
 O frontend deve apresentar botões claros, mas a proteção real fica no backend. Mesmo que alguém altere o ID no browser, o service procura por `_id` e `userId` ao mesmo tempo. Se não encontrar, devolve `404`, evitando revelar se a recomendação existe para outra pessoa.
 
-Este feedback pode alimentar métricas futuras, como taxa de recomendações úteis, mas não deve ser apresentado como treino real de IA nesta fase.
+Este feedback pode alimentar métricas e avaliação futura, como taxa de recomendações úteis, mas não deve ser apresentado como treino real de IA nesta fase.
 
 ## Arquitetura do BK
 - `recommendation-feedback.validator.js`: valida params e body.
@@ -74,12 +97,12 @@ Este feedback pode alimentar métricas futuras, como taxa de recomendações út
 - `ProductRecommendationsPage.jsx`: adiciona botões por card.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/validators/recommendation-feedback.validator.js`
-- EDITAR: `server/src/services/recommendation.service.js`
-- EDITAR: `server/src/controllers/recommendation.controller.js`
-- EDITAR: `server/src/routes/recommendation.routes.js`
-- EDITAR: `client/src/pages/ProductRecommendationsPage.jsx`
-- REVER: `server/src/models/product-recommendation.model.js`
+- CRIAR: `apps/api/src/validators/recommendation-feedback.validator.js`
+- EDITAR: `apps/api/src/services/recommendation.service.js`
+- EDITAR: `apps/api/src/controllers/recommendation.controller.js`
+- EDITAR: `apps/api/src/routes/recommendation.routes.js`
+- EDITAR: `apps/web/src/pages/ProductRecommendationsPage.jsx`
+- REVER: `apps/api/src/models/product-recommendation.model.js`
 
 ## Bloco pedagogico
 ### Objetivo
@@ -159,13 +182,13 @@ Sem código novo neste passo.
 
 1. Explicação simples do objetivo: aceitar apenas IDs válidos e valores permitidos.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/recommendation-feedback.validator.js`
+    - CRIAR: `apps/api/src/validators/recommendation-feedback.validator.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: validar params e body antes de chamar o service.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/validators/recommendation-feedback.validator.js
+// apps/api/src/validators/recommendation-feedback.validator.js
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
 
@@ -200,13 +223,13 @@ export function validateRecommendationFeedbackInput(body) {
 
 1. Explicação simples do objetivo: gravar feedback apenas na recomendação do próprio utilizador.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/services/recommendation.service.js`
+    - EDITAR: `apps/api/src/services/recommendation.service.js`
     - LOCALIZAÇÃO: adicionar função `submitRecommendationFeedback`.
 3. O que fazer: procurar recomendação por `_id` e `userId`, atualizar feedback e status.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/services/recommendation.service.js
+// apps/api/src/services/recommendation.service.js
 export async function submitRecommendationFeedback(userId, recommendationId, input) {
     const recommendation = await ProductRecommendation.findOne({
         _id: recommendationId,
@@ -239,14 +262,14 @@ export async function submitRecommendationFeedback(userId, recommendationId, inp
 
 1. Explicação simples do objetivo: ligar validator e service ao endpoint.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/controllers/recommendation.controller.js`
-    - EDITAR: `server/src/routes/recommendation.routes.js`
+    - EDITAR: `apps/api/src/controllers/recommendation.controller.js`
+    - EDITAR: `apps/api/src/routes/recommendation.routes.js`
     - LOCALIZAÇÃO: imports e handler de feedback.
 3. O que fazer: adicionar controller e route protegida.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/controllers/recommendation.controller.js
+// apps/api/src/controllers/recommendation.controller.js
 import { submitRecommendationFeedback } from "../services/recommendation.service.js";
 import {
     validateRecommendationFeedbackInput,
@@ -271,7 +294,7 @@ export async function submitRecommendationFeedbackController(req, res, next) {
 ```
 
 ```js
-// server/src/routes/recommendation.routes.js
+// apps/api/src/routes/recommendation.routes.js
 import { submitRecommendationFeedbackController } from "../controllers/recommendation.controller.js";
 
 recommendationRoutes.post(
@@ -289,13 +312,13 @@ recommendationRoutes.post(
 
 1. Explicação simples do objetivo: permitir feedback diretamente no card.
 2. Ficheiros envolvidos.
-    - EDITAR: `client/src/pages/ProductRecommendationsPage.jsx`
+    - EDITAR: `apps/web/src/pages/ProductRecommendationsPage.jsx`
     - LOCALIZAÇÃO: componente de página e card de recomendação.
 3. O que fazer: criar função de envio e botões `Útil` / `Não relevante`.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/pages/ProductRecommendationsPage.jsx
+// apps/web/src/pages/ProductRecommendationsPage.jsx
 async function submitFeedback(recommendationId, value) {
     setStatus("loading");
     setError("");
@@ -340,8 +363,8 @@ async function submitFeedback(recommendationId, value) {
 
 1. Explicação simples do objetivo: provar que feedback inválido ou alheio falha.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/validators/recommendation-feedback.validator.js`
-    - REVER: `server/src/services/recommendation.service.js`
+    - REVER: `apps/api/src/validators/recommendation-feedback.validator.js`
+    - REVER: `apps/api/src/services/recommendation.service.js`
     - LOCALIZAÇÃO: validator e filtro `{ _id, userId }`.
 3. O que fazer: executar pedidos com valor inválido e recomendação de outro utilizador.
 4. Código completo, correto e integrado.
@@ -389,3 +412,5 @@ Consultar os snippets completos nos passos lineares deste guia; nao ha snippet a
 
 ## Changelog
 - `2026-06-08`: guia reescrito com validator, service, controller, route, UI e negativos de feedback.
+
+</details>

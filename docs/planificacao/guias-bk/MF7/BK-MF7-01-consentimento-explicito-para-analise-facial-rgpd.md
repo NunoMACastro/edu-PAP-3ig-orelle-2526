@@ -1,4 +1,4 @@
-# BK-MF7-01 - Consentimento explícito para análise facial (RGPD)
+# BK-MF7-01 - Consentimento v2 e propósitos separados para consulta OpenAI
 
 ## Header
 - `doc_id`: `GUIA-BK-MF7-01`
@@ -20,617 +20,360 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF7-02`
 - `guia_path`: `docs/planificacao/guias-bk/MF7/BK-MF7-01-consentimento-explicito-para-analise-facial-rgpd.md`
-- `last_updated`: `2026-06-26`
+- `last_updated`: `2026-07-11`
 
 #### Objetivo
 
-Neste BK vais reforçar o consentimento explícito antes de qualquer análise facial. O fluxo deve guardar uma prova mínima de aceitação, associada ao utilizador autenticado, e bloquear upload, análise, simulação ou leitura de fotografias faciais se não existir consentimento ativo.
+Implementar consentimento explícito e versionado antes de enviar à OpenAI fotografias, respostas/factos, perfil mínimo e catálogo filtrado. O consentimento geral da consulta é obrigatório; edição generativa e acesso do consultor às fotografias têm decisões próprias e só são pedidos quando necessários.
 
-`CANONICO`: `RNF12` exige consentimento explícito para análise facial. `RF13`, `RF14`, `RF15`, `RF23`, `RF24`, `RNF11` e `RNF25` dependem deste contrato para tratar fotografias e relatórios como dados sensíveis.
+Revogar bloqueia novas operações e cancela jobs ainda não concluídos, mas não apaga automaticamente resultados do titular. Consentimentos antigos nunca são promovidos para v2.
 
 #### Importância
 
-Fotografias do rosto e relatórios de análise cosmética são dados sensíveis. O consentimento não pode ser apenas uma checkbox visual: tem de ser validado no backend, guardado com versão e finalidade, e usado como condição antes de processar imagens. Isto protege o utilizador, evita uso indevido de dados biométricos e cria uma evidência técnica defensável na PAP.
+Uma checkbox no browser não chega: pedidos HTTP podem contornar a UI. O backend autenticado valida notice, propósitos, ownership e estado imediatamente antes de cada operação sensível. Esta separação permite explicar ao cliente exatamente que dados saem da aplicação e porquê.
 
 #### Scope-in
 
-- Criar ou rever o modelo `FaceConsent`.
-- Validar que o body enviado pela UI tem aceitação explícita.
-- Criar o endpoint `POST /api/face-consent`.
-- Garantir que upload e análise facial dependem de consentimento ativo.
-- Atualizar a página de upload facial para enviar consentimento antes das fotografias.
-- Criar validações negativas para ausência de consentimento, body inválido e tentativa de upload sem consentimento.
+- Consentimento v2 obrigatório para consulta/análise OpenAI.
+- Texto explícito sobre fotografias, respostas/factos, perfil mínimo e catálogo filtrado.
+- Propósito de edição generativa pedido apenas ao criar preview.
+- Grant fotográfico de consultor por relatório, revogável e com máximo de sete dias.
+- `GET|POST|DELETE /api/face-consent` autenticados e `no-store`.
+- Bloqueio/cancelamento de novas operações após revogação.
+- UI de objetivos/consentimento/fotos sem IDs técnicos.
 
 #### Scope-out
 
-- Não criar fluxo de eliminação de conta; isso fica no `BK-MF7-02`.
-- Não alterar encriptação em repouso de fotografias e relatórios; isso vem do `BK-MF6-07`.
-- Não enviar fotografias para providers externos.
-- Não criar consentimento para campanhas, marketing ou aprendizagem de terceiros.
+- Não eliminar dados ao revogar; usar os pedidos de privacidade próprios.
+- Não autorizar treino, marketing ou finalidade genérica.
+- Não tornar a revisão textual dependente do acesso fotográfico.
+- Não guardar fotografia, resposta ou prompt no documento de consentimento.
 
 #### Estado antes e depois
 
-- Antes: os fluxos de fotografia e análise já existem, mas o aluno precisa de confirmar que o consentimento é explícito, persistido, versionado e aplicado em todos os pontos sensíveis.
-- Depois: a app só aceita fotografias e só executa análise facial se existir consentimento ativo para `analise_facial_cosmetica`.
+- Antes: pode existir consentimento facial antigo sem aviso OpenAI v2.
+- Depois: cada operação sensível prova propósito, notice atual e titular; decisões antigas ficam arquivadas e exigem nova aceitação.
 
 #### Pre-requisitos
 
-- `BK-MF0-02`: sessão autenticada por cookie HttpOnly.
-- `BK-MF1-05`: upload de fotografia frontal e de perfil.
-- `BK-MF1-06`: análise facial com provider isolado e limites cosméticos.
-- `BK-MF6-07`: fotografias e relatórios protegidos em repouso.
-- Documentos: `docs/RNF.md`, `docs/RF.md`, `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
+- Sessão opaca/CSRF e `requireAuth`.
+- Upload frontal + perfil com armazenamento cifrado.
+- `RNF12`, `RNF25`, `RF13`, `RF14`, `RF23` e `RF45`.
 
 #### Glossário
 
-- Consentimento explícito: ação afirmativa do utilizador antes de tratar fotografias faciais.
-- Finalidade: motivo concreto do tratamento, neste BK `analise_facial_cosmetica`.
-- Versão de consentimento: identificador textual que permite provar que texto/contrato estava ativo quando o utilizador aceitou.
-- Revogação: marca temporal que invalida consentimento antigo sem apagar a evidência histórica mínima.
-- Ownership: regra em que o backend usa `req.user.id`, nunca um `userId` enviado pelo frontend.
+- Notice version: versão do texto apresentado ao titular.
+- Propósito: uso específico autorizado.
+- Revogação: decisão que impede trabalho futuro, sem equivaler a apagamento.
+- Grant: autorização limitada a um relatório e a uma janela temporal.
+- Ownership: titular derivado da sessão, nunca do body.
 
 #### Conceitos teóricos essenciais
 
-O consentimento nasce na UI, mas só se torna válido quando o backend autenticado o valida e grava. A checkbox evita erro de utilização; o backend evita abuso.
-
-O modelo guarda apenas metadados: `userId`, `acceptedAt`, `version`, `purpose` e `revokedAt`. Não guarda fotografias nem relatórios. Assim, a app consegue provar que havia consentimento sem duplicar dados sensíveis.
-
-O upload facial e a análise usam sessão autenticada, fotografias frontal/perfil e consentimento ativo. O frontend não decide ownership, porque qualquer pessoa poderia manipular um body JSON. O dono é sempre o utilizador do cookie validado por `requireAuth`.
+Consentimento e autorização são verificações diferentes. O cliente pode ter consentido o processamento e ainda assim não ser dono do relatório pedido. Ambas têm de passar. A decisão é revalidada no momento do provider porque pode ser revogada enquanto um job aguarda na fila.
 
 #### Arquitetura do BK
 
-- Model: `FaceConsent`.
-- Validator: `validateFaceConsentInput`.
-- Service: `acceptFaceConsent`.
-- Controller: `acceptFaceConsentController`.
-- Routes: `POST /api/face-consent` e `POST /api/face-photos`.
-- Frontend: `FacePhotoUploadPage`.
-- Testes: contrato de aceitar consentimento e negar upload/análise sem consentimento.
-- Handoff: `BK-MF7-02` reutiliza esta separação para tratar eliminação/anonimização sem perder rastreabilidade.
+- Modelo: `apps/api/src/models/face-consent.model.js`.
+- Constantes: `apps/api/src/constants/face-consent.js`.
+- Service/middleware: consentimento, jobs e upload facial.
+- API: `GET|POST|DELETE /api/face-consent`.
+- Preview: `POST /api/face-reports/:reportId/makeup-simulations`.
+- Grant opcional: `POST /api/face-reports/:reportId/review-request` com `grantPhotoAccess` e `photoAccessNoticeVersion`; revogação isolada por `DELETE /api/face-reports/:reportId/review-photo-access`.
+- Frontend: `apps/web/src/features/consultation/NewConsultationPage.jsx`.
 
 #### Ficheiros a criar/editar/rever
 
+- EDITAR: `apps/api/src/constants/face-consent.js`
 - EDITAR: `apps/api/src/models/face-consent.model.js`
-- EDITAR: `apps/api/src/validators/face-photo.validator.js`
 - EDITAR: `apps/api/src/services/face-photo.service.js`
-- EDITAR: `apps/api/src/controllers/face-photo.controller.js`
+- EDITAR: `apps/api/src/middlewares/face-photo-upload.middleware.js`
 - EDITAR: `apps/api/src/routes/face-photo.routes.js`
-- EDITAR: `apps/web/src/pages/FacePhotoUploadPage.jsx`
-- REVER: `apps/api/src/middlewares/face-photo-upload.middleware.js`
-- REVER: `apps/api/src/services/face-analysis.service.js`
+- EDITAR: `apps/api/src/services/ai-job.service.js`
+- EDITAR: `apps/web/src/features/consultation/NewConsultationPage.jsx`
+- CRIAR/EDITAR: `apps/api/tests/face-consent.lifecycle.test.js`
 
 #### Tutorial técnico linear
 
-### Passo 1 - Confirmar contrato de consentimento
+### Passo 1 - Definir propósitos e versões
 
-1. Objetivo funcional do passo no contexto da app.
-
-Confirmar que este BK trata `RNF12` e não substitui upload, encriptação ou eliminação.
-
-2. Ficheiros envolvidos:
-    - REVER: `docs/RNF.md`
-    - REVER: `docs/RF.md`
-    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
-    - LOCALIZAÇÃO: linhas de `RNF12`, `RF13`, `RF14`, `RF15`, `BK-MF7-01`.
-
-3. Instruções do que fazer.
-
-Confirma que `RNF12` exige consentimento explícito e que `RF13`/`RF14` só fazem sentido depois dessa autorização. Regista no teu PR que o backend continua a decidir ownership.
-
-4. Código completo, correto e integrado com a app final.
-
-Sem código neste passo. É uma revisão de contrato para evitar que a implementação confunda consentimento com upload.
-
-5. Explicação do código.
-
-Sem código, porque ainda estás a confirmar fronteiras. A decisão técnica importante é que consentimento fica separado da fotografia: primeiro aceitas a finalidade, depois envias as imagens.
-
-6. Validação do passo.
-
-Executa `rg -n "RNF12|RF13|RF14|RF15|BK-MF7-01" docs/RNF.md docs/RF.md docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md` e confirma que os requisitos existem.
-
-7. Cenário negativo/erro esperado.
-
-Se tratares a checkbox como única validação, o fluxo fica inseguro. A API deve recusar pedidos sem consentimento mesmo que o frontend esteja alterado.
-
-### Passo 2 - Criar o modelo de consentimento facial
-
-1. Objetivo funcional do passo no contexto da app.
-
-Guardar metadados mínimos de consentimento por utilizador autenticado.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `apps/api/src/models/face-consent.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-
-3. Instruções do que fazer.
-
-Cria ou substitui o ficheiro pelo modelo abaixo.
-
-4. Código completo, correto e integrado com a app final.
+1. Objetivo: criar nomes fechados controlados pelo servidor.
+2. Ficheiro: `apps/api/src/constants/face-consent.js`.
+3. Código:
 
 ```js
-// apps/api/src/models/face-consent.model.js
-/**
- * Modelo de consentimento facial da Orélle.
- *
- * Guarda apenas a prova mínima de aceitação para análise facial cosmética.
- * Fotografias e relatórios continuam nos seus próprios modelos protegidos.
- */
-import mongoose from "mongoose";
-
-const { Schema, model } = mongoose;
-
-const faceConsentSchema = new Schema(
-    {
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-            unique: true,
-            index: true,
-        },
-        acceptedAt: {
-            type: Date,
-            required: true,
-        },
-        version: {
-            type: String,
-            required: true,
-            default: "face-analysis-v1",
-        },
-        purpose: {
-            type: String,
-            required: true,
-            default: "analise_facial_cosmetica",
-        },
-        revokedAt: {
-            type: Date,
-            default: null,
-        },
-    },
-    { timestamps: true },
-);
-
-/**
- * Modelo Mongoose de consentimentos faciais.
- *
- * @type {import("mongoose").Model}
- */
-export const FaceConsent = model("FaceConsent", faceConsentSchema);
-```
-
-5. Explicação do código.
-
-O campo `userId` liga consentimento ao utilizador autenticado. `acceptedAt` prova quando o consentimento foi aceite. `version` permite evoluir o texto da autorização sem perder rastreabilidade. `purpose` limita a finalidade a análise facial cosmética. `revokedAt` prepara revogação sem apagar a prova mínima. O índice único evita vários consentimentos ativos contraditórios para o mesmo utilizador.
-
-6. Validação do passo.
-
-Confirma que o ficheiro exporta `FaceConsent` e que não contém campos para imagem, path interno, token ou relatório completo.
-
-7. Cenário negativo/erro esperado.
-
-Se removeres `unique: true`, o utilizador pode ficar com versões duplicadas e o backend pode escolher uma prova errada.
-
-### Passo 3 - Validar aceitação explícita no backend
-
-1. Objetivo funcional do passo no contexto da app.
-
-Recusar qualquer consentimento que não venha como ação afirmativa.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `apps/api/src/validators/face-photo.validator.js`
-    - LOCALIZAÇÃO: função `validateFaceConsentInput`.
-
-3. Instruções do que fazer.
-
-Mantém a função abaixo no ficheiro de validadores de fotografia facial.
-
-4. Código completo, correto e integrado com a app final.
-
-```js
-/**
- * Valida consentimento facial explícito.
- *
- * @function validateFaceConsentInput
- * @param {Record<string, unknown>} body - Corpo JSON do pedido.
- * @returns {{version: string}} Consentimento normalizado.
- * @throws {AppError} Quando o consentimento não foi aceite.
- */
-export function validateFaceConsentInput(body) {
-    if (body.accepted !== true) {
-        // A API exige ação afirmativa; texto visível no frontend não chega para cumprir RNF12.
-        throw new AppError(400, "Consentimento facial obrigatório");
-    }
-
-    return {
-        version: String(body.version ?? "face-analysis-v1"),
-    };
-}
-```
-
-5. Explicação do código.
-
-A validação aceita apenas `accepted: true`. Strings como `"true"`, valores omitidos ou objetos manipulados são rejeitados. A função devolve só a versão, porque o dono do consentimento vem de `req.user.id` no controller. Isto evita que o frontend escolha outro utilizador.
-
-6. Validação do passo.
-
-Testa com body `{ "accepted": true }` e com `{ "accepted": false }`. O primeiro deve avançar; o segundo deve devolver erro `400`.
-
-7. Cenário negativo/erro esperado.
-
-Um pedido sem `accepted` deve falhar com mensagem controlada e sem stack trace.
-
-### Passo 4 - Guardar ou renovar consentimento no service
-
-1. Objetivo funcional do passo no contexto da app.
-
-Persistir consentimento ativo e devolver só metadados seguros.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `apps/api/src/services/face-photo.service.js`
-    - LOCALIZAÇÃO: função `acceptFaceConsent`.
-
-3. Instruções do que fazer.
-
-Garante que o service usa `findOneAndUpdate` com `upsert` para renovar o consentimento do mesmo utilizador.
-
-4. Código completo, correto e integrado com a app final.
-
-```js
-/**
- * Aceita ou renova consentimento facial do utilizador.
- *
- * @async
- * @function acceptFaceConsent
- * @param {string} userId - Utilizador autenticado.
- * @param {{version: string}} input - Consentimento validado.
- * @returns {Promise<object>} Consentimento seguro.
- */
-export async function acceptFaceConsent(userId, input) {
-    // O filtro por userId vem da sessao e impede consentimento criado para outra conta.
-    const consent = await FaceConsent.findOneAndUpdate(
-        { userId },
-        {
-            $set: {
-                version: input.version,
-                purpose: "analise_facial_cosmetica",
-                acceptedAt: new Date(),
-                revokedAt: null,
-            },
-        },
-        { upsert: true, new: true, runValidators: true },
-    );
-
-    return {
-        id: consent._id.toString(),
-        version: consent.version,
-        acceptedAt: consent.acceptedAt,
-        purpose: consent.purpose,
-    };
-}
-```
-
-5. Explicação do código.
-
-O service procura por `userId`, que veio da sessão, e não pelo body. Se o utilizador aceitar novamente, atualiza `acceptedAt`, `version` e limpa `revokedAt`. A resposta não devolve dados internos, cookies, fotografia ou campos de auditoria desnecessários.
-
-6. Validação do passo.
-
-Confirma que dois pedidos seguidos do mesmo utilizador mantêm um único documento `FaceConsent` atualizado.
-
-7. Cenário negativo/erro esperado.
-
-Se o service aceitar `userId` vindo do frontend, um utilizador poderia tentar criar consentimento para outra conta.
-
-### Passo 5 - Expor endpoint autenticado de consentimento
-
-1. Objetivo funcional do passo no contexto da app.
-
-Ligar HTTP, validação e service num endpoint protegido.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `apps/api/src/controllers/face-photo.controller.js`
-    - EDITAR: `apps/api/src/routes/face-photo.routes.js`
-    - LOCALIZAÇÃO: controller `acceptFaceConsentController` e rota `/face-consent`.
-
-3. Instruções do que fazer.
-
-Mantém o controller e a rota abaixo. A rota tem de executar `requireAuth` antes do controller.
-
-4. Código completo, correto e integrado com a app final.
-
-```js
-/**
- * Aceita consentimento facial do utilizador autenticado.
- *
- * @async
- * @function acceptFaceConsentController
- * @param {import("express").Request & {user: {id: string}}} req - Pedido autenticado.
- * @param {import("express").Response} res - Resposta Express.
- * @param {import("express").NextFunction} next - Próximo middleware.
- * @returns {Promise<import("express").Response|void>} Resposta com consentimento.
- */
-export async function acceptFaceConsentController(req, res, next) {
-    try {
-        // A identidade usada pelo service vem de requireAuth, nao do body enviado pela UI.
-        const input = validateFaceConsentInput(req.body);
-        const consent = await acceptFaceConsent(req.user.id, input);
-
-        return res.status(200).json({ consent });
-    } catch (err) {
-        return next(err);
-    }
-}
-
-facePhotoRoutes.post(
-    "/face-consent",
-    requireAuth,
-    acceptFaceConsentController,
-);
-```
-
-5. Explicação do código.
-
-O controller valida o body e chama o service com `req.user.id`. A rota protegida garante que não existe consentimento anónimo. O status `200` é adequado porque aceitar novamente consentimento renova o documento existente.
-
-6. Validação do passo.
-
-Com sessão válida, `POST /api/face-consent` deve devolver `{ consent }`. Sem sessão, deve devolver `401`.
-
-7. Cenário negativo/erro esperado.
-
-Um pedido não autenticado não pode criar consentimento.
-
-### Passo 6 - Enviar consentimento antes das fotografias no frontend
-
-1. Objetivo funcional do passo no contexto da app.
-
-Garantir que a UI obriga o utilizador a aceitar a finalidade antes de enviar fotografias.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `apps/web/src/pages/FacePhotoUploadPage.jsx`
-    - LOCALIZAÇÃO: função `handleSubmit`.
-
-3. Instruções do que fazer.
-
-No submit, valida checkbox e ficheiros, chama `/face-consent` e só depois envia `FormData` para `/face-photos`.
-
-4. Código completo, correto e integrado com a app final.
-
-```jsx
-/**
- * Aceita consentimento e envia fotografias para a API.
- *
- * @async
- * @function handleSubmit
- * @param {import("react").FormEvent<HTMLFormElement>} event - Evento do formulário.
- * @returns {Promise<void>}
- */
-async function handleSubmit(event) {
-    event.preventDefault();
-    if (!accepted || !frontal || !perfil) {
-        setStatus("error");
-        setMessage("Aceita o consentimento e escolhe as duas fotografias.");
-        return;
-    }
-
-    setStatus("loading");
-    setMessage("");
-
-    try {
-        await apiRequest("/face-consent", {
-            method: "POST",
-            body: JSON.stringify({
-                accepted,
-                version: "face-analysis-v1",
-            }),
-        });
-
-        const formData = new FormData();
-        formData.append("frontal", frontal);
-        formData.append("perfil", perfil);
-
-        // FormData segue sem Content-Type manual para o browser definir boundary seguro.
-        const data = await apiRequest("/face-photos", {
-            method: "POST",
-            body: formData,
-        });
-
-        setStatus("success");
-        setMessage(`${data.photos.length} fotografias guardadas com segurança.`);
-    } catch (err) {
-        // A mensagem visível é controlada e não revela paths, cookies ou detalhes internos.
-        setStatus("error");
-        setMessage(err.message);
-    }
-}
-```
-
-5. Explicação do código.
-
-O frontend melhora a experiência, mas não substitui o backend. Primeiro chama `/face-consent` com JSON; depois envia as fotografias por `FormData`. `apiRequest` envia cookies com `credentials: "include"`, por isso a API sabe quem é o utilizador. A mensagem de erro fica segura e não expõe detalhes internos.
-
-6. Validação do passo.
-
-Na UI, tenta submeter sem checkbox. Deve aparecer erro local. Com checkbox e duas fotografias válidas, devem ocorrer dois pedidos: consentimento e upload.
-
-7. Cenário negativo/erro esperado.
-
-Se manipulares a UI e tentares enviar `/face-photos` diretamente, o middleware deve responder `403` se não houver consentimento ativo.
-
-### Passo 7 - Criar prova negativa de consentimento
-
-1. Objetivo funcional do passo no contexto da app.
-
-Provar que o backend bloqueia fluxos sensíveis sem consentimento.
-
-2. Ficheiros envolvidos:
-    - CRIAR: `apps/api/tests/mf7.consent.test.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-
-3. Instruções do que fazer.
-
-Cria testes focados no validator e no service. Mantém as fotografias fora dos asserts.
-
-4. Código completo, correto e integrado com a app final.
-
-```js
-// apps/api/tests/mf7.consent.test.js
-import { describe, expect, it } from "vitest";
-import { validateFaceConsentInput } from "../src/validators/face-photo.validator.js";
-
-describe("BK-MF7-01 consentimento facial", () => {
-    it("aceita apenas consentimento afirmativo", () => {
-        expect(validateFaceConsentInput({ accepted: true })).toEqual({
-            version: "face-analysis-v1",
-        });
-    });
-
-    it("recusa ausência de consentimento explícito", () => {
-        // Este negativo prova que a API não depende apenas da checkbox visual.
-        expect(() => validateFaceConsentInput({ accepted: false })).toThrow(
-            "Consentimento facial obrigatório",
-        );
-    });
+/** Finalidade fechada usada por fotos, consulta e relatórios cosméticos. */
+export const FACE_ANALYSIS_CONSENT_PURPOSE = "analise_facial_cosmetica";
+export const FACE_IMAGE_PROVIDER_RETENTION =
+    "processamento_imediato_sem_aprendizagem_terceiros";
+export const FACE_IMAGE_PURPOSE_POLICY = Object.freeze({
+    purpose: FACE_ANALYSIS_CONSENT_PURPOSE,
+    retention: FACE_IMAGE_PROVIDER_RETENTION,
+    modelLearningAllowed: false,
 });
 ```
 
-5. Explicação do código.
+Explicação do código: o browser não escolhe a finalidade nem a retenção. A versão `face-analysis-v2` é validada no boundary HTTP; a versão atual do aviso OpenAI vem de `GET /api/face-consent`/capabilities e tem de regressar no POST. Os notices `CONSULTANT_PHOTO_ACCESS_NOTICE_VERSION` e `GENERATIVE_MAKEUP_NOTICE_VERSION` pertencem a `purpose-grants.js` e só são usados quando essas ações são pedidas.
 
-O teste valida a regra essencial sem precisar de fotografia real. O primeiro caso confirma o caminho positivo. O segundo confirma que ausência de aceitação falha no backend, que é a camada de segurança correta.
+Validação: constantes partilhadas por model, validators e services.
 
-6. Validação do passo.
+Cenário negativo: versão antiga não satisfaz o aviso atual.
 
-Executa `npm --prefix apps/api test -- mf7.consent.test.js` se o runner aceitar filtro de ficheiro. Se não aceitar, executa `npm --prefix apps/api test`.
+### Passo 2 - Persistir prova mínima
 
-7. Cenário negativo/erro esperado.
+1. Objetivo: guardar decisão sem duplicar dados sensíveis.
+2. Ficheiro: model de consentimento.
+3. Campos: `userId`, `version`, `purpose`, `acceptedAt`, `revokedAt`, `externalProviderConsent` e propósitos booleanos. O provider aceite é sempre `openai` e o notice fica no subdocumento específico.
 
-Se o validator aceitar `{ accepted: "true" }`, o teste deve ser expandido para falhar esse caso.
-
-#### Expected results
-
-- `POST /api/face-consent` com sessão e `accepted: true` devolve `200`.
-- `POST /api/face-consent` sem sessão devolve `401`.
-- `POST /api/face-consent` com `accepted: false` devolve `400`.
-- `POST /api/face-photos` sem consentimento ativo devolve `403`.
-- A resposta pública nunca devolve fotografia, path interno, cookie, token ou relatório completo.
-
-#### Critérios de aceite
-
-- `FaceConsent` guarda só metadados mínimos.
-- O endpoint de consentimento usa `requireAuth`.
-- O backend decide ownership por sessão autenticada.
-- A UI envia consentimento antes das fotografias.
-- Existem pelo menos três negativos: sem sessão, sem consentimento e upload direto.
-- `BK-MF7-02` consegue reutilizar esta base para eliminação/anonimização.
-
-#### Validação final
-
-- `rg -n "face-consent|FaceConsent|Consentimento facial obrigatório" apps/api/src apps/web/src`
-- `npm --prefix apps/api test`
-- `npm --prefix apps/web run build`
-- Confirmar manualmente que não há resposta com fotografia, path interno, cookie ou token.
-
-#### Evidence para PR/defesa
-
-- Screenshot ou log do pedido `POST /api/face-consent` com `200`.
-- Log do negativo `accepted: false` com `400`.
-- Log do upload direto sem consentimento com `403`.
-- Nota técnica: consentimento é guardado separado de fotografias e relatórios.
-
-#### Handoff
-
-O `BK-MF7-02` deve tratar eliminação/anonimização mantendo `FaceConsent`, `FacePhoto`, `FaceReport` e os estados `deleted`/`anonymized` coerentes. O consentimento ativo deste BK não elimina o direito posterior de revogação ou apagamento.
-
-#### Changelog
-
-- 2026-06-26: Guia reescrito para tutorial técnico linear, com contrato RNF12, endpoint real, validação backend/frontend e negativos de consentimento.
-
-## Suplemento de validacao documental
-Este suplemento fecha lacunas formais detetadas pelo validador de planificacao sem alterar o contrato funcional original do guia.
-
-## Bloco pedagogico
-### Objetivo
-O aluno deve completar `Consentimento explícito para análise facial (RGPD).` com rastreabilidade direta a `RNF12`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
-
-### Pre-requisitos
-- Rever `RNF12` nos documentos RF/RNF aplicáveis.
-- Confirmar dependencias declaradas: `-`.
-- Consultar `MATRIZ-CANONICA-BK.md`, `BACKLOG-MVP.md` e o guia atual antes de implementar.
-
-### Erros comuns
-- Fechar o BK sem negativos minimos por prioridade.
-- Alterar comportamento sem alinhar matriz, backlog, anexos e guia.
-- Registar evidence sem output, screenshot, request/response ou teste verificavel.
-
-### Check de compreensao
-- [ ] Sei explicar o objetivo do BK e o requisito associado.
-- [ ] Sei quais sao entradas, saidas, dependencias e criterio de sucesso.
-- [ ] Sei executar o smoke principal e os negativos obrigatorios.
-
-## Bloco operacional
-### Entrada
-- BK: `BK-MF7-01`
-- Requisito: `RNF12`
-- Dependencias: `-`
-- Sprint: `S11-S12`
-
-### Passos
-1. Confirmar no backlog e na matriz o contexto do `BK-MF7-01` e do requisito `RNF12`.
-2. Validar pre-condicoes e dependencias declaradas (`-`).
-3. Rever ficheiros reais ligados ao BK e identificar o fluxo principal.
-4. Consolidar contrato de entrada/saida com validacao, ownership e erros controlados.
-5. Executar smoke test do caminho principal e validar integracao com BKs adjacentes.
-6. Registar evidencia tecnica objetiva antes do handoff.
-7. Executar cenarios negativos obrigatorios (minimo 3) e registar o resultado.
-8. Reexecutar validacao afetada e guardar evidence final para defesa/PR.
-
-### Validacao
-- [ ] Smoke: fluxo principal executa sem erro bloqueante.
-- [ ] Negativos: minimo `3` cenarios com resultado controlado.
-- [ ] Tecnico: metadados alinhados entre guia, backlog, matriz e anexos.
-- [ ] Evidence: `pr`, `proof`, `neg` preenchidos com artefactos verificaveis.
-
-### Matriz minima de testes por prioridade
-- `P0`: unit + integration + e2e + 3 negativos.
-- `P1`: unit/integration + 2 negativos.
-- `P2`: teste focal + 1 negativo.
-
-### Handoff
-- Proximo BK recomendado: `BK-MF7-02`
-- Registar riscos, dependencias pendentes e validacoes executadas antes do fecho.
-
-## Criterios de aceite
-- Entrega funcional especifica de `Consentimento explícito para análise facial (RGPD).` validada contra `RNF12`.
-- Cenarios negativos concluidos: minimo `3` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P0`).
-- Metadados do guia alinhados com matriz, backlog e anexos.
-
-## Evidence para PR/defesa
-- `proof_tecnico`: output, log, screenshot ou request/response do fluxo principal.
-- `proof_negativos`: cenarios negativos executados e resultados observados.
-- `proof_handoff`: estado final, riscos e proximo BK.
-
-## Snippet tecnico aplicavel
 ```js
-const BK_ID = 'BK-MF7-01';
-const MIN_NEGATIVOS = 3;
+const purposesSchema = new Schema({
+    openAiAnalysis: { type: Boolean, required: true, default: true },
+    generativeEdit: { type: Boolean, default: false },
+    consultantPhotoAccess: { type: Boolean, default: false },
+}, { _id: false });
+```
 
-export function validarEvidenceDocumental(evidence) {
-  const negativos = Array.isArray(evidence?.negativos) ? evidence.negativos.length : 0;
+Explicação do código: edição e fotografia do consultor começam desativadas. O grant por relatório continua noutro modelo para ter scope/expiração próprios.
 
-  if (evidence?.bkId !== BK_ID) {
-    throw new Error('Evidence fora do contrato do BK');
-  }
+Validação: índice único por utilizador e timestamps.
 
-  if (negativos < 3) {
-    throw new Error('Cenarios negativos abaixo do minimo exigido');
-  }
+Cenário negativo: documento sem consentimento da consulta é inválido.
 
-  return { bkId: BK_ID, estado: 'validado' };
+### Passo 3 - Validar a aceitação no backend
+
+1. Objetivo: exigir decisão explícita e notice exato.
+2. Ficheiro: validator de consentimento.
+3. Código:
+
+```js
+const DEFAULT_FACE_CONSENT_VERSION = "face-analysis-v2";
+const FACE_CONSENT_VERSION_PATTERN = /^face-analysis-v[1-9]\d{0,5}$/;
+
+/** Normaliza apenas os campos públicos allowlisted. */
+export function validateFaceConsentInput(body) {
+    if (body?.accepted !== true) {
+        throw new AppError(400, "Consentimento facial obrigatorio");
+    }
+    const version = body.version ?? DEFAULT_FACE_CONSENT_VERSION;
+    if (!FACE_CONSENT_VERSION_PATTERN.test(version)) {
+        throw new AppError(400, "Versao de consentimento facial invalida");
+    }
+    if (body.provider !== undefined && body.provider !== "openai") {
+        throw new AppError(400, "Provider de consentimento invalido");
+    }
+    if (
+        body.noticeVersion !== undefined &&
+        (typeof body.noticeVersion !== "string" ||
+            body.noticeVersion.trim().length < 1 ||
+            body.noticeVersion.trim().length > 64)
+    ) {
+        throw new AppError(400, "Versao do aviso de provider invalida");
+    }
+    return {
+        version,
+        providerConsentAccepted: body.providerConsentAccepted === true,
+        provider: body.provider,
+        noticeVersion: body.noticeVersion?.trim(),
+        generativeEditAccepted: body.generativeEditAccepted === true,
+        consultantPhotoAccessAccepted:
+            body.consultantPhotoAccessAccepted === true,
+    };
 }
 ```
 
-## Changelog
-- `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.
+Explicação do código: `userId` nunca vem do body. Provider e notice são allowlisted e o service exige exatamente `providerConsentAccepted: true`, `provider: "openai"` e o notice atual publicado pelo backend antes de criar `externalProviderConsent`. A UI envia ainda `version: "face-analysis-v2"`; edição generativa e fotografia do consultor começam `false` e são pedidas mais tarde nos fluxos próprios.
+
+Validação: o POST válido usa `{ accepted: true, version: "face-analysis-v2", providerConsentAccepted: true, provider: "openai", noticeVersion }`, com `noticeVersion` obtido do backend.
+
+Cenário negativo: `accepted: false`, provider diferente, notice ausente/desatualizado ou versão inválida devolve `400` antes de tocar em fotos.
+
+### Passo 4 - Aceitar e revogar idempotentemente
+
+1. Objetivo: criar/reaceitar v2 e cancelar futuro processamento na revogação.
+2. Ficheiros: service de consentimento e `ai-job.service.js`.
+3. Regra: aceitação atualiza timestamps e mantém propósitos opcionais `false`; revogação marca `revokedAt` e cancela jobs queued/processing na mesma transação.
+
+```js
+import { revokeFaceConsentForUser } from "../services/face-photo.service.js";
+
+// O controller deriva o titular da sessão e delega todo o ciclo transacional.
+const revokedConsent = await revokeFaceConsentForUser(req.user.id);
+```
+
+Explicação do código: não reimplementes a revogação no controller. `revokeFaceConsentForUser` aplica compare-and-set idempotente, write barrier, revoga também `externalProviderConsent`, cancela `AiJob`, revoga grants fotográficos ativos e cancela previews `queued|processing|failed_retryable` na mesma transação. A consulta própria já criada permanece legível pelo titular; eliminação física é outro fluxo.
+
+Validação: repetir DELETE preserva o `revokedAt` original; nenhum job, grant ou preview continua ativo.
+
+Cenário negativo: job que perdeu consentimento antes do commit não persiste resultado.
+
+### Passo 5 - Expor GET, POST e DELETE seguros
+
+1. Objetivo: ciclo autenticado, CSRF nas mutações e respostas sem cache.
+2. Ficheiro: `apps/api/src/routes/face-photo.routes.js`.
+3. Montagem:
+
+```js
+facePhotoRoutes.get("/face-consent", requireAuth, getFaceConsentController);
+facePhotoRoutes.post("/face-consent", requireAuth, acceptFaceConsentController);
+facePhotoRoutes.delete("/face-consent", requireAuth, revokeFaceConsentController);
+```
+
+Explicação do código: os controllers usam apenas `req.user.id` e aplicam `Cache-Control: private, no-store`.
+
+Validação: DTO indica ativo/revogado e notice exigido sem IDs internos.
+
+Cenário negativo: sem sessão devolve `401`; CSRF/origin inválidos bloqueiam POST/DELETE.
+
+### Passo 6 - Guiar captura e consentimento no frontend
+
+1. Objetivo: explicar os dados antes do upload.
+2. Ficheiro: `apps/web/src/features/consultation/NewConsultationPage.jsx`.
+3. UI: listar fotografias, respostas/factos, perfil mínimo e candidatos filtrados; pedir aceite antes do par frontal/perfil; nunca guardar fotos/landmarks em storage do browser.
+
+```jsx
+<label>
+    <input type="checkbox" checked={accepted} onChange={onConsentChange} />
+    Autorizo o envio à OpenAI das fotografias e do contexto mínimo descrito.
+</label>
+```
+
+Explicação do código: a checkbox melhora compreensão, mas a decisão final continua no backend.
+
+Validação: foco chega ao erro e o botão seguinte permanece desativado sem aceite.
+
+Cenário negativo: reload não presume consentimento; volta a consultar a API.
+
+### Passo 7 - Separar edição e fotografia do consultor
+
+1. Objetivo: pedir cada uso no momento certo.
+2. Ficheiros: relatório, preview e review grant.
+3. Regras:
+   - edição: apenas após unlock e clique explícito; revogar cancela o job/resultado aplicável;
+   - consultor: grant por `reportId`, máximo sete dias, termina ao decidir/cancelar review;
+   - revogar foto não cancela revisão textual.
+
+```js
+const expiresAt = new Date(Math.min(
+    requestedUntil.getTime(),
+    Date.now() + 7 * 24 * 60 * 60 * 1000,
+));
+```
+
+Explicação do código: o limite é calculado no servidor. O consultor não recebe a fotografia na listagem/detalhe por defeito.
+
+Validação: endpoint da foto usa `no-store` e gera audit log.
+
+Cenário negativo: grant expirado/revogado devolve `403` sem bytes.
+
+### Passo 8 - Provar ciclo completo
+
+1. Objetivo: testar os três propósitos e as fronteiras de revogação.
+2. Ficheiros: testes de consentimento/grants/preview.
+3. Comandos:
+
+```bash
+npm --prefix apps/api test -- tests/face-consent.lifecycle.test.js tests/face-consent.replset.integration.test.js
+npm --prefix apps/api test -- tests/makeup-simulation-consent.replset.integration.test.js
+```
+
+Explicação do código: usa replica set local e transport determinístico; não precisa de fotografia real nem chave OpenAI.
+
+Validação: positivo, replay, revogação, ownership e concorrência.
+
+Cenário negativo: consentimento antigo, acesso cruzado e revogação durante provider não persistem output.
+
+Executar cenarios negativos obrigatorios (minimo 3): notice antigo; acesso cruzado; consentimento revogado. Acrescenta CSRF e grant expirado.
+
+#### Expected results
+
+- Consentimento OpenAI v2 obrigatório e verificável.
+- Propósitos de imagem generativa e acesso do consultor independentes.
+- Revogação cancela trabalho futuro sem fingir apagamento.
+- Nenhum consentimento antigo é promovido automaticamente.
+
+#### Critérios de aceite
+
+- [ ] GET/POST/DELETE autenticados, `no-store` e ownership por sessão.
+- [ ] Notice/propósitos versionados e DTO minimizado.
+- [ ] Jobs revalidam consentimento antes e depois do provider.
+- [ ] Grant por relatório com expiração máxima de sete dias.
+- [ ] Evidencia de testes por camada: unit validator + integração transacional + HTTP/UI.
+- [ ] Cenarios negativos concluidos: minimo `3`.
+
+### Matriz minima de testes por prioridade
+
+| Prioridade | Camada | Prova |
+|---|---|---|
+| P0 | unit | body, notice e propósitos |
+| P0 | integração | aceite/revogação/jobs/grant em replica set |
+| P0 | HTTP | 401, CSRF, ownership, no-store |
+| P0 | frontend | explicação, foco e bloqueio sem aceite |
+
+#### Validação final
+
+- [ ] Negativos: minimo `3` cenarios executados e registados.
+- [ ] Nenhum teste usa a base remota ou dados faciais reais.
+- [ ] Link/fences e `git diff --check` verdes.
+
+#### Evidence para PR/defesa
+
+- DTO sanitizado antes/depois de revogar.
+- Prova de cancelamento do job e 403 do grant expirado.
+- Screenshot apenas da UI sem fotografia, email ou token.
+
+#### Handoff
+
+Entrega ao `BK-MF7-02` o estado revogado para pedidos de eliminação e ao `BK-MF8-07` a autorização v2 para envio minimizado à OpenAI.
+
+## Bloco pedagogico
+
+### Objetivo
+
+Distinguir consentimento, autorização, revogação, eliminação e grant temporário.
+
+### Pre-requisitos
+
+- Sessões, CSRF, Mongoose, transações e formulários React.
+
+### Erros comuns
+
+- Confiar na checkbox sem validar no backend.
+- Usar um consentimento para todas as finalidades.
+- Apagar dados ao revogar sem pedido de privacidade.
+
+### Check de compreensao
+
+- [ ] Sei explicar por que o consultor não vê fotos por defeito.
+- [ ] Sei provar que um notice antigo não é v2.
+
+## Bloco operacional
+
+### Entrada
+
+Titular autenticado, notice v2 e decisão afirmativa.
+
+### Passos
+
+Apresentar → aceitar → revalidar → processar → revogar/cancelar quando pedido.
+
+### Validacao
+
+Testar ciclo e três negativos em MongoDB local isolado.
+
+### Handoff
+
+Estado de consentimento mínimo e auditável para consulta, privacidade e imagem.
+
+## Criterios de aceite
+
+- Três propósitos separados e sem promoção automática.
+- Evidencia de testes por camada presente.
+- Cenarios negativos concluidos: minimo `3`.
+
+## Evidence para PR/defesa
+
+Registar comandos/resultados sanitizados; nunca copiar fotos, cookies, PII ou URI MongoDB.
+
+#### Changelog
+
+- `2026-07-11`: guia reescrito para consentimento OpenAI v2, edição generativa pontual e grant fotográfico temporário por relatório.

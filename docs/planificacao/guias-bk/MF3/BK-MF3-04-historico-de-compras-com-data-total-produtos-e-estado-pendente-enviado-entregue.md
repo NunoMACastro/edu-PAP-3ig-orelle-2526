@@ -16,7 +16,9 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF3-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md`
-- `last_updated`: `2026-06-13`
+- `last_updated`: `2026-07-10`
+
+> **Contrato atual (2026-07-10):** `orderStatus` e `payment.status` são independentes, mas a logística fica bloqueada até `payment.status="simulated_paid"` e `stockReserved=true`. Apenas essa condição permite a transição CAS `pendente -> enviado -> entregue`; `awaiting_simulation`, `simulated_failed` e estados legacy cancelados nunca avançam. Não existe confirmação manual alternativa. O histórico identifica inequivocamente “Pagamento simulado” e não apresenta uma tentativa pendente/falhada como compra cobrada.
 
 ## Contexto do BK
 - Entrega alvo: implementar `RF28`, permitindo ao cliente consultar compras com data, total, produtos e estado.
@@ -63,7 +65,7 @@ Histórico de compras não deve aceitar `userId` por query ou params. A rota `/a
 
 O histórico mostra snapshots guardados na encomenda. Assim, se o produto mudar de nome ou preço no catálogo, a compra antiga continua fiel ao momento em que foi feita.
 
-Estado da encomenda não é estado do pagamento. Uma encomenda pode estar `pendente` enquanto o pagamento aguarda confirmação.
+Estado da encomenda não é estado do pagamento. Uma encomenda pode estar `pendente` enquanto aguarda simulação, mas não pode avançar para `enviado`. O único unlock logístico é o commit transacional `simulated_paid` com stock reservado.
 
 ## Arquitetura do BK
 - `order.service.js`: reutiliza `listMyOrders`.
@@ -72,13 +74,13 @@ Estado da encomenda não é estado do pagamento. Uma encomenda pode estar `pende
 - `PurchaseHistoryPage.jsx`: mostra compras.
 
 ## Ficheiros a criar/editar/rever
-- EDITAR: `server/src/services/order.service.js`
-- CRIAR: `server/src/controllers/order-history.controller.js`
-- CRIAR: `server/src/routes/order-history.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/PurchaseHistoryPage.jsx`
-- EDITAR: `client/src/App.jsx`
-- REVER: `server/src/models/order.model.js`
+- EDITAR: `apps/api/src/services/order.service.js`
+- CRIAR: `apps/api/src/controllers/order-history.controller.js`
+- CRIAR: `apps/api/src/routes/order-history.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/PurchaseHistoryPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/order.model.js`
 
 ## Bloco pedagógico
 ### Objetivo
@@ -159,7 +161,7 @@ Sem código novo neste passo.
 
 1. Explicação simples do objetivo: devolver apenas os campos necessários.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/services/order.service.js`
+    - EDITAR: `apps/api/src/services/order.service.js`
     - LOCALIZAÇÃO: função `serializeOrder` e `listMyOrders`.
 3. O que fazer: garantir DTO com data, total, produtos e estado.
 4. Código completo, correto e integrado.
@@ -192,9 +194,29 @@ export async function listMyOrders(userId) {
         })),
     }));
 }
+
+export async function advanceOrderStatus(orderId, nextStatus) {
+    const expectedStatus = nextStatus === "enviado" ? "pendente" : "enviado";
+    const updated = await Order.findOneAndUpdate(
+        {
+            _id: orderId,
+            orderStatus: expectedStatus,
+            "payment.status": "simulated_paid",
+            stockReserved: true,
+        },
+        { $set: { orderStatus: nextStatus } },
+        { new: true, runValidators: true },
+    );
+
+    if (!updated) {
+        throw new AppError(409, "A encomenda não pode avançar neste estado.");
+    }
+
+    return serializeOrder(updated);
+}
 ```
 
-5. Explicação do código: o filtro `{ userId }` aplica ownership. O `.select(...)` limita a resposta e evita devolver campos internos.
+5. Explicação do código: o filtro `{ userId }` aplica ownership. O avanço administrativo usa compare-and-set sobre estado anterior, simulação concluída e stock reservado; uma corrida ou encomenda não paga recebe `409`, sem segundo caminho de unlock.
 6. Como validar este passo: criar encomendas para dois utilizadores e confirmar que cada sessão vê apenas as suas.
 7. Erros comuns ou cenário negativo: usar `Order.find()` sem filtro expõe histórico global.
 
@@ -202,13 +224,13 @@ export async function listMyOrders(userId) {
 
 1. Explicação simples do objetivo: transformar service em resposta HTTP.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/order-history.controller.js`
+    - CRIAR: `apps/api/src/controllers/order-history.controller.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: chamar `listMyOrders`.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/controllers/order-history.controller.js
+// apps/api/src/controllers/order-history.controller.js
 import { listMyOrders } from "../services/order.service.js";
 
 /**
@@ -236,13 +258,13 @@ export async function listMyOrdersController(req, res, next) {
 
 1. Explicação simples do objetivo: proteger o endpoint de histórico.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/routes/order-history.routes.js`
+    - CRIAR: `apps/api/src/routes/order-history.routes.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: criar `GET /me/orders`.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/routes/order-history.routes.js
+// apps/api/src/routes/order-history.routes.js
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import { listMyOrdersController } from "../controllers/order-history.controller.js";
@@ -263,7 +285,7 @@ orderHistoryRoutes.get("/me/orders", requireAuth, listMyOrdersController);
 
 1. Explicação simples do objetivo: ligar a route à app.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: imports e routes.
 3. O que fazer: montar `orderHistoryRoutes`.
 4. Código completo, correto e integrado.
@@ -282,14 +304,14 @@ app.use("/api", orderHistoryRoutes);
 
 1. Explicação simples do objetivo: mostrar compras ao cliente.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/PurchaseHistoryPage.jsx`
-    - EDITAR: `client/src/App.jsx`
+    - CRIAR: `apps/web/src/pages/PurchaseHistoryPage.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: ficheiro completo e registo de página.
 3. O que fazer: criar UI com estados.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/pages/PurchaseHistoryPage.jsx
+// apps/web/src/pages/PurchaseHistoryPage.jsx
 import { useEffect, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
@@ -334,8 +356,8 @@ export function PurchaseHistoryPage() {
     if (status === "error") return <p role="alert">{error}</p>;
 
     return (
-        <main>
-            <h1>Histórico de compras</h1>
+        <section aria-labelledby="purchase-history-title">
+            <h1 id="purchase-history-title">Histórico de compras</h1>
             {orders.length === 0 ? (
                 <p>Ainda não existem compras.</p>
             ) : (
@@ -343,6 +365,7 @@ export function PurchaseHistoryPage() {
                     <article key={order.id}>
                         <h2>{new Date(order.createdAt).toLocaleDateString("pt-PT")}</h2>
                         <p>Estado: {order.orderStatus}</p>
+                        <p>Pagamento simulado: {order.paymentStatus === "simulated_paid" ? "concluído" : "não concluído"}</p>
                         <p>Total: {euros(order.totalCents)}</p>
                         <ul>
                             {order.items.map((item) => (
@@ -354,7 +377,7 @@ export function PurchaseHistoryPage() {
                     </article>
                 ))
             )}
-        </main>
+        </section>
     );
 }
 ```
@@ -367,7 +390,7 @@ export function PurchaseHistoryPage() {
 
 1. Explicação simples do objetivo: provar isolamento entre clientes.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/services/order.service.js`
+    - REVER: `apps/api/src/services/order.service.js`
     - LOCALIZAÇÃO: testes de integração.
 3. O que fazer: criar encomendas para dois utilizadores e testar sessões.
 4. Código completo, correto e integrado.
@@ -385,8 +408,8 @@ expect(response.body.orders).toHaveLength(1);
 
 1. Explicação simples do objetivo: fechar o BK com provas objetivas.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/routes/order-history.routes.js`
-    - REVER: `client/src/pages/PurchaseHistoryPage.jsx`
+    - REVER: `apps/api/src/routes/order-history.routes.js`
+    - REVER: `apps/web/src/pages/PurchaseHistoryPage.jsx`
     - LOCALIZAÇÃO: outputs de API e screenshots.
 3. O que fazer: registar smoke e negativos.
 4. Código completo, correto e integrado.
@@ -405,11 +428,13 @@ curl -i "http://localhost:3000/api/me/orders?userId=outro"
 - Sem sessão devolve `401`.
 - Sem compras devolve `200` com lista vazia.
 - Query `userId` é ignorada.
+- Apenas `simulated_paid` com `stockReserved=true` avança por CAS; a segunda corrida ou estado não elegível devolve `409`.
 
 ## Critérios de aceite
 - Histórico mostra data, total, produtos e estado.
 - Backend filtra por sessão.
 - DTO não expõe dados internos.
+- Não existe rota/ação de confirmação manual; o unlock logístico é único e deriva do pagamento simulado concluído.
 - Cenários negativos concluídos: mínimo `3`.
 - Evidência de testes por camada conforme prioridade (`P0`).
 
@@ -427,4 +452,5 @@ curl -i "http://localhost:3000/api/me/orders?userId=outro"
 O próximo BK deve criar recompra a partir de encomenda pertencente ao próprio utilizador.
 
 ## Changelog
+- `2026-07-10`: logística alinhada ao unlock único `simulated_paid + stockReserved`, transições CAS e UI inequívoca de pagamento simulado; removida qualquer interpretação de pendente como autorização de envio.
 - `2026-06-13`: guia reescrito para histórico de compras autenticado.

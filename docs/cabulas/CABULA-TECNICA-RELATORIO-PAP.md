@@ -6,6 +6,8 @@ Este documento serve como apoio aos alunos para escreverem e apresentarem o rela
 
 A Orélle é uma plataforma de consultoria cosmética inteligente que junta contas de utilizador, perfil personalizado, catálogo de produtos, análise facial assistida por IA, recomendações, rotinas, simulação visual, compras, privacidade biométrica e revisão humana por consultores. Algumas secções descrevem funcionalidades centrais do MVP; outras podem ser usadas como visão final, evolução futura ou enquadramento técnico, quando indicado.
 
+> **Contrato corrente (2026-07-11).** A consulta é um percurso OpenAI-only: objetivo principal e até dois secundários entre sete objetivos, consentimento v2, fotografia frontal + perfil/ângulo lateral, controlo de qualidade, análise multimodal, 5–8 perguntas, catálogo pré-filtrado, relatório v2, revisão humana opcional, congelamento, desbloqueio por pagamento académico simulado de 10% e voucher. `gpt-image-2` edita maquilhagem apenas a pedido, depois do desbloqueio. Sem chave OpenAI, a aplicação arranca degradada e mantém as áreas não IA; não existe análise cosmética de demonstração nem fallback local que fabrique resultados.
+
 ## Visão Técnica Geral
 
 Tecnicamente, a Orélle segue uma arquitetura web cliente-servidor. O frontend é a aplicação usada pelo utilizador no browser. O backend é responsável pelas regras de negócio, validação, autenticação, autorização, acesso à base de dados e exposição da API.
@@ -17,14 +19,14 @@ O backend está organizado por módulos de domínio. Cada módulo concentra uma 
 - autenticação e sessão;
 - utilizadores, perfis e preferências;
 - catálogo, produtos e categorias;
-- fotografias faciais, consentimento e análise IA;
-- relatórios, histórico de pele e evolução;
-- recomendações, rotinas e feedback;
-- simulação de maquilhagem e antes/depois;
+- consulta cosmética OpenAI, consentimentos separados, fotografias e controlo de qualidade;
+- sessões e jobs retomáveis, relatórios versionados, histórico e evolução;
+- recomendações de catálogo allowlisted, rotinas e feedback;
+- edição OpenAI de maquilhagem e comparação original/preview;
 - carrinho, encomendas, pagamentos e stock;
 - notificações;
 - privacidade/RGPD e auditoria biométrica;
-- consulta IA guiada, histórico IA e revisão humana;
+- consulta de 5–8 perguntas, histórico seguro, revisão humana e congelamento;
 - administração, métricas, exportações e operação.
 
 Esta separação facilita manutenção e evolução, porque cada domínio pode ser alterado sem misturar responsabilidades com os restantes.
@@ -46,6 +48,10 @@ Este domínio inclui:
 
 Depois do login, o backend associa os pedidos a um utilizador autenticado. Isto permite que cada operação pessoal seja feita sobre a conta correta. O frontend não deve enviar manualmente o `userId` para operações sensíveis; o backend deve obter a identidade a partir da sessão.
 
+A sessão é opaca e persistida: o browser recebe no cookie `orelle_session` um token aleatório de 256 bits, mas a base de dados guarda apenas o respetivo hash, o titular, a expiração, `revokedAt`, `lastSeenAt` e o hash da prova CSRF. O cookie mantém `HttpOnly` e `SameSite=Lax`, e usa `Secure` quando o transporte HTTPS é obrigatório. `POST /api/auth/logout` revoga a sessão atual; `POST /api/auth/logout-all` revoga todas as sessões do utilizador, pelo que limpar apenas o cookie não é considerado logout completo.
+
+As mutações autenticadas obtêm primeiro uma prova em `GET /api/auth/csrf` e enviam-na no header `X-CSRF-Token`. A API aceita a mutação apenas se a prova coincidir com a sessão ativa e o header `Origin` pertencer à allowlist configurada. O frontend mantém esta prova apenas em memória e usa `/api` same-origin, sem host de desenvolvimento incorporado no bundle.
+
 As permissões também dependem deste domínio. Um cliente pode gerir a sua própria conta, perfil, recomendações, carrinho e pedidos de privacidade. Um consultor pode rever recomendações ou sessões IA. Um administrador pode aceder a operações críticas, como gestão de utilizadores, stock, exportações, métricas e auditoria.
 
 ## Catálogo, Produtos, Fotografias E Análise Facial
@@ -63,13 +69,15 @@ Os metadados principais incluem:
 - imagem;
 - categorias;
 - tipo de pele indicado;
-- disponibilidade operacional baseada no stock.
+- elegibilidade IA e tags de preocupação/rotina;
+- ingredientes INCI normalizados e atributos cosméticos estruturados;
+- variantes opcionais com cor, undertone, acabamento, cobertura, imagem e stock.
 
-No estado atual de `real_dev`, a disponibilidade operacional é controlada sobretudo pelo stock. Produtos sem stock não devem seguir para recomendações, simulação visual ou compra. O catálogo administrável não tem um campo separado de publicação; por isso, se o relatório falar em produtos publicados/indisponíveis, deve explicar que essa parte seria uma evolução futura. O frontend pode apresentar informação visual, mas a autoridade sobre preço, stock e disponibilidade deve continuar no backend.
+O backend controla elegibilidade, restrições, preço e disponibilidade. Um produto `aiEligible` sem stock pode aparecer no relatório claramente marcado e sem ação de compra, mas não entra no cálculo dos 10%. Apenas produtos/variantes disponíveis podem ser comprados; o frontend mostra o snapshot histórico separado da disponibilidade atual.
 
-Na Orélle, o equivalente ao "conteúdo principal" do produto não é um vídeo, mas sim o conjunto produto + fotografia facial + análise cosmética. O utilizador pode enviar fotografias do rosto, normalmente frontal e perfil, e o backend valida consentimento, tipo de ficheiro, tamanho e armazenamento privado.
+Na Orélle, o equivalente ao "conteúdo principal" do produto é o conjunto consulta + fotografia facial + análise cosmética + catálogo. O utilizador envia frontal e perfil/ângulo lateral com indicações de luz, pose, lente, enquadramento e ausência de filtros. O browser faz preflight local; o backend volta a validar formato, dimensão, pixels, iluminação, exposição e blur antes de preparar os bytes privados.
 
-A análise facial usa essas fotografias para gerar sinais cosméticos, como tipo de pele, oleosidade, acne, manchas, rugas ou textura. O resultado deve ser apresentado como apoio cosmético, não como diagnóstico médico.
+A análise multimodal OpenAI usa as fotografias autorizadas e os objetivos para produzir qualidade remota, observações cosméticas e avaliação específica. Um resultado `inconclusive` pede novas fotografias e não produz findings. Todo o conteúdo é apoio cosmético, nunca diagnóstico médico.
 
 ## Histórico De Pele, Rotinas E Acompanhamento
 
@@ -121,21 +129,19 @@ A pesquisa responde a uma intenção direta. A descoberta ajuda o utilizador a e
 
 ## Recomendações, Consulta Guiada, Explicabilidade E Contexto
 
-O sistema de recomendações sugere produtos personalizados ao utilizador. A recomendação deve ser útil, mas também transparente, segura e explicável.
+O sistema de recomendações faz parte da geração do relatório v2. Deve ser útil, transparente, segura e explicável, sem permitir que o modelo invente produtos.
 
-A recomendação baseline usa sinais internos:
+O backend constrói o contexto com:
 
-- tipo de pele;
-- sinais da análise facial;
-- relatório facial;
-- histórico de pele;
-- perfil e objetivos;
-- alergias e ingredientes a evitar;
-- restrições médicas leves;
-- produtos reais com stock;
-- feedback anterior do utilizador.
+- objetivo principal e até dois objetivos secundários;
+- qualidade e observações da análise OpenAI;
+- respostas/factos das 5–8 perguntas;
+- tipo de pele e perfil cosmético mínimo;
+- alergias, ingredientes a evitar e restrições;
+- orçamento e preferências relevantes;
+- produtos e variantes `aiEligible` reais, com preço e stock atuais.
 
-No estado atual de `real_dev`, a geração de recomendações não tem um modo de "cold start" com produtos gerais, populares ou editoriais. O backend exige análise facial concluída, relatório facial ativo, perfil cosmético e produtos compatíveis com stock. Se esses sinais não existirem, a API falha de forma controlada em vez de fingir personalização. Um modo de recomendações gerais com pouco contexto pode ser apresentado como evolução futura.
+O servidor pré-filtra e envia no máximo 15 candidatos minimizados. A OpenAI só pode devolver IDs/variant IDs dessa allowlist; o backend volta a validar restrições, preço e stock antes de guardar snapshots imutáveis. O relatório tenta incluir 3–5 recomendações quando o catálogo o permite, podendo apresentar produtos sem stock devidamente identificados. Se faltarem candidatos válidos, declara cobertura limitada em vez de inventar uma recomendação.
 
 Cada recomendação deve incluir uma explicação simples, por exemplo:
 
@@ -147,16 +153,16 @@ Cada recomendação deve incluir uma explicação simples, por exemplo:
 
 ### Contexto De Consulta E Histórico Seguro
 
-No estado atual, a recomendação pode ser enriquecida com respostas da consulta IA guiada. A consulta guiada recolhe respostas estruturadas sobre objetivos, sensibilidade, hábitos, preferências e contexto cosmético.
+A consulta começa pela escolha de um objetivo principal e até dois secundários entre acne/imperfeições, hidratação/barreira, oleosidade, sensibilidade/vermelhidão, manchas/tom/luminosidade, proteção solar e maquilhagem. Depois da análise, a OpenAI escolhe a próxima pergunta entre slots permitidos até recolher os factos obrigatórios, com mínimo de cinco e máximo de oito perguntas.
 
-Esse contexto deve ser tratado com minimização. O sistema deve guardar apenas o necessário para melhorar recomendações e continuidade da experiência.
+Cada resposta é validada e persistida antes do passo seguinte. Perguntas, respostas e factos derivados são cifrados; o `flowState` do backend permite retomar depois de reload ou falha. Análise, pergunta seguinte, relatório e imagem usam jobs persistentes com lease, retry e idempotência. Só a seleção da pergunta pode recorrer ao banco canónico quando ambos os modelos OpenAI falham.
 
 Por privacidade:
 
 - o histórico IA não deve expor fotografias;
 - a API pública não deve devolver `storageKey`, `consentId`, prompts internos ou paths privados;
 - o frontend não deve decidir ownership;
-- qualquer provider externo deve ser opcional e sujeito a revisão de privacidade;
+- o único provider de runtime é OpenAI e requer consentimento v2 específico;
 - as recomendações devem manter limitações e explicabilidade.
 
 ## Planos De Compra, Carrinho E Acesso A Funcionalidades
@@ -179,41 +185,46 @@ O backend deve ser a autoridade sobre o carrinho, preço, stock e disponibilidad
 
 ## Pagamentos, Checkout E Ciclo De Encomenda
 
-Num contexto PAP, os pagamentos podem funcionar em modo controlado. Isto permite demonstrar o fluxo funcional sem lidar com todos os riscos de pagamentos reais, cartões reais ou webhooks de produção.
+Na Orélle, o pagamento é exclusivamente simulado. O objetivo é demonstrar o fluxo funcional de uma encomenda sem cobrança, cartão, webhook, redirect, chave ou chamada externa. A interface deve mostrar permanentemente que se trata de uma demonstração académica.
+
+> **Estado atual reconciliado em 2026-07-10:** o fluxo simulado de dois passos está implementado no backend e na UI. O service calcula e compara o hash da `Idempotency-Key` e guarda o snapshot de cada tentativa terminal; repetir a mesma chave devolve exatamente o mesmo `simulated_paid` ou `simulated_failed`, sem repetir efeitos. Não existe gateway nem I/O financeiro externo.
+>
+> **Snapshot histórico de 2026-07-09:** nessa data, o registo de auditoria ainda indicava como pendentes a UI de dois passos e o replay específico por hash. Esta nota é preservada apenas como histórico e já não descreve o runtime reconciliado acima.
 
 O sistema deve suportar:
 
 - criação de encomenda;
 - cálculo de total em cêntimos;
-- pagamento aceite;
-- pagamento falhado;
-- pagamento pendente;
+- checkout pendente com `awaiting_simulation`;
+- ação explícita «Simular pagamento»;
+- resultado `simulated_paid` ou `simulated_failed`;
 - histórico de compras;
 - alteração de estado da encomenda;
 - atualização de stock quando aplicável.
 
-Na Orélle, o MVP contempla Stripe em modo real controlado e PayPal/MBWay como stubs funcionais. Isto significa que PayPal/MBWay podem demonstrar o fluxo, mas não devem ser apresentados como integrações completas se não existir provider real configurado.
+O fluxo implementado tem dois passos. `POST /api/orders/checkout` cria ou reutiliza uma encomenda pendente e não altera carrinho, voucher ou stock. `POST /api/orders/:orderId/payments/simulate`, com `Idempotency-Key`, revalida ownership, itens, preços, stock e voucher e aplica os efeitos numa única transação MongoDB. Repetir a mesma chave devolve o snapshot terminal anteriormente associado, incluindo uma falha; depois de `simulated_failed`, uma nova ação explícita utiliza uma chave nova.
 
-O ciclo de encomenda define o estado da compra. Uma encomenda pode estar pendente, paga, falhada, enviada ou entregue, dependendo do contrato implementado. O backend deve guardar datas, estado de pagamento, itens, totais e histórico suficiente para auditoria.
+O estado logístico é separado do resultado da simulação. Uma encomenda nasce `pendente`; só depois de `simulated_paid` pode avançar para `enviado` e `entregue`. O backend guarda snapshots, totais, referência/data simuladas e histórico suficiente para auditoria, sem guardar qualquer referência financeira externa.
 
 ## Consulta Assistida E Revisão De Consultores
 
-A consulta assistida é o mecanismo que junta IA e acompanhamento humano na Orélle. Em vez de depender apenas da fotografia, o sistema pode recolher respostas estruturadas e permitir revisão por consultores.
+A consulta assistida junta fotografia, conversa estruturada, catálogo, relatório e acompanhamento humano num único fluxo. A revisão é opcional: o cliente pode aceitar a versão IA ou pedir análise a um consultor antes de congelar/desbloquear.
 
 O fluxo tem várias etapas:
 
-1. O cliente realiza análise facial e gera relatório.
-2. O cliente inicia uma avaliação guiada.
-3. O sistema valida e guarda respostas estruturadas.
-4. As respostas podem enriquecer recomendações.
-5. Uma sessão pode ficar disponível para revisão humana.
-6. O consultor analisa a sessão com dados minimizados.
-7. O consultor aprova, ajusta ou pede esclarecimentos.
-8. O cliente vê apenas o insight público final.
+1. O cliente escolhe objetivos, aceita o consentimento OpenAI v2 e envia fotografias validadas.
+2. Um job OpenAI analisa as imagens; qualidade `inconclusive` pede um novo par.
+3. A conversa recolhe 5–8 respostas estruturadas e pode ser retomada.
+4. O backend pré-filtra o catálogo e o job OpenAI gera um relatório v2 com recomendações allowlisted.
+5. O cliente aceita o relatório IA ou pede revisão humana opcional.
+6. O consultor aprova, ajusta texto/rotina/produtos ou pede esclarecimento; produtos ajustados passam pelos mesmos validadores.
+7. A versão escolhida é congelada com `contentHash`, snapshots de recomendações, preços e stock.
+8. O backend calcula `depositCents = ceil(recommendedTotalCents × 1000 / 10000)` sobre uma unidade de cada recomendação disponível; o cliente simula esse pagamento, o relatório desbloqueia e nasce um voucher do mesmo valor.
+9. Se houver objetivo e variantes de maquilhagem, o cliente pode consentir e pedir uma edição `gpt-image-2` da fotografia frontal.
 
-A revisão humana deve ser auditável. Notas internas, identificadores de revisor e audit trail completo não devem ser mostrados ao cliente. O cliente deve ver a conclusão pública, as recomendações afetadas e o estado da revisão.
+A revisão humana é auditável e usa compare-and-set: uma segunda decisão concorrente recebe `409`. `machineResult` nunca é sobrescrito; ajustes ocupam `humanOverride`. Fotografias só são servidas ao consultor com grant temporário explícito, endpoint autenticado `no-store` e audit log; não carregam por defeito na fila.
 
-A consulta assistida garante que a IA não funciona como autoridade isolada. O sistema recomenda e organiza contexto; o consultor pode validar e corrigir.
+Antes do desbloqueio, a API devolve apenas um teaser seguro e não envia o relatório completo para o DOM. Enquanto a revisão está pendente, o pagamento fica desativado; o cliente pode retirar um pedido ainda não decidido. Se nenhum produto estiver disponível, o relatório desbloqueia sem pagamento e sem voucher de valor zero.
 
 ## Notificações
 
@@ -245,9 +256,9 @@ O utilizador deve poder:
 - perceber para que os dados são usados;
 - pedir tratamento sobre fotografias e relatórios.
 
-A eliminação deve remover ou anonimizar dados pessoais, respeitando dependências do sistema. Em dados biométricos, pode existir eliminação lógica, anonimização, estados de privacidade e auditoria, em vez de apagar fisicamente todos os artefactos no mesmo momento.
+A eliminação/anonimização de fotografias elimina sempre os bytes físicos. Um pedido administrativo só fica `completed` depois de os jobs idempotentes confirmarem ausência dos ficheiros; relatórios eliminados desaparecem e relatórios anonimizados só podem conservar agregados não identificáveis. A eliminação da conta pelo titular exige password + confirmação `ELIMINAR`, revoga sessões, apaga dados ligados e cria o estado terminal `deleted`.
 
-Os consentimentos permitem controlar funcionalidades sensíveis, como análise facial e uso de imagem. A finalidade deve ser clara, por exemplo `analise_facial_cosmetica`. Em `real_dev`, existe aceitação/renovação de consentimento facial; uma revogação self-service explícita deve ser descrita como evolução futura se for mencionada. As imagens processadas não devem ser usadas para treino externo sem consentimento específico.
+Os consentimentos têm propósitos separados: consulta OpenAI v2 (fotografias, respostas/factos, perfil mínimo e catálogo filtrado), edição generativa e acesso temporário do consultor às fotografias. Consentimentos antigos não são promovidos. A revogação bloqueia novas operações, cancela jobs ainda não concluídos e não elimina automaticamente resultados já criados; essa eliminação usa os pedidos de privacidade. O acesso fotográfico do consultor termina com a revisão, revogação ou ao fim de sete dias.
 
 A exportação de dados implementada é administrativa e minimizada, por exemplo para vendas, utilizadores ou relatórios. Uma exportação self-service completa para o cliente deve ser apresentada como evolução futura.
 
@@ -258,6 +269,7 @@ Princípios importantes:
 - não expor tokens;
 - não enviar dados pessoais desnecessários ao frontend;
 - não expor `storageKey`, paths internos ou consent IDs;
+- não enviar nome, email ou IDs MongoDB à OpenAI;
 - usar dados de recomendação apenas para recomendação;
 - manter logs sem informação sensível;
 - cifrar fotografias e relatórios sensíveis em repouso.
@@ -294,7 +306,7 @@ O painel de métricas ajuda a acompanhar o estado da plataforma. Pode apresentar
 
 As operações críticas devem exigir role `administrador` e gerar evidência/auditoria quando possível. Quando envolvem dados biométricos, a resposta deve expor metadados mínimos e não payloads sensíveis.
 
-## Modos Avançados, Simulação Visual E Experiência Premium
+## Edição Visual E Experiência Avançada
 
 Além do fluxo base de análise e recomendação, a Orélle pode oferecer funcionalidades avançadas de experiência.
 
@@ -308,13 +320,16 @@ Exemplos:
 - rotinas mais detalhadas;
 - futuras experiências premium ou planos comerciais.
 
-Na simulação visual, existe normalmente uma fotografia de referência e um produto escolhido. O sistema pode gerar uma pré-visualização segura para demonstrar o efeito. No MVP, esta simulação pode ser baseline e não fotorealista. O relatório deve ser honesto sobre essa limitação.
+Na edição de maquilhagem, `gpt-image-2` recebe a fotografia frontal e um `simulationSpec` fechado com as variantes recomendadas no relatório congelado. Não existe prompt livre nem possibilidade de juntar produtos externos ao relatório. A instrução pede preservação de identidade, estrutura facial, cabelo, fundo e características da pele, alterando apenas a maquilhagem; a interface mostra original e resultado lado a lado com aviso de que a pré-visualização é gerada por IA e o resultado real pode variar.
 
 Regras importantes:
 
 - o sistema deve validar consentimento antes de usar fotografia facial;
 - a fotografia original não deve ser exposta diretamente;
 - o preview deve ser apresentado como apoio visual, não como garantia de resultado;
+- o resultado cifrado, normalizado e sem EXIF expira ao fim de sete dias;
+- falha da imagem não invalida relatório, desbloqueio ou voucher;
+- objetivos de tratamento nunca mostram uma “pele futura” artificial;
 - recomendações e simulações não devem fazer promessas clínicas;
 - a compra deve continuar separada da recomendação.
 
@@ -338,9 +353,12 @@ Pontos técnicos importantes:
 - não expor IDs internos desnecessários;
 - limitar operações administrativas;
 - mitigar XSS e injeções com validação, React e respostas controladas;
-- tratar CSRF token dedicado e rate limiting/brute force como pontos a reforçar se forem exigidos em produção;
-- cifrar fotografias e relatórios sensíveis;
-- limitar payloads enviados para providers externos.
+- exigir prova CSRF ligada à sessão e `Origin` allowlisted em mutações autenticadas;
+- limitar login, registo, API autenticada, upload e operações IA com políticas próprias;
+- receber fotografias com Busboy em streaming, apenas nos campos `frontal` e `perfil`, com limites e cleanup em erro/abort;
+- descodificar e normalizar imagens com Sharp, limitar dimensões/píxeis, auto-orientar, re-encodar para WebP e remover EXIF antes da cifra;
+- cifrar campos sensíveis com AES-256-GCM contextual v2, ligando coleção, titular e campo na AAD;
+- minimizar o payload enviado à OpenAI, usar Structured Outputs/allowlist e nunca incluir identificadores pessoais.
 
 ### Testes
 
@@ -351,8 +369,13 @@ O projeto deve ter testes para validar:
 - fluxos principais;
 - autenticação;
 - análise facial;
+- jobs, restart, lease expirada e replay idempotente;
+- sete objetivos, limites de 5–8 perguntas e respostas concorrentes;
 - recomendações;
+- allowlist de catálogo, alergias, variantes, preço e stock;
 - carrinho, checkout e encomendas;
+- 10% simulado e criação transacional do voucher;
+- edição OpenAI, ownership, expiração e eliminação física;
 - privacidade/RGPD;
 - revisão humana;
 - regressão frontend;
@@ -401,6 +424,7 @@ A ética da IA deve ser tratada como dado estruturado e validável:
 
 - finalidade do tratamento;
 - fonte dos sinais usados;
+- provider OpenAI, modelo efetivo e versões de prompt/schema;
 - motivos da recomendação;
 - limitações da análise;
 - atributos protegidos que não podem discriminar;
@@ -412,7 +436,7 @@ Esta estrutura permite:
 
 - explicar recomendações ao cliente;
 - bloquear motivos discriminatórios;
-- impedir treino externo sem consentimento;
+- não autorizar o uso dos dados da consulta para treino de modelos externos; o consentimento v2 cobre apenas o processamento necessário à consulta;
 - separar apoio cosmético de diagnóstico médico;
 - permitir revisão humana por consultores;
 - criar evidência para defesa e auditoria.
@@ -436,11 +460,11 @@ Em vez de apresentar a aplicação como uma lista de páginas, é melhor apresen
 1. Base da plataforma;
 2. cliente, perfil e consentimento;
 3. catálogo, produtos e stock;
-4. fotografias, análise facial e relatório;
-5. recomendações, rotinas e explicabilidade;
-6. carrinho, checkout, encomendas e pagamentos;
-7. consulta assistida e revisão humana;
-8. experiência visual e acompanhamento;
+4. consulta OpenAI: objetivos, fotografias, análise e perguntas;
+5. relatório, recomendações, revisão e congelamento;
+6. desbloqueio/voucher, carrinho, checkout e encomendas;
+7. histórico seguro e operação do consultor;
+8. edição de maquilhagem e acompanhamento;
 9. notificações, privacidade e RGPD;
 10. administração, segurança, testes e operação.
 
@@ -455,7 +479,7 @@ Inclui:
 - MongoDB;
 - API REST;
 - autenticação;
-- sessão protegida com cookie HttpOnly;
+- sessão opaca persistida com cookie HttpOnly, revogação imediata e proteção CSRF/origem;
 - roles de cliente, consultor e administrador;
 - validação, ownership, autorização e separação por módulos.
 
@@ -498,28 +522,33 @@ Inclui:
 - preço;
 - imagem;
 - stock;
+- `aiEligible`, tags de preocupação e passos de rotina;
+- variantes opcionais de cor/acabamento/cobertura;
 - pesquisa e filtros;
 - produtos relacionados.
 
-Também deve ser explicado que, no estado atual, a disponibilidade operacional é baseada sobretudo no stock. Não existe um campo separado de publicação do produto.
+Também deve ser explicado que a OpenAI só recebe produtos `aiEligible` já pré-filtrados. Um produto sem stock pode aparecer identificado no relatório, mas não pode ser comprado nem entra no cálculo dos 10%.
 
 Mensagem-chave:
 
 > A Orélle não recomenda produtos abstratos. As recomendações e compras usam produtos reais, com preço, stock e metadados controlados pelo backend.
 
-### 4. Fotografias, Análise Facial E Relatório
+### 4. Consulta OpenAI: Objetivos, Fotografias, Análise E Perguntas
 
 Só depois do consentimento e do catálogo deve entrar a análise facial.
 
 Inclui:
 
 - upload de fotografia frontal e de perfil;
+- objetivo principal e até dois secundários entre sete objetivos;
+- instruções de captura e preflight MediaPipe/nativo;
 - validação de ficheiros;
 - armazenamento privado;
 - cifragem de fotografias;
-- consentimento associado;
-- análise cosmética;
-- relatório facial;
+- consentimento OpenAI v2;
+- análise multimodal OpenAI e qualidade `pass|warning|inconclusive`;
+- conversa de 5–8 perguntas estruturadas;
+- jobs retomáveis com `flowState` e `failed_retryable`;
 - limitações da análise;
 - separação entre apoio cosmético e diagnóstico médico.
 
@@ -527,69 +556,77 @@ Aqui deve ficar claro que a análise facial não é apresentada como decisão m�
 
 Mensagem-chave:
 
-> A análise facial transforma fotografias autorizadas em sinais cosméticos, mas sempre com consentimento, privacidade e limites claros.
+> A consulta transforma objetivos, fotografias autorizadas e respostas estruturadas em contexto cosmético, mas sempre com consentimento, privacidade e limites claros.
 
-### 5. Recomendações, Rotinas E Explicabilidade
+### 5. Relatório, Recomendações, Revisão E Congelamento
 
-Depois da análise facial e do relatório, faz sentido explicar as recomendações.
+Depois de concluir a conversa, faz sentido explicar como o job constrói o relatório e as recomendações.
 
 Inclui:
 
-- recomendações personalizadas;
-- análise facial mais recente;
-- relatório facial ativo;
+- relatório v2 estruturado e versionado;
+- recomendações personalizadas de 3–5 produtos quando o catálogo permitir;
+- catálogo pré-filtrado e allowlist de até 15 candidatos;
 - perfil cosmético;
 - alergias e ingredientes a evitar;
-- produtos com stock;
+- produtos/variantes disponíveis e indisponíveis claramente separados;
 - motivos da recomendação;
+- utilização e cautelas;
 - limitações;
 - rotina diária;
-- alertas de rotina.
+- revisão humana opcional com `machineResult`/`humanOverride`;
+- congelamento com `contentHash` e snapshots imutáveis.
 
-É importante dizer que, em `real_dev`, a geração de recomendações exige sinais suficientes. Se faltar análise, relatório, perfil ou produtos compatíveis, o backend falha de forma controlada em vez de fingir personalização.
+É importante explicar que a OpenAI só escolhe IDs da allowlist e o backend volta a validar catálogo, alergias, preço e stock. Se faltarem candidatos, o relatório declara cobertura limitada; se a OpenAI falhar, o job fica repetível em vez de fingir personalização.
 
 Mensagem-chave:
 
 > A recomendação só é útil se for explicável. A Orélle mostra não apenas o produto sugerido, mas também os motivos e limites dessa sugestão.
 
-### 6. Carrinho, Checkout, Encomendas E Pagamentos
+### 6. Desbloqueio, Voucher, Carrinho, Checkout E Encomendas
 
 Depois das recomendações, deve entrar a camada comercial.
 
 Inclui:
 
 - carrinho;
+- teaser seguro antes do desbloqueio;
+- congelamento do total elegível e cálculo de 10%;
+- pagamento académico simulado, idempotente e sem cobrança;
+- voucher com exatamente o valor simulado;
 - adicionar, alterar e remover produtos;
 - validação de stock;
 - checkout;
 - encomendas;
 - histórico de compras;
 - recompra;
-- Stripe em modo controlado;
-- PayPal/MBWay como stubs funcionais;
+- checkout pendente sem consumo de recursos;
+- botão «Simular pagamento», sem cobrança financeira;
+- transação de voucher, stock, encomenda e carrinho, com replay exato de sucesso ou falha terminal por hash da chave;
 - estado da encomenda.
 
 Aqui deve ser reforçada a separação entre recomendação e compra. A aplicação pode sugerir um produto, mas não deve comprar automaticamente nem colocar produtos no carrinho sem ação clara do utilizador.
+
+Existem duas simulações distintas: a do desbloqueio do relatório (10% convertido em voucher) e a do checkout de uma encomenda. Nenhuma faz transação financeira.
 
 Mensagem-chave:
 
 > A recomendação ajuda a escolher. A compra continua a ser uma decisão explícita do cliente e validada pelo backend.
 
-### 7. Consulta Assistida E Revisão Humana
+### 7. Histórico Seguro E Operação Do Consultor
 
-Depois das recomendações automáticas, deve ser apresentada a camada de acompanhamento humano.
+Depois do relatório, deve ser apresentada a retoma histórica e a operação opcional do consultor.
 
 Inclui:
 
-- consulta guiada;
-- respostas estruturadas;
+- retoma da consulta e histórico de sessões;
 - histórico IA minimizado;
-- enriquecimento das recomendações;
 - fila de revisão para consultores;
-- decisão humana;
+- acesso fotográfico apenas com grant temporário;
+- decisão humana auditada e CAS `409`;
 - nota pública;
 - nota interna;
-- insight visível ao cliente.
+- ajustes públicos na versão final.
 
 Aqui é importante distinguir o que o consultor vê do que o cliente vê. O cliente deve receber apenas a conclusão pública e segura; notas internas e audit trail não devem ser expostos.
 
@@ -597,20 +634,21 @@ Mensagem-chave:
 
 > A IA organiza sinais e sugere caminhos, mas a Orélle mantém controlo humano quando a recomendação precisa de revisão.
 
-### 8. Experiência Visual E Acompanhamento
+### 8. Edição De Maquilhagem E Acompanhamento
 
 Depois da recomendação e da revisão, podem ser apresentadas as funcionalidades de experiência avançada.
 
 Inclui:
 
-- simulação de maquilhagem;
-- visualização antes/depois;
+- edição `gpt-image-2` de maquilhagem depois do desbloqueio;
+- original e preview lado a lado;
+- consentimento generativo, ownership, expiração e eliminação;
 - evolução da pele;
 - comparação temporal;
 - histórico de relatórios;
 - acompanhamento por rotina.
 
-Deve ficar claro que a simulação visual é apoio à decisão, não promessa de resultado. No MVP, pode ser baseline e não fotorealista.
+Deve ficar claro que a edição é uma pré-visualização gerada por IA, não promessa de resultado. Só usa variantes de maquilhagem do relatório congelado, sem prompt livre; os restantes objetivos nunca geram uma “pele futura”.
 
 Mensagem-chave:
 
@@ -632,7 +670,7 @@ Inclui:
 - minimização de dados;
 - exportações administrativas minimizadas.
 
-Também deve ser explicado que alguns fluxos, como exportação self-service completa ou revogação explícita de consentimento pela UI, podem ser apresentados como evolução futura se forem mencionados.
+Também deve ser explicado que alguns fluxos, como exportação self-service completa ou uma ação visual dedicada de revogação na UI, podem ser apresentados como evolução futura se forem mencionados. A consulta e a revogação self-service já existem na API através de `GET` e `DELETE /api/face-consent` e não devem ser apresentadas como ausentes.
 
 Mensagem-chave:
 
@@ -677,3 +715,8 @@ Frase útil para abrir a parte técnica:
 > A aplicação junta perfil cosmético, catálogo, análise facial, recomendações, compras, privacidade, revisão humana e administração. Vamos explicar por ordem, porque alguns sistemas dependem dos anteriores.
 
 Esta organização ajuda a apresentação a ter uma narrativa clara: primeiro a base, depois o cliente e o catálogo, depois a análise facial, depois as recomendações, depois a compra e revisão humana, e no fim a privacidade, segurança e operação.
+
+## Changelog
+
+- `2026-07-11`: consulta e apresentação sincronizadas com OpenAI-only, sete objetivos, controlo de qualidade, 5–8 perguntas, jobs retomáveis, allowlist, relatório v2, revisão/freeze, 10% simulado/voucher e edição `gpt-image-2`.
+- `2026-07-10`: autenticação alinhada com sessões opacas persistidas, revogação, CSRF e same-origin; uploads alinhados com Busboy/Sharp; cifra sensível alinhada com AES-GCM contextual v2.

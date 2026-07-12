@@ -6,10 +6,16 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-06-30`
+- `last_updated`: `2026-07-11`
 
 ## Objetivo
 Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
+
+## Regra de leitura do núcleo OpenAI
+
+- `RF13–RF15`, `RF18–RF24` e `RF42–RF47` formam um único percurso: sete objetivos, consentimento v2, fotografias e qualidade, análise OpenAI, 5–8 perguntas, catálogo allowlisted, relatório v2, revisão humana opcional, congelamento, desbloqueio simulado de 10%, voucher e edição de maquilhagem a pedido.
+- O mapeamento mantém um BK principal por RF para ownership e rastreabilidade; não significa que cada RF seja um endpoint ou uma página isolada. A interface atual é conduzida por `flowState` e os jobs persistentes fazem as transições assíncronas.
+- O provider de runtime é exclusivamente OpenAI. Retry e fallback mantêm-se dentro da OpenAI; falha total não cria análise, relatório ou imagem sintéticos.
 
 ## Mapeamento RF -> BKs
 | rf | bk_id | macro | owner | sprint | prioridade | guia_path |
@@ -40,7 +46,7 @@ Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
 | RF24 | BK-MF2-08 | MF2 | Bruna | S05-S06 | P1 | docs/planificacao/guias-bk/MF2/BK-MF2-08-a-ia-deve-gerar-uma-visualizacao-antes-depois-com-os-produtos-recomendados.md |
 | RF25 | BK-MF3-01 | MF3 | Daniel Bulica | S07-S08 | P2 | docs/planificacao/guias-bk/MF3/BK-MF3-01-o-sistema-deve-permitir-comparar-imagens-antes-vs-apos-30-dias-de-uso.md |
 | RF26 | BK-MF3-02 | MF3 | Bruna | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md |
-| RF27 | BK-MF3-03 | MF3 | Izelicks | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md |
+| RF27 | BK-MF3-03 | MF3 | Izelicks | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-com-pagamento-simulado.md |
 | RF28 | BK-MF3-04 | MF3 | Bruna | S07-S08 | P0 | docs/planificacao/guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md |
 | RF30 | BK-MF3-06 | MF3 | Aline | S07-S08 | P1 | docs/planificacao/guias-bk/MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md |
 | RF31 | BK-MF3-07 | MF3 | Aline | S07-S08 | P1 | docs/planificacao/guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md |
@@ -60,6 +66,8 @@ Mapear requisitos funcionais (`RF`) para BKs, sprint e guia correspondente.
 | RF47 | BK-MF8-09 | MF8 | Izelicks | S11-S12 | P0 | docs/planificacao/guias-bk/MF8/BK-MF8-09-historico-seguro-da-interacao-cliente-ia.md |
 
 ## Changelog
+- `2026-07-11`: explicitada a leitura integrada dos RF OpenAI, incluindo sete objetivos, 5–8 perguntas, relatório/revisão/freeze, 10% simulado, voucher e edição de maquilhagem.
+- `2026-07-09`: path de RF27 atualizado para o guia canónico de Pagamento simulado.
 - `2026-04-14`: anexo criado para rastreabilidade funcional canónica.
 - `2026-04-17`: removidos mapeamentos RF/BK fora de escopo PAP.
 - `2026-06-30`: adicionados RF42, RF43, RF45, RF46 e RF47 na MF8.

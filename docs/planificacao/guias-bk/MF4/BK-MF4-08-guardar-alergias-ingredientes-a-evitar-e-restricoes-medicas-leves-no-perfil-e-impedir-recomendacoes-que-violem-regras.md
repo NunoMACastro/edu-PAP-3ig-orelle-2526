@@ -16,7 +16,30 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF5-01`
 - `guia_path`: `docs/planificacao/guias-bk/MF4/BK-MF4-08-guardar-alergias-ingredientes-a-evitar-e-restricoes-medicas-leves-no-perfil-e-impedir-recomendacoes-que-violem-regras.md`
-- `last_updated`: `2026-06-15`
+- `last_updated`: `2026-07-11`
+
+> **Contrato canónico ativo — 2026-07-11:** alergias, ingredientes a evitar e restrições declaradas são cifrados no perfil e aplicados pelo backend **antes** de construir a allowlist curta enviada à OpenAI. `apps/api/src/services/recommendation-restrictions.service.js` normaliza e bloqueia candidatos; `apps/api/src/services/consultation-report.service.js` pré-filtra o catálogo, e volta a validar IDs, variantes, stock, preço e restrições depois do Structured Output.
+
+> **Substituição obrigatória:** os blocos inferiores que editam `recommendation.service.js` para `POST /api/recommendations/generate` ou usam `ProductRecommendationsPage.jsx` representam a arquitetura anterior e **não devem ser executados**. A UI atual recolhe restrições no perfil/consulta e apresenta recomendações em `apps/web/src/features/consultation/ConsultationReportPage.jsx`. A referência atual é o [plano canónico da consulta OpenAI](../../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
+
+### Handoff atual do BK
+
+- EDITAR: modelo, validator e service de perfil, mantendo listas normalizadas e cifradas.
+- EDITAR: `apps/api/src/services/recommendation-restrictions.service.js` e `apps/api/src/services/consultation-report.service.js`.
+- EDITAR: `apps/web/src/pages/ProfileSetupPage.jsx` e rever o resumo no relatório canónico.
+- TESTAR: restrição declarada, normalização, candidate allowlist, ID inventado pela OpenAI, ajuste humano incompatível e produto entretanto alterado.
+
+### Critérios de aceitação ativos
+
+- Nenhum texto livre de restrições é enviado à OpenAI sem minimização e consentimento v2.
+- Produtos incompatíveis ficam fora da allowlist; a validação pós-OpenAI e a revisão humana aplicam exatamente as mesmas regras.
+- Produtos administrativos sem metadata IA permanecem `aiEligible=false`.
+- O relatório declara cobertura limitada quando as restrições deixam menos de três candidatos válidos.
+
+<details class="historical-archive">
+<summary><strong>Anexo histórico do gerador direto — não executar</strong></summary>
+
+> Todo o conteúdo restante deste ficheiro, incluindo código de `recommendation.service`, `POST /api/recommendations/generate`, página independente, testes e checklists associados, é preservado apenas como histórico. Não constitui instrução ativa.
 
 #### Objetivo
 Guardar alergias, ingredientes a evitar e restrições médicas leves no perfil do utilizador, e impedir que o motor de recomendações proponha produtos que violem essas regras.
@@ -1468,3 +1491,5 @@ export function validarEvidenceDocumental(evidence) {
 
 ## Changelog
 - `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.
+
+</details>

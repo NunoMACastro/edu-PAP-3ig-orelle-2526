@@ -17,7 +17,7 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF0-08`
 - `guia_path`: `docs/planificacao/guias-bk/MF0/BK-MF0-07-registar-produtos-com-nome-descricao-ingredientes-tipo-de-pele-indicado-imagem-preco-e-stock.md`
-- `last_updated`: `2026-05-29`
+- `last_updated`: `2026-07-10`
 
 #### BK-MF0-07 - Registar produtos com nome, descrição, ingredientes, tipo de pele indicado, imagem, preço e stock
 
@@ -29,7 +29,7 @@ Este BK só pode expor criação de produtos se a autenticação e `requireRole(
 
 Também vamos preparar campos que os BKs seguintes vão precisar. `brandName` é marcado como `DERIVADO` porque `RF06` fala de marcas favoritas e `RF09` fala de filtro por marca, apesar de `RF07` não listar marca diretamente. Esta decisão deve ficar explícita para não parecer requisito inventado.
 
-Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funcional, sem assumir design final.
+A árvore `mockup/` está disponível como referência visual, mas não está confirmada como versão aprovada nem prova paridade. A revisão manual/Figma foi dispensada no alvo académico/local e o risco residual está `ACEITE_RISCO`; a interface administrativa deve ser simples e funcional sem alegar aprovação visual.
 
 ##### Porque é que isto é importante
 
@@ -84,8 +84,8 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funci
 
 - Estado esperado antes do BK: app tem base de utilizadores; roles admin são obrigatórias para expor criação real de produtos.
 - Estado esperado depois do BK: catálogo tem modelo e criação administrativa de produtos.
-- Ficheiros a criar: `server/src/models/product.model.js`, `server/src/routes/admin-products.routes.js`, `server/src/controllers/admin-products.controller.js`, `server/src/services/product.service.js`, `server/src/validators/product.validator.js`, `client/src/pages/AdminProductCreatePage.jsx`.
-- Ficheiros a editar: `server/src/app.js`, `client/src/App.jsx`, `client/src/services/apiClient.js`.
+- Ficheiros a criar: `apps/api/src/models/product.model.js`, `apps/api/src/routes/admin-products.routes.js`, `apps/api/src/controllers/admin-products.controller.js`, `apps/api/src/services/product.service.js`, `apps/api/src/validators/product.validator.js`, `apps/web/src/pages/AdminProductCreatePage.jsx`.
+- Ficheiros a editar: `apps/api/src/app.js`, `apps/web/src/App.jsx`, `apps/web/src/services/apiClient.js`.
 - Dependências de BK anteriores: canonicamente `-`; tecnicamente a criação real fica bloqueada até existir `requireAuth`/`requireRole` de `BK-MF0-05`.
 - Impacto na arquitetura: adiciona módulo `catalog/products`.
 - Impacto em frontend: cria primeiro formulário administrativo de catálogo.
@@ -100,7 +100,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples e funci
 - `docs/RF.md`: `RF07`, ler `RF06`, `RF08`, `RF09` para continuidade.
 - Guia `BK-MF0-05`: roles e `requireRole`.
 - `docs/RNF.md`: `RNF19` modularidade.
-- Mockup: não existe nesta execução.
+- `mockup/`: árvore disponível apenas como referência não aprovada; revisão manual/Figma dispensada no alvo académico/local, com risco residual `ACEITE_RISCO` e sem alegação de paridade.
 
 #### Glossario (rapido) (DERIVADO):
 
@@ -130,7 +130,7 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Como fazer (0.1): marcar `nome`, `descricao`, `ingredientes`, `tipoDePeleIndicado`, `imagem`, `preco`, `stock` como `CANONICO`.
     - Como fazer (0.2): marcar `brandName` como `DERIVADO de RF06/RF09`.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/models/product.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/product.model.js`.
     - Snippet de referência: `brandName // DERIVADO de RF06/RF09`.
     - O que verificar: não foram criados campos de pagamento ou carrinho.
 
@@ -140,7 +140,7 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Como fazer (1.1): criar campos obrigatórios do RF07.
     - Como fazer (1.2): guardar `priceCents` e `stock` como números inteiros não negativos.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/models/product.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/product.model.js`.
     - Snippet de referência: `priceCents: { type: Number, min: 0, required: true }`.
     - O que verificar: `stock` tem `min: 0`.
 
@@ -150,7 +150,7 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Como fazer (2.1): validar strings obrigatórias e listas não vazias.
     - Como fazer (2.2): converter preço para cêntimos no backend.
     - Ficheiro a rever: `docs/RNF.md`.
-    - Ficheiro alvo: `server/src/validators/product.validator.js`.
+    - Ficheiro alvo: `apps/api/src/validators/product.validator.js`.
     - Snippet de referência: `if (priceCents < 0) errors.price = 'Preço inválido';`.
     - O que verificar: preço e stock inválidos devolvem `400`.
 
@@ -159,8 +159,8 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Justificação: regras de catálogo ficam fora do controller.
     - Como fazer (3.1): normalizar ingredientes e tipos de pele.
     - Como fazer (3.2): guardar `createdBy` com id do admin, se auth existir.
-    - Ficheiro a rever: `server/src/models/product.model.js`.
-    - Ficheiro alvo: `server/src/services/product.service.js`.
+    - Ficheiro a rever: `apps/api/src/models/product.model.js`.
+    - Ficheiro alvo: `apps/api/src/services/product.service.js`.
     - Snippet de referência: `const product = await Product.create({ ...payload, createdBy: adminUserId });`.
     - O que verificar: resposta devolve produto criado sem campos internos desnecessários.
 
@@ -169,8 +169,8 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Justificação: criação de catálogo é operação administrativa.
     - Como fazer (4.1): proteger com `requireAuth`; se não existir, marcar `TODO (BLOCKER)` e não expor endpoint.
     - Como fazer (4.2): proteger com `requireRole(ROLES.ADMIN)`; se não existir, implementar primeiro ou bloquear criação real.
-    - Ficheiro a rever: `server/src/middlewares/role.middleware.js`.
-    - Ficheiro alvo: `server/src/routes/admin-products.routes.js`.
+    - Ficheiro a rever: `apps/api/src/middlewares/role.middleware.js`.
+    - Ficheiro alvo: `apps/api/src/routes/admin-products.routes.js`.
     - Snippet de referência: `router.post('/products', requireAuth, requireRole(ROLES.ADMIN), createProductController);`.
     - O que verificar: cliente recebe `403` e não existe rota alternativa sem auth.
 
@@ -179,8 +179,8 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Justificação: a defesa precisa mostrar criação real de catálogo.
     - Como fazer (5.1): criar inputs para nome, descrição, ingredientes, pele indicada, imagem, preço e stock.
     - Como fazer (5.2): mostrar loading, erro, sucesso e limpar formulário após sucesso.
-    - Ficheiro a rever: `client/src/App.jsx`.
-    - Ficheiro alvo: `client/src/pages/AdminProductCreatePage.jsx`.
+    - Ficheiro a rever: `apps/web/src/App.jsx`.
+    - Ficheiro alvo: `apps/web/src/pages/AdminProductCreatePage.jsx`.
     - Snippet de referência: `await apiClient.post('/admin/products', payload);`.
     - O que verificar: UI não aparece para cliente, mas backend continua protegido.
 
@@ -190,7 +190,7 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Como fazer (6.1): não criar categorias aqui.
     - Como fazer (6.2): documentar que `categoryIds` será acrescentado ou ativado no BK seguinte.
     - Ficheiro a rever: `docs/planificacao/backlogs/MF-VIEWS.md`.
-    - Ficheiro alvo: `server/src/models/product.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/product.model.js`.
     - Snippet de referência: `// categoryIds entra no BK-MF0-08`.
     - O que verificar: não há lógica de filtros neste BK.
 
@@ -200,7 +200,7 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
     - Como fazer (7.1): testar criação válida.
     - Como fazer (7.2): Executar cenários negativos obrigatórios (mínimo 3) e registar resultados.
     - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
-    - Ficheiro alvo: `server/tests/products.test.js`.
+    - Ficheiro alvo: `apps/api/tests/products.test.js`.
     - Snippet de referência: `expect(forbiddenResponse.status).toBe(403);`.
     - O que verificar: evidência cobre permissões e validações.
 
@@ -213,7 +213,7 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
 - Negativo 3: passo 2; nome/descrição em falta; resultado esperado `400`; risco que cobre: produto incompleto.
 - Técnico: `Product` usa campos de `RF07` e `brandName` marcado como derivado.
 - Regressão das fases anteriores: roles e login continuam a funcionar.
-- UI/mockup: sem mockup; formulário admin baseline.
+- UI/mockup: validar comportamento responsive/acessível pelos gates locais; a revisão manual/Figma foi dispensada como `ACEITE_RISCO`, sem alegar aprovação, alinhamento exato ou screenshots inexistentes.
 - Segurança: endpoint admin protegido no backend; sem auth/role funcional, criação real bloqueada.
 
 #### Critérios de aceite:
@@ -231,7 +231,7 @@ O produto pertence a uma área administrativa. Esconder o botão no frontend mel
 - `pr`: `A preencher no fecho do BK`
 - `proof`: `A preencher após validação`
 - `neg`: `A preencher após testes negativos`
-- `files`: `server/src/models/product.model.js`, `server/src/routes/admin-products.routes.js`, `client/src/pages/AdminProductCreatePage.jsx`
+- `files`: `apps/api/src/models/product.model.js`, `apps/api/src/routes/admin-products.routes.js`, `apps/web/src/pages/AdminProductCreatePage.jsx`
 - `commands`: `curl -X POST /api/admin/products`, `npm test`
 - `screenshots`: formulário de produto com sucesso e erro
 - `notes`: `brandName` é derivado de RF06/RF09; categorias ficam para BK seguinte; criação real depende de `requireAuth`/`requireRole`
@@ -391,22 +391,22 @@ Imagem de produto nesta fase e `imageUrl` controlado. Não há upload de ficheir
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - CRIAR:
-        - `server/src/models/product.model.js`
-        - `server/src/validators/product.validator.js`
-        - `server/src/services/product.service.js`
-        - `server/src/controllers/admin-products.controller.js`
-        - `server/src/routes/admin-products.routes.js`
-        - `server/tests/products.test.js`
-        - `client/src/pages/AdminProductCreatePage.jsx`
+        - `apps/api/src/models/product.model.js`
+        - `apps/api/src/validators/product.validator.js`
+        - `apps/api/src/services/product.service.js`
+        - `apps/api/src/controllers/admin-products.controller.js`
+        - `apps/api/src/routes/admin-products.routes.js`
+        - `apps/api/tests/products.test.js`
+        - `apps/web/src/pages/AdminProductCreatePage.jsx`
 
     - EDITAR:
-        - `server/src/app.js`
-        - `client/src/App.jsx`
+        - `apps/api/src/app.js`
+        - `apps/web/src/App.jsx`
 
     - REVER:
-        - `server/src/middlewares/auth.middleware.js`
-        - `server/src/middlewares/role.middleware.js`
-        - `server/src/constants/roles.js`
+        - `apps/api/src/middlewares/auth.middleware.js`
+        - `apps/api/src/middlewares/role.middleware.js`
+        - `apps/api/src/constants/roles.js`
         - `docs/RF.md`, requisito `RF07`.
         - `docs/planificacao/guias-bk/MF0/BK-MF0-08-associar-categorias-limpeza-maquilhagem-tratamento-protetor-solar-etc.md`.
         - `docs/planificacao/guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md`.
@@ -431,17 +431,17 @@ Imagem de produto nesta fase e `imageUrl` controlado. Não há upload de ficheir
 6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
 7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
-### Passo 4 - Criar ou editar `server/src/models/product.model.js`
+### Passo 4 - Criar ou editar `apps/api/src/models/product.model.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/models/product.model.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/models/product.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/models/product.model.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/models/product.model.js`.
+    - CRIAR/EDITAR: `apps/api/src/models/product.model.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/models/product.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/models/product.model.js`.
+Criar este ficheiro em `apps/api/src/models/product.model.js`.
 
 ```js
 import mongoose from "mongoose";
@@ -521,17 +521,17 @@ export const Product = model("Product", productSchema);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 5 - Criar ou editar `server/src/validators/product.validator.js`
+### Passo 5 - Criar ou editar `apps/api/src/validators/product.validator.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/product.validator.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/validators/product.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/validators/product.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/validators/product.validator.js`.
+    - CRIAR/EDITAR: `apps/api/src/validators/product.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/validators/product.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/validators/product.validator.js`.
+Criar este ficheiro em `apps/api/src/validators/product.validator.js`.
 
 ```js
 import { AppError } from "../middlewares/error.middleware.js";
@@ -647,17 +647,17 @@ export function validateProductInput(body) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 6 - Criar ou editar `server/src/services/product.service.js`
+### Passo 6 - Criar ou editar `apps/api/src/services/product.service.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/services/product.service.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/services/product.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/services/product.service.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/services/product.service.js`.
+    - CRIAR/EDITAR: `apps/api/src/services/product.service.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/services/product.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/services/product.service.js`.
+Criar este ficheiro em `apps/api/src/services/product.service.js`.
 
 ```js
 import { Product } from "../models/product.model.js";
@@ -694,17 +694,17 @@ export async function createProduct(input, adminUserId) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 7 - Criar ou editar `server/src/controllers/admin-products.controller.js`
+### Passo 7 - Criar ou editar `apps/api/src/controllers/admin-products.controller.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/admin-products.controller.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/controllers/admin-products.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/controllers/admin-products.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/controllers/admin-products.controller.js`.
+    - CRIAR/EDITAR: `apps/api/src/controllers/admin-products.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/controllers/admin-products.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/controllers/admin-products.controller.js`.
+Criar este ficheiro em `apps/api/src/controllers/admin-products.controller.js`.
 
 ```js
 import { createProduct } from "../services/product.service.js";
@@ -726,17 +726,17 @@ export async function createProductController(req, res, next) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 8 - Criar ou editar `server/src/routes/admin-products.routes.js`
+### Passo 8 - Criar ou editar `apps/api/src/routes/admin-products.routes.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/admin-products.routes.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/routes/admin-products.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/routes/admin-products.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/routes/admin-products.routes.js`.
+    - CRIAR/EDITAR: `apps/api/src/routes/admin-products.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/routes/admin-products.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/routes/admin-products.routes.js`.
+Criar este ficheiro em `apps/api/src/routes/admin-products.routes.js`.
 
 ```js
 import { Router } from "express";
@@ -759,17 +759,17 @@ adminProductsRoutes.post(
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 9 - Criar ou editar `server/src/app.js`
+### Passo 9 - Criar ou editar `apps/api/src/app.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/app.js`.
+    - CRIAR/EDITAR: `apps/api/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/app.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/app.js` e substituir pelo ficheiro completo abaixo, preservando rotas anteriores e acrescentando produtos admin.
+Editar `apps/api/src/app.js` e substituir pelo ficheiro completo abaixo, preservando rotas anteriores e acrescentando produtos admin.
 
 ```js
 import cookieParser from "cookie-parser";
@@ -810,17 +810,17 @@ export function createApp() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 10 - Criar ou editar `client/src/pages/AdminProductCreatePage.jsx`
+### Passo 10 - Criar ou editar `apps/web/src/pages/AdminProductCreatePage.jsx`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/AdminProductCreatePage.jsx` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/pages/AdminProductCreatePage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/pages/AdminProductCreatePage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/pages/AdminProductCreatePage.jsx`.
+    - CRIAR/EDITAR: `apps/web/src/pages/AdminProductCreatePage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/pages/AdminProductCreatePage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/pages/AdminProductCreatePage.jsx`.
+Criar este ficheiro em `apps/web/src/pages/AdminProductCreatePage.jsx`.
 
 ```jsx
 import { useState } from "react";
@@ -962,17 +962,17 @@ export function AdminProductCreatePage() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 11 - Criar ou editar `client/src/App.jsx`
+### Passo 11 - Criar ou editar `apps/web/src/App.jsx`
 
 1. Objetivo simples do passo: ligar a página admin de produtos a app de demonstração sem criar routing definitivo.
 2. Ficheiros envolvidos:
-    - EDITAR: `client/src/App.jsx`.
+    - EDITAR: `apps/web/src/App.jsx`.
     - LOCALIZAÇÃO: substituir o ficheiro atual por esta versao completa.
     - REVER: páginas importadas abaixo e `AuthContext.jsx`.
 3. O que fazer: manter as páginas anteriores e acrescentar a nova página deste BK.
 4. Código completo, correto e integrado:
 
-Editar `client/src/App.jsx` e substituir pelo ficheiro completo abaixo.
+Editar `apps/web/src/App.jsx` e substituir pelo ficheiro completo abaixo.
 
 ```jsx
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -1085,7 +1085,7 @@ Descrição com claim médico `400`:
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
-Criar este ficheiro em `server/tests/products.test.js`.
+Criar este ficheiro em `apps/api/tests/products.test.js`.
 
 ```js
 import { describe, expect, it } from "vitest";
@@ -1181,4 +1181,6 @@ O próximo BK deve reutilizar `Product.categoryIds` e criar `Category`. Não dev
 - `2026-05-25`: reforçado blocker obrigatório quando `requireAuth`/`requireRole` não estiverem funcionais.
 - `2026-05-29`: tutorial linear integrado com modelo Product, rota admin protegida, validação de claims, payloads, UI e testes.
 - `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
-- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a página admin de produtos.
+- `2026-05-29`: acrescentado `apps/web/src/App.jsx` completo para ligar a página admin de produtos.
+- `2026-07-10` (estado corrente): revisão manual/Figma dispensada no alvo académico/local; RNF26 fica `ACEITE_RISCO`, sem alegar aprovação ou paridade.
+- `2026-07-10`: paths pedagógicos normalizados para a estrutura pública `apps/api/` e `apps/web/`.

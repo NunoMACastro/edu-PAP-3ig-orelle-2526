@@ -1,6 +1,7 @@
-# BK-MF1-08 - A análise deve ser guardada no histórico pessoal para futuras comparações
+# BK-MF1-08 - Guardar histórico próprio sem expor relatórios bloqueados
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF1-08`
 - `bk_id`: `BK-MF1-08`
 - `macro`: `MF1`
@@ -16,391 +17,249 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF2-01`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-08-a-analise-deve-ser-guardada-no-historico-pessoal-para-futuras-comparacoes.md`
-- `last_updated`: `2026-05-31`
+- `last_updated`: `2026-07-11`
+
+> **Contrato de acesso:** o histórico pertence ao utilizador autenticado e respeita o mesmo paywall do relatório. Um relatório bloqueado aparece apenas como teaser; análises, recomendações, insights, evolução e comparação não podem servir de atalho para o conteúdo protegido.
+
+## Contexto do BK
+
+A sessão de consulta já guarda objetivos, fotografias usadas, transcript, análise, relatório e revisões. Este BK não cria uma cópia mutável desses dados: expõe uma projeção histórica segura e liga cada entrada ao respetivo relatório versionado.
 
 ## Objetivo
-Neste BK vais expor o histórico pessoal de análises e relatórios do utilizador autenticado.
+
+Permitir ao utilizador consultar e retomar as suas sessões anteriores, mantendo snapshots históricos, ownership e a fronteira locked/unlocked em todas as superfícies derivadas.
 
 ## Importância
-O histórico permite comparar evolução ao longo do tempo em `BK-MF2-01` e comparar imagens após 30 dias em `BK-MF3-01`. Como contém dados sensíveis, deve aplicar ownership no backend.
+
+Um paywall só é real se todas as rotas derivadas o respeitarem. Se o histórico devolvesse findings, rotina ou recomendações de um relatório bloqueado, seria possível contornar o desbloqueio sem abrir a página do relatório.
 
 ## Scope-in
-- Criar endpoint `GET /api/me/skin-history`.
-- Listar análises e relatórios do próprio utilizador.
-- Ordenar por data.
-- Não devolver caminhos internos de fotografias.
-- Criar página React com estados `loading`, `error`, `empty` e `success`.
+
+- Listar sessões próprias com `limit` validado e estados públicos, sem cursor/`page`.
+- Retomar uma sessão aberta pelo `flowState` do backend.
+- Mostrar teaser de relatórios bloqueados.
+- Mostrar conteúdo completo apenas quando existe `ReportUnlock` válido.
+- Preservar snapshot histórico e mostrar disponibilidade atual separadamente.
+- Aplicar ownership também a evolução, comparação, recomendações e insights.
+- Integrar eliminação de conta, privacidade, export e backup.
 
 ## Scope-out
-- Não criar gráficos; isso fica para `BK-MF2-01`.
-- Não comparar imagens; isso fica para `BK-MF3-01`.
-- Não criar painel de eliminação/anonimização.
+
+- Não aceitar `userId` por query/body.
+- Não devolver bytes das fotografias no histórico.
+- Não usar CSS para esconder conteúdo protegido.
+- Não recalcular recomendações, preços ou depósito ao listar histórico.
+- Não expor relatórios de outro utilizador, mesmo conhecendo o `reportId`.
 
 ## Pré-requisitos
-- `BK-MF1-06`: análises guardadas em `FaceAnalysis`.
-- `BK-MF1-07`: relatórios guardados em `FaceReport`.
-- `BK-MF0-02`: `requireAuth`.
+
+- Sessões e relatórios v2 de `BK-MF1-06`/`BK-MF1-07`.
+- Autenticação por sessão e ownership nos services.
+- `ReportUnlock` como fonte de verdade do acesso.
+- Cifra contextual disponível para dados sensíveis.
 
 ## Glossário
-- Histórico pessoal: lista cronológica de análises e relatórios do próprio cliente.
-- Evolução temporal: comparação futura entre resultados ao longo do tempo.
-- Ownership: regra que impede um utilizador de ler histórico de outro.
+
+- **Snapshot histórico:** valores fixados no momento do relatório/freeze.
+- **Disponibilidade atual:** stock e estado atual do produto, mostrado sem alterar o snapshot.
+- **Projeção:** DTO criado para uma finalidade e nível de acesso concretos.
+- **Boundary de paywall:** regra comum aplicada antes de descifrar/devolver conteúdo.
 
 ## Conceitos teóricos
-Histórico pessoal não é gráfico. Este BK organiza dados em formato temporal. O gráfico virá depois, usando a resposta deste endpoint.
 
-O backend nunca aceita `userId` por query param. A identidade vem da sessão. Isto impede que alguém tente chamar `/api/me/skin-history?userId=outro`.
+Guardar histórico não significa duplicar todos os documentos. A sessão liga análise, relatório, revisão e jobs; o DTO compõe apenas os campos necessários à lista. O detalhe é obtido pela rota canónica do relatório, que decide entre teaser e conteúdo completo.
 
-Como o histórico junta análises e relatórios, a resposta deve ser curta, ordenada e sem dados de armazenamento. Não há paths, `storageKey`, IDs de consentimento ou detalhes de ficheiro; há apenas informação necessária para o cliente ver evolução e para BKs futuros criarem gráficos ou comparações.
+O backend deve verificar `userId` em cada consulta e só depois procurar o unlock. O frontend nunca é a autoridade. Mesmo uma página secundária — evolução, comparação, recomendações ou insights do consultor — tem de filtrar análises sem relatório desbloqueado.
 
-O limite de resultados protege performance e privacidade. Mesmo que o utilizador tenha muitos registos, este BK devolve um conjunto recente e previsível, preparado para páginação futura se o histórico crescer.
+O histórico também distingue passado e presente. Nome, preço, variante e stock do relatório vêm do snapshot congelado. Um card pode ainda consultar disponibilidade atual, mas deve rotular os dois valores e nunca reescrever o passado.
 
 ## Arquitetura do BK
-- `GET /api/me/skin-history`
-- `getPersonalSkinHistory`
-- `SkinHistoryPage`
+
+- `GET /api/ai-consultation/sessions`
+- `GET /api/ai-consultation/sessions/current`
+- `GET /api/ai-consultation/sessions/:sessionId`
+- `GET /api/face-reports/:reportId`
+- `ConsultationHistoryPage` + `ConsultationDashboardPage`
+- boundary comum `ReportUnlock` antes de derivados sensíveis
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/services/skin-history.service.js`
-- CRIAR: `server/src/controllers/skin-history.controller.js`
-- CRIAR: `server/src/routes/skin-history.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/SkinHistoryPage.jsx`
-- EDITAR: `client/src/App.jsx`
 
-## Bloco pedagógico
+- EDITAR: `apps/api/src/services/ai-consultation.service.js`
+- EDITAR: `apps/api/src/services/skin-history.service.js`
+- EDITAR: `apps/api/src/services/report-analysis-access.service.js`
+- EDITAR: `apps/api/src/services/skin-evolution.service.js`
+- EDITAR: `apps/api/src/services/skin-comparison.service.js`
+- EDITAR: `apps/api/src/services/recommendation.service.js`
+- EDITAR: `apps/api/src/routes/ai-consultation.routes.js`
+- EDITAR: `apps/web/src/features/consultation/ConsultationHistoryPage.jsx`
+- EDITAR: `apps/web/src/features/consultation/ConsultationDashboardPage.jsx`
+- EDITAR: `apps/web/src/features/consultation/consultationApi.js`
+
+## Bloco pedagogico
 
 ### Objetivo
-Listar histórico pessoal de análises e relatórios sem permitir acesso cruzado entre utilizadores.
 
-### Pré-requisitos
-- Ter `FaceAnalysis` em `BK-MF1-06`.
-- Ter `FaceReport` em `BK-MF1-07`.
-- Ter sessão autenticada com `req.user.id`.
+Compreender como ownership, paywall e imutabilidade atravessam várias páginas sem duplicar regras inconsistentes.
+
+### Pre-requisitos
+
+- Saber filtrar documentos por `userId` no service.
+- Entender a diferença entre listagem e detalhe.
+- Conhecer o contrato locked/unlocked de `BK-MF1-07`.
 
 ### Erros comuns
-- Aceitar `userId` vindo da query.
-- Devolver paths ou `storageKey` de fotografias.
-- Misturar histórico de utilizadores diferentes.
+
+- Buscar por `_id` e só depois comparar o utilizador no controller.
+- Devolver findings num card de histórico bloqueado.
+- Tratar relatório como desbloqueado porque tem estado `frozen`.
+- Misturar preço atual no snapshot histórico.
+- Colocar transcript ou respostas no `localStorage`.
 
 ### Check de compreensao
-- Porque é que a rota usa `/api/me/skin-history`?
-- Que tipos de entrada entram no histórico?
-- Como validar que o utilizador A não ve dados do utilizador B?
+
+- Porque é que `frozen_locked` não significa “conteúdo legível”?
+- Que páginas derivadas podem contornar o paywall se não forem filtradas?
+- Porque é que o stock atual não deve alterar o relatório antigo?
+
+### Tempo estimado
+
+`S` — DTOs, filtros de acesso e frontend.
 
 ## Bloco operacional
 
 ### Entrada
+
 - Sessão autenticada.
-- Análises e relatórios do próprio utilizador.
-- Resposta temporal ordenada por data.
+- Query opcional `limit` entre 1 e 50; não aceita `page`, cursor nem `userId`.
+
+### Saída
+
+- Lista sanitizada das sessões próprias.
+- Link para retomar a consulta aberta ou abrir o relatório.
+- Teaser ou conteúdo completo de acordo com o unlock.
 
 ### Passos
-Executar cenários negativos obrigatórios (mínimo 2).
 
-Segue os passos lineares abaixo e valida sem sessão, sem dados e tentativa de manipular `userId`.
+Executar cenarios negativos obrigatorios (minimo 2).
 
-## Passos lineares
+#### Passo 1 - Definir o DTO da lista
 
-### Passo 1 - Confirmar contrato do histórico
+Inclui ID da sessão, objetivos, datas, `flowState`, estado de operação, `reportId` e estado locked/unlocked. Exclui fotografias, findings, respostas, prompts e dados cifrados.
 
-1. Explicação simples do objetivo: garantir que o histórico pertence ao utilizador autenticado.
-2. Ficheiros envolvidos.
-    - REVER: `docs/RF.md`
-    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
-    - LOCALIZAÇÃO: `RF16`, `RF17` e `RF25`.
-3. O que fazer: confirma que `RF16` prepara comparações futuras.
-4. Código completo, correto e integrado: sem código novo neste passo.
-5. Explicação do código: o histórico é a ponte entre análise, evolução temporal e comparação futura. Este passo define o endpoint como leitura pessoal e sensível, para que gráficos e comparações futuras usem um contrato seguro em vez de consultar fotografias diretamente.
-6. Como validar este passo: a rota não deve receber `userId`.
-7. Erros comuns ou cenário negativo: permitir consultar histórico por ID enviado pelo frontend quebra privacidade.
+#### Passo 2 - Filtrar sempre pelo titular
 
-### Passo 2 - Criar service de histórico
+Constrói a query com `{ userId: req.user.id }`. Não reutilizes um service administrativo nem aceites utilizador por parâmetro.
 
-1. Explicação simples do objetivo: listar análises e relatórios do utilizador da sessão.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/skin-history.service.js`
-    - REVER: `server/src/models/face-analysis.model.js`
-    - REVER: `server/src/models/face-report.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o service.
-4. Código completo, correto e integrado:
+#### Passo 3 - Obter o estado atual agregado
+
+`GET .../sessions/current` permite ao dashboard decidir entre “Nova consulta” e “Retomar”. A fonte é o backend, não um estado React antigo.
+
+#### Passo 4 - Aplicar o boundary de unlock
+
+Antes de projetar análise, relatório, recomendação, evolução, comparação ou insight, confirma a existência do unlock do mesmo relatório e titular.
 
 ```js
-import { FaceAnalysis } from "../models/face-analysis.model.js";
-import { FaceReport } from "../models/face-report.model.js";
-
-function toAnalysisHistoryItem(analysis) {
-    return {
-        id: analysis._id.toString(),
-        type: "analysis",
-        createdAt: analysis.createdAt,
-        providerName: analysis.providerName,
-        findings: analysis.findings,
-        limitations: analysis.limitations,
-    };
-}
-
-function toReportHistoryItem(report) {
-    return {
-        id: report._id.toString(),
-        type: "report",
-        analysisId: report.analysisId.toString(),
-        createdAt: report.createdAt,
-        cosmeticSummary: report.cosmeticSummary,
-        routineSuggestions: report.routineSuggestions,
-        limitations: report.limitations,
-    };
-}
-
-export async function getPersonalSkinHistory(userId) {
-    const [analyses, reports] = await Promise.all([
-        FaceAnalysis.find({ userId })
-            .select("providerName findings limitations createdAt")
-            .sort({ createdAt: -1 })
-            .limit(30),
-        FaceReport.find({ userId })
-            .select("analysisId cosmeticSummary routineSuggestions limitations createdAt")
-            .sort({ createdAt: -1 })
-            .limit(30),
-    ]);
-
-    return [...analyses.map(toAnalysisHistoryItem), ...reports.map(toReportHistoryItem)]
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+async function canReadFullReport({ reportId, userId }) {
+    return Boolean(await ReportUnlock.exists({ reportId, userId, status: "unlocked" }));
 }
 ```
 
-5. Explicação do código: o service filtra por `userId` da sessão e nunca por valor vindo do frontend. O `.select(...)` limita os campos devolvidos e impede que o histórico transporte detalhes técnicos desnecessários, como IDs de fotografias, consentimento ou storage.
-6. Como validar este passo: cria dados para dois utilizadores e confirma que cada um vê apenas os seus; confirma também que a resposta não inclui `storageKey`, `photoIds` ou `consentId`.
-7. Erros comuns ou cenário negativo: listar sem filtro por `userId` expõe dados biométricos de todos; devolver documentos completos aumenta superfície de fuga de dados.
+#### Passo 5 - Projetar teaser ou detalhe
 
-### Passo 3 - Criar controller e route
+Sem unlock, usa o serializer locked de `BK-MF1-07`. Com unlock, descifra apenas os campos necessários ao detalhe pedido e aplica `Cache-Control: private, no-store`.
 
-1. Explicação simples do objetivo: expor o histórico com autenticação.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/skin-history.controller.js`
-    - CRIAR: `server/src/routes/skin-history.routes.js`
-    - LOCALIZAÇÃO: ficheiros completos.
-3. O que fazer: cria controller e route.
-4. Código completo, correto e integrado:
+#### Passo 6 - Mostrar snapshot e estado atual
 
-```js
-// server/src/controllers/skin-history.controller.js
-import { getPersonalSkinHistory } from "../services/skin-history.service.js";
+No card do produto, apresenta “No relatório” e “Disponibilidade atual” separadamente. Uma alteração atual nunca muda preço, variante ou stock congelados.
 
-export async function getMySkinHistoryController(req, res, next) {
-    try {
-        const history = await getPersonalSkinHistory(req.user.id);
-        return res.status(200).json({ history });
-    } catch (err) {
-        return next(err);
-    }
-}
-```
+#### Passo 7 - Integrar `/consulta/historico`
 
-```js
-// server/src/routes/skin-history.routes.js
-import { Router } from "express";
-import { requireAuth } from "../middlewares/auth.middleware.js";
-import { getMySkinHistoryController } from "../controllers/skin-history.controller.js";
+Usa links para `/consulta/relatorios/:reportId`. Apresenta estados vazios, loading e erro sem apagar a lista já carregada. O foco é movido para o título após navegação.
 
-export const skinHistoryRoutes = Router();
+#### Passo 8 - Integrar lifecycle de privacidade
 
-skinHistoryRoutes.get(
-    "/me/skin-history",
-    requireAuth,
-    getMySkinHistoryController,
-);
-```
+Inclui sessões, jobs, relatórios, grants e imagens derivadas no export, pedido de eliminação e backup cifrado. A eliminação de conta remove ligações e bytes privados.
 
-5. Explicação do código: a rota usa `/me` para deixar claro que só devolve dados do próprio utilizador.
-6. Como validar este passo: sem sessão, espera `401`.
-7. Erros comuns ou cenário negativo: criar `/users/:userId/history` neste BK abre risco de acesso cruzado.
+### Cenarios negativos recomendados
 
-### Passo 4 - Registar route na app
+- Sessão sem autenticação: `401`.
+- Session/report ID de outro titular: `404`/`403` sem leak de existência.
+- Relatório locked: findings/rotina/recomendações ausentes.
+- Evolução/comparação tenta usar análise locked: entrada filtrada.
+- Produto alterado depois do freeze: snapshot permanece igual.
+- Falha de disponibilidade atual: histórico continua visível.
 
-1. Explicação simples do objetivo: ligar o histórico ao Express.
-2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
-    - LOCALIZAÇÃO: imports e routes.
-3. O que fazer: adiciona a route.
-4. Código completo, correto e integrado:
+### Validacao
 
-```js
-import { skinHistoryRoutes } from "./routes/skin-history.routes.js";
+- [ ] Negativos: minimo 2 cenarios materiais executados.
+- Gate documental: falhar se `negativos < 2`.
+- Testes de ownership em lista e detalhe.
+- Testes do paywall em histórico, evolução, comparação, recomendações e insights.
+- Teste do DTO locked a provar ausência de conteúdo.
+- Teste frontend de estado vazio, reload e erro parcial.
+- Teste de export/eliminação com novas coleções.
 
-app.use("/api", skinHistoryRoutes);
-```
+### Matriz minima de testes por prioridade
 
-5. Explicação do código: o endpoint final é `GET /api/me/skin-history`. Montar a route em `/api` preserva o prefixo comum da aplicação e mantém `/me` como sinal de que os dados pertencem ao utilizador autenticado.
-6. Como validar este passo: confirma que a rota autenticada existe.
-7. Erros comuns ou cenário negativo: registar sem `requireAuth` expõe dados sensíveis.
+| Prioridade | Cenário | Resultado esperado |
+|---|---|---|
+| P0 | utilizador tenta relatório alheio | conteúdo não é revelado |
+| P0 | relatório locked em superfície derivada | análise/recomendações ausentes |
+| P0 | relatório unlocked | conteúdo próprio disponível com `no-store` |
+| P1 | preço/stock atual muda | snapshot histórico não muda |
+| P1 | reload de sessão aberta | destino calculado pelo `flowState` |
+| P1 | falha na disponibilidade atual | conteúdo histórico preservado |
 
-### Passo 5 - Criar página de histórico
+### Evidencia de testes por camada
 
-1. Explicação simples do objetivo: mostrar histórico pessoal ao cliente.
-2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/SkinHistoryPage.jsx`
-    - EDITAR: `client/src/App.jsx`
-    - LOCALIZAÇÃO: ficheiro completo e imports do `App`.
-3. O que fazer: cria e regista a página.
-4. Código completo, correto e integrado:
-
-```jsx
-// client/src/pages/SkinHistoryPage.jsx
-import { useState } from "react";
-import { apiRequest } from "../services/apiClient.js";
-
-export function SkinHistoryPage() {
-    const [history, setHistory] = useState([]);
-    const [status, setStatus] = useState("idle");
-    const [error, setError] = useState("");
-
-    async function loadHistory() {
-        setStatus("loading");
-        setError("");
-
-        try {
-            const data = await apiRequest("/me/skin-history");
-            setHistory(data.history);
-            setStatus(data.history.length === 0 ? "empty" : "success");
-        } catch (err) {
-            setError(err.message);
-            setStatus("error");
-        }
-    }
-
-    return (
-        <section>
-            <h1>Histórico pessoal de pele</h1>
-            <button onClick={loadHistory} disabled={status === "loading"}>
-                {status === "loading" ? "A carregar..." : "Ver histórico"}
-            </button>
-            {status === "error" && <p role="alert">{error}</p>}
-            {status === "empty" && <p>Ainda não existem análises ou relatórios.</p>}
-            {status === "success" && (
-                <ol>
-                    {history.map((item) => (
-                        <li key={`${item.type}-${item.id}`}>
-                            <strong>{item.type === "analysis" ? "Análise" : "Relatório"}</strong>
-                            <time dateTime={item.createdAt}>
-                                {new Date(item.createdAt).toLocaleString("pt-PT")}
-                            </time>
-                            {item.type === "report" ? (
-                                <p>{item.cosmeticSummary}</p>
-                            ) : (
-                                <p>Provider: {item.providerName}</p>
-                            )}
-                        </li>
-                    ))}
-                </ol>
-            )}
-        </section>
-    );
-}
-```
-
-```jsx
-// client/src/App.jsx
-import { SkinHistoryPage } from "./pages/SkinHistoryPage.jsx";
-
-export function App() {
-    return (
-        <>
-            <ProductSearchPage />
-            <ProductDetailsPage />
-            <ProductReviewPage />
-            <RelatedProductsPage />
-            <FacePhotoUploadPage />
-            <FaceAnalysisPage />
-            <FaceReportPage />
-            <SkinHistoryPage />
-        </>
-    );
-}
-```
-
-5. Explicação do código: a página mostra lista temporal e distingue análise de relatório.
-6. Como validar este passo: gera análise e relatório, depois carrega o histórico.
-7. Erros comuns ou cenário negativo: mostrar paths de fotografias não é necessário e seria inseguro.
-
-### Passo 6 - Validar negativos de ownership
-
-1. Explicação simples do objetivo: confirmar que o histórico nunca aceita `userId` vindo do cliente.
-2. Ficheiros envolvidos.
-    - REVER: `server/src/services/skin-history.service.js`
-    - REVER: `server/src/controllers/skin-history.controller.js`
-    - REVER: `server/src/routes/skin-history.routes.js`
-3. O que fazer: cria dados para dois utilizadores e consulta o histórico com cada sessão.
-4. Código completo, correto e integrado:
-
-```bash
-curl -i http://localhost:3001/api/me/skin-history \
-    -H "Cookie: orelle_session=COOKIE_UTILIZADOR_A"
-curl -i "http://localhost:3001/api/me/skin-history?userId=ID_UTILIZADOR_B" \
-    -H "Cookie: orelle_session=COOKIE_UTILIZADOR_A"
-curl -i http://localhost:3001/api/me/skin-history \
-    -H "Cookie: orelle_session=COOKIE_UTILIZADOR_B"
-```
-
-5. Explicação do código: o segundo pedido tenta manipular o ownership, mas o backend deve continuar a usar apenas `req.user.id`. Os cookies representam sessões criadas pelo login do `BK-MF0-02`; isto valida o mesmo mecanismo que o frontend usa com `credentials: "include"`.
-6. Como validar este passo: confirma que o utilizador A nunca recebe entradas do utilizador B.
-7. Erros comuns ou cenário negativo: aceitar `userId` na query transforma o histórico numa fuga direta de dados pessoais; trocar o cookie por header de autorização por token contraria o contrato de sessão da app.
-
-### Validação
-- [ ] Negativos: mínimo `2` cenários.
-- [ ] Sem sessão devolve `401`.
-- [ ] Query com `userId` externo não altera ownership.
-- [ ] Histórico vazio devolve lista vazia.
-- [ ] Resposta não inclui `storageKey` nem paths internos.
-
-### Matriz mínima de testes por prioridade
-
-| Camada | Evidência |
-| --- | --- |
-| Service | Consulta filtra por `req.user.id`. |
-| Controller/route | Endpoint `/api/me/skin-history` autenticado. |
-| UI | Página mostra lista temporal ou vazio. |
-
-Evidência de testes por camada:
-- API: output com histórico, sem sessão e tentativa de `userId` externo.
-- Service: teste de isolamento entre dois utilizadores.
-- UI: screenshot da lista temporal.
-
-## Snippet técnico aplicável
-
-O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
-
-## Expected results
-- Com sessão: `200` com `{ "history": [...] }`.
-- Sem sessão: `401`.
-- Sem dados: `200` com lista vazia.
-- A resposta não inclui `storageKey` nem paths internos.
-- A resposta não inclui `photoIds` nem `consentId`.
-
-## Critérios de aceite
-- Cenários negativos concluídos: mínimo `2`.
-- Evidência de testes por camada documentada.
-- O backend filtra por `req.user.id`.
-- A UI mostra estado vazio.
-- O histórico está ordenado por data descrescente.
-- O contrato prepara gráficos em `BK-MF2-01`.
-
-## Validação final
-- Criar análise e relatório.
-- Chamar `GET /api/me/skin-history`.
-- Entrar com outro utilizador e confirmar que não vê os dados anteriores.
-
-## Evidence para PR/defesa
-- Output do histórico com dados.
-- Output sem sessão com `401`.
-- Screenshot da UI com lista temporal.
-
-## Handoff
+- Unit: serializers locked/unlocked e seleção de destino.
+- Integração: ownership e filtro de análises derivadas.
+- Frontend/E2E: histórico, retoma, erro parcial e snapshots.
+- Privacidade: export, eliminação e backup das novas entidades.
 
 ### Handoff
 
-`BK-MF2-01` deve usar `history` para construir gráficos. Não deve voltar a consultar fotografias diretamente nem contornar `GET /api/me/skin-history`.
+`BK-MF2-01` pode calcular evolução apenas com análises pertencentes a relatórios desbloqueados. `BK-MF2-02` usa os snapshots congelados para apresentar recomendações históricas.
+
+## Expected results
+
+- Histórico paginado e pertencente ao titular.
+- Retoma de sessão baseada no backend.
+- Nenhum caminho lateral expõe relatório locked.
+- Snapshots históricos permanecem imutáveis.
+- Privacidade e backup abrangem os novos dados.
+
+## Snippet tecnico aplicavel
+
+O helper do Passo 4 ilustra o boundary. Na aplicação final, reutiliza um service comum e evita repetir a query de unlock em cada controller.
+
+## Criterios de aceite
+
+- Cenarios negativos concluidos: minimo 2.
+- Todos os endpoints usam o utilizador autenticado.
+- A lista não contém dados sensíveis nem bytes.
+- Um relatório bloqueado só devolve teaser.
+- Evolução, comparação, recomendações e insights respeitam o unlock.
+- Relatório histórico distingue snapshot de disponibilidade atual.
+- Respostas e fotografias nunca vão para storage do browser.
+- Export, eliminação e backup incluem o lifecycle completo.
+
+## Validação final
+
+Executa testes focais de paywall/ownership, testes frontend, build e pesquisa estática por conteúdo sensível em serializers de listagem.
+
+## Evidence para PR/defesa
+
+- DTO de lista sanitizado.
+- Prova negativa de acesso a relatório alheio.
+- Prova de que relatório locked não aparece em derivados.
+- Estado antes/depois de alteração de stock sem mudar snapshot.
+
+## Handoff
+
+As recomendações de `BK-MF2-02` são parte do relatório versionado. Não devem ser regeneradas por uma rota independente ao abrir o histórico.
 
 ## Changelog
-- `2026-05-31`: guia revisto com histórico pessoal, ownership, route autenticada e UI.
+
+- `2026-05-31`: guia inicial de histórico pessoal.
+- `2026-07-11`: histórico alinhado com sessões v2, snapshots e boundary transversal locked/unlocked.

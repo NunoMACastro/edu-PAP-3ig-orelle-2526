@@ -1,4 +1,4 @@
-# BK-MF4-01 - Gestão de utilizadores (ativar, suspender, eliminar contas)
+# BK-MF4-01 - Gestão de utilizadores: ativar, suspender e desativar reversivelmente
 
 ## Header
 - `doc_id`: `GUIA-BK-MF4-01`
@@ -16,31 +16,36 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF4-02`
 - `guia_path`: `docs/planificacao/guias-bk/MF4/BK-MF4-01-gestao-de-utilizadores-ativar-suspender-eliminar-contas.md`
-- `last_updated`: `2026-06-15`
+- `last_updated`: `2026-07-10`
+
+> **Estado atual da implementação de referência — 2026-07-10:** `DELETE /api/admin/users/:id` é a ação **Desativar**, não uma eliminação. Preserva email/password/dados, grava `accountStatus="suspended"`, `isActive=false`, `suspendedAt`, mantém `deletedAt=null` e revoga todas as sessões na mesma transação. A conta pode ser reativada por `PATCH .../status`, mas as sessões antigas permanecem revogadas. Apenas `DELETE /api/me/account`, iniciado pelo titular com password + `ELIMINAR`, pode criar o estado terminal `deleted`; esse tombstone nunca pode ser desativado ou reativado pelo painel admin.
 
 #### Objetivo
-Implementar a gestão administrativa de contas da Orélle para que um administrador consiga listar utilizadores, ativar contas, suspender contas e executar eliminação lógica sem expor passwords, dados biométricos, relatórios faciais ou campos internos.
+Implementar a gestão administrativa de contas da Orélle para que um administrador consiga listar utilizadores, ativar, suspender ou executar a ação reversível “Desativar”, sem a confundir com eliminação terminal de dados nem expor passwords, dados biométricos, relatórios faciais ou campos internos.
 
 #### Importância
-`RF33` protege a operação da app: uma conta comprometida ou abusiva deve poder ser suspensa sem apagar dados sensíveis de forma descontrolada. A eliminação completa de fotografias e relatórios fica para `BK-MF5-01`, mas este BK já impede login e reduz a exposição da conta.
+`RF33` protege a operação da app: uma conta comprometida ou abusiva deve poder ser suspensa/desativada sem apagar dados sensíveis de forma descontrolada. Pedidos sobre fotografias/relatórios ficam em `BK-MF5-01`; a eliminação terminal da própria conta fica em `BK-MF7-02`. Este BK apenas impede login e reduz exposição operacional.
 
 #### Scope-in
 - Estender `User` com estado de conta.
 - Bloquear login e sessão ativa de contas suspensas ou eliminadas.
 - Criar endpoints admin para listar utilizadores e alterar estado.
-- Criar eliminação lógica com email anonimizado e `isActive: false`.
+- Criar desativação administrativa reversível com `accountStatus="suspended"`, preservando email/dados e revogando sessões atomicamente.
+- Permitir reativação posterior sem ressuscitar cookies antigos.
 - Criar página admin para executar as ações.
-- Garantir que o administrador não se suspende nem elimina a si próprio neste fluxo.
+- Não renderizar ações mutáveis para tombstones `deleted`; contas `suspended` continuam a disponibilizar “Ativar”.
+- Garantir que o administrador não se suspende nem desativa a si próprio neste fluxo.
 
 #### Scope-out
 - Não apagar fotografias faciais nem relatórios de análise neste BK.
 - Não implementar pedidos RGPD de eliminação/anonymização biométrica; isso fica para `BK-MF5-01`.
+- Não implementar `DELETE /api/me/account` nem eliminação terminal da própria conta; isso fica para `BK-MF7-02`.
 - Não alterar roles; a alteração de role já vem de `BK-MF0-05`.
 - Não permitir que o frontend envie ou decida `userId` de ownership sensível.
 
 #### Estado antes e depois
-- Antes: `apps` já tinha `User.isActive` e alteração de role, mas não tinha fluxo completo de listar, suspender, ativar e eliminar contas.
-- Depois: a API passa a ter gestão admin de estado de conta, login bloqueia contas inativas e a UI admin mostra ações verificáveis.
+- Antes: `apps` já tinha `User.isActive` e alteração de role, mas não tinha fluxo completo de listar, suspender, ativar e desativar reversivelmente contas.
+- Depois: a API passa a ter gestão admin de estado de conta, suspensão/desativação revoga sessões, `suspended` pode regressar a `active`, `deleted` não pode regressar a outro estado e a UI só mostra ações compatíveis com o estado atual.
 
 #### Pre-requisitos
 - `BK-MF0-01`: modelo `User`, email e password protegida.
@@ -51,16 +56,18 @@ Implementar a gestão administrativa de contas da Orélle para que um administra
 #### Glossário
 - Conta ativa: pode autenticar-se e usar a app.
 - Conta suspensa: não pode autenticar-se, mas os dados ficam preservados para revisão.
-- Conta eliminada: fica desativada e anonimizada ao nível mínimo deste BK.
-- Eliminação lógica: marca a conta como eliminada sem apagar coleções sensíveis fora deste requisito.
+- Conta desativada administrativamente: usa `accountStatus="suspended"`, fica sem acesso, conserva email/dados e pode ser reativada; as sessões revogadas não voltam a ser válidas.
+- Eliminação terminal: fluxo distinto do próprio titular em `DELETE /api/me/account`, com confirmação forte, revogação de sessões e tratamento das coleções ligadas.
 - DTO seguro: resposta sem `passwordHash`, tokens, cookies ou dados biométricos.
 
 #### Conceitos teóricos essenciais
 A gestão de contas deve ser feita no backend. O frontend mostra botões, mas a autorização real depende da sessão e da role lida no servidor.
 
-Uma eliminação lógica é mais segura nesta fase do que apagar em cascata. A Orélle tem fotografias e relatórios sensíveis, e esses dados exigem um fluxo próprio de aprovação em `BK-MF5-01`. Neste BK, eliminar significa impedir acesso e reduzir identificadores diretos da conta.
+Uma desativação reversível é mais segura nesta fase do que apagar em cascata. A Orélle tem fotografias e relatórios sensíveis, e esses dados exigem fluxos próprios de privacidade. Neste BK, o verbo HTTP legado `DELETE` significa suspender acesso e revogar sessões; não reduz identificadores, não muda o email e não significa eliminação física/terminal.
 
 Suspender e eliminar devem invalidar o uso posterior da conta. Como o cookie já pode existir no browser, o middleware de autenticação deve confirmar o estado atual do utilizador na base de dados antes de aceitar o pedido protegido.
+
+`suspended` é o estado administrativo reversível. A escrita da conta e a revogação de `AuthSession` devem confirmar na mesma transação; uma falha na revogação faz rollback da suspensão. `deleted` fica reservado ao direito de eliminação do titular e é terminal: se o filtro excluir esse tombstone, a API devolve `409`, impedindo o painel de o alterar.
 
 #### Arquitetura do BK
 - `user.model.js`: acrescenta `accountStatus` e datas administrativas.
@@ -106,7 +113,7 @@ Sem código neste passo. A decisão técnica é: RF33 altera estado de conta; RF
 
 5. Explicação do código.
 
-A ausência de código aqui é intencional: antes de escrever ficheiros, o aluno precisa de perceber que `RF33` é um requisito administrativo e não um atalho para apagar tudo da base de dados. Este passo ensina a separar três ideias diferentes: ativar, suspender e eliminar logicamente. Essa separação evita um erro comum em projetos reais: tratar "eliminar conta" como `deleteOne`, perdendo histórico, auditoria e ligações a dados sensíveis que ainda têm de ser tratados por BKs posteriores.
+A ausência de código aqui é intencional: antes de escrever ficheiros, o aluno precisa de perceber que `RF33` é um requisito administrativo e não um atalho para apagar tudo da base de dados. Este passo ensina a separar ativação, suspensão/desativação reversível e eliminação terminal pelo titular. Essa separação evita tratar o verbo `DELETE` como `deleteOne`, perdendo histórico, auditoria e ligações a dados sensíveis.
 6. Validação do passo.
 
 o plano do PR não promete apagar fotografias ou relatórios nesta entrega.
@@ -164,7 +171,8 @@ const userSchema = new Schema(
         },
         // `accountStatus` é a decisão administrativa principal.
         // `isActive` fica por compatibilidade com BKs anteriores, mas o novo
-        // código deve olhar para `accountStatus` para distinguir suspensão de eliminação lógica.
+        // código olha para `accountStatus` para distinguir active/suspended do
+        // tombstone terminal deleted, que só o titular pode criar.
         accountStatus: {
             type: String,
             enum: ACCOUNT_STATUS_VALUES,
@@ -300,7 +308,7 @@ validar estado apenas no login deixa sessões antigas funcionarem.
 
 1. Objetivo funcional do passo no contexto da app.
 
-centralizar regras de listagem, suspensão, ativação e eliminação lógica.
+centralizar regras de listagem, suspensão, ativação e desativação administrativa reversível.
 2. Ficheiros envolvidos:
    - EDITAR: `apps/api/src/services/admin-users.service.js`
    - LOCALIZAÇÃO: substituir service curto por service completo.
@@ -313,6 +321,7 @@ devolver DTO seguro e impedir ações destrutivas sobre a própria conta.
 // apps/api/src/services/admin-users.service.js
 import mongoose from "mongoose";
 import { AppError } from "../middlewares/error.middleware.js";
+import { AuthSession } from "../models/auth-session.model.js";
 import { ACCOUNT_STATUSES, User } from "../models/user.model.js";
 
 /**
@@ -352,6 +361,37 @@ export async function listAdminUsers() {
     return users.map(toAdminUserDto);
 }
 
+/** Atualiza conta e, quando necessário, revoga sessões na mesma transação. */
+async function updateAccountState({ targetUserId, update, revokeSessions, now }) {
+    const session = await mongoose.startSession();
+    let user = null;
+
+    try {
+        await session.withTransaction(async () => {
+            user = await User.findOneAndUpdate(
+                {
+                    _id: targetUserId,
+                    // Tombstones do titular nunca são mutáveis pelo painel admin.
+                    accountStatus: { $ne: ACCOUNT_STATUSES.DELETED },
+                },
+                update,
+                { new: true, runValidators: true, session },
+            );
+
+            if (user && revokeSessions) {
+                await AuthSession.updateMany(
+                    { userId: targetUserId, revokedAt: null },
+                    { $set: { revokedAt: now, csrfHash: null } },
+                    { session },
+                );
+            }
+        });
+        return user;
+    } finally {
+        await session.endSession();
+    }
+}
+
 /**
  * Altera o estado de conta de outro utilizador.
  *
@@ -374,17 +414,29 @@ export async function setUserAccountStatus({ targetUserId, status, actorUserId }
         throw new AppError(400, "Estado de conta invalido");
     }
 
+    const now = new Date();
     const update =
         status === ACCOUNT_STATUSES.ACTIVE
             ? { accountStatus: status, isActive: true, suspendedAt: null }
-            : { accountStatus: status, isActive: false, suspendedAt: new Date() };
+            : { accountStatus: status, isActive: false, suspendedAt: now };
 
-    const user = await User.findByIdAndUpdate(targetUserId, update, {
-        new: true,
-        runValidators: true,
+    const user = await updateAccountState({
+        targetUserId,
+        update,
+        revokeSessions: status === ACCOUNT_STATUSES.SUSPENDED,
+        now,
     });
 
     if (!user) {
+        const deletedAccount = await User.exists({
+            _id: targetUserId,
+            accountStatus: ACCOUNT_STATUSES.DELETED,
+        });
+
+        if (deletedAccount) {
+            throw new AppError(409, "Uma conta eliminada não pode ser reativada");
+        }
+
         throw new AppError(404, "Utilizador não encontrado");
     }
 
@@ -392,12 +444,12 @@ export async function setUserAccountStatus({ targetUserId, status, actorUserId }
 }
 
 /**
- * Executa eliminação lógica da conta no âmbito de RF33.
+ * Executa desativação administrativa reversível no âmbito de RF33.
  *
  * @async
  * @function softDeleteUserAccount
  * @param {{targetUserId: string, actorUserId: string}} params - Ação administrativa.
- * @returns {Promise<object>} Utilizador eliminado logicamente.
+ * @returns {Promise<object>} Utilizador suspenso, com dados preservados.
  */
 export async function softDeleteUserAccount({ targetUserId, actorUserId }) {
     if (!mongoose.isValidObjectId(targetUserId)) {
@@ -405,23 +457,30 @@ export async function softDeleteUserAccount({ targetUserId, actorUserId }) {
     }
 
     if (targetUserId === actorUserId) {
-        throw new AppError(400, "Um administrador não deve eliminar a própria conta neste fluxo");
+        throw new AppError(400, "Um administrador não deve desativar a própria conta neste fluxo");
     }
 
-    const deletedAt = new Date();
-    const user = await User.findByIdAndUpdate(
+    const now = new Date();
+    const user = await updateAccountState({
         targetUserId,
-        {
-            accountStatus: ACCOUNT_STATUSES.DELETED,
+        update: {
+            accountStatus: ACCOUNT_STATUSES.SUSPENDED,
             isActive: false,
-            suspendedAt: deletedAt,
-            deletedAt,
-            email: `deleted-${targetUserId}@orelle.local`,
+            suspendedAt: now,
+            deletedAt: null,
         },
-        { new: true, runValidators: true },
-    );
+        revokeSessions: true,
+        now,
+    });
 
     if (!user) {
+        const terminalAccount = await User.exists({
+            _id: targetUserId,
+            accountStatus: ACCOUNT_STATUSES.DELETED,
+        });
+        if (terminalAccount) {
+            throw new AppError(409, "Uma conta eliminada terminalmente não pode ser desativada");
+        }
         throw new AppError(404, "Utilizador não encontrado");
     }
 
@@ -431,13 +490,13 @@ export async function softDeleteUserAccount({ targetUserId, actorUserId }) {
 
 5. Explicação do código.
 
-O service concentra a regra de negócio para evitar que controller, route ou frontend decidam estados de conta de formas diferentes. `setUserAccountStatus` trata suspensão/ativação e `softDeleteUserAccount` aplica eliminação lógica, sem apagar fotografias, relatórios ou histórico biométrico que pertencem a BKs futuros. A troca do email por um valor técnico reduz identificação direta no painel admin, mas não deve ser confundida com anonymização completa. Essa distinção é essencial em RGPD: este BK reduz exposição operacional; `BK-MF5-01` tratará pedidos formais sobre dados sensíveis.
+O service concentra a regra de negócio e usa uma transação comum para conta + `AuthSession`. Suspender ou usar o endpoint legado `DELETE` preserva email/password/dados, grava `suspended` e revoga todas as sessões ativas; se a revogação falhar, a conta continua ativa por rollback. Reativar não ressuscita cookies revogados. O filtro exclui apenas `deleted`, tombstone terminal criado pelo titular; nesse caso o painel recebe `409`.
 6. Validação do passo.
 
-chamar cada função em teste e confirmar que o DTO não tem `passwordHash`.
+chamar cada função em teste e confirmar que o DTO não tem `passwordHash`; injetar falha na revogação e confirmar rollback de conta e sessões.
 7. Cenário negativo/erro esperado.
 
-apagar documentos relacionados aqui impediria `BK-MF5-01` de auditar e aprovar eliminação sensível.
+apagar documentos relacionados, trocar o email ou gravar `deleted` neste endpoint misturaria RF33 com o direito terminal de eliminação.
 
 ### Passo 5 - Ligar controllers e routes
 
@@ -497,7 +556,7 @@ export async function updateUserStatusController(req, res, next) {
 }
 
 /**
- * Executa eliminação lógica de uma conta.
+ * Executa a desativação administrativa reversível de uma conta.
  *
  * @async
  * @function deleteUserAccountController
@@ -560,7 +619,7 @@ permitir smoke test visual da gestão de contas.
    - LOCALIZAÇÃO: ficheiro completo.
 3. Instruções do que fazer.
 
-listar contas e criar botões de ativar, suspender e eliminar.
+listar contas e criar ações de ativar, suspender e **Desativar** apenas para contas mutáveis. Uma conta `suspended` mostra “Ativar”; uma conta `active` mostra “Suspender” e “Desativar”. Para `accountStatus="deleted"`, mostra unicamente uma mensagem de tombstone terminal criado pelo titular.
 4. Código completo, correto e integrado com a app final.
 
 ```jsx
@@ -616,13 +675,13 @@ export function AdminUsersPage() {
     }
 
     /**
-     * Executa eliminação lógica da conta.
+     * Executa a ação administrativa reversível “Desativar”.
      *
      * @async
      * @param {string} userId - Utilizador alvo.
      * @returns {Promise<void>}
      */
-    async function deleteAccount(userId) {
+    async function deactivateAccount(userId) {
         await apiRequest(`/admin/users/${userId}`, { method: "DELETE" });
         await loadUsers();
     }
@@ -641,15 +700,22 @@ export function AdminUsersPage() {
                     <li key={user.id}>
                         <strong>{user.email}</strong>
                         <span> {user.role} - {user.accountStatus}</span>
-                        <button type="button" onClick={() => changeStatus(user.id, "active")}>
-                            Ativar
-                        </button>
-                        <button type="button" onClick={() => changeStatus(user.id, "suspended")}>
-                            Suspender
-                        </button>
-                        <button type="button" onClick={() => deleteAccount(user.id)}>
-                            Eliminar
-                        </button>
+                        {user.accountStatus === "deleted" ? (
+                            <p role="status">Conta eliminada pelo titular: estado terminal.</p>
+                        ) : user.accountStatus === "suspended" ? (
+                            <button type="button" onClick={() => changeStatus(user.id, "active")}>
+                                Ativar
+                            </button>
+                        ) : (
+                            <>
+                                <button type="button" onClick={() => changeStatus(user.id, "suspended")}>
+                                    Suspender
+                                </button>
+                                <button type="button" onClick={() => deactivateAccount(user.id)}>
+                                    Desativar
+                                </button>
+                            </>
+                        )}
                     </li>
                 ))}
             </ul>
@@ -660,7 +726,7 @@ export function AdminUsersPage() {
 
 5. Explicação do código.
 
-A página mostra estados simples, mas o ponto didático é a separação entre visualização e decisão. O React prepara a ação do administrador e envia pedidos para endpoints concretos; a sessão via cookie HttpOnly segue automaticamente pelo `apiRequest`. Ainda assim, a UI não decide se alguém é admin, não escolhe o `userId` autenticado e não valida sozinha a segurança. Esse trabalho continua no backend, onde não pode ser contornado por manipulação do browser.
+A página mostra “Desativar”, nunca “Eliminar”, para o endpoint administrativo legado. Contas suspensas podem ser ativadas; tombstones `deleted` não apresentam comandos. Esta proteção visual não substitui a transação/`409` no backend. A sessão via cookie HttpOnly segue automaticamente pelo `apiRequest`, e a autorização não pode ser contornada por manipulação do browser.
 6. Validação do passo.
 
 fazer login como admin e confirmar que a lista carrega; fazer login como cliente e confirmar que a API recusa.
@@ -738,152 +804,99 @@ confiar só nesta condição visual deixa endpoints vulneráveis se as routes n�
 
 provar que o BK cumpre `P0`.
 2. Ficheiros envolvidos:
-   - CRIAR/EDITAR: `apps/api/tests/mf4.admin-users.test.js`
+   - CRIAR/EDITAR: `apps/api/tests/admin-account-deactivation.replset.integration.test.js`
    - REVER: `apps/api/package.json`
    - LOCALIZAÇÃO: testes de integração.
 3. Instruções do que fazer.
 
-testar listagem admin, suspensão, bloqueio de login, self-action e ausência de campos sensíveis.
+testar listagem admin, suspensão/desativação com revogação transacional, reativação sem ressuscitar cookies, rollback quando a revogação falha, self-action, tombstone terminal e ausência de campos sensíveis. A prova material usa `MongoMemoryReplSet`; mocks não provam atomicidade.
 4. Código completo, correto e integrado com a app final.
 
 ```js
-// apps/api/tests/mf4.admin-users.test.js
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-    listAdminUsers,
-    setUserAccountStatus,
-    softDeleteUserAccount,
-} from "../src/services/admin-users.service.js";
-import { ACCOUNT_STATUSES, User } from "../src/models/user.model.js";
+// apps/api/tests/admin-account-deactivation.replset.integration.test.js
+it("faz rollback se a revogação falhar e depois desativa/revoga uma vez", async () => {
+    const user = await createActiveAccount("rollback");
+    const actorUserId = new mongoose.Types.ObjectId().toString();
+    const revokeSpy = vi
+        .spyOn(AuthSession, "updateMany")
+        .mockRejectedValueOnce(new Error("falha-injetada-revogacao"));
 
-vi.mock("../src/models/user.model.js", () => ({
-    ACCOUNT_STATUSES: Object.freeze({
-        ACTIVE: "active",
-        SUSPENDED: "suspended",
-        DELETED: "deleted",
-    }),
-    User: {
-        find: vi.fn(),
-        findByIdAndUpdate: vi.fn(),
-    },
-}));
+    await expect(softDeleteUserAccount({
+        targetUserId: user._id.toString(),
+        actorUserId,
+    })).rejects.toThrow("falha-injetada-revogacao");
+    revokeSpy.mockRestore();
 
-// O teste não precisa de um ObjectId real da base de dados; precisa de um valor
-// com `toString()`, porque é isso que o service usa para montar DTOs.
-function objectId(value) {
-    return { toString: () => value };
-}
+    expect(await User.findById(user._id).lean()).toMatchObject({
+        email: "rollback@orelle.test",
+        isActive: true,
+        accountStatus: ACCOUNT_STATUSES.ACTIVE,
+        deletedAt: null,
+    });
+    expect(await AuthSession.countDocuments({
+        userId: user._id,
+        revokedAt: null,
+    })).toBe(2);
 
-// `makeUser` cria documentos falsos com a mesma forma dos documentos Mongoose
-// usados pelo service. Isto mantém o teste legível e evita repetir objetos enormes.
-function makeUser(overrides = {}) {
-    return {
-        _id: objectId(overrides.id ?? "64b7f1a0f4e6f5c6d7e8f901"),
-        email: overrides.email ?? "cliente@orelle.local",
-        role: overrides.role ?? "cliente",
-        isActive: overrides.isActive ?? true,
-        accountStatus: overrides.accountStatus ?? ACCOUNT_STATUSES.ACTIVE,
-        suspendedAt: overrides.suspendedAt ?? null,
-        deletedAt: overrides.deletedAt ?? null,
-        passwordHash: overrides.passwordHash ?? "hash-fora-do-dto",
-        createdAt: new Date("2026-06-15T10:00:00.000Z"),
-        updatedAt: new Date("2026-06-15T10:00:00.000Z"),
-    };
-}
-
-// A chain `find().select().sort().limit()` é simulada porque o service usa
-// query builders do Mongoose. O objetivo do teste é validar a regra do service,
-// não testar a base de dados.
-function queryUsers(users) {
-    return {
-        select: vi.fn().mockReturnThis(),
-        sort: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue(users),
-    };
-}
-
-describe("BK-MF4-01 admin users", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
+    const deactivated = await softDeleteUserAccount({
+        targetUserId: user._id.toString(),
+        actorUserId,
+    });
+    expect(deactivated).toMatchObject({
+        email: "rollback@orelle.test",
+        isActive: false,
+        accountStatus: ACCOUNT_STATUSES.SUSPENDED,
+        deletedAt: null,
     });
 
-    it("lista utilizadores com DTO administrativo sem passwordHash", async () => {
-        User.find.mockReturnValueOnce(queryUsers([makeUser()]));
-
-        const users = await listAdminUsers();
-
-        expect(User.find).toHaveBeenCalledWith({});
-        expect(users).toEqual([
-            expect.objectContaining({
-                id: "64b7f1a0f4e6f5c6d7e8f901",
-                email: "cliente@orelle.local",
-                accountStatus: ACCOUNT_STATUSES.ACTIVE,
-            }),
-        ]);
-        // Este é o ponto de privacidade do teste: o hash existe no documento falso,
-        // mas nunca pode aparecer no DTO devolvido ao painel admin.
-        expect(users[0]).not.toHaveProperty("passwordHash");
+    const activeSessions = await AuthSession.countDocuments({
+        userId: user._id,
+        revokedAt: null,
     });
+    expect(activeSessions).toBe(0);
 
-    it("impede administrador de suspender a própria conta", async () => {
-        const actorUserId = "64b7f1a0f4e6f5c6d7e8f901";
-
-        await expect(
-            setUserAccountStatus({
-                targetUserId: actorUserId,
-                actorUserId,
-                status: ACCOUNT_STATUSES.SUSPENDED,
-            }),
-        ).rejects.toMatchObject({
-            statusCode: 400,
-            message: "Um administrador não deve alterar a própria conta neste fluxo",
-        });
-        // Se esta chamada acontecesse, o admin poderia bloquear-se a si próprio
-        // e deixar a equipa sem acesso operacional ao painel.
-        expect(User.findByIdAndUpdate).not.toHaveBeenCalled();
+    const reactivated = await setUserAccountStatus({
+        targetUserId: user._id.toString(),
+        actorUserId,
+        status: ACCOUNT_STATUSES.ACTIVE,
     });
+    expect(reactivated.accountStatus).toBe(ACCOUNT_STATUSES.ACTIVE);
+    // Reativar a conta nunca ressuscita os cookies já revogados.
+    expect(await AuthSession.countDocuments({
+        userId: user._id,
+        revokedAt: null,
+    })).toBe(0);
+});
 
-    it("executa eliminação lógica sem expor dados sensíveis", async () => {
-        const targetUserId = "64b7f1a0f4e6f5c6d7e8f901";
-        const actorUserId = "64b7f1a0f4e6f5c6d7e8f902";
-        User.findByIdAndUpdate.mockResolvedValueOnce(
-            makeUser({
-                id: targetUserId,
-                email: `deleted-${targetUserId}@orelle.local`,
-                isActive: false,
-                accountStatus: ACCOUNT_STATUSES.DELETED,
-                suspendedAt: new Date("2026-06-15T10:00:00.000Z"),
-                deletedAt: new Date("2026-06-15T10:00:00.000Z"),
-            }),
-        );
-
-        const user = await softDeleteUserAccount({ targetUserId, actorUserId });
-
-        expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
-            targetUserId,
-            expect.objectContaining({
-                accountStatus: ACCOUNT_STATUSES.DELETED,
-                isActive: false,
-                email: `deleted-${targetUserId}@orelle.local`,
-            }),
-            expect.objectContaining({ new: true, runValidators: true }),
-        );
-        expect(user).toMatchObject({
-            id: targetUserId,
-            accountStatus: ACCOUNT_STATUSES.DELETED,
-            isActive: false,
-        });
-        expect(user).not.toHaveProperty("passwordHash");
+it("nunca altera um tombstone terminal criado pelo titular", async () => {
+    const terminal = await User.create({
+        email: "deleted-terminal@deleted.invalid",
+        passwordHash: await bcrypt.hash("Password-Local-123", 4),
+        role: "cliente",
+        isActive: false,
+        accountStatus: ACCOUNT_STATUSES.DELETED,
+        deletedAt: new Date(),
     });
+    const actorUserId = new mongoose.Types.ObjectId().toString();
+
+    await expect(softDeleteUserAccount({
+        targetUserId: terminal._id.toString(),
+        actorUserId,
+    })).rejects.toMatchObject({ statusCode: 409 });
+    await expect(setUserAccountStatus({
+        targetUserId: terminal._id.toString(),
+        actorUserId,
+        status: ACCOUNT_STATUSES.ACTIVE,
+    })).rejects.toMatchObject({ statusCode: 409 });
 });
 ```
 
 5. Explicação do código.
 
-Os testes usam mocks apenas para substituir a base de dados, não para fugir à regra de negócio. Isto é importante para alunos: um teste útil deve chamar o service verdadeiro e verificar efeitos observáveis. O primeiro teste prova minimização (`passwordHash` não sai), o segundo prova segurança operacional (admin não se bloqueia a si próprio) e o terceiro prova que a eliminação é lógica, não destrutiva. Assim o aluno consegue defender o BK com evidência, não apenas com "funciona no meu computador".
+O teste chama o service real contra um replica set efémero. A falha injetada prova que conta e revogação confirmam juntas; o caminho positivo prova email/dados preservados, `suspended`, sessões revogadas e reativação sem cookies antigos. O segundo cenário prova que `deleted` pertence exclusivamente ao fluxo terminal do titular.
 6. Validação do passo.
 
-correr `npm --prefix apps/api test` depois de implementar a API.
+correr `npm --prefix apps/api test -- tests/admin-account-deactivation.replset.integration.test.js` e depois a suite integral.
 7. Cenário negativo/erro esperado.
 
 concluir o BK só com smoke visual não cobre as falhas de autorização.
@@ -891,16 +904,22 @@ concluir o BK só com smoke visual não cobre as falhas de autorização.
 #### Expected results
 - `GET /api/admin/users` devolve `200` para admin e lista segura de utilizadores.
 - `PATCH /api/admin/users/:id/status` devolve `200` com estado atualizado.
-- `DELETE /api/admin/users/:id` devolve `200` com conta marcada como `deleted`.
+- `DELETE /api/admin/users/:id` devolve `200` com conta `suspended`, email/dados preservados, `deletedAt=null` e sessões revogadas na mesma transação.
+- Reativar a conta suspensa devolve `active`, mas não revalida nenhuma sessão antiga.
+- Falha na revogação faz rollback da mudança de estado.
+- `PATCH /api/admin/users/:id/status` sobre conta `deleted` devolve `409` e não altera o documento.
 - Cliente sem role admin recebe `403`.
 - Conta suspensa ou eliminada recebe `403` ao tentar autenticar ou usar sessão antiga.
+- A UI chama à ação “Desativar”; contas `suspended` mostram “Ativar” e contas `deleted` não apresentam controlos mutáveis.
 
 #### Critérios de aceite
-- Entrega funcional especifica de `Gestão de utilizadores (ativar, suspender, eliminar contas)` validada contra `RF33`.
+- Entrega funcional específica de gestão administrativa (ativar, suspender e desativar reversivelmente) validada contra `RF33`.
 - Cenários negativos concluídos: mínimo `3` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P0`).
 - Nenhuma resposta expõe `passwordHash`, cookies, fotografias, relatórios ou paths internos.
 - O backend decide autorização por sessão e role; o frontend apenas apresenta comandos.
+- `accountStatus="suspended"` é reversível e a revogação de sessões é atómica; `accountStatus="deleted"` é um tombstone exclusivo da eliminação terminal do titular e recebe `409` no fluxo admin.
+- A UI nunca rotula o endpoint admin como “Eliminar” e nunca mostra ações mutáveis numa conta `deleted`.
 
 #### Validação final
 - Executar testes de integração da API.
@@ -910,12 +929,12 @@ concluir o BK só com smoke visual não cobre as falhas de autorização.
 
 #### Evidence para PR/defesa
 - `proof_tecnico`: prints ou output dos endpoints `GET`, `PATCH` e `DELETE`.
-- `proof_negativos`: `403` para cliente, `400` para self-action e `403` para conta suspensa.
+- `proof_negativos`: `403` para cliente, `400` para self-action, rollback da falha de revogação e `409` para tombstone terminal.
 - `proof_privacidade`: exemplo de DTO sem `passwordHash` e sem dados biométricos.
 - `proof_ui`: screenshot da página admin com lista e botões.
 
 #### Handoff
-`BK-MF4-02` deve reutilizar `requireAuth` e `requireRole(ROLES.ADMIN)`. `BK-MF5-01` deve assumir que contas eliminadas logicamente ainda podem ter pedidos pendentes sobre fotografias e relatórios.
+`BK-MF4-02` deve reutilizar `requireAuth` e `requireRole(ROLES.ADMIN)`. `BK-MF5-01` deve assumir que contas administrativamente suspensas conservam dados e ainda podem ter pedidos pendentes; eliminação terminal continua no fluxo próprio do titular.
 
 #### Changelog
 - `2026-06-15`: guia reescrito para fluxo administrativo real em `apps`, com estado de conta, bloqueio de sessão, routes admin, UI e negativos `P0`.
@@ -925,7 +944,7 @@ Este suplemento fecha lacunas formais detetadas pelo validador de planificacao s
 
 ## Bloco pedagogico
 ### Objetivo
-O aluno deve completar `Gestão de utilizadores (ativar, suspender, eliminar contas).` com rastreabilidade direta a `RF33`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
+O aluno deve completar a gestão administrativa de utilizadores — ativar, suspender e desativar reversivelmente — com rastreabilidade direta a `RF33`, mantendo evidence objetiva, negativos por prioridade e handoff claro.
 
 ### Pre-requisitos
 - Rever `RF33` nos documentos RF/RNF aplicáveis.
@@ -975,7 +994,7 @@ O aluno deve completar `Gestão de utilizadores (ativar, suspender, eliminar con
 - Registar riscos, dependencias pendentes e validacoes executadas antes do fecho.
 
 ## Criterios de aceite
-- Entrega funcional especifica de `Gestão de utilizadores (ativar, suspender, eliminar contas).` validada contra `RF33`.
+- Entrega funcional específica de gestão administrativa — ativar, suspender e desativar reversivelmente — validada contra `RF33`.
 - Cenarios negativos concluidos: minimo `3` com resultado controlado.
 - Evidencia de testes por camada conforme prioridade (`P0`).
 - Metadados do guia alinhados com matriz, backlog e anexos.
@@ -1006,4 +1025,7 @@ export function validarEvidenceDocumental(evidence) {
 ```
 
 ## Changelog
+- `2026-07-10` (histórico supersedido): o `DELETE` admin foi inicialmente descrito como desativação lógica terminal; a linha corrente seguinte substitui essa interpretação.
+- `2026-07-10`: `deleted` fica terminal apenas quando criado por `DELETE /api/me/account`; o painel admin devolve `409` e não mostra ações mutáveis para esse tombstone.
+- `2026-07-10` (estado corrente): “Desativar” grava `suspended`, preserva email/dados, revoga sessões na mesma transação e permite reativação sem restaurar cookies antigos.
 - `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.

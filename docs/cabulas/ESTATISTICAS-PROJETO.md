@@ -3,6 +3,8 @@
 Data do levantamento: 2026-07-07
 Base do levantamento: checkout local `orelle`
 
+> **Snapshot histórico, não contagem atual.** A correção integral iniciada em 2026-07-09 e a consulta OpenAI-only de 2026-07-11 acrescentaram/removeram módulos, testes e documentação. Os valores abaixo preservam apenas o levantamento de 2026-07-07 e não devem ser citados como estado final. O estado/evidência atuais ficam no [`PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md`](../planificacao/PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md); o [`PLANO-CORRECAO-AUDITORIA-COMPLETA-real_dev.md`](../planificacao/PLANO-CORRECAO-AUDITORIA-COMPLETA-real_dev.md) mantém o histórico anterior.
+
 ## Critérios De Contagem
 
 - Documentação: ficheiros Markdown (`.md`) dentro de `docs/`, incluindo `docs/planificacao/` e este ficheiro.

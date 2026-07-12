@@ -4,7 +4,7 @@
 - `doc_id`: `MAPA-MIGRACAO`
 - `path`: `docs/planificacao/guias-bk/MAPA-MIGRACAO-LEGACY-PARA-CANONICO.md`
 - `owner`: `Nuno`
-- `last_updated`: `2026-06-30`
+- `last_updated`: `2026-07-09`
 
 ## Mapa
 | origem_legacy | destino_canonico |
@@ -35,7 +35,7 @@
 | legacy-RF24 | MF2/BK-MF2-08-a-ia-deve-gerar-uma-visualizacao-antes-depois-com-os-produtos-recomendados.md |
 | legacy-RF25 | MF3/BK-MF3-01-o-sistema-deve-permitir-comparar-imagens-antes-vs-apos-30-dias-de-uso.md |
 | legacy-RF26 | MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md |
-| legacy-RF27 | MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md |
+| legacy-RF27 | MF3/BK-MF3-03-registar-encomendas-com-pagamento-simulado.md |
 | legacy-RF28 | MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md |
 | legacy-RF30 | MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md |
 | legacy-RF31 | MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md |
@@ -69,7 +69,7 @@
 | legacy-RNF14 | MF7/BK-MF7-03-sessoes-autenticadas-com-cookies-httponly.md |
 | legacy-RNF15 | MF7/BK-MF7-04-compativel-com-chrome-safari-edge-e-firefox.md |
 | legacy-RNF16 | MF7/BK-MF7-05-exportacao-de-relatorios-em-pdf.md |
-| legacy-RNF17 | MF7/BK-MF7-06-integracao-com-gateways-de-pagamento-stripe-paypal-mbway.md |
+| legacy-RNF17 | MF7/BK-MF7-06-validar-pagamento-simulado-sem-integracao-externa.md |
 | legacy-RNF18 | MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md |
 | legacy-RNF19 | MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md |
 | legacy-RNF20 | MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md |
@@ -86,6 +86,7 @@
 | legacy-RNF31 | MF8/BK-MF8-11-revisao-humana-de-sessoes-ia-por-consultores.md |
 
 ## Changelog
+- `2026-07-09`: destinos RF27/RNF17 atualizados para os guias canónicos de Pagamento simulado.
 - `2026-06-30`: mapa MF8 atualizado até RNF31 com renumeração RNF26-RNF29.
 - `2026-06-29`: mapa MF8 atualizado na primeira revisão de fecho.
 - `2026-04-12`: mapeamento inicial legacy -> BK canónico.

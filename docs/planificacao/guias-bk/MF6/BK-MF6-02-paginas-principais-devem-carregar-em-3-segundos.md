@@ -20,13 +20,29 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF6-03`
 - `guia_path`: `docs/planificacao/guias-bk/MF6/BK-MF6-02-paginas-principais-devem-carregar-em-3-segundos.md`
-- `last_updated`: `2026-06-23`
+- `last_updated`: `2026-07-11`
+
+> **Contrato vigente:** `RNF06` é provado no browser por LCP, CLS, Navigation/Resource Timing e bytes realmente transferidos. O frame seguinte ao mount de um componente mede apenas latência local de primeira pintura do wrapper; não é page load nem substitui LCP. O gate usa Playwright/PerformanceObserver, LCP ≤ 3 s, CLS ≤ 0,1 e JS inicial comprimido ≤ 200 KiB.
+
+> **Páginas principais atuais — 2026-07-11:** medir catálogo, carrinho, checkout e as rotas `/consulta`, `/consulta/nova`, `/consulta/ativa`, `/consulta/relatorios/:reportId`, `/consulta/historico` e `/consultoria/revisoes`. Cada rota é carregada com `React.lazy`, só a rota ativa entra no DOM e a transferência é medida por rota. O `App.jsx` inferior que monta `FaceAnalysisPage`, `FaceReportPage`, `ProductRecommendationsPage`, revisão por recomendação ou `BeforeAfterVisualizationPage` é histórico e **não deve ser executado**. Ver [plano canónico da consulta OpenAI](../../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
+
+### Critérios de aceitação ativos
+
+- LCP ≤ 3 s, CLS ≤ 0,1 e JS inicial comprimido ≤ 200 KiB no perfil de teste documentado.
+- As métricas usam Navigation/Resource Timing e `PerformanceObserver`, não o frame seguinte ao mount.
+- Chunks lazy não visitados não são somados à transferência da rota atual.
+- Catálogo e todas as rotas atuais da consulta têm prova Playwright repetível.
+
+<details class="historical-archive">
+<summary><strong>Anexo histórico da medição por páginas antigas — não executar</strong></summary>
+
+> Todo o conteúdo restante deste ficheiro, incluindo o `App.jsx` monolítico, wrappers, page keys, scripts, checklists e evidence baseados nas páginas removidas, é arquivo pedagógico e não constitui instrução atual.
 
 #### Objetivo
 
-Neste BK vais criar uma camada simples de medição de performance no frontend `apps/web` para confirmar que as páginas principais da Orélle carregam em até 3 segundos, conforme `RNF06`.
+Neste BK vais criar uma prova de performance no frontend `apps/web` para confirmar em browser que as páginas principais da Orélle atingem LCP até 3 segundos, conforme `RNF06`.
 
-O resultado final é uma medição local por área principal da app, um aviso técnico discreto, estilos integrados no tema atual e scripts de evidence que ajudam a provar o build, o orçamento e os cenários negativos sem recolher dados pessoais, fotografias, relatórios, carrinho, encomendas, cookies ou segredos de sessão.
+O resultado final é uma prova browser repetível por rota, acompanhada por budgets do bundle e, opcionalmente, um diagnóstico de primeiro frame visível apenas em desenvolvimento, sem recolher dados pessoais, fotografias, relatórios, carrinho, encomendas, cookies ou segredos de sessão.
 
 #### Importância
 
@@ -39,8 +55,8 @@ Este BK também ensina uma regra profissional importante: medir não pode quebra
 - Definir o orçamento `PAGE_LOAD_BUDGET_MS = 3_000`.
 - Definir a lista fechada de páginas principais de `RNF06`.
 - Criar helper de avaliação de orçamento.
-- Criar hook React para medir o primeiro render de cada área principal.
-- Criar componente de aviso técnico minimizado.
+- Manter, se útil, um hook React de primeiro frame identificado apenas como diagnóstico local.
+- Não apresentar o diagnóstico de primeiro frame como prova de carregamento ao utilizador final.
 - Criar wrapper medido para as páginas principais existentes.
 - Integrar a medição em `apps/web/src/App.jsx`.
 - Adicionar estilos em `apps/web/src/styles.css`.
@@ -59,7 +75,7 @@ Este BK também ensina uma regra profissional importante: medir não pode quebra
 #### Estado antes e depois
 
 - Antes: o frontend compila e já contém páginas de catálogo, análise facial, relatório, recomendações, carrinho e checkout, mas não há medição explícita do orçamento de carregamento de `RNF06`.
-- Depois: as páginas principais ficam embrulhadas por uma camada de medição local, mostram um aviso técnico `ok`/`slow`, mantêm a UI existente e têm scripts de evidence para orçamento, build e assets.
+- Depois: as páginas principais mantêm a UI existente e têm evidence Playwright para LCP/CLS/transferência, além de gates estáticos do bundle; qualquer medição de primeiro frame fica separada e identificada como diagnóstico.
 
 #### Pre-requisitos
 
@@ -75,28 +91,31 @@ Este BK também ensina uma regra profissional importante: medir não pode quebra
 
 - Página principal: área de impacto na experiência, como catálogo, análise facial, relatório, recomendações, carrinho ou checkout.
 - Performance budget: limite máximo aceitável para uma medição.
-- Primeiro render: primeiro momento em que a área principal foi montada e o browser conseguiu desenhar um frame.
+- Primeiro frame do componente: diagnóstico local desde o mount até ao frame seguinte; não equivale a LCP ou carregamento da página.
+- LCP: momento em que o maior elemento de conteúdo visível foi pintado.
+- CLS: soma de mudanças inesperadas de layout sem interação recente.
 - Evidence: prova técnica guardada para PR, defesa ou relatório.
 - Métrica minimizada: medição técnica sem dados pessoais nem dados sensíveis.
 - Wrapper: componente que envolve outro componente para acrescentar comportamento sem alterar a lógica interna.
 
 #### Conceitos teóricos essenciais
 
-Uma página rápida não é apenas uma página com pouco código. O carregamento depende do tamanho do JavaScript, do CSS, do tempo de renderização, das imagens, das chamadas HTTP e do equipamento do utilizador. Por isso, este BK junta três provas: build Vite, tamanho dos assets e medição local no browser.
+Uma página rápida não é apenas uma página com pouco código. O carregamento depende do tamanho do JavaScript, do CSS, do tempo de renderização, das imagens, das chamadas HTTP e do equipamento do utilizador. Por isso, este BK junta três provas: build Vite, tamanho dos assets e medição repetível em browser através de Playwright.
 
-`RNF06` fala de páginas principais. A app atual ainda não tem routing final; o `App.jsx` monta várias páginas numa pilha. Por isso, neste BK a decisão técnica segura é medir áreas principais reais dentro dessa pilha, usando uma lista fechada. Esta decisão é `DERIVADO`: não inventa requisito novo, apenas adapta `RNF06` à estrutura React/Vite existente.
+`RNF06` fala de páginas principais. A app final usa routing e code splitting, por isso cada rota é medida após navegação real e conteúdo visível. A lista de rotas é fechada e usa fixtures locais repetíveis.
 
 Medição frontend não substitui segurança backend. Se uma página usa sessão, carrinho, relatório, recomendações ou checkout, a chamada continua a passar pelo cliente API existente. A métrica deste BK fica no browser e só contém `pageKey`, duração, orçamento, estado e label técnico.
 
 `CANONICO`: o limite de 3 segundos vem de `RNF06`; a prioridade `P0` exige evidence forte, incluindo unit, integração/build, smoke/e2e manual e pelo menos 3 negativos.
 
-`DERIVADO`: os nomes `PAGE_LOAD_BUDGET_MS`, `MAIN_PAGE_DEFINITIONS`, `usePagePerformance`, `PagePerformanceNotice`, `MeasuredPageSection` e os scripts locais são decisões técnicas mínimas para aplicar `RNF06` sem dependências novas.
+`DERIVADO`: `PAGE_LOAD_BUDGET_MS`, a lista de rotas, `PerformanceObserver`, o helper Playwright e os scripts de budget são decisões técnicas para aplicar `RNF06`. `usePagePerformance` é opcional e nunca constitui evidence de LCP.
 
 #### Arquitetura do BK
 
 - `apps/web/src/utils/performance-budget.js`: define páginas principais, orçamento e avaliação `ok`/`slow`/`ignored`.
-- `apps/web/src/hooks/usePagePerformance.js`: mede o primeiro render de cada área principal.
-- `apps/web/src/components/PagePerformanceNotice.jsx`: apresenta a métrica técnica.
+- `apps/web/src/hooks/usePagePerformance.js`: diagnóstico opcional de primeiro frame, sem alegação RNF06.
+- `apps/web/tests/e2e/helpers/performance.js`: recolhe LCP, CLS, navigation e transferências.
+- `apps/web/tests/e2e/performance.spec.js`: aplica budgets em browser.
 - `apps/web/src/components/MeasuredPageSection.jsx`: envolve páginas principais e liga hook, aviso e conteúdo.
 - `apps/web/src/App.jsx`: integra o wrapper nas páginas principais.
 - `apps/web/src/styles.css`: estiliza o wrapper e os estados de performance.
@@ -113,6 +132,8 @@ Medição frontend não substitui segurança backend. Se uma página usa sessão
 - EDITAR: `apps/web/src/styles.css`
 - CRIAR: `apps/web/scripts/check-mf6-performance-unit.mjs`
 - CRIAR: `apps/web/scripts/check-mf6-page-budget.mjs`
+- CRIAR: `apps/web/tests/e2e/helpers/performance.js`
+- CRIAR: `apps/web/tests/e2e/performance.spec.js`
 - REVER: `apps/web/src/services/apiClient.js`
 - REVER: `apps/web/package.json`
 
@@ -241,11 +262,11 @@ Confirma mentalmente estes três casos: `catalog` com `2500` ms devolve `ok`; `c
 
 Uma chave fora da lista não deve rebentar a app. Deve devolver `ignored`, porque a página não faz parte do contrato deste BK.
 
-### Passo 3 - Criar hook React para medir primeiro render
+### Passo 3 - Criar diagnóstico opcional de primeiro frame
 
 1. Objetivo funcional do passo no contexto da app.
 
-Medir, no browser, quanto tempo demora a montar e desenhar cada área principal da pilha de páginas.
+Medir apenas quanto tempo demora o wrapper a chegar ao frame seguinte, sem confundir esta leitura com page load, LCP ou evidence de `RNF06`.
 
 2. Ficheiros envolvidos:
     - CRIAR: `apps/web/src/hooks/usePagePerformance.js`
@@ -253,7 +274,7 @@ Medir, no browser, quanto tempo demora a montar e desenhar cada área principal 
 
 3. Instruções do que fazer.
 
-Usa `performance.now()` e `requestAnimationFrame`. Não uses a métrica de navegação inicial do documento como prova principal, porque esse valor não mede cada área React da app.
+Se mantiveres o hook, usa `performance.now()` e `requestAnimationFrame`, chama-lhe explicitamente diagnóstico de primeiro frame e não o uses para decidir se `RNF06` passou. A prova real será feita no Passo 8 com PerformanceObserver e Playwright.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -277,7 +298,7 @@ function readPerformanceClock() {
 }
 
 /**
- * Mede o primeiro render de uma área principal da Orélle.
+ * Mede um diagnóstico local de primeiro frame; não mede LCP/page load.
  *
  * @function usePagePerformance
  * @param {string} pageKey - Chave técnica da página principal.
@@ -312,7 +333,7 @@ export function usePagePerformance(pageKey) {
 
 5. Explicação do código.
 
-O hook mede o tempo entre a montagem do wrapper e o primeiro frame desenhado pelo browser. Isto é mais adequado à app atual do que medir apenas a navegação inicial do documento, porque cada área principal é um componente React dentro de `App.jsx`. O cleanup cancela a medição se o componente desmontar antes do frame, evitando estado atualizado fora de tempo.
+O hook mede o tempo entre o mount do wrapper e o frame seguinte. Esta leitura pode ajudar a diagnosticar regressões de render, mas normalmente será muito inferior ao tempo percebido porque ignora navegação, downloads, imagens e conteúdo assíncrono. O cleanup evita estado atualizado fora de tempo; o hook não fecha `RNF06`.
 
 6. Validação do passo.
 
@@ -322,11 +343,11 @@ Ao usar `usePagePerformance("catalog")`, a métrica deve começar como `null` e 
 
 Se a página for desmontada antes de o frame correr, o hook não deve chamar `setMetric` depois do cleanup.
 
-### Passo 4 - Criar aviso técnico e wrapper medido
+### Passo 4 - Manter o diagnóstico fora da UI publicada
 
 1. Objetivo funcional do passo no contexto da app.
 
-Mostrar a medição de forma discreta e reutilizar a mesma lógica em várias páginas principais sem alterar a lógica interna dessas páginas.
+Disponibilizar o diagnóstico apenas em desenvolvimento, sem o apresentar como estado de produto nem evidence de `RNF06`.
 
 2. Ficheiros envolvidos:
     - CRIAR: `apps/web/src/components/PagePerformanceNotice.jsx`
@@ -335,7 +356,7 @@ Mostrar a medição de forma discreta e reutilizar a mesma lógica em várias p�
 
 3. Instruções do que fazer.
 
-Cria primeiro o aviso técnico e depois o wrapper. O aviso recebe uma métrica já calculada; o wrapper chama o hook, define `data-mf6-page` e renderiza a página original.
+Cria primeiro o aviso técnico protegido por `import.meta.env.DEV` e depois o wrapper. O wrapper pode expor `data-mf6-page` para testes, mas o aviso não aparece no build publicado.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -343,14 +364,14 @@ Cria primeiro o aviso técnico e depois o wrapper. O aviso recebe uma métrica j
 // apps/web/src/components/PagePerformanceNotice.jsx
 
 /**
- * Mostra evidence local de carregamento para uma página principal.
+ * Mostra apenas um diagnóstico de primeiro frame em desenvolvimento.
  *
  * @function PagePerformanceNotice
  * @param {{metric: {pageLabel: string, loadMs: number, budgetMs: number, status: string}|null}} props - Métrica minimizada.
  * @returns {JSX.Element|null} Aviso técnico discreto.
  */
 export function PagePerformanceNotice({ metric }) {
-    if (!metric || metric.status === "ignored") {
+    if (!import.meta.env.DEV || !metric || metric.status === "ignored") {
         return null;
     }
 
@@ -363,8 +384,8 @@ export function PagePerformanceNotice({ metric }) {
         <p className={statusClassName} role="status">
             <strong>{metric.pageLabel}</strong>:{" "}
             {isSlow
-                ? `acima do orçamento (${metric.loadMs} ms / ${metric.budgetMs} ms).`
-                : `dentro do orçamento (${metric.loadMs} ms / ${metric.budgetMs} ms).`}
+                ? `diagnóstico de primeiro frame lento (${metric.loadMs} ms).`
+                : `diagnóstico de primeiro frame (${metric.loadMs} ms).`}
         </p>
     );
 }
@@ -377,11 +398,11 @@ import { getMainPageDefinition } from "../utils/performance-budget.js";
 import { PagePerformanceNotice } from "./PagePerformanceNotice.jsx";
 
 /**
- * Envolve uma página principal com medição RNF06.
+ * Envolve uma página principal com diagnóstico opcional e seletor de teste.
  *
  * @function MeasuredPageSection
  * @param {{pageKey: string, children: import("react").ReactNode}} props - Página técnica e conteúdo React.
- * @returns {JSX.Element} Secção medida para evidence local.
+ * @returns {JSX.Element} Secção identificável por testes, sem alterar o conteúdo.
  */
 export function MeasuredPageSection({ pageKey, children }) {
     const metric = usePagePerformance(pageKey);
@@ -390,7 +411,7 @@ export function MeasuredPageSection({ pageKey, children }) {
 
     return (
         <div className="mf6-page-measure" data-mf6-page={pageKey}>
-            {/* O aviso aparece antes da página para ser fácil recolher evidence sem tocar na lógica interna. */}
+            {/* O aviso é DEV-only; a evidence RNF06 vem do Playwright. */}
             <PagePerformanceNotice metric={metric} />
             <div className="mf6-page-measure__content" aria-label={`Área medida: ${label}`}>
                 {children}
@@ -402,11 +423,11 @@ export function MeasuredPageSection({ pageKey, children }) {
 
 5. Explicação do código.
 
-`PagePerformanceNotice` só apresenta dados técnicos e minimizados. `MeasuredPageSection` permite medir páginas sem editar `ProductSearchPage`, `FaceAnalysisPage`, `FaceReportPage`, `ProductRecommendationsPage`, `CartPage` ou `CheckoutPage`. Assim, este BK acrescenta performance evidence sem duplicar regras de carrinho, recomendações, sessão ou checkout.
+`PagePerformanceNotice` só existe em desenvolvimento e identifica explicitamente a leitura como primeiro frame. `MeasuredPageSection` mantém `data-mf6-page` para seletores de teste sem alterar regras de carrinho, recomendações, sessão ou checkout. A evidence de performance continua exclusivamente no browser E2E.
 
 6. Validação do passo.
 
-Quando envolveres uma página com `<MeasuredPageSection pageKey="catalog">`, deve surgir um elemento com `data-mf6-page="catalog"` e um aviso com `role="status"`.
+Em desenvolvimento, o wrapper pode mostrar o diagnóstico. Num build/preview publicado, `data-mf6-page="catalog"` permanece para teste e não existe aviso técnico visível.
 
 7. Cenário negativo/erro esperado.
 
@@ -674,7 +695,7 @@ Se o aviso lento aparecer, a página continua utilizável. Não se deve esconder
 
 1. Objetivo funcional do passo no contexto da app.
 
-Dar evidence P0 sem instalar dependências novas: um script unitário para o helper e um script de assets após build.
+Dar gates estáticos complementares à prova de browser: um script unitário para o helper e um script de assets após build.
 
 2. Ficheiros envolvidos:
     - CRIAR: `apps/web/scripts/check-mf6-performance-unit.mjs`
@@ -725,12 +746,13 @@ console.log("BK-MF6-02 unit checks passed");
 
 ```js
 // apps/web/scripts/check-mf6-page-budget.mjs
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { gzipSync } from "node:zlib";
 
 const distAssetsDir = fileURLToPath(new URL("../dist/assets/", import.meta.url));
-const MAX_MAIN_JS_ASSET_BYTES = 350_000;
+const MAX_INITIAL_JS_GZIP_BYTES = 200 * 1024;
 
 if (!existsSync(distAssetsDir)) {
     throw new Error("Executa primeiro: npm --prefix apps/web run build");
@@ -744,27 +766,32 @@ const assets = readdirSync(distAssetsDir)
     .sort((left, right) => right.bytes - left.bytes);
 
 const jsAssets = assets.filter((asset) => asset.name.endsWith(".js"));
-const oversizedJsAssets = jsAssets.filter(
-    (asset) => asset.bytes > MAX_MAIN_JS_ASSET_BYTES,
+const initialJsAssets = jsAssets.filter((asset) =>
+    /^index-[^.]+\.js$/.test(asset.name),
 );
 
 // O script mede ficheiros gerados pelo build e não lê sessão, fotografias ou dados pessoais.
 console.table(assets);
 
-if (oversizedJsAssets.length > 0) {
+if (initialJsAssets.length !== 1) {
+    throw new Error(`Esperado um entry JS inicial; encontrados ${initialJsAssets.length}`);
+}
+
+const initialJsPath = join(distAssetsDir, initialJsAssets[0].name);
+const initialJsGzipBytes = gzipSync(readFileSync(initialJsPath)).byteLength;
+
+if (initialJsGzipBytes > MAX_INITIAL_JS_GZIP_BYTES) {
     throw new Error(
-        `Assets JS acima do limite derivado de ${MAX_MAIN_JS_ASSET_BYTES} bytes: ${oversizedJsAssets
-            .map((asset) => asset.name)
-            .join(", ")}`,
+        `JS inicial excede ${MAX_INITIAL_JS_GZIP_BYTES} bytes gzip: ${initialJsGzipBytes}`,
     );
 }
 
-console.log("BK-MF6-02 asset checks passed");
+console.log(`BK-MF6-02 asset checks passed: ${initialJsGzipBytes} bytes gzip`);
 ```
 
 5. Explicação do código.
 
-O script unitário fecha o comportamento do helper: página dentro do limite, página lenta e página fora da lista. O script de assets valida que o build existe e usa `fileURLToPath`, evitando falhas quando o projeto está dentro de pastas com espaços. O limite de bytes é `DERIVADO`; serve como alerta local simples, não como substituto da medição no browser.
+O script unitário fecha apenas o comportamento do helper diagnóstico. O script de assets valida que o build existe, usa `fileURLToPath` e mede o entry JS comprimido com gzip. O limite de 200 KiB é um gate real do bundle, mas não substitui LCP/CLS e transferência medidos no browser.
 
 6. Validação do passo.
 
@@ -780,32 +807,137 @@ node apps/web/scripts/check-mf6-page-budget.mjs
 
 Sem `dist/assets`, o script de assets falha com a instrução para executar build. Com uma página fora da lista, o script unitário espera `ignored`.
 
-### Passo 8 - Recolher evidence desktop/mobile e fechar negativos
+### Passo 8 - Medir LCP, CLS e transferência com Playwright
 
 1. Objetivo funcional do passo no contexto da app.
 
-Fechar `RNF06` com evidence que um professor ou colega consegue repetir.
+Fechar `RNF06` com métricas browser reais que um professor ou colega consegue repetir.
 
 2. Ficheiros envolvidos:
-    - REVER: `apps/web/src/App.jsx`
-    - REVER: `apps/web/src/styles.css`
-    - REVER: `apps/web/scripts/check-mf6-performance-unit.mjs`
+    - CRIAR: `apps/web/tests/e2e/helpers/performance.js`
+    - CRIAR: `apps/web/tests/e2e/performance.spec.js`
     - REVER: `apps/web/scripts/check-mf6-page-budget.mjs`
-    - LOCALIZAÇÃO: secções editadas neste BK.
+    - LOCALIZAÇÃO: ficheiros completos.
 
 3. Instruções do que fazer.
 
-Executa os comandos finais, abre a app em desktop e mobile, e regista no PR/defesa os valores observados para as seis páginas principais. Se alguma página aparecer como `slow`, não escondas o resultado; regista a duração, o ambiente e uma ação de otimização futura.
+Instala os observers antes de navegar, espera pelo conteúdo real e recolhe LCP, CLS, JS e transferência. LCP/CLS são medidos em Chromium porque as APIs não têm suporte equivalente em todos os engines; os restantes fluxos E2E continuam multi-engine. Se uma rota falhar o budget, regista o valor e corrige a causa.
 
 4. Código completo, correto e integrado com a app final.
 
-```text
-Sem código neste passo.
+```js
+// apps/web/tests/e2e/helpers/performance.js
+export const PERFORMANCE_BUDGETS = Object.freeze({
+    lcpMs: 3_000,
+    cls: 0.1,
+    initialJavascriptBytes: 200 * 1024,
+    totalPageTransferBytes: 2 * 1024 * 1024,
+});
+
+export async function installPerformanceObservers(page) {
+    await page.addInitScript(() => {
+        const supported = new Set(
+            globalThis.PerformanceObserver?.supportedEntryTypes ?? [],
+        );
+        globalThis.__orellePerformance = {
+            lcp: 0,
+            cls: 0,
+            supportsLcp: supported.has("largest-contentful-paint"),
+            supportsCls: supported.has("layout-shift"),
+        };
+
+        if (globalThis.__orellePerformance.supportsLcp) {
+            new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    globalThis.__orellePerformance.lcp = Math.max(
+                        globalThis.__orellePerformance.lcp,
+                        entry.renderTime || entry.loadTime || entry.startTime || 0,
+                    );
+                }
+            }).observe({ type: "largest-contentful-paint", buffered: true });
+        }
+
+        if (globalThis.__orellePerformance.supportsCls) {
+            new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (!entry.hadRecentInput) {
+                        globalThis.__orellePerformance.cls += entry.value;
+                    }
+                }
+            }).observe({ type: "layout-shift", buffered: true });
+        }
+    });
+}
+
+export async function collectPerformanceMetrics(page) {
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(750);
+
+    return page.evaluate(() => {
+        const bytes = (entry) =>
+            Number(entry.transferSize || entry.encodedBodySize || 0);
+        const resources = performance.getEntriesByType("resource");
+        const navigation = performance.getEntriesByType("navigation")[0];
+        const scripts = resources.filter((entry) =>
+            entry.initiatorType === "script" || /\.js$/i.test(entry.name),
+        );
+
+        return {
+            lcpMs: globalThis.__orellePerformance?.lcp ?? 0,
+            cls: globalThis.__orellePerformance?.cls ?? 0,
+            supportsLcp: globalThis.__orellePerformance?.supportsLcp === true,
+            supportsCls: globalThis.__orellePerformance?.supportsCls === true,
+            initialJavascriptBytes: scripts.reduce(
+                (total, entry) => total + bytes(entry),
+                0,
+            ),
+            totalPageTransferBytes:
+                bytes(navigation ?? {}) +
+                resources.reduce((total, entry) => total + bytes(entry), 0),
+        };
+    });
+}
+```
+
+```js
+// apps/web/tests/e2e/performance.spec.js
+import { expect, test } from "@playwright/test";
+import {
+    collectPerformanceMetrics,
+    installPerformanceObservers,
+    PERFORMANCE_BUDGETS,
+} from "./helpers/performance.js";
+
+for (const path of ["/", "/produtos"]) {
+    test(`budgets reais em ${path}`, async ({ page, browserName }) => {
+        test.skip(
+            browserName !== "chromium",
+            "LCP/CLS não têm suporte equivalente nos três engines",
+        );
+
+        await installPerformanceObservers(page);
+        await page.goto(path);
+        await expect(page.locator("main")).toBeVisible();
+        const metrics = await collectPerformanceMetrics(page);
+
+        expect(metrics.supportsLcp).toBe(true);
+        expect(metrics.supportsCls).toBe(true);
+        expect(metrics.lcpMs).toBeGreaterThan(0);
+        expect(metrics.lcpMs).toBeLessThanOrEqual(PERFORMANCE_BUDGETS.lcpMs);
+        expect(metrics.cls).toBeLessThanOrEqual(PERFORMANCE_BUDGETS.cls);
+        expect(metrics.initialJavascriptBytes).toBeLessThanOrEqual(
+            PERFORMANCE_BUDGETS.initialJavascriptBytes,
+        );
+        expect(metrics.totalPageTransferBytes).toBeLessThanOrEqual(
+            PERFORMANCE_BUDGETS.totalPageTransferBytes,
+        );
+    });
+}
 ```
 
 5. Explicação do código.
 
-Este passo é de validação. O objetivo é provar que o código criado nos passos anteriores funciona e que os negativos foram tratados.
+Os observers são instalados antes da navegação, por isso capturam as entradas buffered da página real. `networkidle` e uma janela curta permitem estabilizar conteúdo assíncrono. A evidence contém apenas métricas agregadas; paths completos, cookies e payloads não são serializados.
 
 6. Validação do passo.
 
@@ -814,15 +946,16 @@ Regista evidence com:
 - output de `node apps/web/scripts/check-mf6-performance-unit.mjs`;
 - output de `npm --prefix apps/web run build`;
 - output de `node apps/web/scripts/check-mf6-page-budget.mjs`;
-- captura ou nota manual de desktop para `catalog`, `face-analysis`, `face-report`, `recommendations`, `cart` e `checkout`;
-- captura ou nota manual de mobile para as mesmas áreas.
+- output de `npm --prefix apps/web run test:e2e -- performance.spec.js`;
+- LCP, CLS, JS e transferência por rota/perfil, sem PII;
+- expansão das rotas autenticadas com fixtures locais quando estiverem disponíveis.
 
 7. Cenário negativo/erro esperado.
 
 Fecha no mínimo estes negativos:
 
 - `pageKey` fora de `MAIN_PAGE_DEFINITIONS` devolve `ignored`;
-- `loadMs` acima de `3_000` mostra aviso `slow` sem bloquear a página;
+- LCP acima de `3_000`, CLS acima de `0,1` ou transferência acima do budget faz o E2E falhar;
 - `dist/assets` ausente faz o script falhar com mensagem clara;
 - os avisos não apresentam email, fotografia, relatório, produto comprado, morada, cookie ou segredo de sessão.
 
@@ -830,22 +963,23 @@ Fecha no mínimo estes negativos:
 
 - `PAGE_LOAD_BUDGET_MS` está fixo em `3_000`.
 - As seis páginas principais têm `data-mf6-page`.
-- Cada página medida mostra estado `ok` ou `slow`.
+- O diagnóstico de primeiro frame, quando mantido, só aparece em desenvolvimento e não decide o gate.
 - O script unitário passa.
 - O build Vite passa.
-- O script de assets lista ficheiros e não falha em caminhos com espaços.
+- O script de assets mede o entry JS gzip e não falha em caminhos com espaços.
+- O Playwright recolhe LCP/CLS/transferência real e aplica os budgets.
 - A app mantém sessão, estados de loading/error e chamadas API existentes.
 - Nenhuma métrica inclui dados pessoais, biométricos, comerciais sensíveis, cookies ou segredos de sessão.
 
 #### Critérios de aceite
 
 - O guia tem pelo menos 8 passos e pelo menos 3 negativos.
-- A medição deixa de depender apenas da navegação inicial do documento.
+- A medição usa navegação real, PerformanceObserver e Resource Timing; o frame seguinte ao mount fica apenas como diagnóstico.
 - `apps/web/src/App.jsx` mostra integração completa com as páginas principais reais.
 - `apps/web/src/styles.css` contém estilos para `mf6-performance` e `mf6-page-measure`.
-- Existe evidence unitária, integração/build, assets e smoke manual desktop/mobile.
+- Existe evidence unitária, integração/build, bundle gzip e Playwright browser.
 - `BK-MF6-03` consegue reutilizar as páginas principais medidas como base para teste de concorrência.
-- Não há dependências novas.
+- Playwright é dependência de teste justificada para medir o browser; não é enviado no bundle de produção.
 
 #### Validação final
 
@@ -853,6 +987,7 @@ Fecha no mínimo estes negativos:
 node apps/web/scripts/check-mf6-performance-unit.mjs
 npm --prefix apps/web run build
 node apps/web/scripts/check-mf6-page-budget.mjs
+npm --prefix apps/web run test:e2e -- performance.spec.js
 bash scripts/validate-planificacao.sh
 ```
 
@@ -861,8 +996,8 @@ bash scripts/validate-planificacao.sh
 - `proof_unit`: output de `node apps/web/scripts/check-mf6-performance-unit.mjs`.
 - `proof_integration`: output de `npm --prefix apps/web run build`.
 - `proof_assets`: tabela de assets de `node apps/web/scripts/check-mf6-page-budget.mjs`.
-- `proof_e2e_manual`: notas ou capturas desktop/mobile com as seis áreas principais.
-- `proof_negativos`: `ignored`, `slow`, build ausente e ausência de dados sensíveis nos avisos.
+- `proof_e2e`: LCP, CLS, JS e transferência observados por Playwright.
+- `proof_negativos`: rota fora da lista, LCP/CLS/transferência acima do budget, build ausente e ausência de dados sensíveis.
 - `proof_core_dual`: catálogo, análise, recomendações, carrinho e checkout continuam acessíveis e medidos.
 
 #### Handoff
@@ -871,6 +1006,7 @@ bash scripts/validate-planificacao.sh
 
 #### Changelog
 
+- `2026-07-10`: prova RNF06 migrada para LCP/CLS/Resource Timing em Playwright; primeiro frame ficou apenas diagnóstico DEV e JS inicial passou a budget gzip de 200 KiB.
 - `2026-06-23`: guia corrigido para o contrato ativo: 8 passos, medição por área React, integração completa em `App.jsx`, CSS, scripts de evidence, correção de paths com `fileURLToPath` e negativos P0.
 
 ## Suplemento de validacao documental
@@ -960,3 +1096,5 @@ export function validarEvidenceDocumental(evidence) {
 
 ## Changelog
 - `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.
+
+</details>

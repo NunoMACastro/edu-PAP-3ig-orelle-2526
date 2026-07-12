@@ -20,7 +20,23 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF5-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF5/BK-MF5-05-interface-moderna-intuitiva-e-responsive-desktop-e-mobile.md`
-- `last_updated`: `2026-06-22`
+- `last_updated`: `2026-07-11`
+
+> **Contrato atual (2026-07-10):** a shell tem exatamente um `<main>`, skip-link e foco colocado no conteúdo após navegação. Cliente, consultor e administrador recebem menus separados e só é renderizada a rota ativa; agrupar todas as páginas numa pilha deixou de ser estado final aceitável. Modais usam focus trap e devolvem foco ao trigger. Todos os controlos interativos têm alvo mínimo `44x44`, há suporte para `prefers-reduced-motion` e o layout é testado em `320/375/768/1280` px. O gate usa Playwright com navegação por teclado e Axe, sem violações `serious`/`critical`; inspeção manual é evidence complementar, não substituta.
+
+> **Rotas canónicas da consulta — 2026-07-11:** a shell renderiza apenas a rota ativa para `/consulta`, `/consulta/nova`, `/consulta/ativa`, `/consulta/relatorios/:reportId`, `/consulta/historico` e `/consultoria/revisoes`. Fotografias, análise, recomendações, relatório e preview pertencem a esse fluxo; não existem páginas independentes `FacePhotoUploadPage`, `FaceAnalysisPage`, `FaceReportPage`, `ProductRecommendationsPage` ou `BeforeAfterVisualizationPage`. Os exemplos inferiores de `page-stack` que montam essas páginas em simultâneo são históricos e **não devem ser executados**. Ver [plano canónico da consulta OpenAI](../../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md).
+
+### Critérios de aceitação ativos
+
+- Existe exatamente um `<main>` e apenas a rota ativa é renderizada.
+- Menus e guardas separam cliente, consultor e administrador.
+- Todas as rotas da consulta são alcançáveis sem introduzir IDs técnicos.
+- Playwright valida teclado, foco, Axe e ausência de overflow em `320/375/768/1280` px.
+
+<details class="historical-archive">
+<summary><strong>Anexo histórico da shell em page-stack — não executar</strong></summary>
+
+> Todo o conteúdo restante deste ficheiro é o tutorial anterior à navegação canónica. Imperativos, imports, JSX, checklists e smokes que montam várias páginas em simultâneo ficam fora das instruções ativas.
 
 #### Objetivo
 
@@ -32,15 +48,16 @@ Uma app de cosmética depende de confiança visual, leitura rápida e interaçã
 
 #### Scope-in
 
-- Organizar `App.jsx` com zonas claras por papel.
+- Organizar `App.jsx` com zonas claras por papel e um único landmark `<main>`.
+- Adicionar skip-link, foco pós-navegação e contrato de modais com focus trap.
 - Melhorar `styles.css` com layout responsivo, larguras seguras e estados visuais consistentes.
 - Garantir que cartões, formulários e listas não rebentam em mobile.
 - Manter `apiRequest` e sessão por cookie HttpOnly.
-- Validar desktop e mobile por build e inspeção manual.
+- Validar `320/375/768/1280` por build, Playwright, teclado e Axe.
 
 #### Scope-out
 
-- Não criar router completo.
+- Não criar um segundo router nem uma navegação paralela; estender a infraestrutura de rotas existente.
 - Não introduzir Tailwind CSS ou biblioteca de componentes.
 - Não redesenhar identidade visual final.
 - Não alterar contratos de API.
@@ -49,7 +66,7 @@ Uma app de cosmética depende de confiança visual, leitura rápida e interaçã
 #### Estado antes e depois
 
 - Antes: a app já tinha `app-shell`, `page-stack` e breakpoints simples, mas os painéis cresceram por macrofase e precisavam de organização mais previsível.
-- Depois: a página inicial fica dividida por secções funcionais, com grelha fluida, formulários em coluna no mobile e cartões que preservam legibilidade.
+- Depois: a app fica dividida por secções funcionais, com landmark único, navegação acessível, grelha fluida, formulários em coluna no mobile e cartões que preservam legibilidade.
 
 #### Pre-requisitos
 
@@ -66,6 +83,8 @@ Uma app de cosmética depende de confiança visual, leitura rápida e interaçã
 - Shell: estrutura base da página, incluindo header e área de conteúdo.
 - Estado visual: representação de loading, erro, vazio ou sucesso.
 - Densidade: quantidade de informação visível sem sobrecarregar o utilizador.
+- Skip-link: ligação inicial que permite saltar diretamente para o conteúdo principal.
+- Focus trap: contenção temporária do foco dentro de um diálogo modal, com devolução ao elemento que o abriu.
 
 #### Conceitos teóricos essenciais
 
@@ -73,7 +92,7 @@ Responsividade não é apenas reduzir o tamanho da letra. A interface deve mudar
 
 Uma app operacional não deve parecer uma landing page. A Orélle precisa de painéis repetidos, formulários e listas que suportem uso real por cliente, consultor e administrador.
 
-Sem biblioteca de UI, o CSS global deve definir regras comuns para botões, inputs, cartões e grids. Isto reduz repetição nos componentes e ajuda a manter consistência nas próximas MF.
+Sem biblioteca de UI, o CSS global deve definir regras comuns para botões, inputs, cartões e grids. A semântica mantém um único `<main>` na shell; páginas internas usam `<section>`/`<article>`. A responsividade e acessibilidade precisam de testes de browser, porque build não deteta overflow, foco perdido ou violações Axe.
 
 ## Bloco pedagogico
 
@@ -85,7 +104,7 @@ Compreender como organizar a interface da Orélle por papel e tornar os formulá
 
 - Saber importar páginas React já existentes.
 - Conhecer o cliente API com sessão por cookie.
-- Perceber o papel de `App.jsx` como composição temporária sem router completo.
+- Perceber o papel de `App.jsx` como shell e da infraestrutura de rotas como seleção de uma única página ativa.
 - Conhecer os fluxos de cliente, consultor e administrador já criados.
 
 ### Erros comuns
@@ -110,16 +129,19 @@ Consegues explicar que a UI pode agrupar páginas por role, mas a autorização 
 ### Passos
 
 1. Mapear páginas por fluxo de cliente, consultoria e administração.
-2. Criar grupos visuais sem introduzir router novo.
+2. Mapear rotas visíveis para menus separados por role, reutilizando o router existente.
 3. Rever CSS global para grelhas fluidas e inputs seguros.
-4. Garantir que formulários e listas não rebentam em mobile.
-5. Validar build e pelo menos 3 negativos de layout/responsividade.
+4. Garantir que formulários e listas não rebentam em `320/375/768/1280` px.
+5. Validar skip-link, foco pós-navegação, focus trap, reduced motion e alvos `44x44`.
+6. Executar Playwright/Axe e pelo menos 3 negativos de layout/acessibilidade.
 
 ### Validacao
 
 - Build Vite passa sem imports partidos.
 - Secções de cliente, consultoria e administração ficam visualmente separadas.
-- Mobile usa uma coluna e mantém botões/inputs legíveis.
+- Mobile usa uma coluna, sem overflow, e mantém controlos com alvo mínimo `44x44`.
+- A shell tem um único `<main>`; skip-link e foco pós-navegação funcionam por teclado.
+- Axe não encontra violações `serious`/`critical` nas rotas principais.
 - [ ] Negativos: minimo `3` cenarios controlados de overflow, role visual e formulário compacto.
 
 ### Handoff
@@ -128,10 +150,12 @@ Consegues explicar que a UI pode agrupar páginas por role, mas a autorização 
 
 #### Arquitetura do BK
 
-- `App.jsx`: agrupa páginas por papel e mantém gates por role.
+- `App.jsx`: shell única, menus por role e outlet de uma única rota ativa.
 - `styles.css`: define shell, grid, secções, formulários e mobile.
-- Páginas existentes: continuam a usar `<main>` ou `<section>`.
-- Build Vite: valida imports e CSS.
+- Páginas existentes: usam `<section>`/`<article>`; apenas a shell cria `<main id="main-content">`.
+- `ConfirmDialog`: aplica focus trap, Escape, devolução de foco e nome acessível.
+- Playwright + Axe: validam viewports, teclado e violações automatizáveis.
+- Build Vite: valida imports e CSS, sem substituir os testes de browser.
 
 #### Ficheiros a criar/editar/rever
 
@@ -147,7 +171,7 @@ Consegues explicar que a UI pode agrupar páginas por role, mas a autorização 
 
 1. Objetivo funcional do passo no contexto da app.
 
-Separar visualmente fluxos de cliente, consultor e administrador sem criar routing novo.
+Separar navegação de cliente, consultor e administrador sem duplicar routing.
 
 2. Ficheiros envolvidos:
     - REVER: `apps/web/src/App.jsx`
@@ -156,7 +180,7 @@ Separar visualmente fluxos de cliente, consultor e administrador sem criar routi
 
 3. Instruções do que fazer.
 
-Lista as páginas existentes e agrupa-as em três zonas: conta/cliente, consultoria e administração. Mantém gates por `user.role`.
+Lista as rotas existentes e cria três mapas de navegação: conta/cliente, consultoria e administração. Mantém gates por `user.role`; links proibidos não aparecem e a rota continua protegida no backend.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -166,7 +190,7 @@ Sem código neste passo.
 
 5. Explicação do código.
 
-Não há código porque este passo é de arquitetura visual. O objetivo é impedir que a UI cresça como uma lista sem hierarquia. A separação por papel ajuda o utilizador a encontrar o fluxo certo e prepara `BK-MF5-06`.
+Não há código porque este passo é de arquitetura visual. O objetivo é impedir que a UI cresça como uma lista sem hierarquia e renderize dezenas de páginas simultaneamente. A separação por papel ajuda o utilizador a encontrar o fluxo certo e prepara `BK-MF5-06`.
 
 6. Validação do passo.
 
@@ -180,7 +204,7 @@ Mostrar painéis admin a clientes confunde a experiência e pode sugerir acesso 
 
 1. Objetivo funcional do passo no contexto da app.
 
-Criar grupos visuais sem alterar lógica de autenticação.
+Ligar o menu da role e a rota ativa sem alterar lógica de autenticação.
 
 2. Ficheiros envolvidos:
     - EDITAR: `apps/web/src/App.jsx`
@@ -188,7 +212,7 @@ Criar grupos visuais sem alterar lógica de autenticação.
 
 3. Instruções do que fazer.
 
-Mantém os imports já existentes, acrescenta `SectionGroup` e liga as páginas biométricas criadas nos BKs anteriores da MF5 às zonas de consultoria e administração.
+O bloco histórico de `SectionGroup` abaixo mostra apenas a classificação por role. Não o uses como composição final: transfere cada entrada para o mapa de rotas/menu existente e renderiza somente a rota ativa dentro de `#main-content`.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -230,6 +254,9 @@ function AppContent() {
 
     return (
         <div className="app-shell">
+            <a className="skip-link" href="#main-content">
+                Saltar para o conteúdo principal
+            </a>
             <header className="app-header">
                 <div>
                     <p className="app-kicker">Experiência Orélle</p>
@@ -238,6 +265,8 @@ function AppContent() {
                 {user && <p className="session-pill">{user.email} · {user.role}</p>}
             </header>
 
+            {/* Só a shell cria o landmark principal; cada página interna usa section/article. */}
+            <main id="main-content" tabIndex={-1}>
             <SectionGroup title="Conta e experiência do cliente">
                 <RegisterPage />
                 <LoginPage />
@@ -291,6 +320,7 @@ function AppContent() {
                     <BiometricAuditPage />
                 </SectionGroup>
             )}
+            </main>
         </div>
     );
 }
@@ -298,11 +328,11 @@ function AppContent() {
 
 5. Explicação do código.
 
-`SectionGroup` é apenas estrutural e não muda permissões. As permissões continuam dependentes de `user.role`, vindo da sessão. O código preserva `recommendations` e `latestMakeupSimulation`, porque esses estados ligam recomendações, revisão por consultor, simulação e visualização antes/depois. A grelha interna permite que cada página continue isolada, mas a experiência deixa de ser uma pilha sem contexto. `BiometricDataRequestsAdminPage` e `BiometricAuditPage` são consumidas dos BKs anteriores da MF5; este BK só as posiciona visualmente nos grupos certos, sem recriar regras de privacidade nem substituir fluxos de MF0 a MF4.
+`SectionGroup` é apenas estrutural e não muda permissões. As permissões continuam dependentes de `user.role`, vindo da sessão. O skip-link aponta para o único `<main>`, que aceita foco programático após navegação. As páginas internas não criam landmarks `<main>` adicionais. O código preserva os estados que ligam os fluxos já existentes e posiciona os painéis biométricos sem recriar regras de privacidade.
 
 6. Validação do passo.
 
-Build deve passar sem imports em falta. Cliente não vê grupo de administração.
+Build deve passar sem imports em falta, `document.querySelectorAll("main")` deve devolver um elemento e o skip-link deve mover o foco para `#main-content`. Cliente não vê grupo de administração.
 
 7. Cenário negativo/erro esperado.
 
@@ -359,7 +389,6 @@ Atualiza o CSS global com `section-group`, `section-grid`, larguras máximas e b
 }
 
 /* min-width: 0 impede que textos, tabelas ou formulários largos forcem scroll horizontal no mobile. */
-.section-grid > main,
 .section-grid > section {
     min-width: 0;
     border: 1px solid var(--line);
@@ -367,6 +396,35 @@ Atualiza o CSS global com `section-group`, `section-grid`, larguras máximas e b
     padding: 1.1rem;
     background: var(--surface);
     box-shadow: var(--shadow);
+}
+
+.skip-link {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: 1000;
+    transform: translateY(-150%);
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.skip-link:focus-visible {
+    transform: translateY(0);
+}
+
+button,
+[role="button"],
+input,
+select,
+textarea {
+    min-block-size: 44px;
+}
+
+a[href] {
+    display: inline-flex;
+    min-inline-size: 44px;
+    min-block-size: 44px;
+    align-items: center;
 }
 
 /* Os formulários começam em duas colunas para aproveitar desktop sem perder a adaptação mobile. */
@@ -403,15 +461,26 @@ form {
         margin-left: 0;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
 ```
 
 5. Explicação do código.
 
-`auto-fit` com `minmax(19rem, 1fr)` cria cartões que se ajustam sem esmagar conteúdo. No mobile, a grelha passa para uma coluna e os botões empilhados deixam de competir pelo espaço horizontal. O CSS mantém border radius de `0.5rem`, coerente com a UI já existente, e não depende de biblioteca externa.
+`auto-fit` com `minmax(19rem, 1fr)` cria cartões que se ajustam sem esmagar conteúdo. No mobile, a grelha passa para uma coluna. O skip-link só aparece com foco, os alvos mantêm pelo menos `44x44` e reduced motion elimina animações não essenciais sem esconder estado ou conteúdo.
 
 6. Validação do passo.
 
-Reduz a janela para largura de telemóvel: cartões devem empilhar, inputs ocupar uma coluna e texto não deve sair do contentor.
+Testa `320`, `375`, `768` e `1280` px: cartões devem empilhar quando necessário, inputs ocupar espaço útil, texto não sair do contentor e nenhum viewport ter scroll horizontal.
 
 7. Cenário negativo/erro esperado.
 
@@ -479,11 +548,11 @@ Força erro numa chamada API e confirma que a mensagem aparece com destaque, sem
 
 Mostrar erros técnicos crus na UI enfraquece segurança e torna a experiência menos profissional.
 
-### Passo 5 - Executar build e inspeção manual
+### Passo 5 - Executar build e preparar validação de browser
 
 1. Objetivo funcional do passo no contexto da app.
 
-Confirmar que a UI compila e é utilizável em larguras diferentes.
+Confirmar que a UI compila antes de executar a validação automatizada em quatro larguras.
 
 2. Ficheiros envolvidos:
     - REVER: `apps/web/package.json`
@@ -493,7 +562,7 @@ Confirmar que a UI compila e é utilizável em larguras diferentes.
 
 3. Instruções do que fazer.
 
-Executa build Vite e abre a app em largura desktop e mobile. Executar cenários negativos obrigatórios (mínimo 3): largura mobile estreita sem scroll horizontal, cliente sem grupo de administração e erro visual sem detalhe técnico exposto.
+Executa build Vite. Depois, o Passo 9 cobre `320/375/768/1280`, teclado e Axe. Os negativos mínimos são: overflow a `320`, foco que escapa de um modal e violação Axe `serious`/`critical`.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -503,15 +572,15 @@ npm --prefix apps/web run build
 
 5. Explicação do código.
 
-O comando valida imports, JSX e CSS processado pelo Vite. A inspeção manual complementa o build porque responsividade é comportamento visual, não apenas compilação.
+O comando valida imports, JSX e CSS processado pelo Vite. Playwright/Axe complementam o build porque responsividade, foco e landmarks são comportamento de browser.
 
 6. Validação do passo.
 
-Build sem erro, sem scroll horizontal em mobile e sem texto sobreposto.
+Build sem erro; os restantes critérios só ficam provados depois do teste de browser.
 
 7. Cenário negativo/erro esperado.
 
-Build a passar não prova que a UI está legível; por isso a inspeção visual continua obrigatória.
+Build a passar não prova que a UI está legível ou acessível; fechar o BK sem Playwright/Axe é uma falha de gate.
 
 ### Passo 6 - Validar formulários e listas em largura mobile
 
@@ -526,7 +595,7 @@ Separar a validação mobile dos formulários, listas e cartões para evitar que
 
 3. Instruções do que fazer.
 
-Abre a app numa largura próxima de `375px` e percorre formulários de conta, perfil, fotografias, carrinho, pedidos biométricos e painéis administrativos disponíveis no estado atual do projeto. Confirma que cada input ocupa largura suficiente, que botões não se sobrepõem e que listas longas quebram linha sem criar scroll horizontal.
+Percorre os fluxos nos viewports `320/375/768/1280`. Confirma que cada input ocupa largura suficiente, os alvos interativos medem pelo menos `44x44`, botões não se sobrepõem e listas longas quebram linha sem criar scroll horizontal.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -594,7 +663,7 @@ Fechar o BK P0 com evidência suficiente para defesa, cobrindo build, integraç�
 
 3. Instruções do que fazer.
 
-Guarda evidência de quatro camadas: build Vite, inspeção desktop, inspeção mobile e três negativos controlados. Os negativos mínimos são: mobile estreito sem scroll horizontal, cliente sem grupo admin e erro visual sem detalhes técnicos internos.
+Guarda evidência de quatro camadas: build Vite, Playwright em quatro viewports, Axe/teclado e três negativos controlados. Capturas desktop/mobile são úteis, mas não substituem os resultados automatizados.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -614,32 +683,140 @@ A PR ou defesa deve incluir output do build, captura desktop, captura mobile e l
 
 Se só existir uma captura desktop, a evidência está incompleta. A correção é acrescentar mobile e negativos, porque `RNF01` exige desktop e mobile.
 
+### Passo 9 - Validar landmarks, foco, teclado, modais e Axe
+
+1. Objetivo funcional do passo no contexto da app.
+
+Transformar os requisitos visuais em gates repetíveis no browser.
+
+2. Ficheiros envolvidos:
+    - CRIAR: `apps/web/src/hooks/useFocusAfterNavigation.js`
+    - REVER: `apps/web/src/components/ConfirmDialog.jsx`
+    - CRIAR: `apps/web/tests/e2e/accessibility-responsive.spec.js`
+
+3. Instruções do que fazer.
+
+Liga o hook à chave da rota/ecrã ativo. `ConfirmDialog` deve mover foco para o primeiro controlo, conter `Tab`/`Shift+Tab`, fechar com Escape e devolver foco ao trigger. Não dupliques `<main>` nas páginas.
+
+Executar cenarios negativos obrigatorios (minimo 3): introduzir overflow a `320px`, permitir que o foco escape do diálogo e injetar uma violação Axe `serious`/`critical`; confirmar que cada caso faz o gate falhar antes de repor a correção.
+
+```js
+// apps/web/src/hooks/useFocusAfterNavigation.js
+import { useEffect } from "react";
+
+export function useFocusAfterNavigation(routeKey) {
+    useEffect(() => {
+        document.querySelector("main#main-content")?.focus();
+    }, [routeKey]);
+}
+```
+
+O teste percorre a matriz de rotas principais com fixtures locais:
+
+```js
+import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+import { MAIN_ROUTES } from "./fixtures/main-routes.js";
+
+const VIEWPORTS = [
+    { width: 320, height: 720 },
+    { width: 375, height: 812 },
+    { width: 768, height: 1024 },
+    { width: 1280, height: 800 },
+];
+
+for (const viewport of VIEWPORTS) {
+    test(`sem overflow e sem violações graves a ${viewport.width}px`, async ({ page }) => {
+        await page.setViewportSize(viewport);
+        for (const route of MAIN_ROUTES) {
+            await page.goto(route.path);
+            await expect(page.locator("main#main-content")).toHaveCount(1);
+            const hasOverflow = await page.evaluate(
+                () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+            );
+            expect(hasOverflow).toBe(false);
+
+            const undersizedTargets = await page
+                .locator('button, [role="button"], a[href], input, select, textarea')
+                .evaluateAll((nodes) => nodes
+                    .filter((node) => {
+                        const rect = node.getBoundingClientRect();
+                        return rect.width > 0 && rect.height > 0 && (rect.width < 44 || rect.height < 44);
+                    })
+                    .map((node) => node.outerHTML.slice(0, 160)));
+            expect(undersizedTargets).toEqual([]);
+
+            const results = await new AxeBuilder({ page }).analyze();
+            expect(
+                results.violations.filter(({ impact }) =>
+                    impact === "serious" || impact === "critical"),
+            ).toEqual([]);
+        }
+    });
+}
+
+test("skip-link, foco pós-navegação e diálogo são operáveis por teclado", async ({ page }) => {
+    await page.goto("/");
+    await page.keyboard.press("Tab");
+    await expect(page.locator(".skip-link")).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("main#main-content")).toBeFocused();
+
+    const trigger = page.getByRole("button", { name: /abrir confirmação/i });
+    await trigger.click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    for (let index = 0; index < 6; index += 1) {
+        await page.keyboard.press("Tab");
+        expect(await dialog.evaluate((node) => node.contains(document.activeElement))).toBe(true);
+    }
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+});
+```
+
+4. Validação do passo.
+
+Executa `npm --prefix apps/web run test:e2e -- accessibility-responsive.spec.js`. Testa também `prefers-reduced-motion: reduce` e verifica que animações decorativas deixam de correr. O cenário de diálogo usa uma fixture autenticada que disponibiliza o trigger de confirmação, sem depender de IDs técnicos.
+
+5. Cenários negativos/erro esperado.
+
+Um segundo `<main>`, overflow a `320px`, alvo inferior a `44x44`, foco fora do diálogo ou qualquer violação Axe `serious`/`critical` fazem o gate falhar.
+
 #### Expected results
 
 - Interface com grupos visuais claros.
 - Desktop com grelha de cartões equilibrada.
 - Mobile em uma coluna, sem scroll horizontal.
-- Formulários e botões legíveis em ecrãs pequenos.
+- Formulários e botões legíveis em ecrãs pequenos, com alvos `44x44`.
+- Um único `<main>`, skip-link funcional, foco pós-navegação e modais com focus trap/devolução de foco.
+- Reduced motion respeitado e Axe sem violações `serious`/`critical` nas rotas principais.
 - Estados `loading`, `error`, `empty` e `success` visíveis e consistentes.
 - Evidence responsiva separada por build, desktop, mobile e negativos.
 
 ## Criterios de aceite
 
 - `App.jsx` preserva gates de consultor/admin.
+- Cliente, consultor e administrador têm menus distintos; apenas a rota ativa é renderizada e acesso direto continua protegido pela API.
 - `styles.css` define grelha responsiva e breakpoint mobile.
+- A shell possui um único `<main>` e as páginas internas usam `<section>`/`<article>`.
+- Playwright cobre `320/375/768/1280`, teclado, focus trap, reduced motion e Axe.
 - Não são criadas dependências novas.
 - Não há alteração de endpoints nem payloads.
-- O guia tem 8 passos, com validação separada de formulários/listas mobile, visibilidade por role e evidence por camada.
+- O guia tem 9 passos, com validação separada de formulários/listas, visibilidade por role, acessibilidade e evidence por camada.
 - Cenários negativos concluídos: mínimo `3` com resultado controlado.
 
 #### Validação final
 
 - Executar `npm --prefix apps/web run build` ou equivalente no root usado.
-- Testar largura desktop e largura mobile.
+- Executar `npm --prefix apps/web run test:e2e -- accessibility-responsive.spec.js`.
+- Testar `320/375/768/1280` px.
 - Confirmar que botões não ficam sobrepostos.
 - [ ] Build: `npm --prefix apps/web run build` termina sem erro.
 - [ ] Integração visual: grupos de cliente, consultoria e administração aparecem com as páginas esperadas depois de aplicar os BKs anteriores da MF5.
-- [ ] E2E ou smoke visual: desktop e mobile não têm scroll horizontal nem texto sobreposto.
+- [ ] E2E: os quatro viewports não têm scroll horizontal nem texto sobreposto.
+- [ ] Acessibilidade: um `<main>`, skip-link, foco pós-navegação, focus trap e zero Axe `serious`/`critical`.
 - [ ] Negativos: mínimo `3` cenários com resultado controlado.
 - [ ] Evidência de testes por camada: build, integração visual, smoke/E2E responsivo e negativos ficam registados na PR ou defesa.
 
@@ -647,7 +824,7 @@ Se só existir uma captura desktop, a evidência está incompleta. A correção 
 
 | Prioridade | Camadas obrigatórias | Evidência esperada |
 | --- | --- | --- |
-| `P0` | Build frontend + integração visual + smoke/E2E responsivo + 3 negativos | Output do build, captura desktop, captura mobile, nota de role visibility e lista dos três negativos controlados. |
+| `P0` | Build frontend + Playwright em quatro viewports + teclado/foco + Axe + 3 negativos | Output do build/E2E, relatório Axe, matriz de viewports, role visibility e negativos controlados. |
 | `P1` | Revisão de formulários/listas em mobile | Confirmação de que inputs, listas e cartões não criam scroll horizontal nem texto sobreposto. |
 | `P2` | Revisão de regressão visual | Confirmação de que `BK-MF5-06`, `BK-MF5-07` e `BK-MF5-08` podem reutilizar a estrutura sem reescrever o layout. |
 
@@ -656,7 +833,8 @@ Se só existir uma captura desktop, a evidência está incompleta. A correção 
 - Output do build Vite.
 - Captura desktop.
 - Captura mobile.
-- Nota de inspeção com duas larguras testadas.
+- Output Playwright dos quatro viewports e relatório Axe.
+- Registo do percurso de teclado, focus trap/devolução de foco e reduced motion.
 
 #### Handoff
 
@@ -664,7 +842,10 @@ Se só existir uma captura desktop, a evidência está incompleta. A correção 
 
 #### Changelog
 
+- `2026-07-10`: contrato atualizado para menus/rotas separados por role, um único `<main>`, skip-link, foco pós-navegação, focus trap, alvos `44x44`, reduced motion, viewports `320/375/768/1280` e gate Playwright/Axe.
 - `2026-06-20`: acrescentados campos core dual no header, passos 6 a 8 e matriz mínima de testes P0 para fechar a granularidade de responsividade, roles e evidence por camada.
 - `2026-06-19`: comentários didáticos reforçados nos blocos CSS longos e matriz mínima de testes integrada na validação final.
 - `2026-06-19`: paths alinhados para `apps/web`, origem das páginas biométricas clarificada e matriz mínima de testes P0 adicionada.
 - `2026-06-18`: guia reescrito para RNF01 com organização de `App.jsx`, CSS responsivo, estados visuais e validação desktop/mobile.
+
+</details>

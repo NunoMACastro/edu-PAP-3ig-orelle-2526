@@ -17,7 +17,7 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF0-06`
 - `guia_path`: `docs/planificacao/guias-bk/MF0/BK-MF0-05-criacao-de-roles-cliente-consultor-administrador.md`
-- `last_updated`: `2026-05-29`
+- `last_updated`: `2026-07-10`
 
 #### BK-MF0-05 - Criação de roles: Cliente, Consultor, Administrador
 
@@ -27,7 +27,7 @@ Neste BK vamos formalizar as roles canónicas da Orélle: `cliente`, `consultor`
 
 Também vamos criar middleware de autorização por role e uma rota administrativa mínima para alterar a role de um utilizador. A criação de uma conta admin para desenvolvimento deve ser feita por seed controlada e nunca com password fixa no repositório.
 
-Esta fase foi detalhada sem mockup. A UI administrativa, se criada, deve ser mínima e focada em prova de autorização.
+A árvore `mockup/` está disponível como referência visual, mas não está confirmada como versão aprovada nem prova paridade. A revisão manual/Figma foi dispensada no alvo académico/local e o risco residual está `ACEITE_RISCO`; a interface administrativa continua mínima e focada em prova de autorização.
 
 ##### Porque é que isto é importante
 
@@ -81,8 +81,8 @@ Esta fase foi detalhada sem mockup. A UI administrativa, se criada, deve ser mí
 
 - Estado esperado antes do BK: existe `User`; role pode já existir como default técnico.
 - Estado esperado depois do BK: roles estão centralizadas e há middleware de autorização.
-- Ficheiros a criar: `server/src/constants/roles.js`, `server/src/middlewares/role.middleware.js`, `server/src/routes/admin-users.routes.js`, `server/src/controllers/admin-users.controller.js`, `server/src/services/admin-users.service.js`, `server/src/scripts/seed-admin.js`.
-- Ficheiros a editar: `server/src/models/user.model.js`, `server/src/app.js`, `server/src/middlewares/auth.middleware.js`.
+- Ficheiros a criar: `apps/api/src/constants/roles.js`, `apps/api/src/middlewares/role.middleware.js`, `apps/api/src/routes/admin-users.routes.js`, `apps/api/src/controllers/admin-users.controller.js`, `apps/api/src/services/admin-users.service.js`, `apps/api/src/scripts/seed-admin.js`.
+- Ficheiros a editar: `apps/api/src/models/user.model.js`, `apps/api/src/app.js`, `apps/api/src/middlewares/auth.middleware.js`.
 - Dependências de BK anteriores: `BK-MF0-01` fornece `User`; `BK-MF0-02` fornece `requireAuth` se já executado.
 - Impacto na arquitetura: separa autorização em middleware reutilizável.
 - Impacto em frontend: pode criar vista simples para testar role admin; painel completo fica fora.
@@ -98,7 +98,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa, se criada, deve ser mí
 - `BK-MF0-01`: modelo `User`.
 - `BK-MF0-02`: middleware `requireAuth`, se já executado.
 - `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`: linha `BK-MF0-05`.
-- Mockup: não existe nesta execução.
+- `mockup/`: árvore disponível apenas como referência não aprovada; revisão manual/Figma dispensada no alvo académico/local, com risco residual `ACEITE_RISCO` e sem alegação de paridade.
 
 #### Glossario (rapido) (DERIVADO):
 
@@ -127,7 +127,7 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Como fazer (0.1): criar `ROLES`.
     - Como fazer (0.2): exportar lista para validação.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/constants/roles.js`.
+    - Ficheiro alvo: `apps/api/src/constants/roles.js`.
     - Snippet de referência: `export const ROLES = Object.freeze({ CLIENTE: 'cliente', CONSULTOR: 'consultor', ADMIN: 'administrador' });`.
     - O que verificar: não existem roles fora de `RF05`.
 
@@ -136,8 +136,8 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Justificação: autorização depende de role consistente.
     - Como fazer (1.1): definir `enum` no schema.
     - Como fazer (1.2): usar default `cliente`.
-    - Ficheiro a rever: `server/src/models/user.model.js`.
-    - Ficheiro alvo: `server/src/models/user.model.js`.
+    - Ficheiro a rever: `apps/api/src/models/user.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/user.model.js`.
     - Snippet de referência: `role: { type: String, enum: Object.values(ROLES), default: ROLES.CLIENTE }`.
     - O que verificar: registo novo continua funcional.
 
@@ -146,8 +146,8 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Justificação: controllers não devem repetir lógica de permissões.
     - Como fazer (2.1): aceitar lista de roles permitidas.
     - Como fazer (2.2): devolver `403` se `req.user.role` não estiver autorizada.
-    - Ficheiro a rever: `server/src/middlewares/auth.middleware.js`.
-    - Ficheiro alvo: `server/src/middlewares/role.middleware.js`.
+    - Ficheiro a rever: `apps/api/src/middlewares/auth.middleware.js`.
+    - Ficheiro alvo: `apps/api/src/middlewares/role.middleware.js`.
     - Snippet de referência: `export const requireRole = (...roles) => (req, res, next) => { ... };`.
     - O que verificar: sem auth devolve `401`; role errada devolve `403`.
 
@@ -156,8 +156,8 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Justificação: `RF05` pede criação de roles e o Admin precisa de atribuí-las.
     - Como fazer (3.1): validar `targetUserId` e `role`.
     - Como fazer (3.2): atualizar apenas o campo `role`.
-    - Ficheiro a rever: `server/src/models/user.model.js`.
-    - Ficheiro alvo: `server/src/services/admin-users.service.js`.
+    - Ficheiro a rever: `apps/api/src/models/user.model.js`.
+    - Ficheiro alvo: `apps/api/src/services/admin-users.service.js`.
     - Snippet de referência: `return User.findByIdAndUpdate(userId, { role }, { new: true });`.
     - O que verificar: password e perfil não são alterados.
 
@@ -166,8 +166,8 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Justificação: rotas administrativas devem ficar claramente separadas.
     - Como fazer (4.1): aplicar `requireAuth`.
     - Como fazer (4.2): aplicar `requireRole(ROLES.ADMIN)`.
-    - Ficheiro a rever: `server/src/app.js`.
-    - Ficheiro alvo: `server/src/routes/admin-users.routes.js`.
+    - Ficheiro a rever: `apps/api/src/app.js`.
+    - Ficheiro alvo: `apps/api/src/routes/admin-users.routes.js`.
     - Snippet de referência: `router.patch('/users/:id/role', requireAuth, requireRole(ROLES.ADMIN), updateUserRoleController);`.
     - O que verificar: cliente recebe `403`.
 
@@ -176,8 +176,8 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Justificação: sem admin inicial não se consegue demonstrar a rota protegida.
     - Como fazer (5.1): criar script que lê `ADMIN_EMAIL` e `ADMIN_PASSWORD`.
     - Como fazer (5.2): criar ou atualizar user com role `administrador`.
-    - Ficheiro a rever: `server/src/services/auth.service.js`.
-    - Ficheiro alvo: `server/src/scripts/seed-admin.js`.
+    - Ficheiro a rever: `apps/api/src/services/auth.service.js`.
+    - Ficheiro alvo: `apps/api/src/scripts/seed-admin.js`.
     - Snippet de referência: `if (!process.env.ADMIN_PASSWORD) throw new Error('ADMIN_PASSWORD obrigatório');`.
     - O que verificar: não há password fixa no ficheiro.
 
@@ -186,8 +186,8 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Justificação: ajuda a defesa e evita confusão de permissões.
     - Como fazer (6.1): mostrar role atual numa área simples de conta.
     - Como fazer (6.2): esconder links admin se role não for `administrador`.
-    - Ficheiro a rever: `client/src/context/AuthContext.jsx`.
-    - Ficheiro alvo: `client/src/App.jsx`.
+    - Ficheiro a rever: `apps/web/src/context/AuthContext.jsx`.
+    - Ficheiro alvo: `apps/web/src/App.jsx`.
     - Snippet de referência: `{user?.role === 'administrador' && <AdminLink />}`.
     - O que verificar: esconder link não substitui proteção backend.
 
@@ -197,7 +197,7 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
     - Como fazer (7.1): criar testes de integração para rota admin.
     - Como fazer (7.2): Executar cenários negativos obrigatórios (mínimo 3) e registar resultados.
     - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
-    - Ficheiro alvo: `server/tests/roles.test.js`.
+    - Ficheiro alvo: `apps/api/tests/roles.test.js`.
     - Snippet de referência: `expect(clienteResponse.status).toBe(403);`.
     - O que verificar: Admin consegue; Cliente não consegue; role inválida falha.
 
@@ -209,7 +209,7 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
 - Negativo 3: passo 3; role `moderador`; resultado esperado `400`; risco que cobre: roles fora do contrato.
 - Técnico: roles estão centralizadas em `roles.js`.
 - Regressão das fases anteriores: registo continua a criar `cliente`.
-- UI/mockup: sem mockup; feedback mínimo de role atual.
+- UI/mockup: validar comportamento responsive/acessível pelos gates locais; a revisão manual/Figma foi dispensada como `ACEITE_RISCO`, sem alegar aprovação, alinhamento exato ou screenshots inexistentes.
 - Segurança: password de seed admin não existe no repositório.
 
 #### Critérios de aceite:
@@ -227,7 +227,7 @@ Seeds devem ser controladas. Um script de seed pode criar um admin local, mas a 
 - `pr`: `A preencher no fecho do BK`
 - `proof`: `A preencher após validação`
 - `neg`: `A preencher após testes negativos`
-- `files`: `server/src/constants/roles.js`, `server/src/middlewares/role.middleware.js`, `server/src/routes/admin-users.routes.js`
+- `files`: `apps/api/src/constants/roles.js`, `apps/api/src/middlewares/role.middleware.js`, `apps/api/src/routes/admin-users.routes.js`
 - `commands`: `npm run seed:admin`, `curl -X PATCH /api/admin/users/:id/role`
 - `screenshots`: conta com role visível ou tentativa negada
 - `notes`: roles limitadas a Cliente, Consultor e Administrador
@@ -388,21 +388,21 @@ Roles permitidas:
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - CRIAR:
-        - `server/src/constants/roles.js`
-        - `server/src/middlewares/role.middleware.js`
-        - `server/src/services/admin-users.service.js`
-        - `server/src/controllers/admin-users.controller.js`
-        - `server/src/routes/admin-users.routes.js`
-        - `server/src/scripts/seed-admin.js`
-        - `server/tests/roles.test.js`
+        - `apps/api/src/constants/roles.js`
+        - `apps/api/src/middlewares/role.middleware.js`
+        - `apps/api/src/services/admin-users.service.js`
+        - `apps/api/src/controllers/admin-users.controller.js`
+        - `apps/api/src/routes/admin-users.routes.js`
+        - `apps/api/src/scripts/seed-admin.js`
+        - `apps/api/tests/roles.test.js`
 
     - EDITAR:
-        - `server/src/models/user.model.js`
-        - `server/src/app.js`
+        - `apps/api/src/models/user.model.js`
+        - `apps/api/src/app.js`
 
     - REVER:
-        - `server/src/middlewares/auth.middleware.js`
-        - `server/src/services/session.service.js`
+        - `apps/api/src/middlewares/auth.middleware.js`
+        - `apps/api/src/services/session.service.js`
         - `docs/RF.md`, requisito `RF05`.
         - `docs/planificacao/guias-bk/MF0/BK-MF0-07-registar-produtos-com-nome-descricao-ingredientes-tipo-de-pele-indicado-imagem-preco-e-stock.md`, porque produtos admin dependem de `requireRole('administrador')`.
     - LOCALIZAÇÃO: usar exatamente os caminhos listados; quando o ficheiro já existir, editar o ficheiro existente em vez de criar outro com nome parecido.
@@ -426,17 +426,17 @@ Roles permitidas:
 6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
 7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
-### Passo 4 - Criar ou editar `server/src/constants/roles.js`
+### Passo 4 - Criar ou editar `apps/api/src/constants/roles.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/constants/roles.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/constants/roles.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/constants/roles.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/constants/roles.js`.
+    - CRIAR/EDITAR: `apps/api/src/constants/roles.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/constants/roles.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/constants/roles.js`.
+Criar este ficheiro em `apps/api/src/constants/roles.js`.
 
 ```js
 export const ROLES = Object.freeze({
@@ -452,17 +452,17 @@ export const ROLE_VALUES = Object.freeze(Object.values(ROLES));
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 5 - Criar ou editar `server/src/models/user.model.js`
+### Passo 5 - Criar ou editar `apps/api/src/models/user.model.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/models/user.model.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/models/user.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/models/user.model.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/models/user.model.js`.
+    - CRIAR/EDITAR: `apps/api/src/models/user.model.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/models/user.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/models/user.model.js`: importar roles e substituir `USER_ROLES`.
+Editar `apps/api/src/models/user.model.js`: importar roles e substituir `USER_ROLES`.
 
 ```js
 import mongoose from "mongoose";
@@ -502,17 +502,17 @@ export const User = model("User", userSchema);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 6 - Criar ou editar `server/src/middlewares/role.middleware.js`
+### Passo 6 - Criar ou editar `apps/api/src/middlewares/role.middleware.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/middlewares/role.middleware.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/middlewares/role.middleware.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/middlewares/role.middleware.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/middlewares/role.middleware.js`.
+    - CRIAR/EDITAR: `apps/api/src/middlewares/role.middleware.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/middlewares/role.middleware.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/middlewares/role.middleware.js`.
+Criar este ficheiro em `apps/api/src/middlewares/role.middleware.js`.
 
 ```js
 import { AppError } from "./error.middleware.js";
@@ -540,17 +540,17 @@ export function requireRole(...allowedRoles) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 7 - Criar ou editar `server/src/services/admin-users.service.js`
+### Passo 7 - Criar ou editar `apps/api/src/services/admin-users.service.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/services/admin-users.service.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/services/admin-users.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/services/admin-users.service.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/services/admin-users.service.js`.
+    - CRIAR/EDITAR: `apps/api/src/services/admin-users.service.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/services/admin-users.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/services/admin-users.service.js`.
+Criar este ficheiro em `apps/api/src/services/admin-users.service.js`.
 
 ```js
 import { ROLE_VALUES } from "../constants/roles.js";
@@ -596,17 +596,17 @@ export async function updateUserRole({ targetUserId, role, actorUserId }) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 8 - Criar ou editar `server/src/controllers/admin-users.controller.js`
+### Passo 8 - Criar ou editar `apps/api/src/controllers/admin-users.controller.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/admin-users.controller.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/controllers/admin-users.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/controllers/admin-users.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/controllers/admin-users.controller.js`.
+    - CRIAR/EDITAR: `apps/api/src/controllers/admin-users.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/controllers/admin-users.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/controllers/admin-users.controller.js`.
+Criar este ficheiro em `apps/api/src/controllers/admin-users.controller.js`.
 
 ```js
 import { updateUserRole } from "../services/admin-users.service.js";
@@ -630,17 +630,17 @@ export async function updateUserRoleController(req, res, next) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 9 - Criar ou editar `server/src/routes/admin-users.routes.js`
+### Passo 9 - Criar ou editar `apps/api/src/routes/admin-users.routes.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/admin-users.routes.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/routes/admin-users.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/routes/admin-users.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/routes/admin-users.routes.js`.
+    - CRIAR/EDITAR: `apps/api/src/routes/admin-users.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/routes/admin-users.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/routes/admin-users.routes.js`.
+Criar este ficheiro em `apps/api/src/routes/admin-users.routes.js`.
 
 ```js
 import { Router } from "express";
@@ -663,17 +663,17 @@ adminUsersRoutes.patch(
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 10 - Criar ou editar `server/src/app.js`
+### Passo 10 - Criar ou editar `apps/api/src/app.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/app.js`.
+    - CRIAR/EDITAR: `apps/api/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/app.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/app.js` e substituir pelo ficheiro completo abaixo, preservando autenticação/perfil e acrescentando as rotas administrativas deste BK.
+Editar `apps/api/src/app.js` e substituir pelo ficheiro completo abaixo, preservando autenticação/perfil e acrescentando as rotas administrativas deste BK.
 
 ```js
 import cookieParser from "cookie-parser";
@@ -710,17 +710,17 @@ export function createApp() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 11 - Criar ou editar `server/src/scripts/seed-admin.js`
+### Passo 11 - Criar ou editar `apps/api/src/scripts/seed-admin.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/scripts/seed-admin.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/scripts/seed-admin.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/scripts/seed-admin.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/scripts/seed-admin.js`.
+    - CRIAR/EDITAR: `apps/api/src/scripts/seed-admin.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/scripts/seed-admin.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/scripts/seed-admin.js`.
+Criar este ficheiro em `apps/api/src/scripts/seed-admin.js`.
 
 ```js
 import bcrypt from "bcryptjs";
@@ -832,7 +832,7 @@ Role invalida `400`:
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
-Criar este ficheiro em `server/tests/roles.test.js`.
+Criar este ficheiro em `apps/api/tests/roles.test.js`.
 
 ```js
 import { describe, expect, it } from "vitest";
@@ -919,3 +919,5 @@ Criação de produtos só pode ser exposta se `requireAuth` e `requireRole(ROLES
 - `2026-05-25`: guia refinado para RBAC mínimo da Orélle.
 - `2026-05-29`: tutorial linear integrado com roles centralizadas, middleware RBAC, seed admin, payloads, testes e handoff admin.
 - `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
+- `2026-07-10` (estado corrente): revisão manual/Figma dispensada no alvo académico/local; RNF26 fica `ACEITE_RISCO`, sem alegar aprovação ou paridade.
+- `2026-07-10`: paths pedagógicos normalizados para a estrutura pública `apps/api/` e `apps/web/`.

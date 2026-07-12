@@ -17,7 +17,7 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF0-05`
 - `guia_path`: `docs/planificacao/guias-bk/MF0/BK-MF0-04-possibilidade-de-editar-o-perfil-e-atualizar-fotografias-periodicamente.md`
-- `last_updated`: `2026-05-29`
+- `last_updated`: `2026-07-10`
 
 #### BK-MF0-04 - Possibilidade de editar o perfil e atualizar fotografias periodicamente
 
@@ -29,7 +29,7 @@ Como qualquer fotografia facial pode identificar uma pessoa e pode ser tratada c
 
 O foco é editar com segurança: só o dono do perfil pode alterar os seus dados, o backend válida todos os campos e a UI mostra estados de loading, erro e sucesso.
 
-Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identidade visual final.
+A árvore `mockup/` está disponível como referência visual, mas não está confirmada como versão aprovada nem prova paridade. A revisão manual/Figma foi dispensada no alvo académico/local e o risco residual está `ACEITE_RISCO`; a interface deve manter-se funcional e simples sem alegar aprovação visual.
 
 ##### Porque é que isto é importante
 
@@ -85,8 +85,8 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 
 - Estado esperado antes do BK: `Profile` existe e pertence ao utilizador.
 - Estado esperado depois do BK: o cliente pode editar dados e, no máximo, associar fotografia por URL/stub controlado se o upload seguro ainda não existir.
-- Ficheiros a criar: `server/src/validators/profile-photo.validator.js`, `client/src/pages/EditProfilePage.jsx`.
-- Ficheiros a editar: `server/src/routes/profile.routes.js`, `server/src/controllers/profile.controller.js`, `server/src/services/profile.service.js`, `server/src/models/profile.model.js`, `client/src/App.jsx`.
+- Ficheiros a criar: `apps/api/src/validators/profile-photo.validator.js`, `apps/web/src/pages/EditProfilePage.jsx`.
+- Ficheiros a editar: `apps/api/src/routes/profile.routes.js`, `apps/api/src/controllers/profile.controller.js`, `apps/api/src/services/profile.service.js`, `apps/api/src/models/profile.model.js`, `apps/web/src/App.jsx`.
 - Dependências de BK anteriores: `BK-MF0-03` define campos e relação `userId`.
 - Impacto na arquitetura: adiciona update parcial ao módulo `profile`.
 - Impacto em frontend: formulário de edição com valores iniciais.
@@ -101,7 +101,7 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - `docs/RF.md`: `RF04`.
 - Guia `BK-MF0-03`: modelo `Profile`.
 - `docs/RNF.md`: `RNF03`, `RNF08`, `RNF11`, `RNF12`, `RNF25`.
-- Mockup: não existe nesta execução.
+- `mockup/`: árvore disponível apenas como referência não aprovada; revisão manual/Figma dispensada no alvo académico/local, com risco residual `ACEITE_RISCO` e sem alegação de paridade.
 
 #### Glossario (rapido) (DERIVADO):
 
@@ -109,7 +109,8 @@ Como não existe mockup, a UI deve ser funcional e simples, sem decidir a identi
 - `PATCH`: atualização parcial de um recurso.
 - `Ownership`: garantia de que cada pessoa altera apenas os seus dados.
 - `Multipart`: formato de pedido usado para enviar ficheiros.
-- `Multer`: middleware Express comum para receber uploads.
+- `Busboy`: parser multipart em streaming usado no fluxo facial posterior, com campos e limites explícitos.
+- `Sharp`: biblioteca que descodifica, limita píxeis, auto-orienta, re-encoda para WebP e remove metadados antes da cifra.
 - `MIME type`: tipo declarado do ficheiro, como `image/jpeg`.
 - `Avatar`: fotografia de perfil, diferente de imagem biométrica para análise.
 - `Consentimento explícito`: confirmação clara do utilizador antes de recolher/processar imagem sensível.
@@ -131,7 +132,7 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
     - Como fazer (0.1): nomear o campo como `profilePhotoUrl` ou `avatarUrl` e adicionar `profilePhotoMode`.
     - Como fazer (0.2): usar `profilePhotoMode: 'stub_url'` quando não houver upload real aprovado; evitar nomes como `analysisPhoto`.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/models/profile.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/profile.model.js`.
     - Snippet de referência: `profilePhotoMode: { type: String, enum: ['stub_url', 'secure_upload'], default: 'stub_url' }`.
     - O que verificar: `RF13` não foi implementado aqui e não há upload real sem consentimento.
 
@@ -140,8 +141,8 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
     - Justificação: reutiliza contrato do perfil sem criar outro documento.
     - Como fazer (1.1): criar função `updateMyProfile(userId, input)`.
     - Como fazer (1.2): filtrar campos permitidos antes de atualizar.
-    - Ficheiro a rever: `server/src/services/profile.service.js`.
-    - Ficheiro alvo: `server/src/services/profile.service.js`.
+    - Ficheiro a rever: `apps/api/src/services/profile.service.js`.
+    - Ficheiro alvo: `apps/api/src/services/profile.service.js`.
     - Snippet de referência: `const allowed = pick(input, ['nome', 'idade', 'tipoDePele', 'genero', 'objetivos']);`.
     - O que verificar: `userId` do body é ignorado.
 
@@ -150,8 +151,8 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
     - Justificação: edição parcial melhora UX e reduz erros.
     - Como fazer (2.1): reaproveitar regras do `profile.validator`.
     - Como fazer (2.2): rejeitar objeto vazio com `400`.
-    - Ficheiro a rever: `server/src/validators/profile.validator.js`.
-    - Ficheiro alvo: `server/src/validators/profile.validator.js`.
+    - Ficheiro a rever: `apps/api/src/validators/profile.validator.js`.
+    - Ficheiro alvo: `apps/api/src/validators/profile.validator.js`.
     - Snippet de referência: `if (Object.keys(input).length === 0) errors.base = 'Nada para atualizar';`.
     - O que verificar: idade inválida continua a falhar.
 
@@ -160,8 +161,8 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
     - Justificação: `/me` mantém ownership no servidor.
     - Como fazer (3.1): aplicar `requireAuth`.
     - Como fazer (3.2): devolver `404` se o perfil ainda não existir.
-    - Ficheiro a rever: `server/src/routes/profile.routes.js`.
-    - Ficheiro alvo: `server/src/controllers/profile.controller.js`.
+    - Ficheiro a rever: `apps/api/src/routes/profile.routes.js`.
+    - Ficheiro alvo: `apps/api/src/controllers/profile.controller.js`.
     - Snippet de referência: `router.put('/me', requireAuth, updateMyProfileController);`.
     - O que verificar: não há rota `PUT /api/profile/:userId` para clientes.
 
@@ -171,7 +172,7 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
     - Como fazer (4.1): se não existir consentimento + storage seguro + controlo de acesso, guardar só URL/stub controlado e bloquear ficheiro real.
     - Como fazer (4.2): se upload real estiver aprovado, validar MIME `image/jpeg`, `image/png` ou `image/webp`, limite de tamanho, consentimento e acesso restrito.
     - Ficheiro a rever: `docs/RNF.md`.
-    - Ficheiro alvo: `server/src/validators/profile-photo.validator.js`.
+    - Ficheiro alvo: `apps/api/src/validators/profile-photo.validator.js`.
     - Snippet de referência: `if (!consentAccepted && mode === 'secure_upload') throw new AppError(403, 'Consentimento obrigatório');`.
     - O que verificar: ficheiro real é bloqueado quando o modo seguro não está disponível.
 
@@ -180,8 +181,8 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
     - Justificação: o aluno consegue demonstrar evolução do perfil na defesa.
     - Como fazer (5.1): carregar valores existentes em `EditProfilePage`.
     - Como fazer (5.2): Executar cenários negativos obrigatórios (mínimo 2) e registar resultados.
-    - Ficheiro a rever: `client/src/pages/ProfileSetupPage.jsx`.
-    - Ficheiro alvo: `client/src/pages/EditProfilePage.jsx`.
+    - Ficheiro a rever: `apps/web/src/pages/ProfileSetupPage.jsx`.
+    - Ficheiro alvo: `apps/web/src/pages/EditProfilePage.jsx`.
     - Snippet de referência: `await apiClient.put('/profile/me', form);`.
     - O que verificar: sucesso atualiza o ecrã sem criar perfil novo.
 
@@ -193,7 +194,7 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
 - Negativo 3: passo 4; ficheiro com tipo/tamanho inválido quando upload seguro estiver aprovado; resultado esperado `400`; risco que cobre: ficheiro perigoso ou pesado.
 - Técnico: rota usa `/me` e `req.user.id`.
 - Regressão das fases anteriores: criação de perfil continua a impedir duplicados.
-- UI/mockup: sem mockup; manter formulário simples com feedback imediato.
+- UI/mockup: validar comportamento responsive/acessível pelos gates locais; a revisão manual/Figma foi dispensada como `ACEITE_RISCO`, sem alegar aprovação, alinhamento exato ou screenshots inexistentes.
 - Segurança: não aceitar alteração de `userId`, `role` ou campos internos.
 
 #### Critérios de aceite:
@@ -211,7 +212,7 @@ Usar `PATCH` para fotografia separa a atualização de imagem da atualização t
 - `pr`: `A preencher no fecho do BK`
 - `proof`: `A preencher após validação`
 - `neg`: `A preencher após testes negativos`
-- `files`: `server/src/services/profile.service.js`, `server/src/routes/profile.routes.js`, `client/src/pages/EditProfilePage.jsx`
+- `files`: `apps/api/src/services/profile.service.js`, `apps/api/src/routes/profile.routes.js`, `apps/web/src/pages/EditProfilePage.jsx`
 - `commands`: `curl -X PUT /api/profile/me`, `npm test`
 - `screenshots`: perfil antes/depois da edição
 - `notes`: fotografia é avatar/perfil; análise facial fica fora; indicar se foi usado `stub_url` ou `secure_upload`
@@ -364,17 +365,17 @@ Nesta fase, a fotografia e apenas um avatar por URL controlado (`profilePhotoMod
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - EDITAR:
-        - `server/src/models/profile.model.js`
-        - `server/src/validators/profile.validator.js`
-        - `server/src/services/profile.service.js`
-        - `server/src/controllers/profile.controller.js`
-        - `server/src/routes/profile.routes.js`
-        - `client/src/App.jsx`
+        - `apps/api/src/models/profile.model.js`
+        - `apps/api/src/validators/profile.validator.js`
+        - `apps/api/src/services/profile.service.js`
+        - `apps/api/src/controllers/profile.controller.js`
+        - `apps/api/src/routes/profile.routes.js`
+        - `apps/web/src/App.jsx`
 
     - CRIAR:
-        - `server/src/validators/profile-photo.validator.js`
-        - `server/tests/profile.edit.test.js`
-        - `client/src/pages/EditProfilePage.jsx`
+        - `apps/api/src/validators/profile-photo.validator.js`
+        - `apps/api/tests/profile.edit.test.js`
+        - `apps/web/src/pages/EditProfilePage.jsx`
 
     - REVER:
         - `docs/RNF.md`: `RNF08`, `RNF11`, `RNF12`, `RNF13`, `RNF25`.
@@ -401,12 +402,12 @@ Nesta fase, a fotografia e apenas um avatar por URL controlado (`profilePhotoMod
 6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
 7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
-### Passo 4 - Criar ou editar `server/src/models/profile.model.js`
+### Passo 4 - Criar ou editar `apps/api/src/models/profile.model.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/models/profile.model.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/models/profile.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/models/profile.model.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/models/profile.model.js`.
+    - CRIAR/EDITAR: `apps/api/src/models/profile.model.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/models/profile.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
@@ -433,17 +434,17 @@ profilePhotoUpdatedAt: {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 5 - Criar ou editar `server/src/validators/profile.validator.js`
+### Passo 5 - Criar ou editar `apps/api/src/validators/profile.validator.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/profile.validator.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/validators/profile.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/validators/profile.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/validators/profile.validator.js`.
+    - CRIAR/EDITAR: `apps/api/src/validators/profile.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/validators/profile.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/validators/profile.validator.js` e acrescentar a função abaixo no fim do ficheiro.
+Editar `apps/api/src/validators/profile.validator.js` e acrescentar a função abaixo no fim do ficheiro.
 
 ```js
 export function validateUpdateProfileInput(body) {
@@ -518,17 +519,17 @@ export function validateUpdateProfileInput(body) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 6 - Criar ou editar `server/src/validators/profile-photo.validator.js`
+### Passo 6 - Criar ou editar `apps/api/src/validators/profile-photo.validator.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/profile-photo.validator.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/validators/profile-photo.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/validators/profile-photo.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/validators/profile-photo.validator.js`.
+    - CRIAR/EDITAR: `apps/api/src/validators/profile-photo.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/validators/profile-photo.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/validators/profile-photo.validator.js`.
+Criar este ficheiro em `apps/api/src/validators/profile-photo.validator.js`.
 
 ```js
 import { AppError } from "../middlewares/error.middleware.js";
@@ -584,17 +585,17 @@ export function validateProfilePhotoInput(body) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 7 - Criar ou editar `server/src/services/profile.service.js`
+### Passo 7 - Criar ou editar `apps/api/src/services/profile.service.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/services/profile.service.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/services/profile.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/services/profile.service.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/services/profile.service.js`.
+    - CRIAR/EDITAR: `apps/api/src/services/profile.service.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/services/profile.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/services/profile.service.js` e substituir pelo ficheiro completo abaixo.
+Editar `apps/api/src/services/profile.service.js` e substituir pelo ficheiro completo abaixo.
 
 ```js
 import { Profile } from "../models/profile.model.js";
@@ -677,17 +678,17 @@ export async function updateMyProfilePhoto(userId, input) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 8 - Criar ou editar `server/src/controllers/profile.controller.js`
+### Passo 8 - Criar ou editar `apps/api/src/controllers/profile.controller.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/profile.controller.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/controllers/profile.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/controllers/profile.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/controllers/profile.controller.js`.
+    - CRIAR/EDITAR: `apps/api/src/controllers/profile.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/controllers/profile.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/controllers/profile.controller.js` e acrescentar estes controllers.
+Editar `apps/api/src/controllers/profile.controller.js` e acrescentar estes controllers.
 
 ```js
 import {
@@ -731,17 +732,17 @@ Nota de localização: se o ficheiro já tiver `createMyProfileController` e `ge
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 9 - Criar ou editar `server/src/routes/profile.routes.js`
+### Passo 9 - Criar ou editar `apps/api/src/routes/profile.routes.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/profile.routes.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/routes/profile.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/routes/profile.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/routes/profile.routes.js`.
+    - CRIAR/EDITAR: `apps/api/src/routes/profile.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/routes/profile.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/routes/profile.routes.js` e substituir pelo ficheiro completo abaixo.
+Editar `apps/api/src/routes/profile.routes.js` e substituir pelo ficheiro completo abaixo.
 
 ```js
 import { Router } from "express";
@@ -765,17 +766,17 @@ profileRoutes.patch("/me/photo", requireAuth, updateMyProfilePhotoController);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 10 - Criar ou editar `client/src/pages/EditProfilePage.jsx`
+### Passo 10 - Criar ou editar `apps/web/src/pages/EditProfilePage.jsx`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/EditProfilePage.jsx` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/pages/EditProfilePage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/pages/EditProfilePage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/pages/EditProfilePage.jsx`.
+    - CRIAR/EDITAR: `apps/web/src/pages/EditProfilePage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/pages/EditProfilePage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/pages/EditProfilePage.jsx`.
+Criar este ficheiro em `apps/web/src/pages/EditProfilePage.jsx`.
 
 ```jsx
 import { useState } from "react";
@@ -912,17 +913,17 @@ export function EditProfilePage() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 11 - Criar ou editar `client/src/App.jsx`
+### Passo 11 - Criar ou editar `apps/web/src/App.jsx`
 
 1. Objetivo simples do passo: ligar a página de edição de perfil a app de demonstração sem criar routing definitivo.
 2. Ficheiros envolvidos:
-    - EDITAR: `client/src/App.jsx`.
+    - EDITAR: `apps/web/src/App.jsx`.
     - LOCALIZAÇÃO: substituir o ficheiro atual por esta versao completa.
     - REVER: `ProfileSetupPage.jsx`, `EditProfilePage.jsx`, `LoginPage.jsx` e `AuthContext.jsx`.
 3. O que fazer: manter as páginas de registo/login/perfil e acrescentar a edição segura de perfil.
 4. Código completo, correto e integrado:
 
-Editar `client/src/App.jsx` e substituir pelo ficheiro completo abaixo.
+Editar `apps/web/src/App.jsx` e substituir pelo ficheiro completo abaixo.
 
 ```jsx
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -1025,7 +1026,7 @@ Tentativa de upload real bloqueada `403`:
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
-Criar este ficheiro em `server/tests/profile.edit.test.js`.
+Criar este ficheiro em `apps/api/tests/profile.edit.test.js`.
 
 ```js
 import { describe, expect, it } from "vitest";
@@ -1112,4 +1113,7 @@ O próximo BK deve manter roles em `User`, não em `Profile`. Este BK nunca deve
 - `2026-05-25`: reforçada regra de consentimento, storage seguro e stub obrigatório quando upload real não existir.
 - `2026-05-29`: tutorial linear integrado com update de perfil, fotografia stub, bloqueio de upload real, payloads, testes e handoff.
 - `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
-- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a página de edição de perfil.
+- `2026-05-29`: acrescentado `apps/web/src/App.jsx` completo para ligar a página de edição de perfil.
+- `2026-07-10` (estado corrente): revisão manual/Figma dispensada no alvo académico/local; RNF26 fica `ACEITE_RISCO`, sem alegar aprovação ou paridade.
+- `2026-07-10`: paths pedagógicos normalizados para a estrutura pública `apps/api/` e `apps/web/`.
+- `2026-07-10`: glossário de upload alinhado com o boundary Busboy e a normalização defensiva Sharp usados no fluxo facial seguro.

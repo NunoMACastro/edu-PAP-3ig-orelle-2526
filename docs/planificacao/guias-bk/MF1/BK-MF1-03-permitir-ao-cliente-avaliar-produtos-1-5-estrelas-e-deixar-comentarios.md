@@ -66,13 +66,13 @@ Na resposta pública, a avaliação deve expor a nota, comentário, estado e dat
 - `ProductReviewForm` envia avaliação com `credentials: "include"` através do `apiClient`.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/models/review.model.js`
-- CRIAR: `server/src/validators/review.validator.js`
-- CRIAR: `server/src/services/review.service.js`
-- CRIAR: `server/src/controllers/review.controller.js`
-- EDITAR: `server/src/routes/catalog.routes.js`
-- CRIAR: `client/src/pages/ProductReviewPage.jsx`
-- EDITAR: `client/src/App.jsx`
+- CRIAR: `apps/api/src/models/review.model.js`
+- CRIAR: `apps/api/src/validators/review.validator.js`
+- CRIAR: `apps/api/src/services/review.service.js`
+- CRIAR: `apps/api/src/controllers/review.controller.js`
+- EDITAR: `apps/api/src/routes/catalog.routes.js`
+- CRIAR: `apps/web/src/pages/ProductReviewPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
 
 ## Bloco pedagógico
 
@@ -125,7 +125,7 @@ Segue os passos lineares abaixo e valida autenticação, intervalo de estrelas e
 
 1. Explicação simples do objetivo: guardar a avaliação com ligações ao produto e ao utilizador.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/models/review.model.js`
+    - CRIAR: `apps/api/src/models/review.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o model abaixo.
 4. Código completo, correto e integrado:
@@ -184,7 +184,7 @@ export const Review = model("Review", reviewSchema);
 
 1. Explicação simples do objetivo: validar rating e comentário.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/validators/review.validator.js`
+    - CRIAR: `apps/api/src/validators/review.validator.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o validator.
 4. Código completo, correto e integrado:
@@ -221,8 +221,8 @@ export function validateReviewInput(body) {
 
 1. Explicação simples do objetivo: gravar e listar reviews com regras de ownership.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/review.service.js`
-    - REVER: `server/src/models/product.model.js`
+    - CRIAR: `apps/api/src/services/review.service.js`
+    - REVER: `apps/api/src/models/product.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o service.
 4. Código completo, correto e integrado:
@@ -289,8 +289,8 @@ export async function listProductReviews(productId) {
 
 1. Explicação simples do objetivo: receber pedidos HTTP e devolver status corretos.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/review.controller.js`
-    - REVER: `server/src/validators/product-id.validator.js`
+    - CRIAR: `apps/api/src/controllers/review.controller.js`
+    - REVER: `apps/api/src/validators/product-id.validator.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o controller.
 4. Código completo, correto e integrado:
@@ -335,10 +335,10 @@ export async function listProductReviewsController(req, res, next) {
 
 1. Explicação simples do objetivo: expor criação e leitura de avaliações.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/routes/catalog.routes.js`
-    - REVER: `server/src/middlewares/auth.middleware.js`
-    - REVER: `server/src/middlewares/role.middleware.js`
-    - REVER: `server/src/constants/roles.js`
+    - EDITAR: `apps/api/src/routes/catalog.routes.js`
+    - REVER: `apps/api/src/middlewares/auth.middleware.js`
+    - REVER: `apps/api/src/middlewares/role.middleware.js`
+    - REVER: `apps/api/src/constants/roles.js`
     - LOCALIZAÇÃO: imports e rotas.
 3. O que fazer: acrescenta o código abaixo.
 4. Código completo, correto e integrado:
@@ -373,8 +373,8 @@ catalogRoutes.post(
 
 1. Explicação simples do objetivo: permitir ao cliente submeter avaliação a partir do frontend.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/ProductReviewPage.jsx`
-    - REVER: `client/src/services/apiClient.js`
+    - CRIAR: `apps/web/src/pages/ProductReviewPage.jsx`
+    - REVER: `apps/web/src/services/apiClient.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria a página.
 4. Código completo, correto e integrado:
@@ -460,7 +460,7 @@ export function ProductReviewPage() {
 
 1. Explicação simples do objetivo: mostrar a página de avaliação na aplicação.
 2. Ficheiros envolvidos.
-    - EDITAR: `client/src/App.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: imports e JSX principal.
 3. O que fazer: adiciona a página.
 4. Código completo, correto e integrado:

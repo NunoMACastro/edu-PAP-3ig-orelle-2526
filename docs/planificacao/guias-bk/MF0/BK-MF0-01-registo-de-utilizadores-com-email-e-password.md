@@ -17,7 +17,7 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF0-02`
 - `guia_path`: `docs/planificacao/guias-bk/MF0/BK-MF0-01-registo-de-utilizadores-com-email-e-password.md`
-- `last_updated`: `2026-05-29`
+- `last_updated`: `2026-07-10`
 
 #### BK-MF0-01 - Registo de utilizadores com email e password
 
@@ -27,7 +27,7 @@ Neste BK vamos construir a primeira base real de identidade da Orélle: o regist
 
 O resultado esperado é um endpoint `POST /api/auth/register`, um modelo `User`, validação de input, hashing de password com `bcrypt` e uma primeira página de registo em React. A password nunca deve ser guardada nem devolvida em texto claro.
 
-Esta fase foi detalhada sem mockup de UI. Por isso, a interface deve ser simples, funcional e extensível, sem assumir identidade visual definitiva.
+A revisão manual/Figma foi dispensada no alvo académico/local e RNF26 está `ACEITE_RISCO`. A árvore visual disponível não está confirmada como versão aprovada e não prova paridade; este BK valida apenas o comportamento técnico/responsivo aplicável ao registo.
 
 ##### Porque é que isto é importante
 
@@ -38,7 +38,7 @@ Esta fase foi detalhada sem mockup de UI. Por isso, a interface deve ser simples
 
 ##### O que entra (scope)
 
-- Estrutura base `server/` e `client/` para uma app Node.js + Express + React.
+- Estrutura base `apps/api/` e `apps/web/` para uma app Node.js + Express + React.
 - Modelo MongoDB/Mongoose `User`.
 - Endpoint `POST /api/auth/register`.
 - Validação de email e password no backend.
@@ -82,7 +82,7 @@ Esta fase foi detalhada sem mockup de UI. Por isso, a interface deve ser simples
 
 - Estado esperado antes do BK: não existe código de app; existem apenas documentos de planificação.
 - Estado esperado depois do BK: backend e frontend mínimos existem, o utilizador consegue criar conta e a password fica protegida com hash.
-- Ficheiros a criar: `server/package.json`, `server/src/app.js`, `server/src/server.js`, `server/src/config/env.js`, `server/src/config/db.js`, `server/src/models/user.model.js`, `server/src/routes/auth.routes.js`, `server/src/controllers/auth.controller.js`, `server/src/services/auth.service.js`, `server/src/validators/auth.validator.js`, `server/src/middlewares/error.middleware.js`, `client/package.json`, `client/src/main.jsx`, `client/src/App.jsx`, `client/src/pages/RegisterPage.jsx`, `client/src/services/apiClient.js`.
+- Ficheiros a criar: `apps/api/package.json`, `apps/api/src/app.js`, `apps/api/src/server.js`, `apps/api/src/config/env.js`, `apps/api/src/config/db.js`, `apps/api/src/models/user.model.js`, `apps/api/src/routes/auth.routes.js`, `apps/api/src/controllers/auth.controller.js`, `apps/api/src/services/auth.service.js`, `apps/api/src/validators/auth.validator.js`, `apps/api/src/middlewares/error.middleware.js`, `apps/web/package.json`, `apps/web/src/main.jsx`, `apps/web/src/App.jsx`, `apps/web/src/pages/RegisterPage.jsx`, `apps/web/src/services/apiClient.js`.
 - Ficheiros a rever: `README.md`, `docs/RF.md`, `docs/RNF.md`, `docs/planificacao/backlogs/BACKLOG-MVP.md`, `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`.
 - Dependências de BK anteriores: nenhuma dependência canónica; este BK cria contratos iniciais.
 - Impacto na arquitetura: introduz separação backend/frontend e padrão `routes -> controller -> service -> model`.
@@ -100,7 +100,7 @@ Esta fase foi detalhada sem mockup de UI. Por isso, a interface deve ser simples
 - `docs/planificacao/backlogs/BACKLOG-MVP.md`: linha `BK-MF0-01`.
 - `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`: linha `BK-MF0-01`.
 - `docs/planificacao/guias-bk/_TEMPLATE-BK.md`: contrato base de guia.
-- Mockup: não existe nesta execução; usar UI simples e não definitiva.
+- `mockup/`: árvore disponível apenas como referência não aprovada; revisão manual/Figma dispensada no alvo académico/local, com risco residual `ACEITE_RISCO` e sem alegação de paridade.
 
 #### Glossario (rapido) (DERIVADO):
 
@@ -129,31 +129,31 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
 0. **Objetivo (~20 min): confirmar contrato e preparar estrutura**
     - Descrição detalhada do objetivo: confirmar que o BK implementa apenas `RF01` e criar a estrutura inicial da app.
     - Justificação: como não há código, a estrutura criada aqui condiciona todos os BKs seguintes.
-    - Como fazer (0.0): criar a estrutura inicial do projeto com duas áreas principais: `server` para o backend/API e `client` para o frontend. Esta separação ajuda a manter claro o que corre no servidor e o que pertence à interface do utilizador.
-    - Como fazer (0.1): criar pastas `server/src` e `client/src`.
+    - Como fazer (0.0): criar a estrutura inicial do projeto com duas áreas principais: `apps/api` para o backend/API e `apps/web` para o frontend. Esta separação ajuda a manter claro o que corre no servidor e o que pertence à interface do utilizador.
+    - Como fazer (0.1): criar pastas `apps/api/src` e `apps/web/src`.
     - Como fazer (0.2): criar `package.json` separados para backend e frontend, usando ES Modules.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/package.json`, `client/package.json`.
+    - Ficheiro alvo: `apps/api/package.json`, `apps/web/package.json`.
     - Snippet de referência: `"type": "module"`.
-    - O que verificar: os comandos `npm run dev` estão definidos, mesmo que só sejam usados depois.
+    - O que verificar: `npm --prefix apps/api run dev:local` e `npm --prefix apps/api run dev` usam ambos `scripts/run-local-dev.mjs`, limpam o ambiente aplicacional herdado, ignoram o `.env` e injetam um `MongoMemoryReplSet`; `dev:local` é o comando determinístico de demonstração, enquanto `dev` acrescenta watch mode e nunca herda Mongo remoto/standalone.
 
 1. **Objetivo (~25 min): criar a app Express base**
     - Descrição detalhada do objetivo: iniciar o backend com Express, JSON parser e middleware de erro.
     - Justificação: todos os endpoints futuros precisam de uma entrada comum e previsível.
-    - Como fazer (1.1): criar `server/src/app.js` com `express.json()` e rota `/api/health`.
-    - Como fazer (1.2): criar `server/src/server.js` para arrancar a porta a partir do ambiente.
+    - Como fazer (1.1): criar `apps/api/src/app.js` com `express.json()` e rota `/api/health`.
+    - Como fazer (1.2): criar `apps/api/src/server.js` para arrancar a porta a partir do ambiente.
     - Ficheiro a rever: `docs/RNF.md`.
-    - Ficheiro alvo: `server/src/app.js`.
+    - Ficheiro alvo: `apps/api/src/app.js`.
     - Snippet de referência: `app.use('/api/auth', authRoutes);`.
     - O que verificar: `GET /api/health` responde `200`.
 
 2. **Objetivo (~25 min): configurar MongoDB e variáveis de ambiente**
     - Descrição detalhada do objetivo: centralizar configuração de `PORT`, `MONGODB_URI` e ambiente.
     - Justificação: strings de ligação e segredos não devem ficar espalhados no código.
-    - Como fazer (2.1): criar `server/src/config/env.js` com leitura de `process.env`.
-    - Como fazer (2.2): criar `server/src/config/db.js` com função `connectDB`.
+    - Como fazer (2.1): criar `apps/api/src/config/env.js` com leitura de `process.env`.
+    - Como fazer (2.2): criar `apps/api/src/config/db.js` com função `connectDB`.
     - Ficheiro a rever: `docs/RNF.md`.
-    - Ficheiro alvo: `server/src/config/db.js`.
+    - Ficheiro alvo: `apps/api/src/config/db.js`.
     - Snippet de referência: `await mongoose.connect(env.mongodbUri);`.
     - O que verificar: o backend falha com mensagem clara se `MONGODB_URI` não existir.
 
@@ -163,7 +163,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
     - Como fazer (3.1): criar `email` único, normalizado e obrigatório.
     - Como fazer (3.2): criar `passwordHash`, `role: 'cliente'` e `isActive: true`.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/models/user.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/user.model.js`.
     - Snippet de referência: `email: { type: String, required: true, unique: true, lowercase: true, trim: true }`.
     - O que verificar: o schema não tem campo `password` persistido.
 
@@ -173,7 +173,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
     - Como fazer (4.1): criar `validateRegisterInput`.
     - Como fazer (4.2): exigir email válido e password com mínimo definido pela equipa, recomendado `8` caracteres.
     - Ficheiro a rever: `docs/RNF.md`.
-    - Ficheiro alvo: `server/src/validators/auth.validator.js`.
+    - Ficheiro alvo: `apps/api/src/validators/auth.validator.js`.
     - Snippet de referência: `if (!email.includes('@')) errors.email = 'Email inválido';`.
     - O que verificar: pedido sem email ou password não chega ao model.
 
@@ -183,7 +183,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
     - Como fazer (5.1): usar `bcrypt.hash(password, 12)`.
     - Como fazer (5.2): devolver apenas campos seguros.
     - Ficheiro a rever: `docs/RNF.md`.
-    - Ficheiro alvo: `server/src/services/auth.service.js`.
+    - Ficheiro alvo: `apps/api/src/services/auth.service.js`.
     - Snippet de referência: `const passwordHash = await bcrypt.hash(password, 12);`.
     - O que verificar: `passwordHash` existe na BD, mas não aparece na resposta.
 
@@ -193,7 +193,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
     - Como fazer (6.1): criar `auth.routes.js` com `router.post('/register', registerController)`.
     - Como fazer (6.2): no controller, responder `201` no sucesso, `400` nos inválidos e `409` em email duplicado.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/controllers/auth.controller.js`.
+    - Ficheiro alvo: `apps/api/src/controllers/auth.controller.js`.
     - Snippet de referência: `return res.status(201).json({ user });`.
     - O que verificar: os códigos HTTP são consistentes e documentados no PR.
 
@@ -203,7 +203,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
     - Como fazer (7.1): criar `RegisterPage.jsx` com estados `idle`, `loading`, `success`, `error`.
     - Como fazer (7.2): Executar cenários negativos obrigatórios (mínimo 3) e registar resultados.
     - Ficheiro a rever: `docs/planificacao/sprints/PLANO-SPRINTS.md`.
-    - Ficheiro alvo: `client/src/pages/RegisterPage.jsx`.
+    - Ficheiro alvo: `apps/web/src/pages/RegisterPage.jsx`.
     - Snippet de referência: `await apiClient.post('/auth/register', { email, password });`.
     - O que verificar: sucesso e erros aparecem no ecrã sem expor dados sensíveis.
 
@@ -215,7 +215,7 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
 - Negativo 3: passo 7; inspecionar resposta após registo; resultado esperado sem `password`/`passwordHash`; risco que cobre: exposição de segredo.
 - Técnico: confirmar `routes -> controller -> service -> model`.
 - Regressão das fases anteriores: não aplicável; `MF0` não tem fase anterior.
-- UI/mockup: fase detalhada sem mockup; formulário deve ser simples, responsivo e não definitivo.
+- UI/mockup: validar comportamento responsive/acessível pelos gates locais; a revisão manual/Figma foi dispensada como `ACEITE_RISCO`, sem alegar aprovação, alinhamento exato ou screenshots inexistentes.
 - Segurança: password com hash `bcrypt`; sem segredos no código.
 
 #### Critérios de aceite:
@@ -233,10 +233,10 @@ Um erro comum é devolver o objeto completo do utilizador criado. Isso pode expo
 - `pr`: `A preencher no fecho do BK`
 - `proof`: `A preencher após validação`
 - `neg`: `A preencher após testes negativos`
-- `files`: `server/src/models/user.model.js`, `server/src/routes/auth.routes.js`, `server/src/services/auth.service.js`, `client/src/pages/RegisterPage.jsx`
-- `commands`: `npm run dev`, `npm test`, `curl -X POST /api/auth/register`
+- `files`: `apps/api/src/models/user.model.js`, `apps/api/src/routes/auth.routes.js`, `apps/api/src/services/auth.service.js`, `apps/web/src/pages/RegisterPage.jsx`
+- `commands`: `npm --prefix apps/api run dev:local`, `npm --prefix apps/api test`, `curl -X POST /api/auth/register`
 - `screenshots`: formulário de registo com sucesso e erro
-- `notes`: confirmar que não há mockup e que a UI é baseline
+- `notes`: registar RNF26 como `ACEITE_RISCO`; a revisão manual/Figma foi dispensada e a presença de `mockup/` não prova aprovação nem paridade
 
 #### TODOs
 
@@ -367,10 +367,10 @@ Usar um snippet solto aqui seria pedagogicamente mais fraco: o aluno poderia cop
 7. Erro comum ou cenário negativo: alterar scope, IDs, roles, nomes de ficheiros ou prometer IA/recomendações/pagamentos antes da fase correta.
 
 **Decisão técnica confirmada:**
-Para evitar drift entre guias, este BK deve criar a estrutura `server/src` e `client/src`, a mesma usada pelos BKs seguintes da `MF0`. A estrutura final deste BK passa a ser:
+Para evitar drift entre guias, este BK deve criar a estrutura `apps/api/src` e `apps/web/src`, a mesma usada pelos BKs seguintes da `MF0`. A estrutura final deste BK passa a ser:
 
-- Backend: `server/`
-- Frontend: `client/`
+- Backend: `apps/api/`
+- Frontend: `apps/web/`
 - API base: `/api`
 - Registo: `POST /api/auth/register`
 
@@ -397,23 +397,23 @@ Esta decisão não altera o `bk_id`, `rf_rnf`, owner, prioridade, dependências 
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - CRIAR:
-        - `server/package.json`
-        - `server/src/config/env.js`
-        - `server/src/config/db.js`
-        - `server/src/middlewares/error.middleware.js`
-        - `server/src/models/user.model.js`
-        - `server/src/validators/auth.validator.js`
-        - `server/src/services/auth.service.js`
-        - `server/src/controllers/auth.controller.js`
-        - `server/src/routes/auth.routes.js`
-        - `server/src/app.js`
-        - `server/src/server.js`
-        - `server/tests/auth.register.test.js`
-        - `client/package.json`
-        - `client/src/services/apiClient.js`
-        - `client/src/pages/RegisterPage.jsx`
-        - `client/src/App.jsx`
-        - `client/src/main.jsx`
+        - `apps/api/package.json`
+        - `apps/api/src/config/env.js`
+        - `apps/api/src/config/db.js`
+        - `apps/api/src/middlewares/error.middleware.js`
+        - `apps/api/src/models/user.model.js`
+        - `apps/api/src/validators/auth.validator.js`
+        - `apps/api/src/services/auth.service.js`
+        - `apps/api/src/controllers/auth.controller.js`
+        - `apps/api/src/routes/auth.routes.js`
+        - `apps/api/src/app.js`
+        - `apps/api/src/server.js`
+        - `apps/api/tests/auth.register.test.js`
+        - `apps/web/package.json`
+        - `apps/web/src/services/apiClient.js`
+        - `apps/web/src/pages/RegisterPage.jsx`
+        - `apps/web/src/App.jsx`
+        - `apps/web/src/main.jsx`
 
     - REVER:
         - `docs/RF.md`, requisito `RF01`.
@@ -443,17 +443,17 @@ Esta decisão não altera o `bk_id`, `rf_rnf`, owner, prioridade, dependências 
 
 Como este e o primeiro BK técnico, os ficheiros acima devem ser criados de raiz. Nos BKs seguintes, quando um ficheiro já existir, o aluno deve editar esse ficheiro em vez de criar outro com nome parecido.
 
-### Passo 4 - Criar ou editar `server/package.json`
+### Passo 4 - Criar ou editar `apps/api/package.json`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/package.json` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/package.json` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/package.json` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/package.json`.
+    - CRIAR/EDITAR: `apps/api/package.json` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/package.json`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/package.json`.
+Criar este ficheiro em `apps/api/package.json`.
 
 ```json
 {
@@ -484,48 +484,62 @@ Criar este ficheiro em `server/package.json`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 5 - Criar ou editar `server/src/config/env.js`
+### Passo 5 - Criar ou editar `apps/api/src/config/env.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/config/env.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/config/env.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/config/env.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/config/env.js`.
+    - CRIAR/EDITAR: `apps/api/src/config/env.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/config/env.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/config/env.js`.
+Criar este ficheiro em `apps/api/src/config/env.js`.
 
 ```js
-import "dotenv/config";
-
 /**
  * Centraliza as variaveis de ambiente usadas pelo backend.
  * Assim evitamos espalhar process.env por muitos ficheiros.
  */
+const DEFAULT_DEV_MONGO_URI = "mongodb://127.0.0.1:27017/orelle";
+const DEFAULT_TEST_MONGO_URI = "mongodb://127.0.0.1:27017/orelle_test";
+const configuredNodeEnv = process.env.NODE_ENV ?? "development";
+const defaultMongoUri =
+    configuredNodeEnv === "test"
+        ? DEFAULT_TEST_MONGO_URI
+        : DEFAULT_DEV_MONGO_URI;
+
 export const env = {
-    nodeEnv: process.env.NODE_ENV ?? "development",
+    nodeEnv: configuredNodeEnv,
     port: Number(process.env.PORT ?? 3001),
-    mongoUri: process.env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/orelle",
-    clientOrigin: process.env.CLIENT_ORIGIN ?? "http://localhost:5173",
+    mongoUri: process.env.MONGODB_URI ?? defaultMongoUri,
+    clientOrigin: process.env.CLIENT_ORIGIN ?? "http://127.0.0.1:5173",
 };
+
+if (!/^mongodb(?:\+srv)?:\/\//i.test(env.mongoUri)) {
+    throw new Error("MONGODB_URI deve usar um protocolo MongoDB válido");
+}
+
+if (env.nodeEnv === "production" && !String(process.env.MONGODB_URI ?? "").trim()) {
+    throw new Error("MONGODB_URI explícita é obrigatória em production");
+}
 ```
 
-5. Explicação do código: este ficheiro guarda configuracoes externas. Em desenvolvimento pode usar valores por defeito; em produção, as variaveis devem vir do ambiente e não do código.
-6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
-7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
+5. Explicação do código: o runtime mantém defaults loopback apenas para compatibilidade de import direto em development/test. O comando canónico `npm run dev:local` limpa variáveis herdadas, cria um `MongoMemoryReplSet` efémero e substitui esse default pela URI transacional; produção nunca aceita o fallback e exige `MONGODB_URI` explícita.
+6. Como validar: em `dev:local`, a URI efetiva é loopback, sem credenciais e contém `replicaSet`; com `NODE_ENV=production` e sem `MONGODB_URI` explícita, o módulo falha antes de ligar.
+7. Erro comum ou cenário negativo: tratar o default standalone de compatibilidade como prova de integração. Registo unitário pode importar configuração local, mas qualquer workflow multi-documento ou gate de persistência exige o replica set injetado pelo runner.
 
-### Passo 6 - Criar ou editar `server/src/config/db.js`
+### Passo 6 - Criar ou editar `apps/api/src/config/db.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/config/db.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/config/db.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/config/db.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/config/db.js`.
+    - CRIAR/EDITAR: `apps/api/src/config/db.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/config/db.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/config/db.js`.
+Criar este ficheiro em `apps/api/src/config/db.js`.
 
 ```js
 import mongoose from "mongoose";
@@ -549,17 +563,17 @@ export async function disconnectDB() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 7 - Criar ou editar `server/src/middlewares/error.middleware.js`
+### Passo 7 - Criar ou editar `apps/api/src/middlewares/error.middleware.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/middlewares/error.middleware.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/middlewares/error.middleware.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/middlewares/error.middleware.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/middlewares/error.middleware.js`.
+    - CRIAR/EDITAR: `apps/api/src/middlewares/error.middleware.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/middlewares/error.middleware.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/middlewares/error.middleware.js`.
+Criar este ficheiro em `apps/api/src/middlewares/error.middleware.js`.
 
 ```js
 /**
@@ -599,17 +613,17 @@ export function errorMiddleware(err, req, res, next) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 8 - Criar ou editar `server/src/models/user.model.js`
+### Passo 8 - Criar ou editar `apps/api/src/models/user.model.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/models/user.model.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/models/user.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/models/user.model.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/models/user.model.js`.
+    - CRIAR/EDITAR: `apps/api/src/models/user.model.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/models/user.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/models/user.model.js`.
+Criar este ficheiro em `apps/api/src/models/user.model.js`.
 
 ```js
 import mongoose from "mongoose";
@@ -652,17 +666,17 @@ export const User = model("User", userSchema);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 9 - Criar ou editar `server/src/validators/auth.validator.js`
+### Passo 9 - Criar ou editar `apps/api/src/validators/auth.validator.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/auth.validator.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/validators/auth.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/validators/auth.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/validators/auth.validator.js`.
+    - CRIAR/EDITAR: `apps/api/src/validators/auth.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/validators/auth.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/validators/auth.validator.js`.
+Criar este ficheiro em `apps/api/src/validators/auth.validator.js`.
 
 ```js
 import { AppError } from "../middlewares/error.middleware.js";
@@ -704,17 +718,17 @@ export function validateRegisterInput(body) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 10 - Criar ou editar `server/src/services/auth.service.js`
+### Passo 10 - Criar ou editar `apps/api/src/services/auth.service.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/services/auth.service.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/services/auth.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/services/auth.service.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/services/auth.service.js`.
+    - CRIAR/EDITAR: `apps/api/src/services/auth.service.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/services/auth.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/services/auth.service.js`.
+Criar este ficheiro em `apps/api/src/services/auth.service.js`.
 
 ```js
 import bcrypt from "bcryptjs";
@@ -757,17 +771,17 @@ export async function registerUser({ email, password }) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 11 - Criar ou editar `server/src/controllers/auth.controller.js`
+### Passo 11 - Criar ou editar `apps/api/src/controllers/auth.controller.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/auth.controller.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/controllers/auth.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/controllers/auth.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/controllers/auth.controller.js`.
+    - CRIAR/EDITAR: `apps/api/src/controllers/auth.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/controllers/auth.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/controllers/auth.controller.js`.
+Criar este ficheiro em `apps/api/src/controllers/auth.controller.js`.
 
 ```js
 import { registerUser } from "../services/auth.service.js";
@@ -793,17 +807,17 @@ export async function registerController(req, res, next) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 12 - Criar ou editar `server/src/routes/auth.routes.js`
+### Passo 12 - Criar ou editar `apps/api/src/routes/auth.routes.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/auth.routes.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/routes/auth.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/routes/auth.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/routes/auth.routes.js`.
+    - CRIAR/EDITAR: `apps/api/src/routes/auth.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/routes/auth.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/routes/auth.routes.js`.
+Criar este ficheiro em `apps/api/src/routes/auth.routes.js`.
 
 ```js
 import { Router } from "express";
@@ -818,17 +832,17 @@ authRoutes.post("/register", registerController);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 13 - Criar ou editar `server/src/app.js`
+### Passo 13 - Criar ou editar `apps/api/src/app.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/app.js`.
+    - CRIAR/EDITAR: `apps/api/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/app.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/app.js`.
+Criar este ficheiro em `apps/api/src/app.js`.
 
 ```js
 import cors from "cors";
@@ -859,17 +873,17 @@ export function createApp() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 14 - Criar ou editar `server/src/server.js`
+### Passo 14 - Criar ou editar `apps/api/src/server.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/server.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/server.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/server.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/server.js`.
+    - CRIAR/EDITAR: `apps/api/src/server.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/server.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/server.js`.
+Criar este ficheiro em `apps/api/src/server.js`.
 
 ```js
 import { connectDB } from "./config/db.js";
@@ -889,17 +903,17 @@ app.listen(env.port, () => {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 15 - Criar ou editar `client/package.json`
+### Passo 15 - Criar ou editar `apps/web/package.json`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/package.json` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/package.json` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/package.json` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/package.json`.
+    - CRIAR/EDITAR: `apps/web/package.json` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/package.json`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/package.json`.
+Criar este ficheiro em `apps/web/package.json`.
 
 ```json
 {
@@ -925,21 +939,21 @@ Criar este ficheiro em `client/package.json`.
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 16 - Criar ou editar `client/src/services/apiClient.js`
+### Passo 16 - Criar ou editar `apps/web/src/services/apiClient.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/services/apiClient.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/services/apiClient.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/services/apiClient.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/services/apiClient.js`.
+    - CRIAR/EDITAR: `apps/web/src/services/apiClient.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/services/apiClient.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/services/apiClient.js`.
+Criar este ficheiro em `apps/web/src/services/apiClient.js`.
 
 ```js
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001/api";
+// Same-origin evita que o bundle publicado fixe hosts/portas de desenvolvimento.
+const API_BASE_URL = "/api";
 
 /**
  * Cliente HTTP simples para a API da Orelle.
@@ -969,17 +983,17 @@ export async function apiRequest(path, options = {}) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 17 - Criar ou editar `client/src/pages/RegisterPage.jsx`
+### Passo 17 - Criar ou editar `apps/web/src/pages/RegisterPage.jsx`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/RegisterPage.jsx` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/pages/RegisterPage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/pages/RegisterPage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/pages/RegisterPage.jsx`.
+    - CRIAR/EDITAR: `apps/web/src/pages/RegisterPage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/pages/RegisterPage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/pages/RegisterPage.jsx`.
+Criar este ficheiro em `apps/web/src/pages/RegisterPage.jsx`.
 
 ```jsx
 import { useState } from "react";
@@ -1063,17 +1077,17 @@ export function RegisterPage() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 18 - Criar ou editar `client/src/App.jsx`
+### Passo 18 - Criar ou editar `apps/web/src/App.jsx`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/App.jsx` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/App.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/App.jsx` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/App.jsx`.
+    - CRIAR/EDITAR: `apps/web/src/App.jsx` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/App.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/App.jsx`.
+Criar este ficheiro em `apps/web/src/App.jsx`.
 
 ```jsx
 import { RegisterPage } from "./pages/RegisterPage.jsx";
@@ -1083,17 +1097,17 @@ export function App() {
 }
 ```
 
-### Passo 19 - Criar ou editar `client/src/main.jsx`
+### Passo 19 - Criar ou editar `apps/web/src/main.jsx`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/main.jsx` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/main.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/main.jsx` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/main.jsx`.
+    - CRIAR/EDITAR: `apps/web/src/main.jsx` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/main.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/main.jsx`.
+Criar este ficheiro em `apps/web/src/main.jsx`.
 
 ```jsx
 import React from "react";
@@ -1187,7 +1201,7 @@ Erro de email duplicado `409`:
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
-Criar este ficheiro em `server/tests/auth.register.test.js`.
+Criar este ficheiro em `apps/api/tests/auth.register.test.js`.
 
 ```js
 import { describe, expect, it, vi } from "vitest";
@@ -1265,17 +1279,17 @@ describe("BK-MF0-01 / RF01 - registo", () => {
 6. Como validar: confirmar que não ficou nenhuma decisão implicita no código.
 7. Erro comum ou cenário negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, segurança ou o handoff de fases seguintes.
 
-Se a equipa decidir usar uma estrutura diferente de `server/src` + `client/src`, deve atualizar antes de implementar:
+Se a equipa decidir usar uma estrutura diferente de `apps/api/src` + `apps/web/src`, deve atualizar antes de implementar:
 
 - `docs/planificacao/guias-bk/MF0/BK-MF0-01-registo-de-utilizadores-com-email-e-password.md`
-- todos os guias seguintes da `MF0` que referem `server/src` e `client/src`
+- todos os guias seguintes da `MF0` que referem `apps/api/src` e `apps/web/src`
 - `docs/planificacao/guias-bk/AUDITORIA-HIDRATACAO-MF0.md`
 
 Sem esta decisão, os alunos podem criar duas apps paralelas e quebrar o handoff para `BK-MF0-02`.
 
 ### Evidence para PR/defesa
 
-- Mostrar output de `npm test` dentro de `server/`.
+- Mostrar output de `npm test` dentro de `apps/api/`.
 - Mostrar `POST /api/auth/register` com resposta `201`.
 - Mostrar tentativa com email inválido e resposta `400`.
 - Mostrar tentativa duplicada e resposta `409`.
@@ -1287,7 +1301,10 @@ O próximo BK deve reutilizar `User.email` e `User.passwordHash` para login. Nã
 
 ## Changelog
 
+- `2026-07-10`: cliente HTTP corrigido para `/api` same-origin, sem fallback localhost no bundle publicado.
 - `2026-04-14`: guia normalizado para contrato canónico comum.
 - `2026-05-25`: guia refinado de documentação genérica para execução concreta da app Orélle.
-- `2026-05-29`: tutorial linear integrado com scaffold `server/src` + `client/src`, código de registo, payloads, testes e handoff.
+- `2026-05-29`: tutorial linear integrado com scaffold `apps/api/src` + `apps/web/src`, código de registo, payloads, testes e handoff.
 - `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
+- `2026-07-10` (estado corrente): revisão manual/Figma dispensada no alvo académico/local; RNF26 fica `ACEITE_RISCO`, sem alegar aprovação ou paridade.
+- `2026-07-10`: paths pedagógicos normalizados para a estrutura pública `apps/api/` e `apps/web/`.

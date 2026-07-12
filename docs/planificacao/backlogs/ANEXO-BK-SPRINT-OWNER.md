@@ -6,10 +6,16 @@
 - `area`: `project`
 - `owner`: `Nuno`
 - `status`: `ativo`
-- `last_updated`: `2026-06-30`
+- `last_updated`: `2026-07-11`
 
 ## Objetivo
 Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para auditoria e controlo docente.
+
+## Regra de coordenação da consulta OpenAI
+
+- Os owners continuam atribuídos por BK, mas o núcleo `BK-MF1-05..08`, `BK-MF2-02..08`, `BK-MF7-01`, `BK-MF7-07` e `BK-MF8-05..13` deve ser entregue como um fluxo integrado, não como páginas independentes.
+- O handoff entre owners deve preservar `flowState`, versões de consentimento/prompt/schema, idempotência dos jobs, snapshot do catálogo, `machineResult`/`humanOverride`, `contentHash`, 10% simulado/voucher e proveniência de `gpt-image-2`.
+- Alterações neste fluxo exigem reexecutar os testes dos BK dependentes e atualizar a evidência no mesmo estado do código.
 
 ## Mapeamento canónico BK -> Sprint -> Owner
 | bk_id | macro | owner | apoio | sprint | prioridade | core_or_reforco | guia_path |
@@ -40,7 +46,7 @@ Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para audito
 | BK-MF2-08 | MF2 | Bruna | Izelicks | S05-S06 | P1 | Core | docs/planificacao/guias-bk/MF2/BK-MF2-08-a-ia-deve-gerar-uma-visualizacao-antes-depois-com-os-produtos-recomendados.md |
 | BK-MF3-01 | MF3 | Daniel Bulica | Bruna | S07-S08 | P2 | Core | docs/planificacao/guias-bk/MF3/BK-MF3-01-o-sistema-deve-permitir-comparar-imagens-antes-vs-apos-30-dias-de-uso.md |
 | BK-MF3-02 | MF3 | Bruna | Izelicks | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-02-adicionar-remover-produtos-do-carrinho-de-compras.md |
-| BK-MF3-03 | MF3 | Izelicks | Bruna | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-e-pagamentos-gateway-stripe-paypal-mbway.md |
+| BK-MF3-03 | MF3 | Izelicks | Bruna | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-03-registar-encomendas-com-pagamento-simulado.md |
 | BK-MF3-04 | MF3 | Bruna | Izelicks | S07-S08 | P0 | Reforco | docs/planificacao/guias-bk/MF3/BK-MF3-04-historico-de-compras-com-data-total-produtos-e-estado-pendente-enviado-entregue.md |
 | BK-MF3-06 | MF3 | Aline | Izelicks | S07-S08 | P1 | Core | docs/planificacao/guias-bk/MF3/BK-MF3-06-o-cliente-pode-recomprar-produtos-anteriores-com-um-clique.md |
 | BK-MF3-07 | MF3 | Aline | Izelicks | S07-S08 | P1 | Core | docs/planificacao/guias-bk/MF3/BK-MF3-07-dashboard-de-estatisticas-vendas-produtos-mais-vendidos-utilizadores-ativos.md |
@@ -69,7 +75,7 @@ Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para audito
 | BK-MF7-03 | MF7 | Aline | Izelicks | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF7/BK-MF7-03-sessoes-autenticadas-com-cookies-httponly.md |
 | BK-MF7-04 | MF7 | Bruna | Izelicks | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF7/BK-MF7-04-compativel-com-chrome-safari-edge-e-firefox.md |
 | BK-MF7-05 | MF7 | Daniel Bulica | Bruna | S11-S12 | P1 | Core | docs/planificacao/guias-bk/MF7/BK-MF7-05-exportacao-de-relatorios-em-pdf.md |
-| BK-MF7-06 | MF7 | Bruna | Daniel Bulica | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF7/BK-MF7-06-integracao-com-gateways-de-pagamento-stripe-paypal-mbway.md |
+| BK-MF7-06 | MF7 | Bruna | Daniel Bulica | S11-S12 | P0 | Reforco | docs/planificacao/guias-bk/MF7/BK-MF7-06-validar-pagamento-simulado-sem-integracao-externa.md |
 | BK-MF7-07 | MF7 | Aline | Izelicks | S11-S12 | P1 | Core | docs/planificacao/guias-bk/MF7/BK-MF7-07-suporte-para-api-de-ia-externa-ex-azure-face-api-ou-tensorflow.md |
 | BK-MF8-01 | MF8 | Izelicks | Bruna | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-01-codigo-modular-mvc-com-documentacao-e-docstrings.md |
 | BK-MF8-02 | MF8 | Daniel Bulica | Bruna | S12 | P1 | Core | docs/planificacao/guias-bk/MF8/BK-MF8-02-logs-de-erros-e-metricas-de-desempenho.md |
@@ -90,6 +96,8 @@ Consolidar mapeamento canónico `BK -> sprint -> owner -> guia_path` para audito
 | BK-MF8-17 | MF8 | Izelicks | Bruna | S12 | P0 | Reforco | docs/planificacao/guias-bk/MF8/BK-MF8-17-correcao-dos-erros-encontrados-e-reexecucao-dos-testes-afetados.md |
 
 ## Changelog
+- `2026-07-11`: adicionada coordenação transversal do fluxo OpenAI-only, jobs, relatório v2, revisão/freeze, desbloqueio/voucher e edição de maquilhagem.
+- `2026-07-09`: paths de BK-MF3-03 e BK-MF7-06 alinhados aos guias de Pagamento simulado.
 - `2026-06-30`: MF8 sincronizada para 17 BKs, com testes finais em BK-MF8-15..17.
 - `2026-06-29`: adicionados BK-MF8-08 a BK-MF8-11 e renumerada a sequência operacional da MF8.
 - `2026-04-14`: anexo criado para consistencia temporal e ownership da planificacao.

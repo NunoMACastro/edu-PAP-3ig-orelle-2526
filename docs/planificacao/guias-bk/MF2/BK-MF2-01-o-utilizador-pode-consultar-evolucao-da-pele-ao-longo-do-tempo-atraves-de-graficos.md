@@ -16,7 +16,9 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF2-02`
 - `guia_path`: `docs/planificacao/guias-bk/MF2/BK-MF2-01-o-utilizador-pode-consultar-evolucao-da-pele-ao-longo-do-tempo-atraves-de-graficos.md`
-- `last_updated`: `2026-06-08`
+- `last_updated`: `2026-07-10`
+
+> **Contrato atual (2026-07-10):** a rota de conta é visível na navegação do cliente e nunca pede IDs técnicos. O cliente HTTP recebe o path relativo `/me/skin-evolution`, suporta AbortSignal/401 global e não duplica `/api`. O gráfico inclui uma tabela acessível com datas e valores, padrões além de cor e estados assíncronos que não expõem findings/IDs internos.
 
 ## Contexto do BK
 - Entrega alvo: implementar `RF17`, permitindo ao cliente consultar evolução da pele ao longo do tempo através de gráficos.
@@ -34,7 +36,7 @@ Sem gráfico, o histórico fica difícil de interpretar. A evolução visual aju
 - Criar `GET /api/me/skin-evolution`.
 - Ler apenas análises concluídas do utilizador autenticado.
 - Converter labels cosméticas em pontuações simples para gráfico.
-- Criar `SkinEvolutionPage` com estados `loading`, `error`, `empty` e `success`.
+- Criar `SkinEvolutionPage` com estados `loading`, `error`, `empty` e `success`, tabela acessível e cancelamento no unmount.
 
 ## Scope-out
 - Não comparar fotografias após 30 dias; isso pertence a `RF25`.
@@ -72,14 +74,14 @@ Para privacidade, o gráfico não precisa de fotografias nem de identificadores 
 - `SkinEvolutionPage.jsx`: apresenta gráfico SVG e estados da UI.
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/services/skin-evolution.service.js`
-- CRIAR: `server/src/controllers/skin-evolution.controller.js`
-- CRIAR: `server/src/routes/skin-evolution.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/SkinEvolutionPage.jsx`
-- EDITAR: `client/src/App.jsx`
-- REVER: `server/src/models/face-analysis.model.js`
-- REVER: `client/src/services/apiClient.js`
+- CRIAR: `apps/api/src/services/skin-evolution.service.js`
+- CRIAR: `apps/api/src/controllers/skin-evolution.controller.js`
+- CRIAR: `apps/api/src/routes/skin-evolution.routes.js`
+- EDITAR: `apps/api/src/app.js`
+- CRIAR: `apps/web/src/pages/SkinEvolutionPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
+- REVER: `apps/api/src/models/face-analysis.model.js`
+- REVER: `apps/web/src/services/apiClient.js`
 
 ## Bloco pedagogico
 ### Objetivo
@@ -159,14 +161,14 @@ Sem código novo neste passo.
 
 1. Explicação simples do objetivo: transformar análises concluídas em pontos de gráfico.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/skin-evolution.service.js`
-    - REVER: `server/src/models/face-analysis.model.js`
+    - CRIAR: `apps/api/src/services/skin-evolution.service.js`
+    - REVER: `apps/api/src/models/face-analysis.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o service com filtro por `userId`, ordenação temporal e DTO público.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/services/skin-evolution.service.js
+// apps/api/src/services/skin-evolution.service.js
 import { FaceAnalysis } from "../models/face-analysis.model.js";
 
 const SCORE_BY_LABEL = new Map([
@@ -190,7 +192,6 @@ function toPoint(analysis) {
     );
 
     return {
-        analysisId: analysis._id.toString(),
         createdAt: analysis.createdAt,
         skinType: analysis.findings?.skinType?.label ?? "nao_conclusivo",
         ...scores,
@@ -199,7 +200,7 @@ function toPoint(analysis) {
 
 export async function getMySkinEvolution(userId) {
     const analyses = await FaceAnalysis.find({ userId, status: "completed" })
-        .select("findings createdAt")
+        .select("userId findings createdAt")
         .sort({ createdAt: 1 })
         .limit(30);
 
@@ -219,7 +220,7 @@ export async function getMySkinEvolution(userId) {
 }
 ```
 
-5. Explicação do código: o service só consulta análises do utilizador da sessão, seleciona apenas `findings` e `createdAt`, e converte labels em números. O `analysisId` serve para identificar o ponto no frontend, mas a resposta não expõe fotografias, consentimento ou caminhos internos.
+5. Explicação do código: o service só consulta análises do utilizador da sessão. A projeção seleciona `userId` juntamente com `findings` porque o getter contextual precisa do owner exato para reconstruir a AAD; `toPoint` nunca copia esse owner para o DTO. Depois converte labels em números sem expor ObjectIds, fotografias, consentimento ou caminhos internos.
 6. Como validar este passo: criar duas análises concluídas do mesmo utilizador e confirmar que `points` vem ordenado por data.
 7. Erros comuns ou cenário negativo: consultar `FaceAnalysis.find()` sem `userId` mostraria dados de outros utilizadores.
 
@@ -227,14 +228,14 @@ export async function getMySkinEvolution(userId) {
 
 1. Explicação simples do objetivo: expor o service por API autenticada.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/skin-evolution.controller.js`
-    - CRIAR: `server/src/routes/skin-evolution.routes.js`
+    - CRIAR: `apps/api/src/controllers/skin-evolution.controller.js`
+    - CRIAR: `apps/api/src/routes/skin-evolution.routes.js`
     - LOCALIZAÇÃO: ficheiros completos.
 3. O que fazer: cria controller fino e route com `requireAuth`.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/controllers/skin-evolution.controller.js
+// apps/api/src/controllers/skin-evolution.controller.js
 import { getMySkinEvolution } from "../services/skin-evolution.service.js";
 
 export async function getMySkinEvolutionController(req, res, next) {
@@ -248,7 +249,7 @@ export async function getMySkinEvolutionController(req, res, next) {
 ```
 
 ```js
-// server/src/routes/skin-evolution.routes.js
+// apps/api/src/routes/skin-evolution.routes.js
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.middleware.js";
 import { getMySkinEvolutionController } from "../controllers/skin-evolution.controller.js";
@@ -270,13 +271,13 @@ skinEvolutionRoutes.get(
 
 1. Explicação simples do objetivo: ligar a route ao prefixo `/api`.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
+    - EDITAR: `apps/api/src/app.js`
     - LOCALIZAÇÃO: zona de imports e registo de routes.
 3. O que fazer: importa a route e adiciona `app.use`.
 4. Código completo, correto e integrado.
 
 ```js
-// server/src/app.js
+// apps/api/src/app.js
 import { skinEvolutionRoutes } from "./routes/skin-evolution.routes.js";
 
 app.use("/api", skinEvolutionRoutes);
@@ -290,22 +291,22 @@ app.use("/api", skinEvolutionRoutes);
 
 1. Explicação simples do objetivo: mostrar a evolução sem depender de bibliotecas extra.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/SkinEvolutionPage.jsx`
-    - REVER: `client/src/services/apiClient.js`
+    - CRIAR: `apps/web/src/pages/SkinEvolutionPage.jsx`
+    - REVER: `apps/web/src/services/apiClient.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria uma página React com gráfico SVG simples e estados de UI.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/pages/SkinEvolutionPage.jsx
+// apps/web/src/pages/SkinEvolutionPage.jsx
 import { useEffect, useMemo, useState } from "react";
 import { apiRequest } from "../services/apiClient.js";
 
 const SERIES = [
-    { key: "acneScore", label: "Acne", color: "#0f766e" },
-    { key: "manchasScore", label: "Manchas", color: "#7c3aed" },
-    { key: "rugasScore", label: "Rugas", color: "#c2410c" },
-    { key: "oleosidadeScore", label: "Oleosidade", color: "#1d4ed8" },
+    { key: "acneScore", label: "Acne", color: "#0f766e", dash: "0" },
+    { key: "manchasScore", label: "Manchas", color: "#7c3aed", dash: "4 2" },
+    { key: "rugasScore", label: "Rugas", color: "#c2410c", dash: "2 2" },
+    { key: "oleosidadeScore", label: "Oleosidade", color: "#1d4ed8", dash: "6 2 1 2" },
 ];
 
 function buildPolyline(points, key) {
@@ -330,18 +331,18 @@ export function SkinEvolutionPage() {
     const [evolution, setEvolution] = useState(null);
 
     useEffect(() => {
-        let active = true;
+        const controller = new AbortController();
 
         async function loadEvolution() {
             try {
-                const data = await apiRequest("/api/me/skin-evolution");
-
-                if (!active) return;
+                const data = await apiRequest("/me/skin-evolution", {
+                    signal: controller.signal,
+                });
 
                 setEvolution(data.evolution);
                 setStatus(data.evolution.points.length === 0 ? "empty" : "success");
             } catch (err) {
-                if (!active) return;
+                if (controller.signal.aborted) return;
 
                 setError(err.message);
                 setStatus("error");
@@ -351,7 +352,7 @@ export function SkinEvolutionPage() {
         loadEvolution();
 
         return () => {
-            active = false;
+            controller.abort();
         };
     }, []);
 
@@ -388,6 +389,7 @@ export function SkinEvolutionPage() {
                         points={serie.points}
                         fill="none"
                         stroke={serie.color}
+                        strokeDasharray={serie.dash}
                         strokeWidth="2"
                     />
                 ))}
@@ -400,12 +402,33 @@ export function SkinEvolutionPage() {
                 ))}
             </ul>
             <p>Escala: 1 baixo, 2 moderado, 3 alto.</p>
+            <div className="table-scroll" tabIndex="0" aria-label="Tabela de evolução cosmética">
+                <table>
+                    <caption>Valores usados no gráfico de evolução</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Data</th>
+                            {SERIES.map((serie) => <th key={serie.key} scope="col">{serie.label}</th>)}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {evolution.points.map((point, index) => (
+                            <tr key={`${point.createdAt}-${index}`}>
+                                <th scope="row">{new Date(point.createdAt).toLocaleDateString("pt-PT")}</th>
+                                {SERIES.map((serie) => (
+                                    <td key={serie.key}>{point[serie.key] ?? "Sem dados"}</td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </section>
     );
 }
 ```
 
-5. Explicação do código: a página carrega o endpoint com o cliente API existente, que deve enviar cookies com `credentials: "include"`. O SVG desenha linhas a partir dos pontos recebidos, sem bibliotecas novas. O estado `empty` evita mostrar um gráfico vazio como se tivesse dados.
+5. Explicação do código: a página usa o cliente same-origin, cancela o pedido no unmount e desenha linhas com cor e padrões distintos. A tabela contém exatamente os mesmos valores, permitindo leitura por teclado/screen reader e evitando transmitir estado apenas por cor.
 6. Como validar este passo: testar utilizador com zero análises e utilizador com duas análises concluídas.
 7. Erros comuns ou cenário negativo: guardar token no browser para chamar a API aumenta risco de exposição e não é necessário.
 
@@ -413,13 +436,13 @@ export function SkinEvolutionPage() {
 
 1. Explicação simples do objetivo: tornar a página acessível na aplicação.
 2. Ficheiros envolvidos.
-    - EDITAR: `client/src/App.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: imports e lista de rotas/páginas.
 3. O que fazer: importar a página e adicioná-la ao router ou ao menu interno já usado no projeto.
 4. Código completo, correto e integrado.
 
 ```jsx
-// client/src/App.jsx
+// apps/web/src/App.jsx
 import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 
 // Dentro da configuração de rotas:
@@ -437,8 +460,9 @@ import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 
 1. Explicação simples do objetivo: provar que o endpoint falha de forma controlada.
 2. Ficheiros envolvidos.
-    - REVER: `server/src/routes/skin-evolution.routes.js`
-    - REVER: `server/src/services/skin-evolution.service.js`
+    - REVER: `apps/api/src/routes/skin-evolution.routes.js`
+    - REVER: `apps/api/src/services/skin-evolution.service.js`
+    - REVER: `apps/api/tests/sensitive-models.replset.integration.test.js`
     - LOCALIZAÇÃO: route e filtro `userId`.
 3. O que fazer: executar pedidos sem sessão e com utilizador sem análises.
 4. Código completo, correto e integrado.
@@ -446,6 +470,17 @@ import { SkinEvolutionPage } from "./pages/SkinEvolutionPage.jsx";
 ```bash
 curl -i http://localhost:3001/api/me/skin-evolution
 curl -i http://localhost:3001/api/me/skin-evolution -H "Cookie: orelle_session=COOKIE_SEM_ANALISES"
+```
+
+No teste com replica set e uma análise cifrada real, acrescenta:
+
+```js
+const evolution = await getMySkinEvolution(ownerId.toString());
+expect(evolution.points).toHaveLength(1);
+expect(evolution.points[0]).toEqual(
+    expect.objectContaining({ createdAt: expect.any(Date) }),
+);
+expect(JSON.stringify(evolution)).not.toContain("userId");
 ```
 
 5. Explicação do código: o primeiro pedido valida autenticação. O segundo valida estado vazio sem erro técnico.
@@ -456,7 +491,8 @@ curl -i http://localhost:3001/api/me/skin-evolution -H "Cookie: orelle_session=C
 - `GET /api/me/skin-evolution` sem sessão devolve `401`.
 - `GET /api/me/skin-evolution` com sessão e sem análises devolve `200` com `points: []`.
 - `GET /api/me/skin-evolution` com análises concluídas devolve `200` com pontos ordenados por data.
-- A página mostra gráfico SVG quando existem pontos e não mostra dados biométricos internos.
+- A página mostra gráfico SVG e tabela equivalente quando existem pontos, sem ObjectIds ou dados biométricos internos.
+- A leitura de `findings` funciona com AES-GCM contextual porque a projeção inclui `userId`, mas a resposta pública não o contém.
 
 ## Snippet tecnico aplicavel
 Consultar os snippets completos nos passos lineares deste guia; nao ha snippet adicional fora do fluxo documentado.
@@ -466,22 +502,31 @@ Consultar os snippets completos nos passos lineares deste guia; nao ha snippet a
 - Cenários negativos concluídos: mínimo `1`.
 - Evidência de testes por camada conforme prioridade `P2`.
 - DTO público sem `photoIds`, `consentId` e `storageKey`.
+- DTO público sem `analysisId`; a UI seleciona/percorre por data, nunca por ID técnico.
+- A query seleciona `userId` para a AAD; `toPoint` devolve apenas data, tipo de pele e scores.
 - O código mantém o padrão `routes -> controller -> service`.
 - A UI cobre `loading`, `error`, `empty` e `success`.
+- SVG usa padrões além de cor e a tabela tem caption/headers acessíveis.
+- O pedido usa `/me/skin-evolution` com AbortSignal; o cliente central acrescenta `/api` uma única vez.
 
 ## Validação final
 - Executar pedido autenticado e não autenticado.
+- Executar a integração de modelos sensíveis e confirmar que `findings` é legível sem expor `userId`.
 - Confirmar que o gráfico é legível com 1, 2 e 3 pontos.
-- Rever imports em `server/src/app.js` e `client/src/App.jsx`.
+- Executar teste browser por teclado/Axe e comparar os valores do gráfico com a tabela.
+- Rever imports em `apps/api/src/app.js` e `apps/web/src/App.jsx`.
 - Executar `git diff --check` antes do PR.
 
 ## Evidence para PR/defesa
 - `proof_tecnico`: resposta JSON do endpoint com duas análises concluídas.
 - `proof_negativos`: `401` sem sessão e `200` vazio sem análises.
 - `proof_negocio`: screenshot do gráfico com tendência temporal.
+- `proof_acessibilidade`: tabela equivalente, navegação por teclado e Axe sem `serious`/`critical`.
 
 ## Handoff
 `BK-MF2-02` deve usar análise e histórico para recomendar produtos. Não deve importar a página deste BK; deve reutilizar os modelos de MF1 e manter ownership por sessão.
 
 ## Changelog
+- `2026-07-10`: projeção de `FaceAnalysis.findings` corrigida para conservar `userId` durante a decifra AES-GCM contextual sem o expor nos pontos públicos.
+- `2026-07-10`: frontend alinhado ao cliente same-origin/AbortSignal, removido `analysisId` do DTO e adicionada tabela acessível com padrões não dependentes apenas de cor.
 - `2026-06-08`: guia reescrito com service, controller, route, gráfico SVG, estados de UI e cenários negativos.

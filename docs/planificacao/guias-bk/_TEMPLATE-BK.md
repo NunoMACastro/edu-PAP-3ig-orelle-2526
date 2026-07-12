@@ -55,7 +55,7 @@ Explica porque este BK existe na Orelle, que RF/RNF cumpre, que risco de privaci
 - RF/RNF aplicaveis.
 - BKs anteriores obrigatorios.
 - Documentos canonicos a consultar, incluindo `CORE-DUAL-CONTRATO.md` e `ANEXO-CORE-DUAL-BK.md` quando aplicavel.
-- Ficheiros reais em `real_dev/api` e `real_dev/web`, se existirem.
+- Ficheiros pedagógicos existentes em `apps/api` e `apps/web`, se existirem.
 
 #### Glossario
 
@@ -80,10 +80,10 @@ Explica a teoria minima para o aluno perceber o raciocinio: consentimento, dados
 
 #### Ficheiros a criar/editar/rever
 
-- CRIAR: `real_dev/api/...`
-- EDITAR: `real_dev/api/...`
-- CRIAR: `real_dev/web/...`
-- EDITAR: `real_dev/web/...`
+- CRIAR: `apps/api/...`
+- EDITAR: `apps/api/...`
+- CRIAR: `apps/web/...`
+- EDITAR: `apps/web/...`
 - REVER: `docs/planificacao/guias-bk/MF*/BK-...md`
 
 #### Tutorial tecnico linear
@@ -159,7 +159,7 @@ Repetir exatamente a estrutura do Passo 1.
 
 #### Validacao final
 
-- Executar validadores reais de `real_dev/api/package.json` e `real_dev/web/package.json`.
+- Executar os validadores definidos em `apps/api/package.json` e `apps/web/package.json`.
 - Executar smoke principal.
 - Executar negativos de sessao ausente, acesso cruzado, falta de consentimento, input invalido e permissao insuficiente quando aplicavel.
 
@@ -178,4 +178,5 @@ Repetir exatamente a estrutura do Passo 1.
 
 #### Changelog
 
+- `2026-07-10`: caminhos do template limitados ao workspace pedagógico público `apps/api` e `apps/web`; qualquer remapeamento para uma implementação privada fica fora dos guias dos alunos.
 - `YYYY-MM-DD`: alteracao feita e motivo.

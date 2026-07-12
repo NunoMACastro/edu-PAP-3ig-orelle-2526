@@ -1,5 +1,14 @@
 # AUDITORIA-HIDRATACAO-MF7
 
+> **Nota de supersessão — 2026-07-11:** este relatório é histórico. O estado operacional, a consulta exclusivamente OpenAI e a evidência atuais estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). Referências inferiores a providers `demo`/`external`, fallback local ou gateways são snapshots substituídos; o corpo abaixo preserva conclusões antigas e não constitui evidence vigente.
+
+## Enquadramento atual para leitura do snapshot histórico
+
+- O pagamento é exclusivamente simulado, sem provider financeiro, cobrança, redirect ou chamada externa.
+- O PDF manual foi substituído por `pdf-lib`; `13/13` testes e `pdfinfo` sem warnings validaram a correção na referência.
+- O runtime de IA é exclusivamente OpenAI, com consentimento v2, configuração explícita e fallback apenas para outro modelo OpenAI; não existe análise cosmética `demo`/`external` nem fallback local sintético.
+- A evidence antiga de browser é histórica e não aceite como prova dos quatro browsers; qualquer browser/fluxo não executado permanece pendente ou bloqueado, nunca `PASS`.
+
 ## Header
 
 - `project`: `Orelle`

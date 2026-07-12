@@ -17,7 +17,7 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-01`
 - `guia_path`: `docs/planificacao/guias-bk/MF0/BK-MF0-08-associar-categorias-limpeza-maquilhagem-tratamento-protetor-solar-etc.md`
-- `last_updated`: `2026-05-29`
+- `last_updated`: `2026-07-10`
 
 #### BK-MF0-08 - Associar categorias (limpeza, maquilhagem, tratamento, protetor solar, etc.)
 
@@ -27,7 +27,7 @@ Neste BK vamos criar categorias de catálogo e associá-las a produtos. As categ
 
 O objetivo não é construir pesquisa ainda. O objetivo é deixar o catálogo categorizado para que `BK-MF1-01` consiga implementar filtragem por categoria, preço, tipo de pele e marca sem reestruturar produtos.
 
-Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar categorias e permitir associá-las a um produto.
+A árvore `mockup/` está disponível como referência visual, mas não está confirmada como versão aprovada nem prova paridade. A revisão manual/Figma foi dispensada no alvo académico/local e o risco residual está `ACEITE_RISCO`; a interface administrativa deve listar categorias e permitir associá-las a um produto sem alegar aprovação visual.
 
 ##### Porque é que isto é importante
 
@@ -82,8 +82,8 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar
 
 - Estado esperado antes do BK: `Product` existe com campos de `RF07`.
 - Estado esperado depois do BK: produtos podem ter categorias validadas.
-- Ficheiros a criar: `server/src/models/category.model.js`, `server/src/routes/admin-categories.routes.js`, `server/src/controllers/admin-categories.controller.js`, `server/src/services/category.service.js`, `server/src/validators/category.validator.js`, `server/src/scripts/seed-categories.js`, `client/src/pages/AdminCategoriesPage.jsx`.
-- Ficheiros a editar: `server/src/models/product.model.js`, `server/src/app.js`, `client/src/App.jsx`.
+- Ficheiros a criar: `apps/api/src/models/category.model.js`, `apps/api/src/routes/admin-categories.routes.js`, `apps/api/src/controllers/admin-categories.controller.js`, `apps/api/src/services/category.service.js`, `apps/api/src/validators/category.validator.js`, `apps/api/src/scripts/seed-categories.js`, `apps/web/src/pages/AdminCategoriesPage.jsx`.
+- Ficheiros a editar: `apps/api/src/models/product.model.js`, `apps/api/src/app.js`, `apps/web/src/App.jsx`.
 - Dependências de BK anteriores: `BK-MF0-07` fornece `Product`; `BK-MF0-05` fornece proteção admin se executado.
 - Impacto na arquitetura: adiciona módulo `catalog/categories`.
 - Impacto em frontend: adiciona ecrã admin simples para categorias.
@@ -98,7 +98,7 @@ Esta fase foi detalhada sem mockup. A UI administrativa deve ser simples: listar
 - `docs/RF.md`: `RF08` e `RF09`.
 - Guia `BK-MF0-07`: modelo `Product`.
 - `docs/planificacao/backlogs/MF-VIEWS.md`: handoff `MF0 -> MF1`.
-- Mockup: não existe nesta execução.
+- `mockup/`: árvore disponível apenas como referência não aprovada; revisão manual/Figma dispensada no alvo académico/local, com risco residual `ACEITE_RISCO` e sem alegação de paridade.
 
 #### Glossario (rapido) (DERIVADO):
 
@@ -126,7 +126,7 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Como fazer (0.1): listar `limpeza`, `maquilhagem`, `tratamento`, `protetor-solar`.
     - Como fazer (0.2): marcar outras categorias como futuras e dependentes de confirmação.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
+    - Ficheiro alvo: `apps/api/src/scripts/seed-categories.js`.
     - Snippet de referência: `const INITIAL_CATEGORIES = ['limpeza', 'maquilhagem', 'tratamento', 'protetor-solar'];`.
     - O que verificar: não há subcategorias inventadas.
 
@@ -136,7 +136,7 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Como fazer (1.1): criar `name`, `slug`, `isActive`.
     - Como fazer (1.2): aplicar índice único em `slug`.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/models/category.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/category.model.js`.
     - Snippet de referência: `slug: { type: String, required: true, unique: true, index: true }`.
     - O que verificar: seed repetido não duplica categorias.
 
@@ -145,8 +145,8 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Justificação: produto pode pertencer a mais do que uma categoria.
     - Como fazer (2.1): adicionar array de ObjectIds no schema `Product`.
     - Como fazer (2.2): não tornar obrigatório se existirem produtos antigos sem categoria.
-    - Ficheiro a rever: `server/src/models/product.model.js`.
-    - Ficheiro alvo: `server/src/models/product.model.js`.
+    - Ficheiro a rever: `apps/api/src/models/product.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/product.model.js`.
     - Snippet de referência: `categoryIds: [{ type: Schema.Types.ObjectId, ref: 'Category' }]`.
     - O que verificar: produto de `BK-MF0-07` continua válido.
 
@@ -155,8 +155,8 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Justificação: regra de existência da categoria fica fora do controller.
     - Como fazer (3.1): criar `listCategories` e `createCategory`.
     - Como fazer (3.2): criar `assignCategoriesToProduct(productId, categoryIds)`.
-    - Ficheiro a rever: `server/src/models/category.model.js`.
-    - Ficheiro alvo: `server/src/services/category.service.js`.
+    - Ficheiro a rever: `apps/api/src/models/category.model.js`.
+    - Ficheiro alvo: `apps/api/src/services/category.service.js`.
     - Snippet de referência: `const found = await Category.countDocuments({ _id: { $in: categoryIds } });`.
     - O que verificar: todos os IDs enviados existem.
 
@@ -165,8 +165,8 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Justificação: categorias alteram catálogo e devem ser protegidas.
     - Como fazer (4.1): criar `GET /api/admin/categories` e `POST /api/admin/categories`.
     - Como fazer (4.2): criar `PATCH /api/admin/products/:id/categories`.
-    - Ficheiro a rever: `server/src/routes/admin-products.routes.js`.
-    - Ficheiro alvo: `server/src/routes/admin-categories.routes.js`.
+    - Ficheiro a rever: `apps/api/src/routes/admin-products.routes.js`.
+    - Ficheiro alvo: `apps/api/src/routes/admin-categories.routes.js`.
     - Snippet de referência: `router.patch('/products/:id/categories', requireAuth, requireRole(ROLES.ADMIN), assignCategoriesController);`.
     - O que verificar: cliente recebe `403`.
 
@@ -176,7 +176,7 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Como fazer (5.1): criar script idempotente.
     - Como fazer (5.2): não apagar categorias existentes.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/scripts/seed-categories.js`.
+    - Ficheiro alvo: `apps/api/src/scripts/seed-categories.js`.
     - Snippet de referência: `await Category.updateOne({ slug }, { $setOnInsert: data }, { upsert: true });`.
     - O que verificar: correr seed duas vezes mantém 4 categorias iniciais, não 8.
 
@@ -185,8 +185,8 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Justificação: demonstra visualmente a organização do catálogo.
     - Como fazer (6.1): criar ecrã simples com lista de categorias.
     - Como fazer (6.2): em produto, usar checkboxes ou select múltiplo.
-    - Ficheiro a rever: `client/src/pages/AdminProductCreatePage.jsx`.
-    - Ficheiro alvo: `client/src/pages/AdminCategoriesPage.jsx`.
+    - Ficheiro a rever: `apps/web/src/pages/AdminProductCreatePage.jsx`.
+    - Ficheiro alvo: `apps/web/src/pages/AdminCategoriesPage.jsx`.
     - Snippet de referência: `await apiClient.patch(\`/admin/products/${productId}/categories\`, { categoryIds });`.
     - O que verificar: UI mostra erro quando categoria inválida é rejeitada.
 
@@ -196,7 +196,7 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
     - Como fazer (7.1): criar produto e associar categoria.
     - Como fazer (7.2): Executar cenários negativos obrigatórios (mínimo 3) e registar resultados.
     - Ficheiro a rever: `docs/planificacao/backlogs/MF-VIEWS.md`.
-    - Ficheiro alvo: `server/tests/categories.test.js`.
+    - Ficheiro alvo: `apps/api/tests/categories.test.js`.
     - Snippet de referência: `expect(product.categoryIds).toHaveLength(1);`.
     - O que verificar: evidence inclui produto categorizado e contrato para pesquisa.
 
@@ -208,7 +208,7 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
 - Negativo 3: passo 4; produto inexistente; resultado esperado `404`; risco que cobre: associação a recurso inexistente.
 - Técnico: `Category.slug` único e `Product.categoryIds` validado.
 - Regressão das fases anteriores: criação de produto de `BK-MF0-07` continua válida.
-- UI/mockup: sem mockup; ecrã admin baseline.
+- UI/mockup: validar comportamento responsive/acessível pelos gates locais; a revisão manual/Figma foi dispensada como `ACEITE_RISCO`, sem alegar aprovação, alinhamento exato ou screenshots inexistentes.
 - Segurança: endpoints de escrita protegidos por Admin.
 
 #### Critérios de aceite:
@@ -226,7 +226,7 @@ Associar categorias não é ainda pesquisar. Este BK prepara dados; `BK-MF1-01` 
 - `pr`: `A preencher no fecho do BK`
 - `proof`: `A preencher após validação`
 - `neg`: `A preencher após testes negativos`
-- `files`: `server/src/models/category.model.js`, `server/src/models/product.model.js`, `server/src/routes/admin-categories.routes.js`, `client/src/pages/AdminCategoriesPage.jsx`
+- `files`: `apps/api/src/models/category.model.js`, `apps/api/src/models/product.model.js`, `apps/api/src/routes/admin-categories.routes.js`, `apps/web/src/pages/AdminCategoriesPage.jsx`
 - `commands`: `npm run seed:categories`, `curl -X PATCH /api/admin/products/:id/categories`, `npm test`
 - `screenshots`: categorias listadas e produto associado
 - `notes`: último BK da MF0 entrega contrato para `BK-MF1-01`
@@ -387,23 +387,23 @@ Categorias iniciais canonicas para seed:
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - CRIAR:
-        - `server/src/models/category.model.js`
-        - `server/src/validators/category.validator.js`
-        - `server/src/services/category.service.js`
-        - `server/src/controllers/admin-categories.controller.js`
-        - `server/src/routes/admin-categories.routes.js`
-        - `server/src/scripts/seed-categories.js`
-        - `server/tests/categories.test.js`
-        - `client/src/pages/AdminCategoriesPage.jsx`
+        - `apps/api/src/models/category.model.js`
+        - `apps/api/src/validators/category.validator.js`
+        - `apps/api/src/services/category.service.js`
+        - `apps/api/src/controllers/admin-categories.controller.js`
+        - `apps/api/src/routes/admin-categories.routes.js`
+        - `apps/api/src/scripts/seed-categories.js`
+        - `apps/api/tests/categories.test.js`
+        - `apps/web/src/pages/AdminCategoriesPage.jsx`
 
     - EDITAR:
-        - `server/src/models/product.model.js`
-        - `server/src/app.js`
-        - `client/src/App.jsx`
+        - `apps/api/src/models/product.model.js`
+        - `apps/api/src/app.js`
+        - `apps/web/src/App.jsx`
 
     - REVER:
-        - `server/src/models/product.model.js`, criado no `BK-MF0-07`.
-        - `server/src/middlewares/role.middleware.js`.
+        - `apps/api/src/models/product.model.js`, criado no `BK-MF0-07`.
+        - `apps/api/src/middlewares/role.middleware.js`.
         - `docs/RF.md`, requisito `RF08`.
         - `docs/planificacao/guias-bk/MF1/BK-MF1-01-permitir-pesquisa-e-filtragem-por-categoria-preco-tipo-de-pele-marca.md`.
     - LOCALIZAÇÃO: usar exatamente os caminhos listados; quando o ficheiro já existir, editar o ficheiro existente em vez de criar outro com nome parecido.
@@ -427,17 +427,17 @@ Categorias iniciais canonicas para seed:
 6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
 7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
-### Passo 4 - Criar ou editar `server/src/models/category.model.js`
+### Passo 4 - Criar ou editar `apps/api/src/models/category.model.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/models/category.model.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/models/category.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/models/category.model.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/models/category.model.js`.
+    - CRIAR/EDITAR: `apps/api/src/models/category.model.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/models/category.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/models/category.model.js`.
+Criar este ficheiro em `apps/api/src/models/category.model.js`.
 
 ```js
 import mongoose from "mongoose";
@@ -477,17 +477,17 @@ export const Category = model("Category", categorySchema);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 5 - Criar ou editar `server/src/validators/category.validator.js`
+### Passo 5 - Criar ou editar `apps/api/src/validators/category.validator.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/category.validator.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/validators/category.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/validators/category.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/validators/category.validator.js`.
+    - CRIAR/EDITAR: `apps/api/src/validators/category.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/validators/category.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/validators/category.validator.js`.
+Criar este ficheiro em `apps/api/src/validators/category.validator.js`.
 
 ```js
 import mongoose from "mongoose";
@@ -551,17 +551,17 @@ export function validateCategoryIds(body) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 6 - Criar ou editar `server/src/services/category.service.js`
+### Passo 6 - Criar ou editar `apps/api/src/services/category.service.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/services/category.service.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/services/category.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/services/category.service.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/services/category.service.js`.
+    - CRIAR/EDITAR: `apps/api/src/services/category.service.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/services/category.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/services/category.service.js`.
+Criar este ficheiro em `apps/api/src/services/category.service.js`.
 
 ```js
 import { AppError } from "../middlewares/error.middleware.js";
@@ -625,17 +625,17 @@ export async function assignCategoriesToProduct(productId, categoryIds) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 7 - Criar ou editar `server/src/controllers/admin-categories.controller.js`
+### Passo 7 - Criar ou editar `apps/api/src/controllers/admin-categories.controller.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/admin-categories.controller.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/controllers/admin-categories.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/controllers/admin-categories.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/controllers/admin-categories.controller.js`.
+    - CRIAR/EDITAR: `apps/api/src/controllers/admin-categories.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/controllers/admin-categories.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/controllers/admin-categories.controller.js`.
+Criar este ficheiro em `apps/api/src/controllers/admin-categories.controller.js`.
 
 ```js
 import {
@@ -677,17 +677,17 @@ export async function assignProductCategoriesController(req, res, next) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 8 - Criar ou editar `server/src/routes/admin-categories.routes.js`
+### Passo 8 - Criar ou editar `apps/api/src/routes/admin-categories.routes.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/admin-categories.routes.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/routes/admin-categories.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/routes/admin-categories.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/routes/admin-categories.routes.js`.
+    - CRIAR/EDITAR: `apps/api/src/routes/admin-categories.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/routes/admin-categories.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/routes/admin-categories.routes.js`.
+Criar este ficheiro em `apps/api/src/routes/admin-categories.routes.js`.
 
 ```js
 import { Router } from "express";
@@ -720,17 +720,17 @@ adminCategoriesRoutes.patch(
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 9 - Criar ou editar `server/src/scripts/seed-categories.js`
+### Passo 9 - Criar ou editar `apps/api/src/scripts/seed-categories.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/scripts/seed-categories.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/scripts/seed-categories.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/scripts/seed-categories.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/scripts/seed-categories.js`.
+    - CRIAR/EDITAR: `apps/api/src/scripts/seed-categories.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/scripts/seed-categories.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/scripts/seed-categories.js`.
+Criar este ficheiro em `apps/api/src/scripts/seed-categories.js`.
 
 ```js
 import { connectDB, disconnectDB } from "../config/db.js";
@@ -771,17 +771,17 @@ console.log("Categorias iniciais preparadas");
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 10 - Criar ou editar `server/src/app.js`
+### Passo 10 - Criar ou editar `apps/api/src/app.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/app.js`.
+    - CRIAR/EDITAR: `apps/api/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/app.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/app.js` e substituir pelo ficheiro completo abaixo, preservando toda a API da `MF0` e acrescentando categorias admin.
+Editar `apps/api/src/app.js` e substituir pelo ficheiro completo abaixo, preservando toda a API da `MF0` e acrescentando categorias admin.
 
 ```js
 import cookieParser from "cookie-parser";
@@ -820,21 +820,21 @@ export function createApp() {
 }
 ```
 
-5. Explicação do código: este e o estado final de `server/src/app.js` no fim da `MF0`. A app tem identidade, perfil, preferências e administração de catálogo, mas ainda não promete análise facial, recomendações avançadas, carrinho ou pagamentos.
+5. Explicação do código: este e o estado final de `apps/api/src/app.js` no fim da `MF0`. A app tem identidade, perfil, preferências e administração de catálogo, mas ainda não promete análise facial, recomendações avançadas, carrinho ou pagamentos.
 6. Como validar: confirmar `GET /api/health`, `POST /api/auth/login`, `GET /api/profile/me`, `GET /api/preferences/me` e rotas `/api/admin/*` com admin.
 7. Erro comum ou cenário negativo: substituir este ficheiro por um snippet parcial apaga rotas criadas nos BKs anteriores e quebra a macrofase.
 
-### Passo 11 - Criar ou editar `client/src/pages/AdminCategoriesPage.jsx`
+### Passo 11 - Criar ou editar `apps/web/src/pages/AdminCategoriesPage.jsx`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/AdminCategoriesPage.jsx` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/pages/AdminCategoriesPage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/pages/AdminCategoriesPage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/pages/AdminCategoriesPage.jsx`.
+    - CRIAR/EDITAR: `apps/web/src/pages/AdminCategoriesPage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/pages/AdminCategoriesPage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/pages/AdminCategoriesPage.jsx`.
+Criar este ficheiro em `apps/web/src/pages/AdminCategoriesPage.jsx`.
 
 ```jsx
 import { useState } from "react";
@@ -925,17 +925,17 @@ export function AdminCategoriesPage() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 12 - Criar ou editar `client/src/App.jsx`
+### Passo 12 - Criar ou editar `apps/web/src/App.jsx`
 
 1. Objetivo simples do passo: ligar a página admin de categorias a app de demonstração sem criar routing definitivo.
 2. Ficheiros envolvidos:
-    - EDITAR: `client/src/App.jsx`.
+    - EDITAR: `apps/web/src/App.jsx`.
     - LOCALIZAÇÃO: substituir o ficheiro atual por esta versao completa.
     - REVER: páginas importadas abaixo e `AuthContext.jsx`.
 3. O que fazer: manter as páginas anteriores e acrescentar a nova página deste BK.
 4. Código completo, correto e integrado:
 
-Editar `client/src/App.jsx` e substituir pelo ficheiro completo abaixo.
+Editar `apps/web/src/App.jsx` e substituir pelo ficheiro completo abaixo.
 
 ```jsx
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -1052,7 +1052,7 @@ Categoria inexistente `400`:
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
-Criar este ficheiro em `server/tests/categories.test.js`.
+Criar este ficheiro em `apps/api/tests/categories.test.js`.
 
 ```js
 import { describe, expect, it } from "vitest";
@@ -1099,7 +1099,7 @@ describe("BK-MF0-08 / RF08 - categorias", () => {
 6. Como validar: confirmar que não ficou nenhuma decisão implicita no código.
 7. Erro comum ou cenário negativo: implementar uma regra por intuicao pode funcionar hoje, mas quebrar privacidade, segurança ou o handoff de fases seguintes.
 
-Se `Product.categoryIds` não existir no modelo criado em `BK-MF0-07`, atualizar primeiro `server/src/models/product.model.js`. Sem esse campo, `BK-MF1-01` não conseguira filtrar produtos por categoria.
+Se `Product.categoryIds` não existir no modelo criado em `BK-MF0-07`, atualizar primeiro `apps/api/src/models/product.model.js`. Sem esse campo, `BK-MF1-01` não conseguira filtrar produtos por categoria.
 
 ### Evidence para PR/defesa
 
@@ -1120,4 +1120,6 @@ O próximo BK deve usar `Product.categoryIds`, `Product.priceCents`, `Product.sk
 - `2026-05-25`: guia refinado para categorias e handoff da MF0 para MF1.
 - `2026-05-29`: tutorial linear integrado com Category, seed, associação produto-categoria, payloads, UI, testes e handoff para MF1.
 - `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
-- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a página admin de categorias.
+- `2026-05-29`: acrescentado `apps/web/src/App.jsx` completo para ligar a página admin de categorias.
+- `2026-07-10` (estado corrente): revisão manual/Figma dispensada no alvo académico/local; RNF26 fica `ACEITE_RISCO`, sem alegar aprovação ou paridade.
+- `2026-07-10`: paths pedagógicos normalizados para a estrutura pública `apps/api/` e `apps/web/`.

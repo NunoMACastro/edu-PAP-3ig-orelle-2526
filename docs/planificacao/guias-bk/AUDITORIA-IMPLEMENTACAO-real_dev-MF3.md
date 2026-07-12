@@ -1,5 +1,7 @@
 # Auditoria de implementacao real_dev MF3 - Orelle
 
+> **Nota de supersessão — 2026-07-11:** relatório histórico. O contrato OpenAI-only, os contratos substitutivos e a evidence vigente estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md); não interpretar estados abaixo como conclusão atual.
+
 ## Resultado geral
 
 - Projeto: `Orelle`

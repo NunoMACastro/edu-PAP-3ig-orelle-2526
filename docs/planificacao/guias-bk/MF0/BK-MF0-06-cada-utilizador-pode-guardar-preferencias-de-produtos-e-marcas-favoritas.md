@@ -17,7 +17,7 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF0-07`
 - `guia_path`: `docs/planificacao/guias-bk/MF0/BK-MF0-06-cada-utilizador-pode-guardar-preferencias-de-produtos-e-marcas-favoritas.md`
-- `last_updated`: `2026-05-29`
+- `last_updated`: `2026-07-10`
 
 #### BK-MF0-06 - Cada utilizador pode guardar preferências de produtos e marcas favoritas
 
@@ -27,7 +27,7 @@ Neste BK vamos criar a área de preferências do cliente: marcas favoritas e con
 
 O backend terá endpoints `GET /api/preferences/me` e `PUT /api/preferences/me`. O frontend terá uma página simples para editar marcas favoritas. Produtos favoritos só devem ficar ativos depois de existir catálogo e validação contra `Product` em `BK-MF0-07`.
 
-Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem definir identidade visual final.
+A árvore `mockup/` está disponível como referência visual, mas não está confirmada como versão aprovada nem prova paridade. A revisão manual/Figma foi dispensada no alvo académico/local e o risco residual está `ACEITE_RISCO`; a interface deve ser discreta e extensível sem alegar aprovação visual.
 
 ##### Porque é que isto é importante
 
@@ -81,8 +81,8 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 
 - Estado esperado antes do BK: `User` e `Profile` existem; catálogo pode ainda não existir.
 - Estado esperado depois do BK: preferências de marcas ficam funcionais; produtos favoritos ficam apenas preparados como contrato para ligar ao catálogo depois de `BK-MF0-07`.
-- Ficheiros a criar: `server/src/models/preference.model.js`, `server/src/routes/preferences.routes.js`, `server/src/controllers/preferences.controller.js`, `server/src/services/preferences.service.js`, `server/src/validators/preferences.validator.js`, `client/src/pages/PreferencesPage.jsx`.
-- Ficheiros a editar: `server/src/app.js`, `client/src/App.jsx`, `client/src/services/apiClient.js`.
+- Ficheiros a criar: `apps/api/src/models/preference.model.js`, `apps/api/src/routes/preferences.routes.js`, `apps/api/src/controllers/preferences.controller.js`, `apps/api/src/services/preferences.service.js`, `apps/api/src/validators/preferences.validator.js`, `apps/web/src/pages/PreferencesPage.jsx`.
+- Ficheiros a editar: `apps/api/src/app.js`, `apps/web/src/App.jsx`, `apps/web/src/services/apiClient.js`.
 - Dependências de BK anteriores: `BK-MF0-03` garante que o utilizador tem contexto de perfil; `BK-MF0-02` fornece sessão se já executado.
 - Impacto na arquitetura: adiciona módulo `preferences` separado de perfil e catálogo.
 - Impacto em frontend: cria página editável com chips/lista de marcas.
@@ -97,7 +97,7 @@ Esta fase foi detalhada sem mockup. A UI deve ser discreta e extensível, sem de
 - `docs/RF.md`: `RF06`, ler também `RF07` e `RF09` para perceber continuidade.
 - Guia `BK-MF0-03`: perfil do utilizador.
 - Guia `BK-MF0-05`: roles, apenas para perceber que preferências são de cliente.
-- Mockup: não existe nesta execução.
+- `mockup/`: árvore disponível apenas como referência não aprovada; revisão manual/Figma dispensada no alvo académico/local, com risco residual `ACEITE_RISCO` e sem alegação de paridade.
 
 #### Glossario (rapido) (DERIVADO):
 
@@ -125,7 +125,7 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
     - Como fazer (0.1): documentar `favoriteBrandNames`.
     - Como fazer (0.2): preparar `favoriteProductIds` como array opcional, inicialmente vazio e sem UI ativa.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/models/preference.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/preference.model.js`.
     - Snippet de referência: `favoriteBrandNames: [{ type: String, trim: true }]`.
     - O que verificar: não há dependência obrigatória de `Product` nem seleção de produto final antes de `BK-MF0-07`.
 
@@ -134,8 +134,8 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
     - Justificação: preferências são dados persistentes e privados.
     - Como fazer (1.1): criar `userId` único e obrigatório.
     - Como fazer (1.2): criar arrays para marcas e produtos.
-    - Ficheiro a rever: `server/src/models/profile.model.js`.
-    - Ficheiro alvo: `server/src/models/preference.model.js`.
+    - Ficheiro a rever: `apps/api/src/models/profile.model.js`.
+    - Ficheiro alvo: `apps/api/src/models/preference.model.js`.
     - Snippet de referência: `userId: { type: Schema.Types.ObjectId, ref: 'User', unique: true }`.
     - O que verificar: cada user tem no máximo um documento de preferências.
 
@@ -145,7 +145,7 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
     - Como fazer (2.1): normalizar marcas com `trim`.
     - Como fazer (2.2): limitar quantidade máxima definida pela equipa.
     - Ficheiro a rever: `docs/RF.md`.
-    - Ficheiro alvo: `server/src/validators/preferences.validator.js`.
+    - Ficheiro alvo: `apps/api/src/validators/preferences.validator.js`.
     - Snippet de referência: `const brands = [...new Set(input.favoriteBrandNames.map(normalizeBrand))];`.
     - O que verificar: string vazia não é guardada.
 
@@ -154,8 +154,8 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
     - Justificação: o frontend não precisa saber se é primeira gravação.
     - Como fazer (3.1): usar `findOneAndUpdate` com `upsert: true`.
     - Como fazer (3.2): se ainda não existir `Product`, manter `favoriteProductIds` vazio ou devolver erro controlado para IDs não vazios.
-    - Ficheiro a rever: `server/src/models/preference.model.js`.
-    - Ficheiro alvo: `server/src/services/preferences.service.js`.
+    - Ficheiro a rever: `apps/api/src/models/preference.model.js`.
+    - Ficheiro alvo: `apps/api/src/services/preferences.service.js`.
     - Snippet de referência: `await Preference.findOneAndUpdate({ userId }, payload, { upsert: true, new: true });`.
     - O que verificar: segunda gravação atualiza o mesmo documento e não aceita produto inexistente como se fosse válido.
 
@@ -164,8 +164,8 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
     - Justificação: preferências são privadas e não devem aceitar `userId` no body.
     - Como fazer (4.1): criar `GET /api/preferences/me`.
     - Como fazer (4.2): criar `PUT /api/preferences/me`.
-    - Ficheiro a rever: `server/src/middlewares/auth.middleware.js`.
-    - Ficheiro alvo: `server/src/routes/preferences.routes.js`.
+    - Ficheiro a rever: `apps/api/src/middlewares/auth.middleware.js`.
+    - Ficheiro alvo: `apps/api/src/routes/preferences.routes.js`.
     - Snippet de referência: `router.put('/me', requireAuth, updateMyPreferencesController);`.
     - O que verificar: sem sessão devolve `401`.
 
@@ -174,8 +174,8 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
     - Justificação: o aluno consegue demonstrar personalização mesmo antes do catálogo.
     - Como fazer (5.1): criar input para adicionar/remover marcas.
     - Como fazer (5.2): Executar cenários negativos obrigatórios (mínimo 2) e registar resultados.
-    - Ficheiro a rever: `client/src/App.jsx`.
-    - Ficheiro alvo: `client/src/pages/PreferencesPage.jsx`.
+    - Ficheiro a rever: `apps/web/src/App.jsx`.
+    - Ficheiro alvo: `apps/web/src/pages/PreferencesPage.jsx`.
     - Snippet de referência: `await apiClient.put('/preferences/me', { favoriteBrandNames });`.
     - O que verificar: marcas aparecem após refresh ou nova consulta.
 
@@ -187,7 +187,7 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
 - Negativo 3: passo 3; enviar `favoriteProductIds` antes de `Product` existir; resultado esperado erro controlado ou lista vazia documentada; risco que cobre: simular funcionalidade final sem catálogo.
 - Técnico: `Preference.userId` é único.
 - Regressão das fases anteriores: perfil e login continuam a funcionar.
-- UI/mockup: sem mockup; usar lista/chips simples.
+- UI/mockup: validar comportamento responsive/acessível pelos gates locais; a revisão manual/Figma foi dispensada como `ACEITE_RISCO`, sem alegar aprovação, alinhamento exato ou screenshots inexistentes.
 - Segurança: backend ignora qualquer `userId` enviado pelo cliente.
 
 #### Critérios de aceite:
@@ -205,7 +205,7 @@ Um upsert é útil aqui: se o utilizador ainda não tem preferências, o sistema
 - `pr`: `A preencher no fecho do BK`
 - `proof`: `A preencher após validação`
 - `neg`: `A preencher após testes negativos`
-- `files`: `server/src/models/preference.model.js`, `server/src/routes/preferences.routes.js`, `client/src/pages/PreferencesPage.jsx`
+- `files`: `apps/api/src/models/preference.model.js`, `apps/api/src/routes/preferences.routes.js`, `apps/web/src/pages/PreferencesPage.jsx`
 - `commands`: `curl -X PUT /api/preferences/me`, `npm test`
 - `screenshots`: marcas favoritas guardadas
 - `notes`: produtos favoritos ficam preparados para depois do catálogo; não demonstrar seleção real antes de `BK-MF0-07`
@@ -357,20 +357,20 @@ Neste BK, `favoriteBrandNames` fica funcional. `favoriteProductIds` fica no cont
 1. Objetivo simples do passo: identificar todos os ficheiros antes de escrever código, para evitar duplicados, imports partidos e contratos divergentes entre BKs.
 2. Ficheiros envolvidos:
     - CRIAR:
-        - `server/src/models/preference.model.js`
-        - `server/src/validators/preferences.validator.js`
-        - `server/src/services/preferences.service.js`
-        - `server/src/controllers/preferences.controller.js`
-        - `server/src/routes/preferences.routes.js`
-        - `server/tests/preferences.test.js`
-        - `client/src/pages/PreferencesPage.jsx`
+        - `apps/api/src/models/preference.model.js`
+        - `apps/api/src/validators/preferences.validator.js`
+        - `apps/api/src/services/preferences.service.js`
+        - `apps/api/src/controllers/preferences.controller.js`
+        - `apps/api/src/routes/preferences.routes.js`
+        - `apps/api/tests/preferences.test.js`
+        - `apps/web/src/pages/PreferencesPage.jsx`
 
     - EDITAR:
-        - `server/src/app.js`
-        - `client/src/App.jsx`
+        - `apps/api/src/app.js`
+        - `apps/web/src/App.jsx`
 
     - REVER:
-        - `server/src/middlewares/auth.middleware.js`
+        - `apps/api/src/middlewares/auth.middleware.js`
         - `docs/RF.md`, requisito `RF06`.
         - `docs/planificacao/guias-bk/MF0/BK-MF0-07-registar-produtos-com-nome-descricao-ingredientes-tipo-de-pele-indicado-imagem-preco-e-stock.md`.
     - LOCALIZAÇÃO: usar exatamente os caminhos listados; quando o ficheiro já existir, editar o ficheiro existente em vez de criar outro com nome parecido.
@@ -394,17 +394,17 @@ Neste BK, `favoriteBrandNames` fica funcional. `favoriteProductIds` fica no cont
 6. Como validar: após cada ficheiro, confirmar imports/exports e mensagens de erro antes de passar ao seguinte.
 7. Erro comum ou cenário negativo: copiar apenas parte do código deixa o tutorial incoerente e quebra os passos posteriores.
 
-### Passo 4 - Criar ou editar `server/src/models/preference.model.js`
+### Passo 4 - Criar ou editar `apps/api/src/models/preference.model.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/models/preference.model.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/models/preference.model.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/models/preference.model.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/models/preference.model.js`.
+    - CRIAR/EDITAR: `apps/api/src/models/preference.model.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/models/preference.model.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/models/preference.model.js`.
+Criar este ficheiro em `apps/api/src/models/preference.model.js`.
 
 ```js
 import mongoose from "mongoose";
@@ -440,17 +440,17 @@ export const Preference = model("Preference", preferenceSchema);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 5 - Criar ou editar `server/src/validators/preferences.validator.js`
+### Passo 5 - Criar ou editar `apps/api/src/validators/preferences.validator.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/validators/preferences.validator.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/validators/preferences.validator.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/validators/preferences.validator.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/validators/preferences.validator.js`.
+    - CRIAR/EDITAR: `apps/api/src/validators/preferences.validator.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/validators/preferences.validator.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/validators/preferences.validator.js`.
+Criar este ficheiro em `apps/api/src/validators/preferences.validator.js`.
 
 ```js
 import { AppError } from "../middlewares/error.middleware.js";
@@ -502,17 +502,17 @@ export function validatePreferencesInput(body) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 6 - Criar ou editar `server/src/services/preferences.service.js`
+### Passo 6 - Criar ou editar `apps/api/src/services/preferences.service.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/services/preferences.service.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/services/preferences.service.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/services/preferences.service.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/services/preferences.service.js`.
+    - CRIAR/EDITAR: `apps/api/src/services/preferences.service.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/services/preferences.service.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/services/preferences.service.js`.
+Criar este ficheiro em `apps/api/src/services/preferences.service.js`.
 
 ```js
 import { Preference } from "../models/preference.model.js";
@@ -560,17 +560,17 @@ export async function updateMyPreferences(userId, input) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 7 - Criar ou editar `server/src/controllers/preferences.controller.js`
+### Passo 7 - Criar ou editar `apps/api/src/controllers/preferences.controller.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/controllers/preferences.controller.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/controllers/preferences.controller.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/controllers/preferences.controller.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/controllers/preferences.controller.js`.
+    - CRIAR/EDITAR: `apps/api/src/controllers/preferences.controller.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/controllers/preferences.controller.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/controllers/preferences.controller.js`.
+Criar este ficheiro em `apps/api/src/controllers/preferences.controller.js`.
 
 ```js
 import {
@@ -603,17 +603,17 @@ export async function updateMyPreferencesController(req, res, next) {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 8 - Criar ou editar `server/src/routes/preferences.routes.js`
+### Passo 8 - Criar ou editar `apps/api/src/routes/preferences.routes.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/routes/preferences.routes.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/routes/preferences.routes.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/routes/preferences.routes.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/routes/preferences.routes.js`.
+    - CRIAR/EDITAR: `apps/api/src/routes/preferences.routes.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/routes/preferences.routes.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `server/src/routes/preferences.routes.js`.
+Criar este ficheiro em `apps/api/src/routes/preferences.routes.js`.
 
 ```js
 import { Router } from "express";
@@ -633,17 +633,17 @@ preferencesRoutes.put("/me", requireAuth, updateMyPreferencesController);
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 9 - Criar ou editar `server/src/app.js`
+### Passo 9 - Criar ou editar `apps/api/src/app.js`
 
-1. Objetivo simples do passo: implementar o ficheiro `server/src/app.js` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/api/src/app.js` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `server/src/app.js` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `server/src/app.js`.
+    - CRIAR/EDITAR: `apps/api/src/app.js` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/api/src/app.js`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Editar `server/src/app.js` e substituir pelo ficheiro completo abaixo, preservando rotas anteriores e montando preferências.
+Editar `apps/api/src/app.js` e substituir pelo ficheiro completo abaixo, preservando rotas anteriores e montando preferências.
 
 ```js
 import cookieParser from "cookie-parser";
@@ -682,17 +682,17 @@ export function createApp() {
 6. Como validar: chamar `GET /api/preferences/me` sem cookie deve devolver `401`; com cookie válido deve devolver as preferências do próprio utilizador.
 7. Erro comum ou cenário negativo: montar preferências sob `/api/admin` ou esquecer `requireAuth` misturaria dados privados de cliente com área administrativa.
 
-### Passo 10 - Criar ou editar `client/src/pages/PreferencesPage.jsx`
+### Passo 10 - Criar ou editar `apps/web/src/pages/PreferencesPage.jsx`
 
-1. Objetivo simples do passo: implementar o ficheiro `client/src/pages/PreferencesPage.jsx` no contrato deste BK.
+1. Objetivo simples do passo: implementar o ficheiro `apps/web/src/pages/PreferencesPage.jsx` no contrato deste BK.
 2. Ficheiros envolvidos:
-    - CRIAR/EDITAR: `client/src/pages/PreferencesPage.jsx` conforme indicado na frase abaixo.
-    - LOCALIZAÇÃO: `client/src/pages/PreferencesPage.jsx`.
+    - CRIAR/EDITAR: `apps/web/src/pages/PreferencesPage.jsx` conforme indicado na frase abaixo.
+    - LOCALIZAÇÃO: `apps/web/src/pages/PreferencesPage.jsx`.
     - REVER: imports, exports e ficheiros que este bloco referencia.
 3. O que fazer: usa o código completo abaixo; se o ficheiro já existir, substitui ou acrescenta exatamente o que a instrucao deste passo indicar.
 4. Código completo, correto e integrado:
 
-Criar este ficheiro em `client/src/pages/PreferencesPage.jsx`.
+Criar este ficheiro em `apps/web/src/pages/PreferencesPage.jsx`.
 
 ```jsx
 import { useState } from "react";
@@ -747,17 +747,17 @@ export function PreferencesPage() {
 6. Como validar: confirma que o ficheiro esta no caminho indicado, que os imports/export existem e que o comportamento descrito no passo funciona.
 7. Erro comum ou cenário negativo: colocar este código noutro ficheiro, alterar nomes exportados ou apagar validacoes quebra o handoff deste BK.
 
-### Passo 11 - Criar ou editar `client/src/App.jsx`
+### Passo 11 - Criar ou editar `apps/web/src/App.jsx`
 
 1. Objetivo simples do passo: ligar a página de preferencias a app de demonstração sem criar routing definitivo.
 2. Ficheiros envolvidos:
-    - EDITAR: `client/src/App.jsx`.
+    - EDITAR: `apps/web/src/App.jsx`.
     - LOCALIZAÇÃO: substituir o ficheiro atual por esta versao completa.
     - REVER: páginas importadas abaixo e `AuthContext.jsx`.
 3. O que fazer: manter as páginas anteriores e acrescentar a nova página deste BK.
 4. Código completo, correto e integrado:
 
-Editar `client/src/App.jsx` e substituir pelo ficheiro completo abaixo.
+Editar `apps/web/src/App.jsx` e substituir pelo ficheiro completo abaixo.
 
 ```jsx
 import { AuthProvider } from "./context/AuthContext.jsx";
@@ -849,7 +849,7 @@ Tentar produtos antes do catálogo `400`:
 6. Como validar: correr o comando de testes documentado no BK e confirmar que os casos positivos e negativos passam.
 7. Erro comum ou cenário negativo: testar apenas o caminho feliz deixa falhas de segurança e validação por descobrir.
 
-Criar este ficheiro em `server/tests/preferences.test.js`.
+Criar este ficheiro em `apps/api/tests/preferences.test.js`.
 
 ```js
 import { describe, expect, it } from "vitest";
@@ -926,4 +926,6 @@ O próximo BK cria `Product`. Depois disso, favoritos por produto podem ser ativ
 - `2026-05-25`: reforçado que `favoriteProductIds` é contrato preparado até existir catálogo em `BK-MF0-07`.
 - `2026-05-29`: tutorial linear integrado com modelo Preference, bloqueio de produtos antes do catálogo, payloads, UI e testes.
 - `2026-05-29`: estrutura corrigida para tutorial linear integrado, com código, explicação, validação e negativo no passo onde são usados.
-- `2026-05-29`: acrescentado `client/src/App.jsx` completo para ligar a página de preferencias.
+- `2026-05-29`: acrescentado `apps/web/src/App.jsx` completo para ligar a página de preferencias.
+- `2026-07-10` (estado corrente): revisão manual/Figma dispensada no alvo académico/local; RNF26 fica `ACEITE_RISCO`, sem alegar aprovação ou paridade.
+- `2026-07-10`: paths pedagógicos normalizados para a estrutura pública `apps/api/` e `apps/web/`.

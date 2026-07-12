@@ -20,13 +20,17 @@
 - `kpi_secundario`: `retencao_fluxo_ia_30d`
 - `proximo_bk`: `BK-MF6-04`
 - `guia_path`: `docs/planificacao/guias-bk/MF6/BK-MF6-03-suportar-minimo-50-utilizadores-simultaneos-sem-falhas.md`
-- `last_updated`: `2026-06-23`
+- `last_updated`: `2026-07-10`
+
+> **Contrato vigente:** cada pedido recebe `req.signal` a partir de um `AbortController`. Timeout, cancelamento do cliente ou fecho prematuro da ligação abortam esse sinal; handlers e services devem propagá-lo e impedir trabalho/commits tardios. O smoke de concorrência usa `/api/health/live`; `/api/health/ready` valida separadamente a disponibilidade de MongoDB e pode devolver `503`.
+
+> **Validação runtime atual — 2026-07-10:** o middleware, 50 pedidos de health, a propagação cooperativa e os negativos de commit tardio estão cobertos. Liveness continua separado de readiness transacional; as contagens/retestes correntes ficam no plano mestre e este resultado não substitui a reauditoria independente.
 
 #### Objetivo
 
 Neste BK vais preparar a API da Orélle para demonstrar que responde de forma estável a 50 pedidos simultâneos, cumprindo `RNF07`.
 
-No fim, a API terá um timeout transversal por pedido, um `health check` leve e um script local que dispara 50 pedidos concorrentes contra `GET /api/health` sem criar dados, sem contornar autenticação e sem expor informação pessoal, biométrica ou comercial sensível.
+No fim, a API terá um timeout transversal cancelável, health checks separados e um script local que dispara 50 pedidos concorrentes contra `GET /api/health/live` sem criar dados, sem contornar autenticação e sem expor informação pessoal, biométrica ou comercial sensível.
 
 #### Importância
 
@@ -38,7 +42,7 @@ Este BK é `CORE-HIBRIDO` porque a estabilidade protege os dois eixos da Orélle
 
 - Criar middleware de timeout por pedido em `apps/api`.
 - Aplicar o timeout antes das rotas funcionais.
-- Reforçar `GET /api/health` com resposta técnica leve.
+- Reforçar `GET /api/health/live` com resposta técnica leve e separar `GET /api/health/ready` para dependências.
 - Criar testes focados para health check, endpoint protegido sem sessão e rota lenta.
 - Criar script local de 50 pedidos concorrentes.
 - Definir evidence de sucesso e cenários negativos para `RNF07`.
@@ -79,9 +83,9 @@ Este BK é `CORE-HIBRIDO` porque a estabilidade protege os dois eixos da Orélle
 
 `RNF07` é um requisito de escalabilidade. A decisão canónica é o número 50: a aplicação deve suportar pelo menos 50 utilizadores simultâneos sem falhas. Neste BK, isso é demonstrado com 50 pedidos concorrentes leves contra a API local.
 
-Um teste de concorrência não deve criar dados reais nem enfraquecer segurança. Por isso, o smoke principal usa `GET /api/health`: é público, barato e não lê fotografias, relatórios, carrinho, encomendas, perfil cosmético nem recomendações. Endpoints protegidos continuam protegidos e são validados separadamente com cenário negativo.
+Um teste de concorrência não deve criar dados reais nem enfraquecer segurança. Por isso, o smoke principal usa `GET /api/health/live`: é público, barato e não lê fotografias, relatórios, carrinho, encomendas, perfil cosmético nem recomendações. `GET /api/health/ready` fica reservado à disponibilidade de MongoDB. Endpoints protegidos continuam protegidos e são validados separadamente com cenário negativo.
 
-Um timeout por pedido evita que uma rota lenta deixe o cliente à espera sem fim. Isto não resolve todos os problemas de escala nem cancela automaticamente trabalho assíncrono que já começou. Por isso, além da resposta `503`, as rotas ou services lentos devem verificar se o pedido já excedeu o orçamento antes de tentar enviar uma resposta tardia ou continuar trabalho sensível.
+Um timeout por pedido evita que uma rota lenta deixe o cliente à espera sem fim. O middleware aborta cooperativamente `req.signal`; rotas, providers e services propagam esse sinal e verificam-no antes de I/O ou commits. Assim, a resposta `503` não deixa apenas de esperar: também dá ao trabalho subjacente uma fronteira explícita de cancelamento.
 
 Backend, testes e evidence trabalham juntos:
 
@@ -93,14 +97,14 @@ Backend, testes e evidence trabalham juntos:
 
 `CANONICO`: `RNF07` define o alvo de 50 utilizadores simultâneos; `BK-MF6-03` é `P1`, `Core`, `CORE-HIBRIDO`, `S10-S11` e prepara `BK-MF6-04`.
 
-`DERIVADO`: `DEFAULT_REQUEST_TIMEOUT_MS = 8_000`, `GET /api/health`, `check-mf6-concurrency.mjs` e a representação de 1 pedido concorrente como 1 utilizador simulado são decisões técnicas mínimas para validar o requisito na stack Express atual.
+`DERIVADO`: `DEFAULT_REQUEST_TIMEOUT_MS = 12_000`, `GET /api/health/live`, `GET /api/health/ready`, `check-mf6-concurrency.mjs` e a representação de 1 pedido concorrente como 1 utilizador simulado são decisões técnicas mínimas para validar o requisito na stack Express atual.
 
 Erros comuns que este BK evita: testar carga apenas no browser, usar endpoints que criam dados, executar carga contra ambiente remoto por engano, considerar API desligada como sucesso, remover autenticação para facilitar o teste e guardar dados sensíveis em outputs de prova.
 
 #### Arquitetura do BK
 
 - `apps/api/src/middlewares/request-timeout.middleware.js`: cria middleware Express de timeout controlado.
-- `apps/api/src/app.js`: aplica o middleware antes das rotas e reforça `GET /api/health`.
+- `apps/api/src/app.js`: aplica o middleware antes das rotas e separa liveness/readiness.
 - `apps/api/tests/mf6.concurrency.test.js`: valida health check, endpoint protegido sem sessão e timeout.
 - `apps/api/scripts/check-mf6-concurrency.mjs`: executa 50 pedidos concorrentes locais.
 - `apps/api/src/server.js`: fica apenas como ponto de arranque HTTP.
@@ -133,7 +137,7 @@ Confirmar que este BK valida estabilidade mínima sob 50 pedidos simultâneos se
 
 3. Instruções do que fazer.
 
-Regista no teu caderno técnico que o smoke principal usa `GET /api/health` porque é leve e não cria dados. Regista também que endpoints protegidos continuam a exigir sessão; o objetivo é provar estabilidade sem enfraquecer privacidade, consentimento, roles ou ownership.
+Regista no teu caderno técnico que o smoke principal usa `GET /api/health/live` porque é leve e não cria dados. Regista também que readiness e endpoints protegidos têm provas separadas; o objetivo é provar estabilidade sem enfraquecer privacidade, consentimento, roles ou ownership.
 
 4. Código completo, correto e integrado com a app final.
 
@@ -176,7 +180,7 @@ Cria um middleware pequeno, sem dependências novas. O middleware deve encaminha
 // apps/api/src/middlewares/request-timeout.middleware.js
 import { AppError } from "./error.middleware.js";
 
-export const DEFAULT_REQUEST_TIMEOUT_MS = 8_000;
+export const DEFAULT_REQUEST_TIMEOUT_MS = 12_000;
 
 /**
  * Marca o pedido como expirado e permite que rotas lentas parem de responder tarde.
@@ -193,26 +197,37 @@ function markRequestTimedOut(req) {
  * Cria middleware Express que limita a duração máxima de cada pedido.
  *
  * @function requestTimeout
- * @param {number} [timeoutMs=DEFAULT_REQUEST_TIMEOUT_MS] - Tempo máximo permitido por pedido HTTP.
+ * @param {{timeoutMs?: number}} [options={}] - Tempo máximo permitido por pedido HTTP.
  * @returns {import("express").RequestHandler} Middleware que encaminha erro 503 quando a rota demora demasiado.
  */
-export function requestTimeout(timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS) {
+export function requestTimeout({ timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS } = {}) {
     return (req, res, next) => {
+        const abortController = new AbortController();
         req.requestTimedOut = false;
+        req.signal = abortController.signal;
         req.hasRequestTimedOut = () => req.requestTimedOut === true;
 
         const timer = setTimeout(() => {
             markRequestTimedOut(req);
-
-            if (!res.headersSent) {
-                // A mensagem é genérica para não revelar rota interna, query, stack trace ou dados do utilizador.
-                next(new AppError(503, "Pedido demorou demasiado. Tenta novamente."));
-            }
+            const timeoutError = new AppError(503, "Pedido excedeu o tempo limite.");
+            abortController.abort(timeoutError);
+            if (!res.headersSent) next(timeoutError);
         }, timeoutMs);
 
-        // Limpar o temporizador evita trabalho pendente depois de respostas rápidas ou ligações fechadas.
-        res.on("finish", () => clearTimeout(timer));
-        res.on("close", () => clearTimeout(timer));
+        const cleanup = () => clearTimeout(timer);
+        req.once("aborted", () => {
+            if (!req.signal.aborted) {
+                abortController.abort(new Error("Pedido cancelado pelo cliente"));
+            }
+            cleanup();
+        });
+        res.once("finish", cleanup);
+        res.once("close", () => {
+            if (!res.writableFinished && !req.signal.aborted) {
+                abortController.abort(new Error("Ligação ao cliente terminada"));
+            }
+            cleanup();
+        });
 
         next();
     };
@@ -221,19 +236,19 @@ export function requestTimeout(timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS) {
 
 5. Explicação do código.
 
-O middleware cria um temporizador para cada pedido. Se a rota responder a tempo, `finish` ou `close` limpa o temporizador. Se a rota ultrapassar o limite, o middleware marca `req.requestTimedOut = true` e chama `next` com `AppError(503, ...)`, deixando o `errorMiddleware` gerar a resposta JSON segura.
+O middleware cria um temporizador e um `AbortController` por pedido. Se a rota responder a tempo, `finish` limpa o temporizador. Se a rota ultrapassar o limite, o middleware marca o pedido, aborta `req.signal` com a causa controlada e encaminha `AppError(503, ...)`. Cancelamento do cliente e fecho prematuro também abortam o sinal.
 
-O método `req.hasRequestTimedOut()` é uma guarda didática para rotas ou testes lentos. Ele não cancela automaticamente uma query, upload ou chamada externa já iniciada, mas dá ao código assíncrono uma forma simples de parar antes de tentar enviar uma segunda resposta.
+O método `req.hasRequestTimedOut()` permanece uma guarda de compatibilidade; a fronteira principal é `req.signal`. O sinal deve ser propagado a chamadas externas e verificado antes de uploads, filesystem e escritas persistentes.
 
 Este ficheiro cumpre `RNF07` porque reduz o risco de pedidos pendurados sob concorrência. Também respeita segurança: não devolve stack trace, path interno, cookie, fotografia, relatório ou identificador real.
 
 6. Validação do passo.
 
-Confirma que o ficheiro exporta `requestTimeout` e `DEFAULT_REQUEST_TIMEOUT_MS`, que marca `req.requestTimedOut` quando o limite é excedido e que não chama `res.json` diretamente. O middleware deve delegar erros no tratamento central.
+Confirma que o ficheiro exporta `requestTimeout` e `DEFAULT_REQUEST_TIMEOUT_MS`, cria `req.signal`, o aborta em timeout/cliente desligado e não chama `res.json` diretamente. O middleware deve delegar erros no tratamento central.
 
 7. Cenário negativo/erro esperado.
 
-Uma rota lenta deve devolver `503` com mensagem controlada. Se a rota tentar responder depois desse `503`, falta a guarda contra resposta tardia no código assíncrono.
+Uma rota lenta deve devolver `503`, observar `req.signal.aborted` e cancelar o respetivo trabalho. Se houver commit ou resposta depois desse `503`, o sinal não foi propagado corretamente.
 
 ### Passo 3 - Aplicar o timeout e reforçar o health check
 
@@ -262,6 +277,7 @@ Substitui o ficheiro por esta versão, preservando todas as rotas existentes e a
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import mongoose from "mongoose";
 import { env } from "./config/env.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { adminDashboardRoutes } from "./routes/admin-dashboard.routes.js";
@@ -270,18 +286,17 @@ import { adminReviewRoutes } from "./routes/admin-review.routes.js";
 import { adminUsersRoutes } from "./routes/admin-users.routes.js";
 import { adminProductsRoutes } from "./routes/admin-products.routes.js";
 import { adminCategoriesRoutes } from "./routes/admin-categories.routes.js";
-import { beforeAfterVisualizationRoutes } from "./routes/before-after-visualization.routes.js";
+import { aiConsultationRoutes } from "./routes/ai-consultation.routes.js";
+import { aiConsultationReviewRoutes } from "./routes/ai-consultation-review.routes.js";
 import { cartRoutes } from "./routes/cart.routes.js";
 import { catalogRoutes } from "./routes/catalog.routes.js";
 import { dailyRoutineRoutes } from "./routes/daily-routine.routes.js";
-import { faceAnalysisRoutes } from "./routes/face-analysis.routes.js";
 import { facePhotoRoutes } from "./routes/face-photo.routes.js";
 import { faceReportRoutes } from "./routes/face-report.routes.js";
 import { makeupSimulationRoutes } from "./routes/makeup-simulation.routes.js";
 import { preferencesRoutes } from "./routes/preferences.routes.js";
 import { profileRoutes } from "./routes/profile.routes.js";
 import { notificationRoutes } from "./routes/notification.routes.js";
-import { recommendationReviewRoutes } from "./routes/recommendation-review.routes.js";
 import { recommendationRoutes } from "./routes/recommendation.routes.js";
 import { orderRoutes } from "./routes/order.routes.js";
 import { reorderRoutes } from "./routes/reorder.routes.js";
@@ -299,7 +314,9 @@ import { requestTimeout } from "./middlewares/request-timeout.middleware.js";
  * @function createApp
  * @returns {import("express").Express} Aplicação Express pronta a usar.
  */
-export function createApp() {
+export function createApp({
+    readinessCheck = () => mongoose.connection.readyState === 1,
+} = {}) {
     const app = express();
 
     app.use(cors({ origin: env.clientOrigin, credentials: true }));
@@ -307,12 +324,21 @@ export function createApp() {
     app.use(cookieParser());
     app.use(requestTimeout());
 
-    app.get("/api/health", (req, res) => {
-        // O health check não consulta base de dados nem devolve dados pessoais ou biométricos.
+    app.get("/api/health/live", (req, res) => {
+        // Liveness só prova que o processo HTTP responde.
         res.json({
             status: "ok",
             app: "orelle",
             checks: { http: "ok" },
+        });
+    });
+
+    app.get("/api/health/ready", async (req, res) => {
+        const mongoReady = await readinessCheck();
+        res.status(mongoReady ? 200 : 503).json({
+            status: mongoReady ? "ready" : "not_ready",
+            app: "orelle",
+            checks: { mongodb: mongoReady ? "ok" : "unavailable" },
         });
     });
 
@@ -321,15 +347,14 @@ export function createApp() {
     app.use("/api/preferences", preferencesRoutes);
     app.use("/api/catalog", catalogRoutes);
     app.use("/api", facePhotoRoutes);
-    app.use("/api", faceAnalysisRoutes);
     app.use("/api", faceReportRoutes);
+    app.use("/api", aiConsultationRoutes);
     app.use("/api", skinHistoryRoutes);
     app.use("/api", skinEvolutionRoutes);
     app.use("/api", recommendationRoutes);
     app.use("/api", dailyRoutineRoutes);
-    app.use("/api", recommendationReviewRoutes);
+    app.use("/api", aiConsultationReviewRoutes);
     app.use("/api", makeupSimulationRoutes);
-    app.use("/api", beforeAfterVisualizationRoutes);
     app.use("/api", skinComparisonRoutes);
     app.use("/api", cartRoutes);
     app.use("/api", orderRoutes);
@@ -354,11 +379,11 @@ export function createApp() {
 
 O timeout fica depois dos parsers (`json` e cookies) e antes das rotas. Assim, catálogo, análise, relatórios, recomendações, carrinho, encomendas e administração herdam o mesmo limite sem duplicar código.
 
-O `health check` devolve apenas estado técnico: `status`, nome da app e `checks.http`. Não devolve utilizadores ativos, dados de produtos, fotografias, relatórios, tokens, cookies, paths internos ou estado da base de dados. Isto permite usar o endpoint no smoke de 50 pedidos sem criar risco de privacidade.
+O liveness devolve apenas estado HTTP técnico. O readiness verifica MongoDB e pode devolver `503`, sem URI, host, credenciais ou detalhes internos. O smoke de 50 pedidos usa liveness para não transformar indisponibilidade da BD num teste de concorrência HTTP.
 
 6. Validação do passo.
 
-Arranca a API e confirma que `GET /api/health` devolve `200` com `status: "ok"` e `checks.http: "ok"`.
+Arranca a API e confirma que `GET /api/health/live` devolve `200`; força `readinessCheck=false` e confirma `GET /api/health/ready` com `503` sanitizado.
 
 7. Cenário negativo/erro esperado.
 
@@ -403,16 +428,21 @@ import { requestTimeout } from "../src/middlewares/request-timeout.middleware.js
  */
 function createSlowTimeoutApp() {
     const app = express();
+    app.locals.lateWorkCount = 0;
 
-    app.use(requestTimeout(20));
+    app.use(requestTimeout({ timeoutMs: 20 }));
     app.get("/api/test/slow", async (req, res) => {
-        // A espera simula uma rota degradada e ensina o aluno a validar o negativo.
-        await new Promise((resolve) => setTimeout(resolve, 60));
-        if (res.headersSent || req.hasRequestTimedOut?.()) {
-            // Depois do timeout, a rota pára para não tentar enviar uma segunda resposta.
-            return;
-        }
+        const completed = await new Promise((resolve) => {
+            const workId = setTimeout(() => resolve(true), 60);
+            req.signal.addEventListener("abort", () => {
+                clearTimeout(workId);
+                resolve(false);
+            }, { once: true });
+        });
 
+        if (!completed || req.signal.aborted) return;
+
+        app.locals.lateWorkCount += 1;
         res.json({ status: "late" });
     });
     app.use(errorMiddleware);
@@ -422,7 +452,7 @@ function createSlowTimeoutApp() {
 
 describe("BK-MF6-03 / RNF07 - concorrência e estabilidade", () => {
     it("responde ao health check com payload técnico minimizado", async () => {
-        const response = await request(createApp()).get("/api/health");
+        const response = await request(createApp()).get("/api/health/live");
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual({
@@ -440,19 +470,21 @@ describe("BK-MF6-03 / RNF07 - concorrência e estabilidade", () => {
     });
 
     it("devolve 503 controlado quando uma rota excede o timeout", async () => {
-        const response = await request(createSlowTimeoutApp()).get("/api/test/slow");
+        const app = createSlowTimeoutApp();
+        const response = await request(app).get("/api/test/slow");
 
         expect(response.status).toBe(503);
-        expect(response.body.error.message).toBe("Pedido demorou demasiado. Tenta novamente.");
+        expect(response.body.error.message).toBe("Pedido excedeu o tempo limite.");
+        expect(app.locals.lateWorkCount).toBe(0);
     });
 });
 ```
 
 5. Explicação do código.
 
-O primeiro teste confirma que o smoke público é barato e previsível. O segundo confirma que `RNF07` não justifica abrir endpoints privados sem sessão. O terceiro cria uma rota lenta dentro de uma app de teste, aplica `requestTimeout(20)` e espera erro `503`.
+O primeiro teste confirma que o liveness público é barato e previsível. O segundo confirma que `RNF07` não justifica abrir endpoints privados sem sessão. O terceiro cria uma rota lenta, aplica `requestTimeout({ timeoutMs: 20 })`, espera erro `503` e prova que o trabalho tardio foi cancelado.
 
-A guarda `res.headersSent || req.hasRequestTimedOut?.()` é a parte que evita a falha tardia. Sem ela, a rota podia acordar depois dos `60ms` e tentar executar `res.json({ status: "late" })` quando o `errorMiddleware` já enviou o `503`.
+O listener de `req.signal` limpa o temporizador da tarefa e mantém `lateWorkCount` a zero. Isto prova cancelamento cooperativo, não apenas supressão de uma segunda resposta.
 
 Este teste evita três falhas comuns: health check com dados demais, segurança enfraquecida para facilitar carga e timeout sem prova objetiva.
 
@@ -520,7 +552,7 @@ function parsePositiveInteger(value, fallback) {
  */
 function resolveEndpoint() {
     const baseUrl = process.env.ORELLE_API_URL ?? "http://127.0.0.1:3001";
-    const path = process.env.ORELLE_CONCURRENCY_PATH ?? "/api/health";
+    const path = process.env.ORELLE_CONCURRENCY_PATH ?? "/api/health/live";
     const endpoint = new URL(path, baseUrl);
 
     const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
@@ -685,7 +717,8 @@ Se a API estiver desligada, o script deve falhar e essa falha deve ser registada
 
 #### Expected results
 
-- `GET /api/health` devolve `200` com `{ status: "ok", app: "orelle", checks: { http: "ok" } }`.
+- `GET /api/health/live` devolve `200` com `{ status: "ok", app: "orelle", checks: { http: "ok" } }`.
+- `GET /api/health/ready` devolve `200` com MongoDB pronta e `503` sanitizado quando indisponível.
 - `GET /api/auth/me` sem sessão devolve `401`.
 - Rota lenta de teste devolve `503` com mensagem segura.
 - `npm --prefix apps/api test` passa.
@@ -824,4 +857,7 @@ export function validarEvidenceDocumental(evidence) {
 ```
 
 ## Changelog
+- `2026-07-10`: estado corrente posterior: AbortSignal/no-late-commit foi reconciliado com a suite integral; contagens voláteis ficam apenas no plano mestre.
+- `2026-07-10`: timeout alinhado a `AbortController`/`req.signal`, negativo sem trabalho tardio e health separado em liveness/readiness.
+- `2026-07-10`: estado corrente preserva a linha anterior como alvo documental; validação runtime do abort/no-late-commit fica pendente até o backend integral estar verde.
 - `2026-06-30`: suplemento documental adicionado para cumprir validador de planificacao.

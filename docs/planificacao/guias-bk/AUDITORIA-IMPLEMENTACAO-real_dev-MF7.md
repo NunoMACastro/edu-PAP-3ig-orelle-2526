@@ -1,5 +1,7 @@
 # Auditoria de implementacao real_dev - MF7
 
+> **Nota de supersessão — 2026-07-11:** relatório histórico. O contrato OpenAI-only, os contratos substitutivos e a evidence vigente estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). O pagamento é exclusivamente simulado; o estado posterior substituiu o builder PDF manual por `pdf-lib`. Providers antigos e qualquer indicação inferior de PDF aberto permanecem apenas como história do snapshot auditado.
+
 ## Re-auditoria atual - BK-MF7-07
 
 - `PROJECT_NAME`: Orelle

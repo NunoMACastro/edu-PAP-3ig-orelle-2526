@@ -1,6 +1,7 @@
-# BK-MF8-04 - Base de dados com backups automáticos diários
+# BK-MF8-04 - Snapshot diário recuperável da base académica local
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF8-04`
 - `bk_id`: `BK-MF8-04`
 - `macro`: `MF8`
@@ -16,846 +17,462 @@
 - `core_or_reforco`: `Core`
 - `proximo_bk`: `BK-MF8-05`
 - `guia_path`: `docs/planificacao/guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md`
-- `last_updated`: `2026-07-01`
+- `last_updated`: `2026-07-10`
 
-#### Objetivo
+> **Contrato atual:** este guia substitui o antigo export JSON redigido e o respetivo `--dry-run`. Uma cópia redigida pode servir de demonstração de export, mas não consegue restaurar a base e, por isso, não cumpre `RNF21`.
+>
+> **Estado da implementação de referência — 2026-07-10:** `10/10` testes do core e `3/3` integrações em `MongoMemoryReplSet` validaram round-trip/restore, BSON, índices, cifra/checksums e a nova fronteira completa. A leitura usa um único `readConcern:snapshot`; staging 0700 e ficheiros 0600 só são publicados por rename depois da verificação. Falha injetada ou drift de índice deixam zero parcial/órfão e preservam snapshots anteriores.
 
-Neste BK vais implementar um procedimento seguro de backup diário para a base de dados MongoDB da Orélle, validado em ambiente de teste e sem publicar artefactos sensíveis no repositório.
+## Bloco pedagogico
 
-#### Importância
+### Objetivo
 
-A Orélle guarda perfis cosméticos, histórico de análise facial, encomendas, pedidos de privacidade e dados associados a decisões de recomendação. Um erro de base de dados pode apagar evidence, impedir auditoria e afectar dados pessoais. O `RNF21` existe para garantir que a equipa tem uma rotina mínima de cópia, validação e prova técnica antes da entrega final da PAP.
+Implementar um snapshot diário recuperável da base MongoDB académica local. No fim, deves conseguir:
 
-#### Scope-in
+- preservar documentos BSON e índices em Extended JSON;
+- construir cada snapshot numa pasta staging privada e publicá-lo apenas por rename atómico depois da validação completa;
+- cifrar cada payload com AES-256-GCM, chave dedicada e AAD;
+- detetar alterações através de checksums do payload e do manifest;
+- restaurar apenas para uma base local isolada terminada em `_restore`;
+- comparar documentos e índices depois do restore;
+- manter os sete snapshots mais recentes;
+- impedir que o scheduler arranque sem opt-in explícito `dev:local`.
+- exigir `ORELLE_LOCAL_BACKUP_ENABLED=true`, chave dedicada e destino privado; `npm run dev` nunca pode ativá-lo.
+- impedir overlap entre ticks e aguardar o job em curso durante shutdown/cleanup.
 
-- Criar um script Node.js para gerar backups locais controlados da base de dados.
-- Bloquear backups fora de `NODE_ENV=test` e fora da base isolada entregue pelo `BK-MF8-03`.
-- Guardar os artefactos em `storage/private/backups`, fora de pastas públicas.
-- Redigir campos sensíveis no backup pedagógico: passwords, tokens, cookies, chaves, storage interno, fotografias, relatórios e dados biométricos crus.
-- Criar um teste Vitest para provar destino seguro, ausência de segredos no output e negativos mínimos `P1`.
-- Documentar como simular a execução diária sem contratar infraestrutura externa.
+### Pre-requisitos
 
-#### Scope-out
+- concluir `BK-MF8-03` e ter uma base MongoDB local isolada;
+- conhecer `async/await`, módulos ES, `node:crypto` e operações básicas MongoDB;
+- executar os comandos dentro de `apps/api`;
+- usar apenas URI loopback sem credenciais;
+- criar uma chave exclusiva para backup, nunca reutilizar `SESSION_SECRET`;
+- garantir que `storage/private/backups/` está ignorada pelo Git.
 
-- Não criar infraestrutura cloud, S3, cron real de servidor, webhooks ou serviços pagos.
-- Não executar restore destrutivo sobre ambiente real.
-- Não publicar ficheiros de backup no Git.
-- Não alterar modelos, controllers, routes, permissões ou fluxo de negócio da aplicação.
-- Não criar frontend, porque este BK é operacional/backend.
+### Conceitos essenciais
 
-#### Estado antes e depois
+Um backup só é recuperável quando o restore foi realmente testado. Um ficheiro que lista contagens, omite campos ou redige valores pessoais não recria o estado original e não pode ser tratado como backup.
 
-- Antes: o `BK-MF8-03` prepara ambiente de teste isolado, mas a equipa ainda não tem um procedimento de backup verificável.
-- Depois: existe um script de backup local controlado, um comando npm, um destino privado ignorado pelo Git, um teste de contrato e evidence objectiva para `RNF21`.
+Extended JSON preserva tipos BSON que JSON normal perde, como `ObjectId`, `Date`, `Decimal128` e binários. Cada coleção deve guardar os documentos e a definição reproduzível dos seus índices.
 
-#### Pre-requisitos
+AES-GCM oferece confidencialidade e autenticação. A AAD liga o ficheiro ao par `snapshot:coleção`; trocar um payload entre snapshots ou coleções deve falhar. O manifest e o respetivo sidecar SHA-256 permitem detetar alterações antes do restore.
 
-- Ter concluído o `BK-MF8-03`, incluindo `assertTestEnvironmentIsIsolated` em `apps/api/src/config/env.js`.
-- Ter `apps/api/package.json` com Vitest no script `test`.
-- Ter MongoDB local disponível para validação completa, ou usar `--dry-run` para validar o contrato sem abrir ligação.
-- Saber executar comandos a partir da raiz do repositório.
-- Saber distinguir dados reais, dados de teste e artefactos que nunca devem entrar no Git.
+O restore nunca deve escrever diretamente na base académica principal. O alvo técnico é uma base efémera `_restore`, que é comparada e removida no final da verificação.
 
-#### Glossário
+### Erros comuns
 
-- Backup: cópia técnica que permite recuperar ou, nesta fase, provar o procedimento de recuperação de dados.
-- Manifesto de backup: ficheiro JSON com metadados seguros da execução, como `backupId`, data, modo e colecções processadas.
-- Artefacto privado: ficheiro gerado localmente que não pode ser versionado nem servido pelo frontend.
-- Dry-run: execução de simulação que valida configuração e destino sem ler documentos da base de dados.
-- Redacção de campos sensíveis: substituição controlada de valores privados por `[redigido]`.
-- Retenção: período durante o qual uma cópia é mantida antes de ser apagada por política operacional.
+- usar `JSON.stringify` simples e perder tipos BSON;
+- guardar a chave no `.env` geral, no Git ou na evidence;
+- aceitar uma URI remota, `mongodb+srv://` ou credenciais embebidas;
+- restaurar sobre a base principal;
+- verificar apenas se o ficheiro existe;
+- chamar “automático” a um helper de scheduler que nunca foi ativado;
+- voltar a publicar `npm run backup:daily` para o export redigido legado.
 
-#### Conceitos teóricos essenciais
+### Check de compreensao
 
-Um backup não é só "copiar ficheiros". Para ser útil, precisa de três sinais: destino seguro, execução repetível e evidence de que não expõe dados sensíveis. Se a cópia for guardada em `public/`, `apps/web/` ou `dist/`, pode ficar acessível ao utilizador final. Se for gerada com a base errada, pode recolher dados reais durante testes. Se for versionada, passa a existir risco de exposição permanente no Git.
+1. Porque é que um export redigido não é recuperável?
+2. Que problema resolve a AAD além da cifra?
+3. Porque é obrigatório preservar e comparar índices?
+4. Porque é que o nome da base de restore termina em `_restore`?
+5. Que evidência falta quando só passaram testes unitários com mocks?
 
-O `BK-MF8-03` criou a fronteira de ambiente: `NODE_ENV=test`, `MONGODB_URI` com base `orelle_test` ou equivalente e bloqueio de credenciais reais. Este BK consome essa fronteira. A regra é simples: a rotina de backup da PAP só pode ser validada contra dados de teste. Assim, o aluno prova o procedimento sem tocar nos dados de produção nem em dados pessoais reais.
+## Bloco operacional
 
-Como a Orélle trata fotografias, relatórios cosméticos, pedidos de privacidade, encomendas e recomendações, o backup pedagógico não deve despejar tudo para um ficheiro legível sem controlo. O script abaixo redige campos com nomes sensíveis, escreve os ficheiros numa pasta privada e devolve no terminal apenas um resumo minimizado. O manifesto serve para defesa técnica; não substitui uma política profissional de disaster recovery, mas fecha o requisito PAP com uma implementação executável e segura.
+### Entrada
 
-Em testes, a prioridade `P1` exige `unit/integration` e pelo menos dois negativos. Neste BK os negativos principais são: recusar backup sem `MONGODB_URI`, recusar destino público e recusar output que exponha URI, password, token, cookie, secret ou caminho interno.
+- base MongoDB local explicitamente indicada por `ORELLE_LOCAL_MONGODB_URI`;
+- chave AES de 32 bytes em `ORELLE_BACKUP_KEY`;
+- destino opcional `ORELLE_BACKUP_ROOT`, sempre dentro de `storage/private`;
+- opt-in do scheduler exclusivamente por `ORELLE_LOCAL_BACKUP_ENABLED=true` e `npm run dev:local`;
+- snapshot opcional `ORELLE_BACKUP_SNAPSHOT_ID`;
+- base manual de restore opcional `ORELLE_RESTORE_DATABASE`, terminada em `_restore`.
 
-#### Arquitetura do BK
+### Passos
 
-- `bk_id`: `BK-MF8-04`
-- `flow_id`: `FLOW-MF8-BACKUPS`
-- `requisitos`: `RNF21`
-- `dependências`: `BK-MF8-03`
-- `tema técnico`: `fiabilidade de dados`
-- `destino dos alunos`: `apps/api`
-- `decisão CANONICO`: `RNF21` pede backups automáticos diários da base de dados.
-- `decisão CANONICO`: `BK-MF8-04` depende de `BK-MF8-03`, porque backups de validação não podem tocar em produção.
-- `decisão DERIVADO`: o backup é local e controlado em `storage/private/backups`, sem infraestrutura externa, para manter o BK executável no contexto PAP.
-- `decisão DERIVADO`: o comando `backup:daily` simula a rotina diária; a activação por cron real fica fora deste BK.
+#### Passo 1 - Fixar o contrato e separar o legado
 
-#### Ficheiros a criar/editar/rever
+Confirma que o alvo público continua em `apps/api`. A implementação deve usar estes módulos:
 
-- EDITAR: `.gitignore`
-- EDITAR: `apps/api/package.json`
-- CRIAR: `apps/api/scripts/backup-daily.mjs`
-- CRIAR: `apps/api/tests/mf8.backup.contract.test.js`
-- REVER: `apps/api/src/config/env.js`
-- REVER: `apps/api/src/config/db.js`
+| Ficheiro | Responsabilidade |
+| --- | --- |
+| `apps/api/scripts/backup-local.core.mjs` | EJSON, cifra, checksums, manifest, índices, restore, verify e retenção |
+| `apps/api/scripts/backup-create.mjs` | criar snapshot e aplicar retenção |
+| `apps/api/scripts/backup-restore.mjs` | restore manual restrito a `_restore` |
+| `apps/api/scripts/backup-verify.mjs` | restore efémero, comparação e cleanup |
+| `apps/api/scripts/backup-prune.mjs` | manter sete snapshots |
+| `apps/api/scripts/backup-scheduler.mjs` | intervalo diário apenas com opt-in `dev:local` |
+| `apps/api/scripts/run-local-dev.mjs` | resolve flag/chave/root antes de limpar o ambiente, liga o job recuperável apenas a `dev:local` e faz teardown ordenado |
+| `apps/api/tests/backup-local.core.test.js` | contrato unitário sem rede |
 
-#### Tutorial técnico linear
+O antigo `apps/api/scripts/backup-daily.mjs`, quando gera JSON redigido, fica fora da prova recuperável. Pode permanecer como artefacto histórico, mas não deve ter alias npm operacional nem ser usado para fechar `RNF21`.
 
-### Passo 1 - Confirmar contrato, dependência e limites do backup
+#### Passo 2 - Proteger destino, comandos e segredos
 
-1. Objetivo funcional do passo no contexto da app.
-
-Confirmar que o BK implementa apenas `RNF21`, consome o isolamento do `BK-MF8-03` e não cria infraestrutura externa.
-
-2. Ficheiros envolvidos:
-    - REVER: `docs/RNF.md`
-    - REVER: `docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md`
-    - REVER: `docs/planificacao/backlogs/ANEXO-RNF-PARA-BKS.md`
-    - REVER: `docs/planificacao/sprints/PLANO-SPRINTS.md`
-    - LOCALIZAÇÃO: linhas de `RNF21`, linha canónica de `BK-MF8-04` e matriz mínima de testes por prioridade.
-
-3. Instruções do que fazer.
-
-Confirma estes factos antes de programar:
-
-- `RNF21` é "Base de dados com backups automáticos diários".
-- `BK-MF8-04` é `P1`, sprint `S11-S12`, depende de `BK-MF8-03` e entrega handoff para `BK-MF8-05`.
-- Para `P1`, precisas de evidence `unit/integration` e pelo menos `2` cenários negativos.
-- O backup deste BK é local e pedagógico; não contrata serviços externos nem executa restore real.
-
-4. Código completo, correto e integrado com a app final.
-
-Sem código neste passo.
-
-5. Explicação do código.
-
-Sem código neste passo. A decisão técnica importante é evitar começar pelo script sem confirmar primeiro a base canónica e os limites de segurança. Backups podem expor muitos dados de uma só vez; por isso, este BK só avança depois de confirmar ambiente de teste, destino privado e negativos.
-
-6. Validação do passo.
-
-Executa:
-
-```bash
-rg -n "RNF21|BK-MF8-04|Matriz minima de testes" docs/RNF.md docs/planificacao/backlogs/MATRIZ-CANONICA-BK.md docs/planificacao/backlogs/ANEXO-RNF-PARA-BKS.md docs/planificacao/sprints/PLANO-SPRINTS.md
-```
-
-7. Cenário negativo/erro esperado.
-
-Se `RNF21` ou `BK-MF8-04` não aparecerem nos documentos canónicos, pára a implementação e regista o bloqueio. Não cries uma política de backup inventada.
-
-### Passo 2 - Proteger o destino dos backups no Git
-
-1. Objetivo funcional do passo no contexto da app.
-
-Garantir que os ficheiros gerados pelo backup ficam fora do Git e fora de pastas públicas.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `.gitignore`
-    - LOCALIZAÇÃO: fim do ficheiro.
-
-3. Instruções do que fazer.
-
-No fim de `.gitignore`, acrescenta as regras abaixo. Elas ignoram o destino principal do BK e também uma pasta temporária usada pelo teste.
-
-4. Código completo, correto e integrado com a app final.
+Acrescenta ao `.gitignore`:
 
 ```gitignore
-# Backups locais da API Orélle
+# Snapshots locais cifrados da API Orélle
 storage/private/backups/
 storage/private/backups-test/
-apps/api/storage/private/backups/
-*.backup.json
-*.backup.jsonl
+*.ejson.enc
 ```
 
-5. Explicação do código.
-
-Estas regras protegem os artefactos de backup de dois erros comuns: commit acidental e exposição pública. A pasta `storage/private/backups/` é o destino normal do script. A pasta `storage/private/backups-test/` é usada pelo teste Vitest para validar a escrita sem sujar o destino real. O padrão `apps/api/storage/private/backups/` protege equipas que executem o script a partir da pasta da API e criem o destino localmente por engano.
-
-6. Validação do passo.
-
-Executa:
-
-```bash
-git check-ignore storage/private/backups/teste.backup.json
-git check-ignore storage/private/backups-test/teste.backup.json
-```
-
-Ambos os comandos devem devolver o caminho ignorado.
-
-7. Cenário negativo/erro esperado.
-
-Se `git check-ignore` não devolver nada, o backup ainda pode ser versionado. Corrige `.gitignore` antes de criares o script.
-
-### Passo 3 - Adicionar o comando npm de backup
-
-1. Objetivo funcional do passo no contexto da app.
-
-Criar um comando claro para executar o script de backup sem memorizar o caminho do ficheiro.
-
-2. Ficheiros envolvidos:
-    - EDITAR: `apps/api/package.json`
-    - LOCALIZAÇÃO: objecto `scripts`.
-
-3. Instruções do que fazer.
-
-Adiciona `backup:daily` ao objecto `scripts`, mantendo os comandos existentes.
-
-4. Código completo, correto e integrado com a app final.
+O `package.json` publica exclusivamente os quatro comandos recuperáveis:
 
 ```json
 {
-    "scripts": {
-        "dev": "node --watch src/server.js",
-        "start": "node src/server.js",
-        "test": "vitest run --no-cache",
-        "backup:daily": "node scripts/backup-daily.mjs"
-    }
+  "scripts": {
+    "backup:create": "node scripts/backup-create.mjs",
+    "backup:restore": "node scripts/backup-restore.mjs",
+    "backup:verify": "node scripts/backup-verify.mjs",
+    "backup:prune": "node scripts/backup-prune.mjs"
+  }
 }
 ```
 
-5. Explicação do código.
-
-O comando `backup:daily` aponta para `apps/api/scripts/backup-daily.mjs`. Ele não altera a forma como a API arranca nem a forma como os testes correm. A palavra `daily` torna explícita a intenção operacional do `RNF21`: este script é o ponto que, num ambiente profissional, seria chamado por uma tarefa agendada.
-
-6. Validação do passo.
-
-Executa:
+Não coloques a chave em `.env.example`. Define-a apenas no terminal da sessão:
 
 ```bash
-npm --prefix apps/api run
+export ORELLE_LOCAL_MONGODB_URI='<mongodb://127.0.0.1:PORTA/orelle?replicaSet=REPLICA_SET_EFEMERO>'
+export ORELLE_BACKUP_KEY='<32-bytes-em-base64-ou-64-caracteres-hex>'
 ```
 
-Confirma que `backup:daily` aparece na lista de scripts.
+#### Passo 3 - Implementar as fronteiras de segurança do core
 
-7. Cenário negativo/erro esperado.
-
-Se correres `npm --prefix apps/api run backup:daily` antes de criares `apps/api/scripts/backup-daily.mjs`, o Node deve falhar com ficheiro inexistente. Esta falha é esperada neste momento.
-
-### Passo 4 - Criar o script de backup seguro
-
-1. Objetivo funcional do passo no contexto da app.
-
-Criar o script que valida ambiente, valida destino, redige campos sensíveis e gera um manifesto de backup.
-
-2. Ficheiros envolvidos:
-    - CRIAR: `apps/api/scripts/backup-daily.mjs`
-    - REVER: `apps/api/src/config/env.js`
-    - REVER: `apps/api/src/config/db.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-
-3. Instruções do que fazer.
-
-Cria o ficheiro abaixo. O script usa `assertTestEnvironmentIsIsolated` do `BK-MF8-03`, reutiliza a ligação MongoDB existente e permite `--dry-run` para validar o contrato sem abrir ligação à base.
-
-4. Código completo, correto e integrado com a app final.
+O core deve recusar chave inválida, destino público e URI não local antes de ligar à base:
 
 ```js
-// apps/api/scripts/backup-daily.mjs
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
-import process from "node:process";
-import { fileURLToPath } from "node:url";
+// apps/api/scripts/backup-local.core.mjs
+import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 
-import mongoose from "mongoose";
+const ALGORITHM = "aes-256-gcm";
+const KEY_BYTES = 32;
+const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
 
-import {
-    assertTestEnvironmentIsIsolated,
-    env,
-    getMongoDatabaseName,
-} from "../src/config/env.js";
-import { connectDB, disconnectDB } from "../src/config/db.js";
-
-const SCRIPT_FILE = fileURLToPath(import.meta.url);
-const API_ROOT = path.resolve(path.dirname(SCRIPT_FILE), "..");
-const REPO_ROOT = path.resolve(API_ROOT, "..", "..");
-const PRIVATE_STORAGE_ROOT = path.join(REPO_ROOT, "storage", "private");
-
-export const DEFAULT_BACKUP_ROOT = path.join(PRIVATE_STORAGE_ROOT, "backups");
-
-const SENSITIVE_KEY_PATTERNS = [
-    /password/i,
-    /token/i,
-    /cookie/i,
-    /secret/i,
-    /api[_-]?key/i,
-    /^storageKey$/i,
-    /filePath/i,
-    /path$/i,
-    /photo/i,
-    /image/i,
-    /report/i,
-    /biometric/i,
-];
-
-const PUBLIC_DESTINATION_PATTERNS = [
-    `${path.sep}public${path.sep}`,
-    `${path.sep}dist${path.sep}`,
-    `${path.sep}build${path.sep}`,
-    `${path.sep}node_modules${path.sep}`,
-    `${path.sep}apps${path.sep}web${path.sep}`,
-];
-
-/**
- * Resolve e valida a pasta onde os backups podem ser escritos.
- *
- * @function resolveBackupRoot
- * @param {string|undefined} rawRoot - Pasta recebida por BACKUP_ROOT ou por teste.
- * @returns {string} Caminho absoluto dentro de storage/private.
- * @throws {Error} Quando o destino é vazio, público ou fora da área privada.
- */
-export function resolveBackupRoot(rawRoot = process.env.BACKUP_ROOT) {
-    const backupRoot = rawRoot
-        ? path.resolve(REPO_ROOT, rawRoot)
-        : DEFAULT_BACKUP_ROOT;
-    const relativeToPrivate = path.relative(PRIVATE_STORAGE_ROOT, backupRoot);
-    const isOutsidePrivate =
-        relativeToPrivate.startsWith("..") || path.isAbsolute(relativeToPrivate);
-    const normalizedRoot = `${path.normalize(backupRoot)}${path.sep}`;
-
-    if (!String(rawRoot ?? DEFAULT_BACKUP_ROOT).trim()) {
-        throw new Error("BACKUP_ROOT não pode estar vazio");
-    }
-
-    if (isOutsidePrivate) {
-        throw new Error("BACKUP_ROOT deve ficar dentro de storage/private");
-    }
-
-    if (PUBLIC_DESTINATION_PATTERNS.some((pattern) => normalizedRoot.includes(pattern))) {
-        throw new Error("BACKUP_ROOT não pode apontar para pasta pública ou de build");
-    }
-
-    return backupRoot;
+export function sha256(value) {
+    return createHash("sha256").update(value).digest("hex");
 }
 
-/**
- * Indica se uma chave de documento deve ser redigida no backup pedagógico.
- *
- * @function isSensitiveKey
- * @param {string} key - Nome do campo no documento MongoDB.
- * @returns {boolean} Verdadeiro quando o campo pode conter dado sensível.
- */
-export function isSensitiveKey(key) {
-    return SENSITIVE_KEY_PATTERNS.some((pattern) => pattern.test(key));
-}
+export function parseBackupEncryptionKey(rawKey) {
+    const value = String(rawKey ?? "").trim();
+    const key = /^[a-f0-9]{64}$/i.test(value)
+        ? Buffer.from(value, "hex")
+        : Buffer.from(value, "base64");
 
-/**
- * Redige campos sensíveis em documentos antes de escrever o backup.
- *
- * @function redactSensitiveFields
- * @param {unknown} value - Valor a preparar para o backup.
- * @returns {unknown} Valor seguro para serialização.
- */
-export function redactSensitiveFields(value) {
-    if (Array.isArray(value)) {
-        return value.map((item) => redactSensitiveFields(item));
+    if (key.length !== KEY_BYTES) {
+        throw new Error("ORELLE_BACKUP_KEY deve conter exatamente 32 bytes");
     }
 
-    if (value && typeof value === "object") {
-        const plainValue = JSON.parse(JSON.stringify(value));
+    return key;
+}
 
-        return Object.fromEntries(
-            Object.entries(plainValue).map(([key, item]) => {
-                if (isSensitiveKey(key)) {
-                    // Redigimos o valor, não a chave, para a equipa perceber que o campo existia sem expor o seu conteúdo.
-                    return [key, "[redigido]"];
-                }
-
-                return [key, redactSensitiveFields(item)];
-            }),
-        );
+export function assertLocalMongoUri(rawUri) {
+    const uri = String(rawUri ?? "").trim();
+    if (!uri.startsWith("mongodb://") || uri.includes("@")) {
+        throw new Error("O backup exige URI MongoDB local sem credenciais");
     }
 
-    return value;
-}
-
-/**
- * Cria um identificador estável e legível para a execução de backup.
- *
- * @function createBackupId
- * @param {Date} now - Data usada na evidence.
- * @returns {string} Identificador sem caracteres problemáticos para ficheiros.
- */
-export function createBackupId(now = new Date()) {
-    return `bk-mf8-04-${now.toISOString().replace(/[:.]/g, "-")}`;
-}
-
-/**
- * Constrói o nome do ficheiro de uma colecção.
- *
- * @function createCollectionBackupFileName
- * @param {string} collectionName - Nome da colecção MongoDB.
- * @param {Date} now - Data usada na evidence.
- * @returns {string} Nome de ficheiro seguro.
- */
-export function createCollectionBackupFileName(collectionName, now = new Date()) {
-    const safeCollectionName = collectionName.replace(/[^a-z0-9_-]/gi, "-").toLowerCase();
-
-    return `${createBackupId(now)}-${safeCollectionName}.backup.json`;
-}
-
-/**
- * Valida ambiente e destino antes de qualquer leitura da base de dados.
- *
- * @function validateBackupConfiguration
- * @param {{ nodeEnv?: string, mongoUri?: string, source?: NodeJS.ProcessEnv|Record<string, string|undefined>, backupRoot?: string }} options - Configuração a validar.
- * @returns {{ backupRoot: string, mongoDatabaseName: string }} Resumo seguro da configuração.
- * @throws {Error} Quando o ambiente ou destino podem tocar em dados reais.
- */
-export function validateBackupConfiguration(options = {}) {
-    const nodeEnv = options.nodeEnv ?? env.nodeEnv;
-    const mongoUri = options.mongoUri ?? env.mongoUri;
-    const backupRoot = resolveBackupRoot(options.backupRoot);
-
-    if (!mongoUri) {
-        throw new Error("MONGODB_URI de teste é obrigatório para executar backup");
+    const parsed = new URL(uri);
+    const databaseName = decodeURIComponent(parsed.pathname.replace(/^\//, ""));
+    if (!LOCAL_HOSTS.has(parsed.hostname) || !/^[a-zA-Z0-9_-]+$/.test(databaseName)) {
+        throw new Error("A URI deve usar loopback e indicar uma base explícita");
     }
 
-    const isolation = assertTestEnvironmentIsIsolated({
-        nodeEnv,
-        mongoUri,
-        source: options.source ?? process.env,
-    });
+    return { uri, databaseName };
+}
+
+export function encryptBackupBuffer(plaintext, rawKey, aad) {
+    const key = parseBackupEncryptionKey(rawKey);
+    const iv = randomBytes(12);
+    const cipher = createCipheriv(ALGORITHM, key, iv);
+    cipher.setAAD(Buffer.from(aad, "utf8"));
+    const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
 
     return {
-        backupRoot,
-        mongoDatabaseName: isolation.mongoDatabaseName,
+        format: "orelle-aes-gcm-envelope-v1",
+        algorithm: ALGORITHM,
+        aad,
+        iv: iv.toString("base64"),
+        authTag: cipher.getAuthTag().toString("base64"),
+        plaintextSha256: sha256(plaintext),
+        ciphertext: ciphertext.toString("base64"),
     };
 }
 
-/**
- * Garante que o resumo público não contém segredos nem caminhos internos.
- *
- * @function assertPublicOutputDoesNotExposeSecrets
- * @param {unknown} output - Resumo a escrever no terminal ou na evidence.
- * @returns {void}
- * @throws {Error} Quando o output contém dados sensíveis.
- */
-export function assertPublicOutputDoesNotExposeSecrets(output) {
-    const serializedOutput = JSON.stringify(output);
-    const forbiddenPatterns = [
-        /mongodb(\+srv)?:\/\//i,
-        /password/i,
-        /token/i,
-        /cookie/i,
-        /secret/i,
-        /storageKey/i,
-        /\/Users\//,
-        /storage\/private/i,
-    ];
-
-    if (forbiddenPatterns.some((pattern) => pattern.test(serializedOutput))) {
-        throw new Error("Resumo público do backup não pode expor segredos ou caminhos internos");
-    }
-}
-
-/**
- * Lê todos os documentos de uma colecção e escreve um ficheiro JSON redigido.
- *
- * @async
- * @function writeCollectionBackup
- * @param {{ collectionName: string, collection: import("mongodb").Collection, backupRoot: string, now: Date }} options - Dados da colecção.
- * @returns {Promise<{ name: string, count: number, fileName: string }>} Metadados seguros da colecção.
- */
-export async function writeCollectionBackup({ collectionName, collection, backupRoot, now }) {
-    const documents = await collection.find({}).toArray();
-    const safeDocuments = redactSensitiveFields(documents);
-    const fileName = createCollectionBackupFileName(collectionName, now);
-    const destination = path.join(backupRoot, fileName);
-
-    // O ficheiro fica no destino privado validado antes da leitura da base, reduzindo o risco de exposição acidental.
-    await writeFile(destination, `${JSON.stringify(safeDocuments, null, 2)}\n`, "utf8");
-
-    return {
-        name: collectionName,
-        count: documents.length,
-        fileName,
-    };
-}
-
-/**
- * Executa o backup ou a simulação segura do BK-MF8-04.
- *
- * @async
- * @function runBackup
- * @param {{ dryRun?: boolean, now?: Date, backupRoot?: string, nodeEnv?: string, mongoUri?: string, source?: NodeJS.ProcessEnv|Record<string, string|undefined> }} options - Opções de execução.
- * @returns {Promise<{ backupId: string, status: string, dryRun: boolean, databaseName: string, collections: Array<{ name: string, count: number, fileName: string }> }>} Resumo seguro para PR/defesa.
- */
-export async function runBackup(options = {}) {
-    const dryRun = options.dryRun ?? process.argv.includes("--dry-run");
-    const now = options.now ?? new Date();
-    const backupId = createBackupId(now);
-    const { backupRoot, mongoDatabaseName } = validateBackupConfiguration(options);
-    const collections = [];
-    let connected = false;
-
-    await mkdir(backupRoot, { recursive: true });
-
-    try {
-        if (!dryRun) {
-            await connectDB();
-            connected = true;
-
-            for (const [collectionName, collection] of Object.entries(mongoose.connection.collections)) {
-                collections.push(
-                    await writeCollectionBackup({
-                        collectionName,
-                        collection,
-                        backupRoot,
-                        now,
-                    }),
-                );
-            }
-        }
-    } finally {
-        if (connected) {
-            await disconnectDB();
-        }
+export function decryptBackupBuffer(envelope, rawKey, expectedAad) {
+    if (envelope?.aad !== expectedAad || envelope?.algorithm !== ALGORITHM) {
+        throw new Error("Envelope fora de contexto");
     }
 
-    const manifest = {
-        backupId,
-        bkId: "BK-MF8-04",
-        requirement: "RNF21",
-        generatedAt: now.toISOString(),
-        dryRun,
-        databaseName: getMongoDatabaseName(options.mongoUri ?? env.mongoUri),
-        collections,
-    };
-    const manifestFileName = `${backupId}-manifest.backup.json`;
-
-    await writeFile(
-        path.join(backupRoot, manifestFileName),
-        `${JSON.stringify(manifest, null, 2)}\n`,
-        "utf8",
+    const decipher = createDecipheriv(
+        ALGORITHM,
+        parseBackupEncryptionKey(rawKey),
+        Buffer.from(envelope.iv, "base64"),
     );
+    decipher.setAAD(Buffer.from(expectedAad, "utf8"));
+    decipher.setAuthTag(Buffer.from(envelope.authTag, "base64"));
+    const plaintext = Buffer.concat([
+        decipher.update(Buffer.from(envelope.ciphertext, "base64")),
+        decipher.final(),
+    ]);
 
-    const publicSummary = {
-        backupId,
-        status: "ok",
-        dryRun,
-        databaseName: mongoDatabaseName,
-        collections,
-    };
+    if (sha256(plaintext) !== envelope.plaintextSha256) {
+        throw new Error("Checksum original inválido");
+    }
 
-    assertPublicOutputDoesNotExposeSecrets(publicSummary);
-
-    return publicSummary;
-}
-
-if (process.argv[1] === SCRIPT_FILE) {
-    runBackup()
-        .then((summary) => {
-            console.log(JSON.stringify(summary, null, 2));
-        })
-        .catch((error) => {
-            console.error(`Backup BK-MF8-04 falhou: ${error.message}`);
-            process.exitCode = 1;
-        });
+    return plaintext;
 }
 ```
 
-5. Explicação do código.
+Além destas funções, `resolveBackupRoot` deve aceitar apenas uma subpasta de `storage/private`; nunca `public`, `dist`, `build` ou `node_modules`.
 
-O script começa por calcular a raiz da API e do repositório a partir de `import.meta.url`, por isso funciona mesmo quando o comando é executado com `npm --prefix apps/api`. `resolveBackupRoot` só aceita destinos dentro de `storage/private`, impedindo pastas servidas pelo frontend, `public`, `dist`, `build` ou `node_modules`. `validateBackupConfiguration` consome o guard do `BK-MF8-03`: se `NODE_ENV` não for `test`, se a URI não apontar para uma base de teste ou se houver credenciais reais, o backup falha antes de ler documentos.
+#### Passo 4 - Criar snapshots integrais
 
-`redactSensitiveFields` percorre objectos e arrays para substituir valores privados por `[redigido]`. Isto protege campos como `passwordHash`, tokens, cookies, storage interno, fotografias e relatórios. `writeCollectionBackup` grava um ficheiro JSON por colecção, mas sempre no destino validado. `runBackup` junta tudo: cria a pasta, executa `--dry-run` sem base de dados ou, sem `--dry-run`, liga ao MongoDB, escreve os ficheiros e gera um manifesto. O output final é minimizado e validado por `assertPublicOutputDoesNotExposeSecrets`, para não mostrar URI MongoDB, paths internos ou segredos no terminal.
+`createBackupSnapshot` deve executar, pela mesma ordem:
 
-6. Validação do passo.
+1. criar `<snapshotId>.staging-<nonce>` dentro do backup root privado com permissões `0700`;
+2. listar coleções não `system.*`, ordenar documentos por `_id` e normalizar índices;
+3. serializar `{ format, collectionName, documents, indexes }` com `mongoose.mongo.BSON.EJSON` em modo não relaxado;
+4. cifrar com AAD `${snapshotId}:${collectionName}` e escrever cada payload apenas na pasta staging;
+5. guardar no manifest contagens e SHA-256 cifrado/original;
+6. escrever `manifest.json` e `manifest.sha256` na staging;
+7. reler e autenticar todos os payloads, manifest e checksums;
+8. publicar o snapshot completo com um único `rename(stagingDir, finalSnapshotDir)` atómico;
+9. num `catch/finally`, remover staging incompleta sem tocar em snapshots já publicados;
+10. aplicar retenção apenas a diretórios finais completos, mantendo os sete IDs mais recentes.
 
-Depois de criares o teste do próximo passo, executa o modo de simulação:
+Nunca tornes visível um diretório final antes de todas as coleções, índices, manifest e sidecar estarem válidos. Restore/verify ignoram e recusam nomes staging; prune só pode limpar staging antiga com limite temporal explícito e dentro do root validado.
 
-```bash
-NODE_ENV=test MONGODB_URI=mongodb://127.0.0.1:27017/orelle_test npm --prefix apps/api run backup:daily -- --dry-run
-```
-
-O comando deve devolver JSON com `status: "ok"`, `dryRun: true`, `databaseName: "orelle_test"` e sem paths internos.
-
-7. Cenário negativo/erro esperado.
-
-Com `NODE_ENV=development`, o comando deve falhar com mensagem sobre `NODE_ENV=test`. Com `BACKUP_ROOT=apps/web/public/backups`, deve falhar com mensagem sobre destino privado.
-
-### Passo 5 - Criar o contrato Vitest do backup
-
-1. Objetivo funcional do passo no contexto da app.
-
-Provar automaticamente que o backup cumpre `RNF21`, usa destino privado e não expõe segredos.
-
-2. Ficheiros envolvidos:
-    - CRIAR: `apps/api/tests/mf8.backup.contract.test.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-
-3. Instruções do que fazer.
-
-Cria o teste abaixo. Ele cobre um caminho seguro e quatro negativos: destino público, URI em falta, campo sensível e output inseguro.
-
-4. Código completo, correto e integrado com a app final.
+O CLI deve imprimir apenas contagens e o `snapshotId`:
 
 ```js
-// apps/api/tests/mf8.backup.contract.test.js
-import { rm, readFile } from "node:fs/promises";
-import path from "node:path";
+// apps/api/scripts/backup-create.mjs
+const { client, db } = await connectLocalMongo(
+    process.env.ORELLE_LOCAL_MONGODB_URI,
+);
 
-import { describe, expect, it } from "vitest";
-
-import {
-    assertPublicOutputDoesNotExposeSecrets,
-    createBackupId,
-    redactSensitiveFields,
-    resolveBackupRoot,
-    runBackup,
-    validateBackupConfiguration,
-} from "../scripts/backup-daily.mjs";
-
-const SAFE_TEST_ENV = {
-    STRIPE_SECRET_KEY: "sk_test_backup_contract",
-    AZURE_FACE_API_KEY: "fake-azure-key",
-};
-
-/**
- * Contrato MF8 para provar que a rotina de backup do RNF21 é segura, repetível
- * e validável sem tocar em dados reais.
- */
-describe("BK-MF8-04 backup diário", () => {
-    it("gera manifesto dry-run em destino privado", async () => {
-        const backupRoot = resolveBackupRoot("storage/private/backups-test");
-        const now = new Date("2026-07-01T10:00:00.000Z");
-
-        await rm(backupRoot, { recursive: true, force: true });
-
-        const summary = await runBackup({
-            dryRun: true,
-            now,
-            backupRoot: "storage/private/backups-test",
-            nodeEnv: "test",
-            mongoUri: "mongodb://127.0.0.1:27017/orelle_test",
-            source: SAFE_TEST_ENV,
-        });
-        const manifestPath = path.join(backupRoot, `${createBackupId(now)}-manifest.backup.json`);
-        const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
-
-        expect(summary).toMatchObject({
-            status: "ok",
-            dryRun: true,
-            databaseName: "orelle_test",
-            collections: [],
-        });
-        expect(manifest).toMatchObject({
-            bkId: "BK-MF8-04",
-            requirement: "RNF21",
-            dryRun: true,
-            databaseName: "orelle_test",
-        });
-
-        await rm(backupRoot, { recursive: true, force: true });
+try {
+    const manifest = await createBackupSnapshot({
+        db,
+        backupRoot: process.env.ORELLE_BACKUP_ROOT,
+        encryptionKey: process.env.ORELLE_BACKUP_KEY,
+    });
+    const retention = await pruneBackupSnapshots({
+        backupRoot: process.env.ORELLE_BACKUP_ROOT,
+        keep: 7,
     });
 
-    it("recusa destino fora de storage/private", () => {
-        expect(() => resolveBackupRoot("apps/web/public/backups")).toThrow("storage/private");
-    });
+    console.log(JSON.stringify({
+        status: "created",
+        snapshotId: manifest.snapshotId,
+        collectionCount: manifest.collections.length,
+        retainedSnapshots: retention.kept.length,
+        prunedSnapshots: retention.pruned.length,
+    }));
+} finally {
+    await client.close();
+}
+```
 
-    it("recusa backup sem MONGODB_URI de teste", () => {
-        expect(() =>
-            validateBackupConfiguration({
-                nodeEnv: "test",
-                mongoUri: "",
-                backupRoot: "storage/private/backups-test",
-                source: SAFE_TEST_ENV,
-            }),
-        ).toThrow("MONGODB_URI");
-    });
+Nunca imprimas URI, chave, conteúdo dos documentos ou caminhos absolutos privados.
 
-    it("redige campos sensíveis antes de escrever ficheiros", () => {
-        const redacted = redactSensitiveFields({
-            email: "cliente@orelle.test",
-            passwordHash: "$2a$12$hash",
-            profile: {
-                skinType: "oleosa",
-                storageKey: "private/faces/user-1/front.png",
-            },
-            recommendations: [{ productName: "Gel suave", reason: "oleosidade" }],
-        });
+#### Passo 5 - Restaurar, verificar, limpar e agendar
 
-        expect(redacted).toEqual({
-            email: "cliente@orelle.test",
-            passwordHash: "[redigido]",
-            profile: {
-                skinType: "oleosa",
-                storageKey: "[redigido]",
-            },
-            recommendations: [{ productName: "Gel suave", reason: "oleosidade" }],
-        });
-    });
+`restoreBackupSnapshot` deve recusar qualquer base cujo nome não termine em `_restore`, autenticar o manifest e todos os envelopes antes de apagar o destino, recriar coleções/documentos e voltar a criar os índices exceto `_id_`.
 
-    it("bloqueia resumo público com segredos ou paths internos", () => {
-        expect(() =>
-            assertPublicOutputDoesNotExposeSecrets({
-                mongoUri: "mongodb://127.0.0.1:27017/orelle_test",
-            }),
-        ).toThrow("Resumo público");
+`verifyBackupSnapshot` deve restaurar numa base efémera, comparar hashes EJSON de documentos e índices e executar `dropDatabase()` num `finally`.
 
-        expect(() =>
-            assertPublicOutputDoesNotExposeSecrets({
-                filePath: "/Users/aluno/orelle/storage/private/backups/a.backup.json",
-            }),
-        ).toThrow("Resumo público");
-    });
+O scheduler permanece isolado do arranque normal da API. `run-local-dev.mjs` só lê chave/root quando o modo é `dev:local` e a flag é exatamente `true`; no modo `dev` devolve configuração desativada sem tocar na chave:
+
+```js
+// apps/api/scripts/backup-scheduler.mjs
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+export function startLocalBackupScheduler({
+    runtimeMode,
+    enabled,
+    runJob,
+    setIntervalFn = setInterval,
+    clearIntervalFn = clearInterval,
+    onError = () => undefined,
+}) {
+    if (runtimeMode !== "dev:local" || enabled !== true) {
+        return { started: false, timer: null };
+    }
+    if (typeof runJob !== "function") {
+        throw new Error("Scheduler local exige um job de backup");
+    }
+
+    let activeJob = null;
+    let stopping = false;
+    const runScheduledJob = () => {
+        if (stopping) return Promise.resolve();
+        if (activeJob) return activeJob;
+
+        activeJob = Promise.resolve()
+            .then(runJob)
+            .catch((error) => onError(error))
+            .finally(() => {
+                activeJob = null;
+            });
+        return activeJob;
+    };
+    const timer = setIntervalFn(runScheduledJob, ONE_DAY_MS);
+    timer?.unref?.();
+    return {
+        started: true,
+        timer,
+        async stop() {
+            stopping = true;
+            clearIntervalFn(timer);
+            await activeJob;
+        },
+    };
+}
+```
+
+O wiring em `run-local-dev.mjs` exige simultaneamente `runtimeMode="dev:local"`, `ORELLE_LOCAL_BACKUP_ENABLED=true` e `ORELLE_BACKUP_KEY` válida; `ORELLE_BACKUP_ROOT` é opcional e privado. O job executa `createBackupSnapshot` seguido de `pruneBackupSnapshots({ keep: 7 })`. `npm run dev` publica `--runtime-mode=dev` e, por contrato, nunca inicia nem lê a chave do scheduler.
+
+#### Passo 6 - Criar testes sem rede e negativos
+
+O teste focal deve cobrir pelo menos:
+
+```js
+// apps/api/tests/backup-local.core.test.js
+it("recusa URI remota, SRV e credenciais", () => {
+    expect(() => assertLocalMongoUri("mongodb+srv://cluster/orelle")).toThrow();
+    expect(() => assertLocalMongoUri("mongodb://user:pass@127.0.0.1/orelle")).toThrow();
+    expect(() => assertLocalMongoUri("mongodb://192.0.2.10/orelle")).toThrow();
+});
+
+it("autentica chave, AAD e ciphertext", () => {
+    const envelope = encryptBackupBuffer(
+        Buffer.from("EJSON"),
+        TEST_KEY,
+        "snapshot:users",
+    );
+    expect(decryptBackupBuffer(envelope, TEST_KEY, "snapshot:users"))
+        .toEqual(Buffer.from("EJSON"));
+    expect(() => decryptBackupBuffer(envelope, TEST_KEY, "snapshot:orders"))
+        .toThrow();
+});
+
+it("mantém exatamente sete snapshots", async () => {
+    const result = await pruneBackupSnapshots({ backupRoot: TEST_ROOT, keep: 7 });
+    expect(result.kept).toHaveLength(7);
+});
+
+it("não inicia scheduler sem opt-in dev:local", () => {
+    expect(startLocalBackupScheduler({
+        runtimeMode: "dev",
+        enabled: true,
+        runJob: vi.fn(),
+    }).started).toBe(false);
+});
+
+it("não sobrepõe jobs e stop aguarda o job ativo", async () => {
+    // Dispara dois ticks antes de resolver o primeiro job e confirma uma chamada.
+    // Depois chama stop(), resolve o job e confirma cleanup do timer.
 });
 ```
 
-5. Explicação do código.
+Acrescenta ainda round-trip de `ObjectId`/`Date` e índices, alteração do ficheiro cifrado, chave errada, manifest alterado, destino fora de `storage/private` e falha injetada depois de cada escrita. Cada falha deixa zero diretórios finais parciais e zero staging órfã.
 
-O primeiro teste executa `runBackup` em `dryRun`, com `NODE_ENV=test`, URI `orelle_test` e destino privado. Depois lê o manifesto escrito em `storage/private/backups-test` para provar que o ficheiro existe e que contém `BK-MF8-04` e `RNF21`. Os negativos fecham os riscos principais do BK: destino público, falta de URI de teste, campos sensíveis sem redacção e output com URI ou path interno. O teste não precisa de MongoDB real porque valida o contrato crítico de segurança e evidence; a execução sem `--dry-run` fica para a validação manual controlada da equipa.
+Executar cenarios negativos obrigatorios (minimo 2). Para este BK, executa pelo menos URI remota e restore sem sufixo `_restore`; recomenda-se também tamper, chave errada e scheduler sem opt-in.
 
-6. Validação do passo.
+#### Passo 7 - Executar o ciclo real e recolher evidence
 
-Executa:
-
-```bash
-npm --prefix apps/api test -- mf8.backup.contract.test.js
-```
-
-O resultado esperado é o ficheiro `mf8.backup.contract.test.js` passar com todos os testes.
-
-7. Cenário negativo/erro esperado.
-
-Se mudares `backupRoot` para `apps/web/public/backups`, o teste deve falhar porque esse destino pode ser servido pelo frontend.
-
-### Passo 6 - Executar simulação, teste e validação da planificação
-
-1. Objetivo funcional do passo no contexto da app.
-
-Transformar a implementação em evidence técnica verificável para PR e defesa.
-
-2. Ficheiros envolvidos:
-    - REVER: `apps/api/package.json`
-    - REVER: `apps/api/scripts/backup-daily.mjs`
-    - REVER: `apps/api/tests/mf8.backup.contract.test.js`
-    - REVER: `docs/planificacao/guias-bk/MF8/BK-MF8-04-base-de-dados-com-backups-automaticos-diarios.md`
-    - LOCALIZAÇÃO: comandos de validação e outputs.
-
-3. Instruções do que fazer.
-
-Executa os comandos abaixo a partir da raiz do repositório. Guarda os outputs principais na tua evidence.
-
-4. Código completo, correto e integrado com a app final.
+Primeiro executa a prova unitária:
 
 ```bash
-NODE_ENV=test MONGODB_URI=mongodb://127.0.0.1:27017/orelle_test npm --prefix apps/api run backup:daily -- --dry-run
-npm --prefix apps/api test -- mf8.backup.contract.test.js
-npm --prefix apps/api test
-bash scripts/validate-planificacao.sh
-git diff --check
+npm --prefix apps/api test -- tests/backup-local.core.test.js
 ```
 
-5. Explicação do código.
+Depois, num MongoDB local configurado como replica set e com dados exclusivamente académicos/de teste:
 
-O primeiro comando prova a execução controlada do script sem abrir ligação à base. O segundo comando valida o contrato `RNF21`. O terceiro confirma que o novo teste não quebrou a suite existente. O quarto garante que a planificação continua coerente com matriz, backlog, links e qualidade dos guias. O último evita whitespace inválido no diff.
+```bash
+cd apps/api
+node scripts/backup-create.mjs
+node scripts/backup-verify.mjs
+node scripts/backup-prune.mjs
+ORELLE_RESTORE_DATABASE=orelle_manual_restore node scripts/backup-restore.mjs
+```
 
-6. Validação do passo.
+Confirma:
 
-A validação mínima do BK está fechada quando:
+- `backup-create` criou manifest, sidecar e payloads `.ejson.enc`;
+- `backup-verify` devolveu `status: "verified"`;
+- todos os documentos e índices coincidiram;
+- a base efémera de verificação foi removida;
+- o restore manual só escreveu em `orelle_manual_restore`;
+- ficaram no máximo sete snapshots;
+- o terminal não mostrou URI, chave, documentos ou caminhos privados;
+- `git status` não lista artefactos de backup.
 
-- `backup:daily -- --dry-run` devolve `status: "ok"`.
-- `mf8.backup.contract.test.js` passa.
-- `npm --prefix apps/api test` passa ou, se falhar por ambiente, fica registado com erro exacto.
-- `bash scripts/validate-planificacao.sh` passa.
-- `git diff --check` passa.
+### Validacao
 
-7. Cenário negativo/erro esperado.
+- [ ] `node --check` passa nos seis módulos do pipeline.
+- [ ] `npm --prefix apps/api test -- tests/backup-local.core.test.js` passa.
+- [ ] O ciclo real `create -> restore _restore -> verify` passa num replica set local.
+- [ ] Documentos BSON e índices coincidem depois do restore.
+- [ ] Falha injetada durante create não publica snapshot parcial nem deixa staging órfã.
+- [ ] Tamper, chave/AAD erradas, URI remota e restore não isolado são recusados.
+- [ ] Retenção mantém exatamente sete snapshots.
+- [ ] Scheduler fica parado sem `runtimeMode="dev:local"`, `ORELLE_LOCAL_BACKUP_ENABLED=true` e chave válida; `npm run dev` nunca o ativa nem lê a chave.
+- [ ] Dois ticks sobrepostos executam um único job; `stop()` limpa o timer e aguarda o job ativo, incluindo no shutdown/erro de startup.
+- [ ] O manifest não publica `backup:daily` nem referencia `backup-daily.mjs`.
+- [ ] Negativos: minimo 2 cenarios com resultado controlado.
+- [ ] `bash scripts/validate-planificacao.sh` passa.
+- [ ] `git diff --check` passa.
 
-Se os testes HTTP falharem com `listen EPERM` dentro de uma sandbox, regista o bloqueio de ambiente e reexecuta fora da sandbox. Não marques o BK como validado só com a falha.
+### Handoff
 
-### Passo 7 - Preparar evidence e handoff para a MF8
+- Próximo BK recomendado: `BK-MF8-05`.
+- Entrega ao próximo BK apenas o estado objetivo: unitários, ciclo replica-set, negativos e riscos.
+- No projeto dos alunos, regista `PENDENTE` enquanto faltar o gate completo. Na referência, consulta o plano mestre para a evidence atual; não reutilizes a linha histórica de “primeira metade” nem contagens deste guia como prova corrente.
 
-1. Objetivo funcional do passo no contexto da app.
+## Criterios de aceite
 
-Fechar o BK com evidence clara, riscos restantes e ligação ao `BK-MF8-05`.
-
-2. Ficheiros envolvidos:
-    - REVER: `storage/private/backups-test/`
-    - REVER: `apps/api/tests/mf8.backup.contract.test.js`
-    - REVER: `docs/planificacao/guias-bk/MF8/BK-MF8-05-a-ia-deve-indicar-como-chegou-as-recomendacoes-explicabilidade.md`
-    - LOCALIZAÇÃO: secção de evidence do PR/defesa.
-
-3. Instruções do que fazer.
-
-Na evidence, regista:
-
-- comando `backup:daily -- --dry-run`;
-- `backupId` devolvido pelo script;
-- resultado do teste focal;
-- dois negativos executados;
-- confirmação de que `storage/private/backups-test/` é ignorado pelo Git;
-- nota de que o `BK-MF8-05` pode avançar sem depender tecnicamente do backup, mas a MF8 fica mais defensável com `RNF21` fechado.
-
-4. Código completo, correto e integrado com a app final.
-
-Sem código neste passo.
-
-5. Explicação do código.
-
-Sem código neste passo. Aqui o trabalho é transformar a implementação em prova. A defesa PAP precisa de mostrar que a equipa não criou apenas um ficheiro: criou um procedimento, validou negativos e evitou exposição de dados sensíveis.
-
-6. Validação do passo.
-
-Confirma que a evidence inclui comando, directoria, resultado observado, negativos e impacto. Confirma também que não há ficheiros de backup no `git status`.
-
-7. Cenário negativo/erro esperado.
-
-Se `git status --short --untracked-files=all` mostrar ficheiros em `storage/private/backups` ou `storage/private/backups-test`, `.gitignore` ainda não está a proteger os artefactos.
-
-#### Expected results
-
-- `apps/api/scripts/backup-daily.mjs` existe, valida ambiente de teste e escreve apenas em destino privado.
-- `apps/api/package.json` contém o script `backup:daily`.
-- `.gitignore` impede commits acidentais de backups locais.
-- `apps/api/tests/mf8.backup.contract.test.js` prova destino privado, URI obrigatória, redacção de campos sensíveis e output público minimizado.
-- Executar cenarios negativos obrigatorios (minimo 2) com resultado controlado.
-- O `BK-MF8-05` consegue continuar a cadeia MF8 sem herdar um requisito de fiabilidade em aberto.
-
-#### Critérios de aceite
-
-- Entrega funcional específica de `Base de dados com backups automáticos diários` validada contra `RNF21`.
-- `backup:daily -- --dry-run` devolve `status: "ok"` sem expor URI MongoDB, paths internos, passwords, tokens, cookies ou chaves.
+- Snapshot integral em Extended JSON preserva documentos e índices.
+- AES-256-GCM usa chave dedicada, IV aleatório, auth tag e AAD por snapshot/coleção.
+- Manifest, sidecar e payloads têm checksums verificados antes do restore.
+- Snapshot só fica visível depois de rename atómico da staging completa e validada.
+- Restore só aceita uma base local terminada em `_restore`.
+- Verify compara documentos e índices e limpa a base efémera.
+- Retenção mantém sete snapshots.
+- Scheduler só inicia por opt-in `dev:local` com flag exata, chave válida e destino privado; não sobrepõe jobs e o shutdown aguarda cleanup.
 - Cenarios negativos concluidos: minimo `2` com resultado controlado.
-- Evidencia de testes por camada conforme prioridade (`P1`).
+- Evidencia de testes por camada conforme prioridade (`P1`): unit/integration e negativos.
+- Nenhum segredo, documento ou caminho privado aparece na evidence.
 
 ### Matriz minima de testes por prioridade
 
-- Testes por prioridade respeitados: `P0` exige unit + integration + e2e + 3 negativos; `P1` exige unit/integration + 2 negativos; `P2` exige teste focal + 1 negativo.
-- Metadados (`owner`, `prioridade`, `dependencias`, `rf_rnf`, `sprint`, `core_or_reforco`, `proximo_bk`) sem drift.
-- Nenhum backup local aparece em `git status`.
-- Evidence pronta para revisão técnica e defesa PAP.
+- `P0`: `unit + integration + e2e` e mínimo 3 negativos.
+- `P1`: `unit/integration` e mínimo 2 negativos.
+- `P2`: teste focal e mínimo 1 negativo.
+- Para este `P1`, o teste unitário do formato e a integração real de restore são ambos obrigatórios.
 
-#### Validação final
+## Evidence para PR/defesa
 
-- [ ] `git check-ignore storage/private/backups/teste.backup.json` devolve o caminho ignorado.
-- [ ] `NODE_ENV=test MONGODB_URI=mongodb://127.0.0.1:27017/orelle_test npm --prefix apps/api run backup:daily -- --dry-run` passa.
-- [ ] `npm --prefix apps/api test -- mf8.backup.contract.test.js` passa.
-- [ ] Executar cenarios negativos obrigatorios (minimo 2) com resultado controlado.
-- [ ] Negativos: minimo 2 cenarios com resultado controlado.
-- [ ] `npm --prefix apps/api test` passa ou fica registado como bloqueio de ambiente com erro exacto.
-- [ ] `bash scripts/validate-planificacao.sh` passa.
-- [ ] `git diff --check` passa.
-- [ ] Handoff para `BK-MF8-05` documentado.
-- Marcadores de estrutura reconhecíveis no checklist da planificação: `## Bloco pedagogico`, `### Objetivo`, `### Pre-requisitos`, `### Erros comuns`, `### Check de compreensao`, `## Bloco operacional`, `### Entrada`, `### Passos`, `### Validacao`, `### Handoff`, `## Criterios de aceite`, `## Evidence para PR/defesa`.
+- `proof_unit`: resultado do teste `backup-local.core.test.js`.
+- `proof_create`: `snapshotId`, número de coleções e contagem de snapshots retidos, sem paths.
+- `proof_atomicity`: falhas injetadas deixam zero snapshot parcial/staging órfã e preservam snapshots anteriores.
+- `proof_restore`: nome sanitizado da base `_restore` e número de coleções restauradas.
+- `proof_verify`: `status="verified"` e igualdade de documentos/índices.
+- `proof_cleanup`: ausência da base efémera depois da verificação.
+- `proof_retention`: sete snapshots mantidos e número eliminado.
+- `proof_negativos`: URI remota, restore sem `_restore`, tamper e chave/AAD erradas recusados.
+- `proof_scheduler`: `npm run dev` nunca arranca/lê chave; `dev:local` sem flag também não; flag inválida falha; com opt-in exato há create+prune, anti-overlap e stop aguardado.
+- `proof_git`: nenhum `.ejson.enc`, manifest ou sidecar em `git status`.
+- `proof_runtime_current`: remissão para a evidence atual do plano mestre sobre atomicidade, ponto temporal consistente, permissões, failure injection, restore e seleção apenas de snapshots completos.
 
-#### Evidence para PR/defesa
+## Changelog
 
-- `pr`: referência de commit/PR e resumo técnico da alteração.
-- `proof_tecnico`: output de `backup:daily -- --dry-run` com `status: "ok"` e `databaseName: "orelle_test"`.
-- `proof_testes`: output de `npm --prefix apps/api test -- mf8.backup.contract.test.js`.
-- `proof_negativos`: destino público recusado; `MONGODB_URI` vazia recusada; output com URI/path interno bloqueado.
-- `proof_privacidade`: campos como `passwordHash` e `storageKey` aparecem redigidos como `[redigido]`.
-- `proof_git`: `git check-ignore` confirma que backups locais não são versionados.
-- `proof_handoff`: nota curta a explicar que `BK-MF8-05` avança para explicabilidade IA com a camada de fiabilidade `RNF21` fechada.
-
-#### Handoff
-
-- Próximo BK recomendado: `BK-MF8-05`.
-- O `BK-MF8-05` trata explicabilidade de recomendações IA. Ele não consome ficheiros de backup directamente, mas beneficia de a MF8 já ter evidence operacional para ambiente de teste, backup e fiabilidade.
-- Risco a vigiar: se a equipa transformar o `--dry-run` em execução real, tem de continuar a usar base de teste, destino privado e output minimizado.
-
-#### Changelog
-
-- `2026-07-01`: guia reescrito em modo `corrigir_apenas`, com script `backup-daily.mjs`, teste `mf8.backup.contract.test.js`, `.gitignore`, comando `backup:daily`, negativos `P1`, validação final e handoff coerente para `BK-MF8-05`.
-- `2026-06-30`: guia revisto para a estrutura tutorial MF8, com caminhos públicos `apps/...`, contrato de evidence, negativos mínimos e handoff explícito.
+- `2026-07-10`: estado corrente posterior: staging/snapshot/rename passaram 10/10 core e 3/3 replica-set, incluindo escrita concorrente consistente e drift de índice fail-closed.
+- `2026-07-10`: alvo do tutorial endurecido para staging privada, validação integral e rename atómico do snapshot completo; validação runtime desta fronteira permanece pendente.
+- `2026-07-10`: implementação de referência validada com `7/7` unitários e `1/1` integração `MongoMemoryReplSet` para `create -> restore _restore -> verify`, incluindo BSON, índices, checksums, recusa da origem e cleanup.
+- `2026-07-10`: a linha anterior fica preservada como evidence histórica do round-trip e não deve ser interpretada como validação da posterior publicação por staging.
+- `2026-07-09`: contrato reescrito de export redigido para snapshot recuperável: EJSON integral, AES-256-GCM/AAD, checksums, índices, restore `_restore`, verify com cleanup, retenção sete, scheduler opt-in e prova replica-set obrigatória ainda pendente.
+- `2026-07-01`: versão pedagógica anterior com `backup-daily.mjs`, redacção e `--dry-run`; supersedida por não ser recuperável.
+- `2026-06-30`: estrutura tutorial MF8 e caminhos públicos `apps/...`.

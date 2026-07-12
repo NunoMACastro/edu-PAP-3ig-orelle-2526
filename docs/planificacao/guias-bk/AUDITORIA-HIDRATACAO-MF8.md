@@ -1,5 +1,14 @@
 # AUDITORIA-HIDRATACAO-MF8 - Orelle
 
+> **Nota de supersessão — 2026-07-11:** este relatório preserva a história da auditoria. O estado operacional, a consulta exclusivamente OpenAI e a evidência atuais estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). Referências inferiores a páginas independentes, geração/revisão por recomendação, consentimento v1 ou providers antigos são snapshots substituídos; o corpo abaixo não constitui evidence vigente.
+
+## Enquadramento atual para leitura do snapshot histórico
+
+- O backup redigido/`--dry-run` foi substituído por EJSON cifrado, checksums, índices, restore `_restore`, retenção sete e scheduler local opt-in.
+- As contagens e os retestes vigentes do backup devem ser lidos no plano canónico; os valores `7/7` e `1/1` preservados no corpo são apenas evidência do snapshot histórico.
+- A árvore `mockup/` existe, mas a revisão manual/Figma foi dispensada no alvo académico/local. `RNF26` está `ACEITE_RISCO`, sem alegação de aprovação do artefacto ou paridade visual.
+- Os resultados históricos que dizem `17/17 OK`, ausência de mockup ou blocker E2E fechado refletem apenas a execução datada indicada em cada secção; o estado atual deve ser lido no plano mestre.
+
 ## Execucao atual - auditoria 2026-07-03 (MF8 completa)
 
 ### Header da execucao

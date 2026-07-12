@@ -1,13 +1,14 @@
-# BK-MF1-06 - O sistema deve analisar as fotos com IA para detetar tipo de pele, acne, manchas, rugas e oleosidade
+# BK-MF1-06 - Analisar fotografias exclusivamente com OpenAI no job da consulta cosmética
 
 ## Header
+
 - `doc_id`: `GUIA-BK-MF1-06`
 - `bk_id`: `BK-MF1-06`
 - `macro`: `MF1`
 - `owner`: `Izelicks`
 - `apoio`: `Bruna`
 - `prioridade`: `P0`
-- `estado`: `DONE`
+- `estado`: `TODO`
 - `esforco`: `M`
 - `dependencias`: `BK-MF1-05`
 - `rf_rnf`: `RF14`
@@ -16,544 +17,316 @@
 - `core_or_reforco`: `Reforco`
 - `proximo_bk`: `BK-MF1-07`
 - `guia_path`: `docs/planificacao/guias-bk/MF1/BK-MF1-06-o-sistema-deve-analisar-as-fotos-com-ia-para-detetar-tipo-de-pele-acne-manchas-rugas-e-oleosidade.md`
-- `last_updated`: `2026-05-31`
+- `last_updated`: `2026-07-11`
+
+> **Contrato canónico OpenAI-only:** a análise nasce na sessão da consulta através de um job durável `analyze_photos`. O modelo primário e o fallback pertencem ambos à OpenAI. Se ambos falharem, a sessão fica `failed_retryable`; a aplicação não troca de provider nem inventa uma análise.
+
+## Contexto do BK
+
+A análise já não é uma página nem um endpoint de geração isolado. É uma etapa do fluxo:
+
+`sessão → fotografias validadas → analyze_photos → qualidade OpenAI → observações → 5–8 perguntas`
+
+O backend controla consentimento, ownership, quotas, jobs e schema. A OpenAI interpreta as imagens e devolve uma resposta estruturada dentro de limites cosméticos não médicos.
 
 ## Objetivo
-Neste BK vais criar o fluxo de análise facial a partir das fotografias frontal e de perfil, com provider isolado, consentimento obrigatório e limites claros.
+
+Analisar o par frontal/perfil exclusivamente com a OpenAI, persistir provenance e qualidade fotográfica e preparar a conversa dinâmica orientada pelos objetivos escolhidos.
 
 ## Importância
-A análise facial é núcleo `CORE-IA`. Como usa dados biométricos, deve ser segura, explicável e honesta sobre as suas limitações.
+
+Esta etapa é o núcleo de IA da PAP. Para ser demonstrável e robusta, tem de usar o provider real, sobreviver a reload/restart, rejeitar respostas fora do schema e falhar de forma honesta quando o serviço não está disponível.
 
 ## Scope-in
-- Criar modelo `FaceAnalysis`.
-- Criar provider isolado `skin-analysis.provider.js`.
-- Criar endpoint `POST /api/face-analyses`.
-- Bloquear análise sem consentimento e sem fotografias válidas.
-- Guardar resultado associado ao utilizador autenticado.
+
+- Expor disponibilidade em `GET /api/ai-consultation/capabilities`.
+- Disponibilizar os sete objetivos em `GET /api/ai-consultation/goals`.
+- Criar uma sessão com um objetivo principal e até dois secundários.
+- Criar/reutilizar o job `analyze_photos`.
+- Enviar as duas imagens e contexto mínimo para a OpenAI Responses API.
+- Exigir Structured Outputs validados pelo backend.
+- Guardar modelo pedido/efetivo, request ID, versões de prompt/schema e tentativa.
+- Repetir o modelo primário uma vez e usar um modelo OpenAI de fallback uma vez.
+- Persistir `pass`, `warning` ou `inconclusive` para a qualidade fotográfica.
+- Iniciar uma conversa com 5–8 perguntas quando a análise é utilizável.
 
 ## Scope-out
-- Não gerar relatório final; isso fica para `BK-MF1-07`.
-- Não recomendar produtos; isso fica para `BK-MF2-02`.
-- Não apresentar diagnóstico médico definitivo.
-- Não enviar imagens para treino externo.
+
+- Não gerar o relatório final; fica em `BK-MF1-07`.
+- Não recomendar produtos nesta chamada.
+- Não diagnosticar doença, prescrever tratamento ou prometer cura.
+- Não enviar nome, email, ObjectId ou outros identificadores à OpenAI.
+- Não fazer fallback para resultados locais ou fictícios.
+- Não chamar diretamente endpoints antigos de análise facial.
 
 ## Pré-requisitos
-- `BK-MF1-05`: `FaceConsent` e `FacePhoto`.
-- `RNF18`: suporte para provider de IA externo ou provider isolado.
-- `RNF23`, `RNF24`, `RNF25`: explicabilidade, não discriminação e privacidade.
+
+- `BK-MF1-05` concluído com consentimento v2 e fotografias cifradas.
+- `OPENAI_API_KEY` para novas operações de IA.
+- `DATA_ENCRYPTION_KEY` para dados sensíveis.
+- MongoDB replica set para claims, leases e transações.
+- Rate limit e quotas funcionais ativos.
+
+## Configuração
+
+```dotenv
+OPENAI_API_KEY=
+OPENAI_ANALYSIS_MODEL=gpt-5.4-mini
+OPENAI_FALLBACK_MODEL=gpt-5.4
+OPENAI_NOTICE_VERSION=openai-cosmetic-consultation-v2
+OPENAI_PROMPT_VERSION=cosmetic-consultation-v2
+OPENAI_SCHEMA_VERSION=cosmetic-consultation-schema-v2
+OPENAI_QUESTION_TIMEOUT_MS=30000
+OPENAI_ANALYSIS_TIMEOUT_MS=60000
+OPENAI_REPORT_TIMEOUT_MS=60000
+```
+
+Sem chave, catálogo, conta, histórico e loja continuam disponíveis. A capability de IA indica indisponibilidade com motivo sanitizado e a UI bloqueia apenas novas operações de IA.
 
 ## Glossário
-- Provider de IA: módulo isolado que recebe input permitido e devolve resultado estruturado.
-- Guardrails: regras que impedem análise sem dados suficientes ou sem consentimento.
-- Fallback honesto: resposta controlada quando a análise não consegue concluir algo.
+
+- **Structured Outputs:** resposta obrigada a cumprir um JSON Schema.
+- **Job durável:** registo MongoDB com claim atómico, lease, tentativas e idempotência.
+- **Fallback OpenAI:** segunda escolha de modelo OpenAI, nunca um resultado local.
+- **Provenance:** metadados que permitem saber qual modelo, prompt e schema produziram a saída.
+- **Inconclusive:** fotografia insuficiente; não cria findings e exige novo par.
 
 ## Conceitos teóricos
-Análise facial não é recomendação automática. Este BK observa fotografias e produz sinais cosméticos: tipo de pele, acne, manchas, rugas e oleosidade. O resultado não é diagnóstico médico.
 
-O provider só deve receber fotografias já validadas e pertencentes ao utilizador autenticado. O frontend não envia paths, `storageKey` nem IDs de fotografias; o service escolhe as fotografias no backend depois de confirmar sessão, consentimento e ownership.
+O controller não deve esperar 60 segundos pela OpenAI. O pedido HTTP cria ou reutiliza um job e devolve rapidamente. Um worker reclama o job atomicamente, renova a lease e atualiza a sessão. Se o processo reiniciar, outro worker pode recuperar uma lease expirada sem duplicar o resultado.
 
-O provider fica isolado para trocar uma implementação local por Azure Face API, TensorFlow/FastAPI ou outro motor sem reescrever controllers. A app regista fonte, confiança e limitações para o utilizador perceber de onde veio a conclusão e quão forte ela é.
+O provider recebe imagens e texto na mesma entrada, mas apenas dados minimizados: objetivos, vistas já autorizadas e instruções cosméticas. A resposta é validada em duas camadas: JSON Schema na API da OpenAI e validação semântica local. Um JSON formalmente válido ainda pode ser incorreto, por exemplo devolver um objetivo não selecionado.
 
-Os limites éticos fazem parte do contrato técnico. A análise deve evitar linguagem médica definitiva, indicar incerteza quando a confiança é baixa, não treinar modelos externos sem consentimento explícito e manter atenção a enviesamentos de iluminação, tom de pele, enquadramento e qualidade da fotografia.
+O sistema suporta sete objetivos:
+
+1. acne e imperfeições;
+2. hidratação e barreira;
+3. controlo de oleosidade;
+4. sensibilidade e vermelhidão;
+5. manchas, tom e luminosidade;
+6. proteção solar;
+7. maquilhagem.
+
+Cada sessão tem um objetivo principal e até dois secundários. O backend define os slots permitidos. A OpenAI escolhe a próxima pergunta, não inventa o tipo, opções ou limites. Só são aceites `single_select`, `multi_select`, `scale`, `number` e `short_text`.
 
 ## Arquitetura do BK
-- `POST /api/face-analyses`
-- `FaceAnalysis`
-- `analyzeSkinPhotos`
-- `createFaceAnalysisForUser`
-- `FaceAnalysisPage`
+
+- `POST /api/ai-consultation/sessions`
+- `POST /api/ai-consultation/sessions/:sessionId/analysis`
+- `POST /api/ai-consultation/sessions/:sessionId/answers`
+- `POST /api/ai-consultation/sessions/:sessionId/retry`
+- `AiConsultationSession` + `AiJob` + `FaceAnalysis`
+- worker → `openai-responses.provider` → schema/semântica → sessão
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/models/face-analysis.model.js`
-- CRIAR: `server/src/providers/skin-analysis.provider.js`
-- CRIAR: `server/src/services/face-analysis.service.js`
-- CRIAR: `server/src/controllers/face-analysis.controller.js`
-- CRIAR: `server/src/routes/face-analysis.routes.js`
-- EDITAR: `server/src/app.js`
-- CRIAR: `client/src/pages/FaceAnalysisPage.jsx`
-- EDITAR: `client/src/App.jsx`
 
-## Bloco pedagógico
+- EDITAR: `apps/api/src/constants/ai-consultation-goals.js`
+- EDITAR: `apps/api/src/models/ai-consultation-session.model.js`
+- EDITAR: `apps/api/src/models/ai-job.model.js`
+- EDITAR: `apps/api/src/models/face-analysis.model.js`
+- EDITAR: `apps/api/src/providers/openai-responses.provider.js`
+- EDITAR: `apps/api/src/services/ai-consultation.service.js`
+- EDITAR: `apps/api/src/services/ai-job.service.js`
+- EDITAR: `apps/api/src/routes/ai-consultation.routes.js`
+- EDITAR: `apps/web/src/features/consultation/ActiveConsultationPage.jsx`
+- EDITAR: `apps/web/src/features/consultation/consultationApi.js`
+- EDITAR: `apps/web/src/features/consultation/consultationModel.js`
+
+## Bloco pedagogico
 
 ### Objetivo
-Criar uma análise facial cosmética com provider isolado, guardrails e limites visiveis.
 
-### Pré-requisitos
-- Ter upload facial seguro em `BK-MF1-05`.
-- Ter consentimento ativo.
-- Saber separar controller, service e provider.
+Perceber como integrar uma API de IA real sem colocar regras de negócio, retries ou segurança no frontend.
+
+### Pre-requisitos
+
+- Saber usar `async/await`, `AbortSignal` e validação de objetos.
+- Compreender idempotência, filas e leases.
+- Distinguir schema estrutural de regra semântica.
 
 ### Erros comuns
-- Fazer a análise diretamente no controller.
-- Processar fotografias sem consentimento.
-- Apresentar resultado cosmético como diagnóstico médico.
+
+- Esperar pela OpenAI dentro do mesmo pedido HTTP.
+- Tratar qualquer JSON como resultado válido.
+- Guardar prompts, respostas ou fotografias sensíveis em claro no job.
+- Repetir infinitamente um erro ou contar retry interno como nova consulta.
+- Mostrar linguagem clínica ou uma certeza que o modelo não pode garantir.
 
 ### Check de compreensao
-- Que condicoes bloqueiam a análise?
-- Porque é que o provider fica isolado?
-- Que limites devem aparecer na resposta?
+
+- Porque é que a sessão aponta para um job, em vez de guardar o trabalho só em memória?
+- O que distingue retry do primário, fallback OpenAI e retoma manual?
+- Porque é que a validação local continua necessária com Structured Outputs?
+- O que acontece quando a qualidade é `inconclusive`?
+
+### Tempo estimado
+
+`M` — provider, worker, persistência e integração React.
 
 ## Bloco operacional
 
 ### Entrada
-- Sessão autenticada.
-- Consentimento ativo.
-- Fotografias frontal e perfil do próprio utilizador.
+
+- Sessão do próprio utilizador em `collecting_photos`.
+- Consentimento OpenAI v2 ativo.
+- Par frontal/perfil pertencente ao snapshot da sessão.
+
+### Saída
+
+- `FaceAnalysis` versionada e cifrada.
+- Qualidade `pass`, `warning` ou `inconclusive`.
+- Sessão em `asking_questions`, `collecting_photos` ou `failed_retryable`.
 
 ### Passos
-Executar cenários negativos obrigatórios (mínimo 3).
 
-Segue os passos lineares abaixo e valida sem sessão, sem consentimento e sem as duas fotografias.
+Executar cenarios negativos obrigatorios (minimo 3).
 
-## Passos lineares
+#### Passo 1 - Expor capabilities e objetivos
 
-### Passo 1 - Confirmar limites da IA
+Devolve disponibilidade sanitizada, limites e os sete objetivos. Nunca devolvas a chave, stack interna ou detalhes do provider que revelem segredos.
 
-1. Explicação simples do objetivo: separar análise cosmética de diagnóstico médico.
-2. Ficheiros envolvidos.
-    - REVER: `docs/RF.md`
-    - REVER: `docs/RNF.md`
-    - LOCALIZAÇÃO: `RF14`, `RNF18`, `RNF23`, `RNF24`, `RNF25`.
-3. O que fazer: confirma que a saída deve ter fontes, confiança e limitações.
-4. Código completo, correto e integrado: sem código novo neste passo.
-5. Explicação do código: a regra protege utilizadores de conclusões exageradas. O objetivo é obrigar o resultado a comunicar fontes, confiança e limitações, para que a análise seja entendida como leitura cosmética e não como diagnóstico médico.
-6. Como validar este passo: a resposta final deve dizer que não é diagnóstico médico.
-7. Erros comuns ou cenário negativo: prometer cura ou certeza clínica não pertence à Orélle.
+#### Passo 2 - Criar a sessão
 
-### Passo 2 - Criar modelo de análise
+Valida um objetivo principal e até dois secundários sem duplicados. Permite apenas uma sessão aberta por utilizador e aplica a quota de três novas consultas por 24 horas.
 
-1. Explicação simples do objetivo: guardar resultado estruturado da análise.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/models/face-analysis.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o modelo.
-4. Código completo, correto e integrado:
+#### Passo 3 - Criar o job idempotente
+
+`POST .../analysis` cria ou reutiliza `analyze_photos`. Usa uma chave lógica por sessão, revisão e tipo de job para que duplo clique ou reload não originem duas chamadas OpenAI.
+
+#### Passo 4 - Preparar input minimizado
+
+Decifra as duas imagens apenas durante a execução, pela ordem frontal/perfil. Não inclui nome, email, IDs MongoDB ou texto livre não necessário. Limita a dimensão da resposta.
+
+#### Passo 5 - Chamar a OpenAI com schema estrito
+
+Usa o modelo primário, `AbortSignal` e timeout. Valida estrutura e semântica antes de aceitar. Um `429` respeita `Retry-After` até 30 s; erros transitórios repetem uma vez o primário e depois tentam o fallback OpenAI.
 
 ```js
-import mongoose from "mongoose";
-
-const { Schema, model } = mongoose;
-
-const findingSchema = new Schema(
-    {
-        label: { type: String, required: true },
-        confidence: { type: Number, required: true, min: 0, max: 1 },
-        explanation: { type: String, required: true },
-    },
-    { _id: false },
-);
-
-const faceAnalysisSchema = new Schema(
-    {
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-            index: true,
-        },
-        photoIds: {
-            type: [Schema.Types.ObjectId],
-            ref: "FacePhoto",
-            required: true,
-        },
-        consentId: {
-            type: Schema.Types.ObjectId,
-            ref: "FaceConsent",
-            required: true,
-        },
-        providerName: {
-            type: String,
-            required: true,
-        },
-        findings: {
-            skinType: findingSchema,
-            acne: findingSchema,
-            manchas: findingSchema,
-            rugas: findingSchema,
-            oleosidade: findingSchema,
-        },
-        sources: {
-            type: [String],
-            required: true,
-        },
-        limitations: {
-            type: [String],
-            required: true,
-        },
-        status: {
-            type: String,
-            enum: ["completed", "failed"],
-            default: "completed",
+const response = await client.requestStructured({
+    schemaName: "orelle_skin_analysis_v2",
+    schema: OPENAI_SKIN_ANALYSIS_SCHEMA,
+    systemPrompt,
+    userInput: {
+        objectives,
+        imageOrder: ["fotografia_frontal", "fotografia_perfil"],
+        purpose: FACE_IMAGE_PURPOSE_POLICY.purpose,
+        retention: FACE_IMAGE_PURPOSE_POLICY.retention,
+        modelLearningAllowed: false,
+        photoQualityProfile: {
+            version: "face-photo-quality-v1",
+            exactlyOneFace: true,
+            faceFrameRatio: { min: 0.3, max: 0.85 },
+            maxCenterDeviation: 0.2,
+            frontalMaxYawDegrees: 20,
+            lateralYawDegrees: { min: 35, max: 75 },
+            luminanceMean: { min: 45, max: 210 },
+            maxClippedPixelRatio: 0.2,
+            blurIsHardFailure: true,
         },
     },
-    { timestamps: true },
-);
-
-export const FaceAnalysis = model("FaceAnalysis", faceAnalysisSchema);
+    images: [frontalPhoto, perfilPhoto],
+    timeoutMs: env.openAiAnalysisTimeoutMs,
+    signal,
+    validateValue: (value) =>
+        assertAnalysisMatchesObjectives(value, objectives),
+});
+assertAnalysisMatchesObjectives(response.value, objectives);
 ```
 
-5. Explicação do código: cada sinal tem label, confiança e explicação. Isto prepara relatório e explicabilidade.
-6. Como validar este passo: confirma que `confidence` só aceita valores entre 0 e 1.
-7. Erros comuns ou cenário negativo: guardar uma frase livre impede gráficos e histórico comparável.
+#### Passo 6 - Tratar qualidade remota
 
-### Passo 3 - Criar provider isolado
+`inconclusive` não cria findings e fixa os IDs rejeitados, obrigando um novo par. `warning` exige confirmação antes de escolher a primeira pergunta. `pass` avança normalmente.
 
-1. Explicação simples do objetivo: isolar a análise para trocar provider sem alterar controller.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/providers/skin-analysis.provider.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria um provider local controlado.
-4. Código completo, correto e integrado:
+#### Passo 7 - Iniciar a conversa
 
-```js
-import { AppError } from "../middlewares/error.middleware.js";
+O backend oferece apenas slots permitidos e ainda não respondidos. A OpenAI escolhe um `slotCode`; o backend materializa a pergunta canónica e cifra transcript, respostas e factos derivados. Há no mínimo cinco e no máximo oito perguntas.
 
-function createFinding(label, confidence, explanation) {
-    return { label, confidence, explanation };
-}
+#### Passo 8 - Projetar o estado no frontend
 
-export async function analyzeSkinPhotos({ frontalPhoto, perfilPhoto }) {
-    if (!frontalPhoto?.storageKey || !perfilPhoto?.storageKey) {
-        throw new AppError(400, "Fotografias válidas obrigatórias para análise");
-    }
+`ActiveConsultationPage` usa `flowState` do backend, faz polling de 2 s até 10 s e preserva o transcript durante timeout, `401`, `409` ou falha OpenAI. Não mostra animação de typing falsa.
 
-    return {
-        providerName: "local-skin-analysis-v1",
-        findings: {
-            skinType: createFinding(
-                "mista",
-                0.55,
-                "Estimativa cosmética inicial baseada no fluxo local controlado.",
-            ),
-            acne: createFinding(
-                "baixo",
-                0.5,
-                "Sem provider externo ativo, a app devolve uma indicação conservadora.",
-            ),
-            manchas: createFinding(
-                "nao_conclusivo",
-                0.3,
-                "A fotografia deve ser revista por provider especializado para maior confiança.",
-            ),
-            rugas: createFinding(
-                "nao_conclusivo",
-                0.3,
-                "A app evita afirmar sinais que não consegue medir com segurança.",
-            ),
-            oleosidade: createFinding(
-                "moderada",
-                0.5,
-                "Estimativa cosmética inicial, sem valor clínico.",
-            ),
-        },
-        sources: ["fotografia_frontal", "fotografia_perfil"],
-        limitations: [
-            "Não é diagnóstico médico.",
-            "Resultado de provider local controlado.",
-            "Qualidade de luz e enquadramento podem afetar a análise.",
-        ],
-    };
-}
-```
+### Cenarios negativos recomendados
 
-5. Explicação do código: o provider é honesto: devolve confiança baixa/moderada e limitações claras. Não inventa certeza clínica.
-6. Como validar este passo: chama sem fotografia de perfil e confirma erro `400`.
-7. Erros comuns ou cenário negativo: colocar chamada externa diretamente no controller torna a app difícil de testar.
+- Sem chave: capability indisponível e operação de IA bloqueada sem afetar a loja.
+- Consentimento revogado ou fotografias trocadas: job cancelado/bloqueado.
+- Structured Output inválido ou semanticamente incompatível: retry/fallback.
+- Timeout, `429` ou `5xx`: estado recuperável, sem análise inventada.
+- Duas respostas à mesma revisão: uma é aceite e a outra recebe `409`.
+- Prompt injection numa resposta: texto limitado e tratado como dados, não instrução.
+- Lease perdida/restart: recuperação sem duas análises persistidas.
 
-### Passo 4 - Criar service da análise
+### Validacao
 
-1. Explicação simples do objetivo: verificar consentimento, escolher fotografias do utilizador e guardar resultado.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/face-analysis.service.js`
-    - REVER: `server/src/models/face-photo.model.js`
-    - LOCALIZAÇÃO: ficheiro completo.
-3. O que fazer: cria o service.
-4. Código completo, correto e integrado:
+- [ ] Negativos: minimo 3 cenarios materiais executados.
+- Gate documental: falhar se `negativos < 3`.
+- Transport OpenAI injetado apenas em `NODE_ENV=test`.
+- Testes de schema, semântica, retry, fallback e falha total.
+- Testes de lease expirada, restart e idempotência.
+- Testes de 5–8 perguntas e tipos/slots permitidos.
+- `test:ai:live` é opt-in; sem chave é `SKIP/BLOQUEADO`, nunca `PASS`.
 
-```js
-import { AppError } from "../middlewares/error.middleware.js";
-import { FaceAnalysis } from "../models/face-analysis.model.js";
-import { FaceConsent } from "../models/face-consent.model.js";
-import { FacePhoto } from "../models/face-photo.model.js";
-import { analyzeSkinPhotos } from "../providers/skin-analysis.provider.js";
+### Matriz minima de testes por prioridade
 
-function latestByKind(photos, kind) {
-    return photos.find((photo) => photo.kind === kind);
-}
+| Prioridade | Cenário | Resultado esperado |
+|---|---|---|
+| P0 | primário e fallback falham | `failed_retryable`, sem resultado falso |
+| P0 | schema/semântica inválidos | saída rejeitada e não persistida |
+| P0 | restart/lease expirada | job recuperado uma vez |
+| P1 | qualidade inconclusiva | novas fotografias obrigatórias |
+| P1 | warning remoto | confirmação antes da pergunta |
+| P1 | resposta concorrente | CAS protege revisão e devolve `409` |
 
-function toFaceAnalysisResponse(analysis) {
-    return {
-        id: analysis._id.toString(),
-        providerName: analysis.providerName,
-        findings: analysis.findings,
-        sources: analysis.sources,
-        limitations: analysis.limitations,
-        status: analysis.status,
-        createdAt: analysis.createdAt,
-    };
-}
+### Evidencia de testes por camada
 
-export async function createFaceAnalysisForUser(userId) {
-    const consent = await FaceConsent.findOne({ userId, revokedAt: null });
-
-    if (!consent) {
-        throw new AppError(403, "Consentimento facial em falta");
-    }
-
-    const photos = await FacePhoto.find({ userId, status: "active" })
-        .sort({ createdAt: -1 })
-        .select("+storageKey");
-
-    const frontalPhoto = latestByKind(photos, "frontal");
-    const perfilPhoto = latestByKind(photos, "perfil");
-
-    if (!frontalPhoto || !perfilPhoto) {
-        throw new AppError(400, "Fotografias frontal e de perfil obrigatórias");
-    }
-
-    const result = await analyzeSkinPhotos({ frontalPhoto, perfilPhoto });
-    const analysis = await FaceAnalysis.create({
-        userId,
-        photoIds: [frontalPhoto._id, perfilPhoto._id],
-        consentId: consent._id,
-        providerName: result.providerName,
-        findings: result.findings,
-        sources: result.sources,
-        limitations: result.limitations,
-    });
-
-    return toFaceAnalysisResponse(analysis);
-}
-```
-
-5. Explicação do código: o service usa apenas fotografias do próprio utilizador autenticado. O frontend não escolhe IDs de fotografias.
-6. Como validar este passo: cria fotografias para um utilizador e tenta analisar com outro; o segundo deve falhar.
-7. Erros comuns ou cenário negativo: aceitar `photoId` do frontend poderia permitir acesso cruzado.
-
-### Passo 5 - Criar controller e route
-
-1. Explicação simples do objetivo: expor a criação de análise com sessão.
-2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/face-analysis.controller.js`
-    - CRIAR: `server/src/routes/face-analysis.routes.js`
-    - LOCALIZAÇÃO: ficheiros completos.
-3. O que fazer: cria controller e route.
-4. Código completo, correto e integrado:
-
-```js
-// server/src/controllers/face-analysis.controller.js
-import { createFaceAnalysisForUser } from "../services/face-analysis.service.js";
-
-export async function createFaceAnalysisController(req, res, next) {
-    try {
-        const analysis = await createFaceAnalysisForUser(req.user.id);
-        return res.status(201).json({ analysis });
-    } catch (err) {
-        return next(err);
-    }
-}
-```
-
-```js
-// server/src/routes/face-analysis.routes.js
-import { Router } from "express";
-import { requireAuth } from "../middlewares/auth.middleware.js";
-import { createFaceAnalysisController } from "../controllers/face-analysis.controller.js";
-
-export const faceAnalysisRoutes = Router();
-
-faceAnalysisRoutes.post(
-    "/face-analyses",
-    requireAuth,
-    createFaceAnalysisController,
-);
-```
-
-5. Explicação do código: a rota cria análise para o utilizador da sessão. Não recebe `userId` nem caminhos de ficheiro.
-6. Como validar este passo: sem sessão, espera `401`; sem consentimento, espera `403`.
-7. Erros comuns ou cenário negativo: receber path no body expõe ficheiros internos e quebra ownership.
-
-### Passo 6 - Registar route na app
-
-1. Explicação simples do objetivo: ligar análise à API.
-2. Ficheiros envolvidos.
-    - EDITAR: `server/src/app.js`
-    - LOCALIZAÇÃO: imports e routes.
-3. O que fazer: adiciona a route.
-4. Código completo, correto e integrado:
-
-```js
-import { faceAnalysisRoutes } from "./routes/face-analysis.routes.js";
-
-app.use("/api", faceAnalysisRoutes);
-```
-
-5. Explicação do código: o endpoint final é `POST /api/face-analyses`. A route usa `requireAuth`, por isso a análise é sempre criada para o utilizador da sessão e não para um `userId` enviado pelo cliente.
-6. Como validar este passo: confirma que a rota não devolve `404`.
-7. Erros comuns ou cenário negativo: registar depois do middleware de erro impede execução.
-
-### Passo 7 - Criar página de análise
-
-1. Explicação simples do objetivo: permitir que o cliente peça análise depois do upload.
-2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/FaceAnalysisPage.jsx`
-    - EDITAR: `client/src/App.jsx`
-    - LOCALIZAÇÃO: ficheiro completo e imports do `App`.
-3. O que fazer: cria e regista a página.
-4. Código completo, correto e integrado:
-
-```jsx
-// client/src/pages/FaceAnalysisPage.jsx
-import { useState } from "react";
-import { apiRequest } from "../services/apiClient.js";
-
-export function FaceAnalysisPage() {
-    const [analysis, setAnalysis] = useState(null);
-    const [status, setStatus] = useState("idle");
-    const [error, setError] = useState("");
-
-    async function handleAnalyze() {
-        setStatus("loading");
-        setError("");
-        setAnalysis(null);
-
-        try {
-            const data = await apiRequest("/face-analyses", {
-                method: "POST",
-            });
-            setAnalysis(data.analysis);
-            setStatus("success");
-        } catch (err) {
-            setError(err.message);
-            setStatus("error");
-        }
-    }
-
-    return (
-        <section>
-            <h1>Análise facial cosmética</h1>
-            <button onClick={handleAnalyze} disabled={status === "loading"}>
-                {status === "loading" ? "A analisar..." : "Iniciar análise"}
-            </button>
-            {status === "error" && <p role="alert">{error}</p>}
-            {status === "success" && analysis && (
-                <article>
-                    <p>{analysis.limitations.join(" ")}</p>
-                    <ul>
-                        {Object.entries(analysis.findings).map(([key, value]) => (
-                            <li key={key}>
-                                <strong>{key}</strong>: {value.label} (
-                                {Math.round(value.confidence * 100)}%)
-                            </li>
-                        ))}
-                    </ul>
-                </article>
-            )}
-        </section>
-    );
-}
-```
-
-```jsx
-// client/src/App.jsx
-import { FaceAnalysisPage } from "./pages/FaceAnalysisPage.jsx";
-
-export function App() {
-    return (
-        <>
-            <ProductSearchPage />
-            <ProductDetailsPage />
-            <ProductReviewPage />
-            <RelatedProductsPage />
-            <FacePhotoUploadPage />
-            <FaceAnalysisPage />
-        </>
-    );
-}
-```
-
-5. Explicação do código: a UI mostra limitações antes dos sinais, para o utilizador perceber o alcance da análise.
-6. Como validar este passo: tenta analisar antes do upload e confirma erro controlado.
-7. Erros comuns ou cenário negativo: esconder limitações transforma a análise em promessa excessiva.
-
-### Passo 8 - Validar guardrails da análise
-
-1. Explicação simples do objetivo: garantir que a análise só corre com sessão, consentimento e fotografias obrigatórias.
-2. Ficheiros envolvidos.
-    - REVER: `server/src/services/face-analysis.service.js`
-    - REVER: `server/src/routes/face-analysis.routes.js`
-    - REVER: `server/src/providers/skin-analysis.provider.js`
-3. O que fazer: testa os cenários negativos principais antes de validar o caso feliz.
-4. Código completo, correto e integrado:
-
-```bash
-curl -i -X POST http://localhost:3001/api/face-analyses
-curl -i -X POST http://localhost:3001/api/face-analyses \
-    -H "Cookie: orelle_session=COOKIE_CLIENTE_SEM_CONSENTIMENTO"
-curl -i -X POST http://localhost:3001/api/face-analyses \
-    -H "Cookie: orelle_session=COOKIE_CLIENTE_COM_CONSENTIMENTO_SEM_FOTOS"
-```
-
-5. Explicação do código: os pedidos validam autenticação, consentimento e existência das duas fotografias antes de qualquer processamento. Os pedidos autenticados usam o cookie `orelle_session` criado no login do `BK-MF0-02`; o frontend real envia esse cookie com `credentials: "include"` e nunca usa token em `localStorage`.
-6. Como validar este passo: confirma `401`, `403` e `400` nos três cenários.
-7. Erros comuns ou cenário negativo: executar o provider antes dos guardrails desperdiça recursos e pode tratar dados sem base legal; testar com header de autorização por token criaria um contrato de autenticação diferente do resto da app.
-
-### Validação
-- [ ] Negativos: mínimo `3` cenários.
-- [ ] Sem sessão devolve `401`.
-- [ ] Sem consentimento devolve `403`.
-- [ ] Sem frontal ou perfil devolve `400`.
-- [ ] Resposta inclui limitations e não devolve paths internos.
-
-### Matriz mínima de testes por prioridade
-
-| Camada | Evidência |
-| --- | --- |
-| Model | `FaceAnalysis` guarda findings, sources e limitations. |
-| Provider | Análise isolada do controller. |
-| Service | Guardrails aplicados antes do provider. |
-| UI | Página mostra resultado e limites. |
-
-Evidência de testes por camada:
-- API: output de análise criada e bloqueios.
-- Service: teste de consentimento ausente.
-- UI: screenshot com findings e limitations.
-
-## Snippet técnico aplicável
-
-O código técnico aplicável deste BK está nos passos lineares acima. Para manter o guia seguro e executável, não existe código adicional solto nesta secção: o aluno deve copiar cada ficheiro completo no passo correspondente e validar a integração pela matriz mínima de testes.
-
-## Expected results
-- Com sessão, consentimento e duas fotografias: `201`.
-- Sem sessão: `401`.
-- Sem consentimento: `403`.
-- Sem frontal ou perfil: `400`.
-- Resposta inclui `findings`, `sources` e `limitations`.
-
-## Critérios de aceite
-- Cenários negativos concluídos: mínimo `3`.
-- Evidência de testes por camada documentada.
-- Provider isolado existe.
-- Controller não contém lógica de IA.
-- Backend aplica ownership por sessão.
-- Resposta não devolve caminhos internos.
-- Resultado indica limitações.
-
-## Validação final
-- Fazer upload facial no BK anterior.
-- Chamar `POST /api/face-analyses`.
-- Testar sem consentimento e sem fotografia de perfil.
-
-## Evidence para PR/defesa
-- Output de análise com `201`.
-- Output sem consentimento com `403`.
-- Screenshot da página com limitações visíveis.
-
-## Handoff
+- Unit: goals, schemas, semântica e política de retry/fallback.
+- Integração: jobs, leases, cifra e sessão MongoDB.
+- Frontend/E2E: análise, polling, 5–8 perguntas e retoma.
+- Live opt-in: OpenAI real com dados sintéticos/consentidos, ou blocker explícito.
 
 ### Handoff
 
-`BK-MF1-07` deve consumir `FaceAnalysis` e gerar relatório personalizado sem voltar a processar ficheiros diretamente.
+Quando os factos mínimos estiverem completos ou forem atingidas oito perguntas, a sessão fica pronta para o job `generate_report` de `BK-MF1-07`.
+
+## Expected results
+
+- Só a OpenAI produz análise cosmética.
+- A aplicação continua útil sem chave, mas novas operações de IA ficam indisponíveis.
+- Jobs sobrevivem a reload, duplo clique e restart.
+- Falhas não criam resultados fictícios.
+- A conversa respeita objetivos, slots, limites e linguagem não médica.
+
+## Snippet tecnico aplicavel
+
+O snippet do Passo 5 mostra o boundary correto: o provider trata transporte; a função semântica continua sob controlo do backend.
+
+## Criterios de aceite
+
+- Cenarios negativos concluidos: minimo 3.
+- Apenas modelos OpenAI configurados podem produzir resultados cosméticos; não existe fallback sintético.
+- Todas as chamadas OpenAI têm timeout e cancelamento cooperativo.
+- Provenance inclui modelo pedido/efetivo, request ID e versões.
+- A qualidade inconclusiva não produz findings.
+- Cada sessão tem 5–8 perguntas e apenas slots permitidos.
+- A UI retoma o estado pelo backend.
+- O conteúdo é cosmético e inclui limitações não médicas.
+
+## Validação final
+
+Executa testes unitários, contratos, integração, worker/restart, frontend e build. O live smoke só conta quando usa credenciais próprias e imagens sintéticas ou consentidas.
+
+## Evidence para PR/defesa
+
+- Resultado sanitizado de capability com e sem chave.
+- Estado de job antes/depois de restart.
+- Provenance sem prompts, imagens, respostas ou segredos.
+- Teste de falha total a provar ausência de resultado sintético.
+
+## Handoff
+
+`BK-MF1-07` recebe a análise e o transcript cifrado pelo ID interno da sessão; o frontend não escolhe uma análise para gerar relatório.
 
 ## Changelog
-- `2026-05-31`: guia revisto com modelo de análise, provider isolado, guardrails, ownership e UI.
+
+- `2026-05-31`: guia inicial de análise facial isolada.
+- `2026-07-10`: clarificação dos antigos modos de provider e dados derivados cifrados.
+- `2026-07-11`: substituição pelo fluxo OpenAI-only com jobs duráveis, Structured Outputs, sete objetivos e 5–8 perguntas.

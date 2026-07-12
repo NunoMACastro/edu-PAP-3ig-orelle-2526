@@ -1,5 +1,7 @@
 # MF8 - Correcoes finais e reexecucao dos testes afetados
 
+> **Nota de supersessão — 2026-07-11:** evidence histórica da execução de 2026-07-07. O estado atual, a bateria vigente e os blockers reais estão no [plano canónico da consulta OpenAI](../../planificacao/PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). Em particular, contagens antigas, o fecho `sem_falhas_de_produto` e o blocker E2E abaixo não devem ser reutilizados como prova do estado atual sem reteste.
+
 ## Header
 
 - `bk_id`: `BK-MF8-17`

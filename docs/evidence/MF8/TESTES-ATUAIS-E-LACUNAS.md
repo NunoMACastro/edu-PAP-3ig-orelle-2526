@@ -1,5 +1,7 @@
 # TESTES-ATUAIS-E-LACUNAS - MF8 Orelle
 
+> **Nota de supersessão — 2026-07-11:** inventário histórico preparado antes da correção integral. O plano e a matriz de validação vigentes estão no [plano canónico da consulta OpenAI](../../planificacao/PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md). RNF26 está `ACEITE_RISCO` por dispensa da revisão manual/Figma, sem aprovação ou paridade; o estado de E2E/browser deve ser obtido por reteste atual e nunca inferido do `TODO (BLOCKER)` histórico abaixo.
+
 ## Header
 
 - `doc_id`: `TESTES-ATUAIS-E-LACUNAS-MF8`
@@ -28,8 +30,8 @@
 | proof_id | BK/RNF | camada | comando | estado | lacuna | negativo | risco | handoff |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `proof_test_env` | `BK-MF8-03 / RNF22` | `unit` | `npm --prefix real_dev/api test -- tests/mf8.test-env.contract.test.js` | `preparado` | Sem lacuna confirmada. | Ambiente fora de `NODE_ENV=test` deve falhar. | Sem ambiente isolado, a bateria final poderia tocar em dados errados. | `BK-MF8-16` deve anexar output do comando. |
-| `proof_mockup_alignment` | `BK-MF8-14 / RNF26` | `smoke` | `node real_dev/web/scripts/check-mf8-mockup-alignment.mjs` | `preparado` | Sem lacuna confirmada. | Sem padroes de mockup, o smoke deve falhar. | Sem prova visual, o fecho final perde cobertura UI. | `BK-MF8-16` deve anexar output do comando. |
-| `proof_mockup_evidence` | `BK-MF8-14 / RNF26` | `unit` | `node --check real_dev/api/tests/evidence/bk-mf8-14.evidence-contract.js` | `preparado` | Sem lacuna confirmada. | Evidence sem screenshots deve falhar. | Evidence visual incompleta. | `BK-MF8-16` deve manter referencia visual no fecho. |
+| `proof_mockup_alignment` | `BK-MF8-14 / RNF26` | `smoke` | `node real_dev/web/scripts/check-mf8-mockup-alignment.mjs` | `ACEITE_RISCO` | Revisão manual/Figma dispensada; o artefacto não está confirmado como aprovado. | Alegar aprovação/paridade ou inventar screenshots deve falhar. | Risco de paridade aceite sem confundir gates técnicos com validação humana. | Executar viewports/Axe e registar `manual_figma_waived`. |
+| `proof_mockup_evidence` | `BK-MF8-14 / RNF26` | `unit` | `node --check real_dev/api/tests/evidence/bk-mf8-14.evidence-contract.js` | `ACEITE_RISCO` | Contrato exige gates automatizados + registo explícito da dispensa. | Ausência de `manual_figma_waived` ou alegação de aprovação deve falhar. | Sem prova de paridade, o fecho conserva o risco residual. | `BK-MF8-16` mantém a decisão de risco, não uma decisão humana inventada. |
 | `proof_final_contract` | `BK-MF8-15 / RNF27` | `unit` | `npm --prefix real_dev/api test -- tests/mf8.final-contracts.test.js` | `criado_neste_bk` | Faltava contrato executavel da matriz final. | Matriz sem `proof_e2e` deve falhar. | Avancar para BK16 sem inventario real. | `BK-MF8-16` consome esta matriz. |
 | `proof_mf8_smoke` | `BK-MF8-15 / RNF27` | `smoke` | `node real_dev/web/scripts/check-mf8-final-smoke.mjs` | `criado_neste_bk` | Faltava smoke de artefactos minimos. | Ficheiro de matriz em falta deve falhar. | Bateria final sem artefactos minimos. | `BK-MF8-16` executa o smoke antes da bateria final. |
 | `proof_api` | `MF0-MF8` | `integration` | `npm --prefix real_dev/api test` | `executavel` | Falha na sandbox pode ser ambiental por `listen EPERM`. | Falha real deve ser classificada como `falhou_por_produto`. | Regressao backend sem triagem. | `BK-MF8-16` deve anexar output e classificar ambiente/produto. |

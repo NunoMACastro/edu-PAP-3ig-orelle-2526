@@ -60,11 +60,11 @@ Isto não é collaborative filtering. A regra é determinística e explicável: 
 - `RelatedProductsPage`
 
 ## Ficheiros a criar/editar/rever
-- CRIAR: `server/src/services/related-products.service.js`
-- CRIAR: `server/src/controllers/related-products.controller.js`
-- EDITAR: `server/src/routes/catalog.routes.js`
-- CRIAR: `client/src/pages/RelatedProductsPage.jsx`
-- EDITAR: `client/src/App.jsx`
+- CRIAR: `apps/api/src/services/related-products.service.js`
+- CRIAR: `apps/api/src/controllers/related-products.controller.js`
+- EDITAR: `apps/api/src/routes/catalog.routes.js`
+- CRIAR: `apps/web/src/pages/RelatedProductsPage.jsx`
+- EDITAR: `apps/web/src/App.jsx`
 
 ## Bloco pedagógico
 
@@ -117,8 +117,8 @@ Segue os passos lineares abaixo e valida produto inexistente, lista vazia e excl
 
 1. Explicação simples do objetivo: encontrar produtos compatíveis sem duplicar o produto atual.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/services/related-products.service.js`
-    - REVER: `server/src/models/product.model.js`
+    - CRIAR: `apps/api/src/services/related-products.service.js`
+    - REVER: `apps/api/src/models/product.model.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o service abaixo.
 4. Código completo, correto e integrado:
@@ -182,8 +182,8 @@ export async function listRelatedCatalogProducts(productId) {
 
 1. Explicação simples do objetivo: expor relacionados por HTTP.
 2. Ficheiros envolvidos.
-    - CRIAR: `server/src/controllers/related-products.controller.js`
-    - REVER: `server/src/validators/product-id.validator.js`
+    - CRIAR: `apps/api/src/controllers/related-products.controller.js`
+    - REVER: `apps/api/src/validators/product-id.validator.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria o controller.
 4. Código completo, correto e integrado:
@@ -212,7 +212,7 @@ export async function listRelatedProductsController(req, res, next) {
 
 1. Explicação simples do objetivo: adicionar endpoint de relacionados ao módulo público de catálogo.
 2. Ficheiros envolvidos.
-    - EDITAR: `server/src/routes/catalog.routes.js`
+    - EDITAR: `apps/api/src/routes/catalog.routes.js`
     - LOCALIZAÇÃO: imports e rotas.
 3. O que fazer: acrescenta o código.
 4. Código completo, correto e integrado:
@@ -234,8 +234,8 @@ catalogRoutes.get(
 
 1. Explicação simples do objetivo: mostrar a lista ao cliente.
 2. Ficheiros envolvidos.
-    - CRIAR: `client/src/pages/RelatedProductsPage.jsx`
-    - REVER: `client/src/services/apiClient.js`
+    - CRIAR: `apps/web/src/pages/RelatedProductsPage.jsx`
+    - REVER: `apps/web/src/services/apiClient.js`
     - LOCALIZAÇÃO: ficheiro completo.
 3. O que fazer: cria a página.
 4. Código completo, correto e integrado:
@@ -310,7 +310,7 @@ export function RelatedProductsPage() {
 
 1. Explicação simples do objetivo: permitir validação visual.
 2. Ficheiros envolvidos.
-    - EDITAR: `client/src/App.jsx`
+    - EDITAR: `apps/web/src/App.jsx`
     - LOCALIZAÇÃO: imports e JSX principal.
 3. O que fazer: acrescenta a página.
 4. Código completo, correto e integrado:

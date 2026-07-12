@@ -1,5 +1,7 @@
 # Correcao da auditoria de implementacao real_dev MF3 - Orelle
 
+> **Nota de supersessão — 2026-07-11:** relatório histórico. O contrato Stripe/PayPal/MBWay abaixo foi substituído por `Pagamento simulado`; consultar o [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md) para o estado atual e lacunas externas ainda abertas.
+
 ## Metadados
 
 - Projeto: `Orelle`

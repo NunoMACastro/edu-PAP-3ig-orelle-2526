@@ -1,5 +1,7 @@
 # Implementacao real_dev - MF8
 
+> **Nota de supersessão — 2026-07-11:** documento histórico de implementação. O contrato OpenAI-only e respetiva evidence estão no [plano canónico da consulta OpenAI](../PLANO-IMPLEMENTACAO-CONSULTA-IA-OPENAI-real_dev.md); o backup redigido antigo não constitui cópia recuperável e a arquitetura IA anterior é apenas história.
+
 ## Execucao atual - BK-MF8-14
 
 - `PROJECT_NAME`: Orelle
