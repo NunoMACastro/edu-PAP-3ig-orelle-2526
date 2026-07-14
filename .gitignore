@@ -56,3 +56,14 @@ Thumbs.db
 
 # Assets (covers e músicas servidas publicamente)
 public/
+
+# Assets necessários ao frontend entregue aos alunos
+!apps/web/public/
+!apps/web/public/**
+
+# Dados privados e artefactos locais
+**/storage/private/
+tmp/
+temp/
+node_modules.quarantined-*/
+playwright-report/

@@ -1,0 +1,48 @@
+{
+    "name": "orelle-api",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "engines": {
+        "node": "24.11.1"
+    },
+    "scripts": {
+        "dev": "node --env-file-if-exists=.env.local --watch scripts/run-local-dev.mjs --runtime-mode=dev",
+        "dev:local": "node --env-file-if-exists=.env.local scripts/run-local-dev.mjs --runtime-mode=dev:local",
+        "start": "node src/server.js",
+        "seed:users": "node src/scripts/seed-users.js",
+        "seed:categories": "node src/scripts/seed-categories.js",
+        "seed:products": "node src/scripts/seed-products.js",
+        "seed:local": "node src/scripts/seed-local.js",
+        "catalog:export-image-manifest": "node scripts/export-product-image-manifest.mjs",
+        "test": "DOTENV_CONFIG_PATH=/dev/null NODE_ENV=test MONGODB_URI=mongodb://127.0.0.1:27017/orelle_test OPENAI_API_KEY= vitest run --no-cache --maxWorkers=4",
+        "test:ai:live": "DOTENV_CONFIG_PATH=/dev/null NODE_ENV=test MONGODB_URI=mongodb://127.0.0.1:27017/orelle_openai_test ORELLE_LIVE_OPENAI_TEST=true vitest run tests/openai.live.test.js --no-cache",
+        "check:syntax": "node scripts/check-syntax.mjs",
+        "test:e2e": "node scripts/run-e2e.mjs",
+        "verify:all": "node scripts/verify-all.mjs",
+        "backup:create": "node scripts/backup-create.mjs",
+        "backup:restore": "node scripts/backup-restore.mjs",
+        "backup:verify": "node scripts/backup-verify.mjs",
+        "backup:prune": "node scripts/backup-prune.mjs",
+        "migrate:status": "node scripts/migrate.mjs status",
+        "migrate:dry-run": "node scripts/migrate.mjs dry-run",
+        "migrate:up": "node scripts/migrate.mjs up"
+    },
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "busboy": "1.6.0",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "express": "^4.19.2",
+        "express-rate-limit": "8.5.2",
+        "helmet": "8.2.0",
+        "mongoose": "^8.5.1",
+        "pdf-lib": "1.17.1",
+        "sharp": "0.35.3"
+    },
+    "devDependencies": {
+        "mongodb-memory-server": "11.2.0",
+        "supertest": "^7.0.0",
+        "vitest": "4.1.10"
+    }
+}
