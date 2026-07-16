@@ -103,7 +103,73 @@ Fontes funcionais canónicas: [docs/RF.md](docs/RF.md), [docs/planificacao/backl
 
 ### 5.2 Arranque académico local
 
-Na implementação dos alunos, entra em `apps/api` e executa `npm run dev:local`; o guia completo está em [MF8 — Arranque local](docs/planificacao/guias-bk/MF8/00-ARRANQUE-LOCAL.md). O comando não carrega `.env` nem MongoDB remoto: cria um replica set efémero, aplica migrações e prepara idempotentemente 8 contas, 4 categorias, 25 produtos e 5 cenários de cliente.
+A Orélle é composta por duas aplicações independentes: o servidor/API em `apps/api` e o frontend em `apps/web`. Para trabalhar localmente, mantém cada aplicação a correr no seu próprio terminal.
+
+#### Pré-requisitos
+
+- Node.js `24.11.1` e npm instalados;
+- dois terminais abertos na raiz do repositório;
+- ligação à Internet na primeira instalação, para descarregar as dependências e o binário MongoDB usado localmente.
+
+Confirma as versões disponíveis:
+
+```bash
+node --version
+npm --version
+```
+
+Não é necessário instalar MongoDB nem Docker. A API cria automaticamente um replica set MongoDB efémero, isolado da base de dados remota.
+
+#### Passo 1 — Instalar e iniciar o servidor/API
+
+No primeiro terminal, a partir da raiz do repositório:
+
+```bash
+cd apps/api
+npm ci
+npm run dev:local
+```
+
+Mantém este terminal aberto. Na primeira execução, o arranque pode demorar mais enquanto o MongoDB local é descarregado e preparado. Quando estiver pronto, o servidor fica disponível em `http://127.0.0.1:3001`.
+
+Para confirmar que a API e as transações MongoDB estão operacionais, abre outro terminal temporário e executa:
+
+```bash
+curl http://127.0.0.1:3001/api/health/live
+curl http://127.0.0.1:3001/api/health/ready
+```
+
+#### Passo 2 — Instalar e iniciar o frontend
+
+No segundo terminal, também a partir da raiz do repositório:
+
+```bash
+cd apps/web
+npm ci
+npm run dev
+```
+
+Mantém este terminal aberto e visita `http://127.0.0.1:5173`. O frontend usa `/api` e o proxy do Vite encaminha automaticamente os pedidos para o servidor local; não é necessário criar ou alterar ficheiros `.env` para o arranque académico normal.
+
+Se a porta `5173` já estiver ocupada, liberta-a antes de iniciar o frontend, porque é a origem autorizada pela configuração local da API.
+
+#### Passo 3 — Parar e voltar a iniciar
+
+Para parar a aplicação, prime `Ctrl+C` nos dois terminais. Em utilizações seguintes, salvo quando as dependências mudarem, basta voltar a executar:
+
+```bash
+# Terminal 1
+cd apps/api
+npm run dev:local
+```
+
+```bash
+# Terminal 2
+cd apps/web
+npm run dev
+```
+
+O guia operacional completo está em [MF8 — Arranque local](docs/planificacao/guias-bk/MF8/00-ARRANQUE-LOCAL.md). O comando da API não carrega `.env` nem MongoDB remoto: cria o replica set efémero, aplica migrações e prepara idempotentemente 8 contas, 4 categorias, 25 produtos e 5 cenários de cliente.
 
 A base é descartável. Ao parar/reiniciar o comando, consultas, encomendas e alterações locais desaparecem e as seeds são reaplicadas; isto não corresponde a apagar a base remota. Por defeito a OpenAI fica degradada. Para a ativar no mesmo runtime isolado, é obrigatório o opt-in `ORELLE_LOCAL_OPENAI_ENABLED=true` com `OPENAI_API_KEY` explicitamente exportada; o runner preserva apenas configuração OpenAI allowlisted e gera a chave de cifra local.
 
@@ -166,6 +232,7 @@ Fonte canónica RNF: [docs/RNF.md](docs/RNF.md).
 Projeto académico para fins educativos.
 
 ### Changelog
+- 2026-07-16: adicionado o passo a passo para instalar, iniciar, validar e parar a API e o frontend em `apps`.
 - 2026-07-11: README sincronizado com a consulta OpenAI-only de sete objetivos, jobs retomáveis, controlo fotográfico, revisão/congelamento, fórmula dos 10%, voucher e edição OpenAI de maquilhagem.
 - 2026-07-10: privacidade, consulta guiada/revisão humana, comparação conceptual e estado do mockup reconciliados com os contratos atuais.
 - 2026-07-09: pagamento limitado a simulação académica, linguagem de IA/simulação tornada explícita e ligação ao report vivo da auditoria.

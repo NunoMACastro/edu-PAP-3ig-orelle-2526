@@ -1,0 +1,5041 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "real_dev/api/src/scripts/seed-products.js",
+  "productCount": 68,
+  "products": [
+    {
+      "catalogPosition": 1,
+      "productName": "Gel de Limpeza Suave",
+      "brandName": "Orelle",
+      "imageFileName": "gel-de-limpeza-suave.png",
+      "publicImagePath": "/products/gel-de-limpeza-suave.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Gel cosmetico de limpeza diaria para remover impurezas sem deixar a pele desconfortavel.",
+      "categorySlugs": [
+        "limpeza"
+      ],
+      "ingredientNames": [
+        "agua",
+        "glicerina",
+        "coco glucoside"
+      ],
+      "skinTypes": [
+        "normal",
+        "mista",
+        "sensivel"
+      ],
+      "priceCents": 1290,
+      "stock": 36,
+      "aiEligible": true,
+      "concernTags": [
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "cleanse"
+      ],
+      "attributes": {
+        "texture": "gel",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Gel de Limpeza Suave. Gel cosmetico de limpeza diaria para remover impurezas sem deixar a pele desconfortavel. Ingredientes de referência visual: agua, glicerina, coco glucoside. Textura cosmética: gel; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 2,
+      "productName": "Espuma de Limpeza Purificante",
+      "brandName": "Orelle",
+      "imageFileName": "espuma-de-limpeza-purificante.png",
+      "publicImagePath": "/products/espuma-de-limpeza-purificante.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Espuma leve para limpeza de pele oleosa e mista, com acabamento fresco e sem perfume intenso.",
+      "categorySlugs": [
+        "limpeza"
+      ],
+      "ingredientNames": [
+        "agua",
+        "zinco pca",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista"
+      ],
+      "priceCents": 1490,
+      "stock": 32,
+      "aiEligible": true,
+      "concernTags": [
+        "oil_control",
+        "acne_imperfections"
+      ],
+      "routineSteps": [
+        "cleanse"
+      ],
+      "attributes": {
+        "texture": "foam",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Espuma de Limpeza Purificante. Espuma leve para limpeza de pele oleosa e mista, com acabamento fresco e sem perfume intenso. Ingredientes de referência visual: agua, zinco pca, glicerina. Textura cosmética: foam; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 3,
+      "productName": "Oleo de Limpeza Desmaquilhante",
+      "brandName": "Orelle",
+      "imageFileName": "oleo-de-limpeza-desmaquilhante.png",
+      "publicImagePath": "/products/oleo-de-limpeza-desmaquilhante.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Oleo de limpeza para dissolver maquilhagem e protetor solar antes do gel de limpeza diario.",
+      "categorySlugs": [
+        "limpeza"
+      ],
+      "ingredientNames": [
+        "caprylic triglyceride",
+        "squalane",
+        "tocopherol"
+      ],
+      "skinTypes": [
+        "seca",
+        "normal",
+        "mista"
+      ],
+      "priceCents": 1890,
+      "stock": 24,
+      "aiEligible": true,
+      "concernTags": [
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "cleanse"
+      ],
+      "attributes": {
+        "texture": "oil",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Oleo de Limpeza Desmaquilhante. Oleo de limpeza para dissolver maquilhagem e protetor solar antes do gel de limpeza diario. Ingredientes de referência visual: caprylic triglyceride, squalane, tocopherol. Textura cosmética: oil; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 4,
+      "productName": "Agua Micelar Pele Sensivel",
+      "brandName": "Orelle",
+      "imageFileName": "agua-micelar-pele-sensivel.png",
+      "publicImagePath": "/products/agua-micelar-pele-sensivel.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Agua micelar suave para rosto e olhos, pensada para limpeza rapida em pele sensivel.",
+      "categorySlugs": [
+        "limpeza"
+      ],
+      "ingredientNames": [
+        "agua",
+        "glicerina",
+        "panthenol"
+      ],
+      "skinTypes": [
+        "sensivel",
+        "normal",
+        "seca"
+      ],
+      "priceCents": 1090,
+      "stock": 42,
+      "aiEligible": true,
+      "concernTags": [
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "cleanse"
+      ],
+      "attributes": {
+        "texture": "water",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Agua Micelar Pele Sensivel. Agua micelar suave para rosto e olhos, pensada para limpeza rapida em pele sensivel. Ingredientes de referência visual: agua, glicerina, panthenol. Textura cosmética: water; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 5,
+      "productName": "Tonico Esfoliante AHA BHA",
+      "brandName": "Orelle",
+      "imageFileName": "tonico-esfoliante-aha-bha.png",
+      "publicImagePath": "/products/tonico-esfoliante-aha-bha.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Tonico cosmetico com acidos suaves para textura irregular e excesso de oleosidade.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "acido glicolico",
+        "acido salicilico",
+        "aloe vera"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista"
+      ],
+      "priceCents": 1690,
+      "stock": 18,
+      "aiEligible": true,
+      "concernTags": [
+        "oil_control",
+        "acne_imperfections"
+      ],
+      "routineSteps": [
+        "tone_exfoliate"
+      ],
+      "attributes": {
+        "texture": "water",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Tonico Esfoliante AHA BHA. Tonico cosmetico com acidos suaves para textura irregular e excesso de oleosidade. Ingredientes de referência visual: acido glicolico, acido salicilico, aloe vera. Textura cosmética: water; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 6,
+      "productName": "Serum Niacinamida 10% + Zinco 1%",
+      "brandName": "Orelle",
+      "imageFileName": "serum-niacinamida-10-zinco-1.png",
+      "publicImagePath": "/products/serum-niacinamida-10-zinco-1.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Serum cosmetico para ajudar a equilibrar a aparencia de oleosidade e brilho excessivo.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "niacinamida",
+        "zinco pca",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista"
+      ],
+      "priceCents": 1590,
+      "stock": 30,
+      "aiEligible": true,
+      "concernTags": [
+        "oil_control",
+        "acne_imperfections"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Serum Niacinamida 10% + Zinco 1%. Serum cosmetico para ajudar a equilibrar a aparencia de oleosidade e brilho excessivo. Ingredientes de referência visual: niacinamida, zinco pca, glicerina. Textura cosmética: serum; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 7,
+      "productName": "Serum Acido Hialuronico 2% + B5",
+      "brandName": "Orelle",
+      "imageFileName": "serum-acido-hialuronico-2-b5.png",
+      "publicImagePath": "/products/serum-acido-hialuronico-2-b5.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Serum hidratante com textura leve para melhorar a sensacao de conforto da pele.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "acido hialuronico",
+        "panthenol",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "seca",
+        "normal",
+        "mista",
+        "sensivel"
+      ],
+      "priceCents": 1790,
+      "stock": 34,
+      "aiEligible": true,
+      "concernTags": [
+        "hydration_barrier",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Serum Acido Hialuronico 2% + B5. Serum hidratante com textura leve para melhorar a sensacao de conforto da pele. Ingredientes de referência visual: acido hialuronico, panthenol, glicerina. Textura cosmética: serum; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 8,
+      "productName": "Serum Vitamina C 10%",
+      "brandName": "Orelle",
+      "imageFileName": "serum-vitamina-c-10.png",
+      "publicImagePath": "/products/serum-vitamina-c-10.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Serum antioxidante cosmetico para luminosidade e uniformizacao visual do tom da pele.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "ascorbyl glucoside",
+        "ferulic acid",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "normal",
+        "mista",
+        "seca"
+      ],
+      "priceCents": 2290,
+      "stock": 22,
+      "aiEligible": true,
+      "concernTags": [
+        "spots_tone_luminosity"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": "luminous",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Serum Vitamina C 10%. Serum antioxidante cosmetico para luminosidade e uniformizacao visual do tom da pele. Ingredientes de referência visual: ascorbyl glucoside, ferulic acid, glicerina. Textura cosmética: serum; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 9,
+      "productName": "Serum Retinal Suave 0.1%",
+      "brandName": "Orelle",
+      "imageFileName": "serum-retinal-suave-0-1.png",
+      "publicImagePath": "/products/serum-retinal-suave-0-1.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Serum noturno de cuidado cosmetico gradual para textura e aparencia geral da pele.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "retinal",
+        "squalane",
+        "bisabolol"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista"
+      ],
+      "priceCents": 2590,
+      "stock": 16,
+      "aiEligible": true,
+      "concernTags": [
+        "spots_tone_luminosity",
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Serum Retinal Suave 0.1%. Serum noturno de cuidado cosmetico gradual para textura e aparencia geral da pele. Ingredientes de referência visual: retinal, squalane, bisabolol. Textura cosmética: serum; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 10,
+      "productName": "Creme Hidratante Ceramidas",
+      "brandName": "Orelle",
+      "imageFileName": "creme-hidratante-ceramidas.png",
+      "publicImagePath": "/products/creme-hidratante-ceramidas.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Creme hidratante diario com ceramidas para reforcar a sensacao de barreira cutanea.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "ceramidas",
+        "glicerina",
+        "cholesterol"
+      ],
+      "skinTypes": [
+        "seca",
+        "normal",
+        "sensivel"
+      ],
+      "priceCents": 1990,
+      "stock": 28,
+      "aiEligible": true,
+      "concernTags": [
+        "hydration_barrier",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Creme Hidratante Ceramidas. Creme hidratante diario com ceramidas para reforcar a sensacao de barreira cutanea. Ingredientes de referência visual: ceramidas, glicerina, cholesterol. Textura cosmética: cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 11,
+      "productName": "Gel-Creme Hidratante Oil-Free",
+      "brandName": "Orelle",
+      "imageFileName": "gel-creme-hidratante-oil-free.png",
+      "publicImagePath": "/products/gel-creme-hidratante-oil-free.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Gel-creme hidratante leve para pele mista e oleosa, com toque rapido e nao oleoso.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "agua",
+        "glicerina",
+        "niacinamida"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal"
+      ],
+      "priceCents": 1790,
+      "stock": 31,
+      "aiEligible": true,
+      "concernTags": [
+        "hydration_barrier",
+        "oil_control"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "gel_cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Gel-Creme Hidratante Oil-Free. Gel-creme hidratante leve para pele mista e oleosa, com toque rapido e nao oleoso. Ingredientes de referência visual: agua, glicerina, niacinamida. Textura cosmética: gel_cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 12,
+      "productName": "Creme Rico Pele Seca",
+      "brandName": "Orelle",
+      "imageFileName": "creme-rico-pele-seca.png",
+      "publicImagePath": "/products/creme-rico-pele-seca.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Creme nutritivo para pele seca, com textura envolvente e conforto prolongado.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "shea butter",
+        "squalane",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "seca"
+      ],
+      "priceCents": 2190,
+      "stock": 20,
+      "aiEligible": true,
+      "concernTags": [
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Creme Rico Pele Seca. Creme nutritivo para pele seca, com textura envolvente e conforto prolongado. Ingredientes de referência visual: shea butter, squalane, glicerina. Textura cosmética: cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 13,
+      "productName": "Creme Barreira Cica",
+      "brandName": "Orelle",
+      "imageFileName": "creme-barreira-cica.png",
+      "publicImagePath": "/products/creme-barreira-cica.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Creme de cuidado cosmetico com pantenol e centella para pele sensibilizada.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "panthenol",
+        "centella asiatica",
+        "madecassoside"
+      ],
+      "skinTypes": [
+        "sensivel",
+        "seca",
+        "normal"
+      ],
+      "priceCents": 2090,
+      "stock": 26,
+      "aiEligible": true,
+      "concernTags": [
+        "hydration_barrier",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Creme Barreira Cica. Creme de cuidado cosmetico com pantenol e centella para pele sensibilizada. Ingredientes de referência visual: panthenol, centella asiatica, madecassoside. Textura cosmética: cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 14,
+      "productName": "Mascara Argila Verde",
+      "brandName": "Orelle",
+      "imageFileName": "mascara-argila-verde.png",
+      "publicImagePath": "/products/mascara-argila-verde.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Mascara facial de argila para absorver excesso de oleosidade e deixar toque fresco.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "kaolin",
+        "bentonite",
+        "aloe vera"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista"
+      ],
+      "priceCents": 1390,
+      "stock": 25,
+      "aiEligible": true,
+      "concernTags": [
+        "oil_control",
+        "acne_imperfections"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "matte",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Mascara Argila Verde. Mascara facial de argila para absorver excesso de oleosidade e deixar toque fresco. Ingredientes de referência visual: kaolin, bentonite, aloe vera. Textura cosmética: cream; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 15,
+      "productName": "Mascara Hidratante Noturna",
+      "brandName": "Orelle",
+      "imageFileName": "mascara-hidratante-noturna.png",
+      "publicImagePath": "/products/mascara-hidratante-noturna.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Mascara noturna de hidratacao cosmetica para pele com sensacao de repuxar.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "glicerina",
+        "squalane",
+        "acido hialuronico"
+      ],
+      "skinTypes": [
+        "seca",
+        "normal",
+        "sensivel"
+      ],
+      "priceCents": 1890,
+      "stock": 19,
+      "aiEligible": true,
+      "concernTags": [
+        "hydration_barrier",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Mascara Hidratante Noturna. Mascara noturna de hidratacao cosmetica para pele com sensacao de repuxar. Ingredientes de referência visual: glicerina, squalane, acido hialuronico. Textura cosmética: cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 16,
+      "productName": "Protetor Solar Fluido FPS 50",
+      "brandName": "Orelle",
+      "imageFileName": "protetor-solar-fluido-fps-50.png",
+      "publicImagePath": "/products/protetor-solar-fluido-fps-50.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Protetor solar fluido de uso diario com acabamento leve para rosto e pescoco.",
+      "categorySlugs": [
+        "protetor-solar"
+      ],
+      "ingredientNames": [
+        "uv filters",
+        "glicerina",
+        "vitamina e"
+      ],
+      "skinTypes": [
+        "normal",
+        "mista",
+        "seca"
+      ],
+      "priceCents": 2190,
+      "stock": 38,
+      "aiEligible": true,
+      "concernTags": [
+        "sun_protection"
+      ],
+      "routineSteps": [
+        "protect"
+      ],
+      "attributes": {
+        "texture": "fluid",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": 50,
+        "uvaRating": "broad_spectrum",
+        "waterResistantMinutes": 0
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Protetor Solar Fluido FPS 50. Protetor solar fluido de uso diario com acabamento leve para rosto e pescoco. Ingredientes de referência visual: uv filters, glicerina, vitamina e. Textura cosmética: fluid; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 17,
+      "productName": "Protetor Solar Mineral FPS 50",
+      "brandName": "Orelle",
+      "imageFileName": "protetor-solar-mineral-fps-50.png",
+      "publicImagePath": "/products/protetor-solar-mineral-fps-50.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Protetor solar mineral para pele sensivel, com filtros fisicos e textura cremosa.",
+      "categorySlugs": [
+        "protetor-solar"
+      ],
+      "ingredientNames": [
+        "zinc oxide",
+        "titanium dioxide",
+        "squalane"
+      ],
+      "skinTypes": [
+        "sensivel",
+        "seca",
+        "normal"
+      ],
+      "priceCents": 2390,
+      "stock": 21,
+      "aiEligible": true,
+      "concernTags": [
+        "sun_protection",
+        "sensitivity_redness",
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "protect"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": 50,
+        "uvaRating": "broad_spectrum",
+        "waterResistantMinutes": 0
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Protetor Solar Mineral FPS 50. Protetor solar mineral para pele sensivel, com filtros fisicos e textura cremosa. Ingredientes de referência visual: zinc oxide, titanium dioxide, squalane. Textura cosmética: cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 18,
+      "productName": "Protetor Solar Oil Control FPS 50",
+      "brandName": "Orelle",
+      "imageFileName": "protetor-solar-oil-control-fps-50.png",
+      "publicImagePath": "/products/protetor-solar-oil-control-fps-50.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Protetor solar com acabamento mate para pele oleosa e mista durante o dia.",
+      "categorySlugs": [
+        "protetor-solar"
+      ],
+      "ingredientNames": [
+        "uv filters",
+        "silica",
+        "niacinamida"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista"
+      ],
+      "priceCents": 2290,
+      "stock": 29,
+      "aiEligible": true,
+      "concernTags": [
+        "sun_protection",
+        "oil_control"
+      ],
+      "routineSteps": [
+        "protect"
+      ],
+      "attributes": {
+        "texture": "fluid",
+        "finish": "matte",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": 50,
+        "uvaRating": "broad_spectrum",
+        "waterResistantMinutes": 0
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Protetor Solar Oil Control FPS 50. Protetor solar com acabamento mate para pele oleosa e mista durante o dia. Ingredientes de referência visual: uv filters, silica, niacinamida. Textura cosmética: fluid; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 19,
+      "productName": "Base Liquida Mate",
+      "brandName": "Orelle",
+      "imageFileName": "base-liquida-mate.png",
+      "publicImagePath": "/products/base-liquida-mate.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Base liquida de acabamento mate para uniformizar o aspeto da pele sem pesar.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "dimethicone",
+        "iron oxides",
+        "silica"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal"
+      ],
+      "priceCents": 2490,
+      "stock": 18,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "matte",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "foundation"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "oil_control",
+          "longwear"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "porcelain-neutral",
+          "label": "Porcelana neutro",
+          "colorHex": "#E8C3A8",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "light-warm",
+          "label": "Claro quente",
+          "colorHex": "#D9AD87",
+          "undertone": "warm",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "medium-olive",
+          "label": "Médio oliva",
+          "colorHex": "#B9855E",
+          "undertone": "olive",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#754A35",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Base Liquida Mate. Base liquida de acabamento mate para uniformizar o aspeto da pele sem pesar. Ingredientes de referência visual: dimethicone, iron oxides, silica. Textura cosmética: liquid; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 20,
+      "productName": "Base Serum Glow",
+      "brandName": "Orelle",
+      "imageFileName": "base-serum-glow.png",
+      "publicImagePath": "/products/base-serum-glow.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Base-serum de acabamento luminoso para cobertura leve e sensacao hidratante.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "glicerina",
+        "iron oxides",
+        "acido hialuronico"
+      ],
+      "skinTypes": [
+        "seca",
+        "normal",
+        "mista"
+      ],
+      "priceCents": 2690,
+      "stock": 17,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": "luminous",
+        "coverage": "light",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "foundation"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic"
+        ],
+        "wearProfiles": [
+          "hydrating",
+          "comfort"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "porcelain-cool",
+          "label": "Porcelana frio",
+          "colorHex": "#EBC7B1",
+          "undertone": "cool",
+          "finish": "luminous",
+          "coverage": "light"
+        },
+        {
+          "variantId": "light-neutral",
+          "label": "Claro neutro",
+          "colorHex": "#D9AE8D",
+          "undertone": "neutral",
+          "finish": "luminous",
+          "coverage": "light"
+        },
+        {
+          "variantId": "medium-warm",
+          "label": "Médio quente",
+          "colorHex": "#B87C54",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "light"
+        },
+        {
+          "variantId": "deep-warm",
+          "label": "Profundo quente",
+          "colorHex": "#74432D",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "light"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Base Serum Glow. Base-serum de acabamento luminoso para cobertura leve e sensacao hidratante. Ingredientes de referência visual: glicerina, iron oxides, acido hialuronico. Textura cosmética: serum; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 21,
+      "productName": "Corretor Liquido Alta Cobertura",
+      "brandName": "Orelle",
+      "imageFileName": "corretor-liquido-alta-cobertura.png",
+      "publicImagePath": "/products/corretor-liquido-alta-cobertura.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Corretor liquido para olheiras e pequenas marcas, com aplicacao precisa.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "dimethicone",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "mista",
+        "seca",
+        "oleosa"
+      ],
+      "priceCents": 1490,
+      "stock": 27,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "natural",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "concealer"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "under_eyes",
+          "blemishes"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light-neutral",
+          "label": "Claro neutro",
+          "colorHex": "#E4BE9E",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "full"
+        },
+        {
+          "variantId": "light-warm",
+          "label": "Claro quente",
+          "colorHex": "#D5A27D",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "full"
+        },
+        {
+          "variantId": "medium-olive",
+          "label": "Médio oliva",
+          "colorHex": "#B37B55",
+          "undertone": "olive",
+          "finish": "natural",
+          "coverage": "full"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#744831",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Corretor Liquido Alta Cobertura. Corretor liquido para olheiras e pequenas marcas, com aplicacao precisa. Ingredientes de referência visual: dimethicone, mica, iron oxides. Textura cosmética: liquid; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 22,
+      "productName": "Blush Creme Rosa",
+      "brandName": "Orelle",
+      "imageFileName": "blush-creme-rosa.png",
+      "publicImagePath": "/products/blush-creme-rosa.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Blush em creme com acabamento natural para acrescentar cor suave ao rosto.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "squalane",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "seca",
+        "normal",
+        "mista"
+      ],
+      "priceCents": 1390,
+      "stock": 23,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "natural",
+        "coverage": "sheer",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "blush"
+        ],
+        "regions": [
+          "cheeks"
+        ],
+        "applicationAreas": [
+          "cheek_apples"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "soft-rose",
+          "label": "Rosa suave",
+          "colorHex": "#C9787E",
+          "undertone": "cool",
+          "finish": "natural",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "warm-rose",
+          "label": "Rosa quente",
+          "colorHex": "#C56F61",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "sheer"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Blush Creme Rosa. Blush em creme com acabamento natural para acrescentar cor suave ao rosto. Ingredientes de referência visual: squalane, mica, iron oxides. Textura cosmética: cream; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 23,
+      "productName": "Batom Hidratante Nude",
+      "brandName": "Orelle",
+      "imageFileName": "batom-hidratante-nude.png",
+      "publicImagePath": "/products/batom-hidratante-nude.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Batom cremoso com cor nude e conforto para uso diario em maquilhagem simples.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "shea butter",
+        "tocopherol",
+        "mica"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1190,
+      "stock": 35,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "lips"
+      ],
+      "attributes": {
+        "texture": "balm",
+        "finish": "satin",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "lipstick"
+        ],
+        "regions": [
+          "lips"
+        ],
+        "applicationAreas": [
+          "lips"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "nude-rose",
+          "label": "Nude rosado",
+          "colorHex": "#A95F63",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "nude-peach",
+          "label": "Nude pêssego",
+          "colorHex": "#B96F59",
+          "undertone": "warm",
+          "finish": "satin",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "nude-brown",
+          "label": "Nude castanho",
+          "colorHex": "#815047",
+          "undertone": "neutral",
+          "finish": "satin",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Batom Hidratante Nude. Batom cremoso com cor nude e conforto para uso diario em maquilhagem simples. Ingredientes de referência visual: shea butter, tocopherol, mica. Textura cosmética: balm; acabamento: satin. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 24,
+      "productName": "Mascara de Pestanas Volume",
+      "brandName": "Orelle",
+      "imageFileName": "mascara-de-pestanas-volume.png",
+      "publicImagePath": "/products/mascara-de-pestanas-volume.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Mascara de pestanas para volume e definicao, com escova classica de uso diario.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "beeswax",
+        "carnauba wax",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1590,
+      "stock": 33,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "eyes"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "natural",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "mascara"
+        ],
+        "regions": [
+          "eyes"
+        ],
+        "applicationAreas": [
+          "lashes"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "black",
+          "label": "Preto",
+          "colorHex": "#171717",
+          "undertone": "universal",
+          "finish": "natural",
+          "coverage": "full"
+        },
+        {
+          "variantId": "brown",
+          "label": "Castanho",
+          "colorHex": "#3D2A24",
+          "undertone": "universal",
+          "finish": "natural",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Mascara de Pestanas Volume. Mascara de pestanas para volume e definicao, com escova classica de uso diario. Ingredientes de referência visual: beeswax, carnauba wax, iron oxides. Textura cosmética: liquid; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 25,
+      "productName": "Paleta Sombras Neutras",
+      "brandName": "Orelle",
+      "imageFileName": "paleta-sombras-neutras.png",
+      "publicImagePath": "/products/paleta-sombras-neutras.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Paleta de sombras neutras com tons mate e acetinados para looks de dia e noite.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "mica",
+        "talc",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 2990,
+      "stock": 14,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "eyes"
+      ],
+      "attributes": {
+        "texture": "powder",
+        "finish": "satin",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "eyeshadow"
+        ],
+        "regions": [
+          "eyes"
+        ],
+        "applicationAreas": [
+          "eyelids"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "neutral",
+          "label": "Neutros",
+          "colorHex": "#9A7968",
+          "undertone": "neutral",
+          "finish": "satin",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "warm",
+          "label": "Neutros quentes",
+          "colorHex": "#A66E4D",
+          "undertone": "warm",
+          "finish": "satin",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Paleta Sombras Neutras. Paleta de sombras neutras com tons mate e acetinados para looks de dia e noite. Ingredientes de referência visual: mica, talc, iron oxides. Textura cosmética: powder; acabamento: satin. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 26,
+      "productName": "Gel de Limpeza Anti-Imperfeicoes",
+      "brandName": "Orelle",
+      "imageFileName": "gel-de-limpeza-anti-imperfeicoes.png",
+      "publicImagePath": "/products/gel-de-limpeza-anti-imperfeicoes.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Gel de limpeza sem perfume para remover impurezas com suavidade em pele com tendencia a imperfeicoes.",
+      "categorySlugs": [
+        "limpeza"
+      ],
+      "ingredientNames": [
+        "agua",
+        "glicerina",
+        "zinco pca"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal",
+        "sensivel"
+      ],
+      "priceCents": 1390,
+      "stock": 30,
+      "aiEligible": true,
+      "concernTags": [
+        "acne_imperfections",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "cleanse"
+      ],
+      "attributes": {
+        "texture": "gel",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Gel de Limpeza Anti-Imperfeicoes. Gel de limpeza sem perfume para remover impurezas com suavidade em pele com tendencia a imperfeicoes. Ingredientes de referência visual: agua, glicerina, zinco pca. Textura cosmética: gel; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 27,
+      "productName": "Serum Equilibrante Acido Azelaico 10%",
+      "brandName": "Orelle",
+      "imageFileName": "serum-equilibrante-acido-azelaico-10.png",
+      "publicImagePath": "/products/serum-equilibrante-acido-azelaico-10.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Serum cosmetico gradual para melhorar o aspeto de imperfeicoes, vermelhidao e tom irregular.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "acido azelaico",
+        "squalane",
+        "panthenol"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal",
+        "sensivel"
+      ],
+      "priceCents": 2090,
+      "stock": 22,
+      "aiEligible": true,
+      "concernTags": [
+        "acne_imperfections",
+        "sensitivity_redness",
+        "spots_tone_luminosity"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Serum Equilibrante Acido Azelaico 10%. Serum cosmetico gradual para melhorar o aspeto de imperfeicoes, vermelhidao e tom irregular. Ingredientes de referência visual: acido azelaico, squalane, panthenol. Textura cosmética: serum; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 28,
+      "productName": "Locao Leve Pele com Imperfeicoes",
+      "brandName": "Orelle",
+      "imageFileName": "locao-leve-pele-com-imperfeicoes.png",
+      "publicImagePath": "/products/locao-leve-pele-com-imperfeicoes.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Locao hidratante leve para conforto diario de pele com brilho e tendencia a imperfeicoes.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "niacinamida",
+        "ceramidas",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal"
+      ],
+      "priceCents": 1890,
+      "stock": 27,
+      "aiEligible": true,
+      "concernTags": [
+        "acne_imperfections",
+        "hydration_barrier",
+        "oil_control"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "fluid",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Locao Leve Pele com Imperfeicoes. Locao hidratante leve para conforto diario de pele com brilho e tendencia a imperfeicoes. Ingredientes de referência visual: niacinamida, ceramidas, glicerina. Textura cosmética: fluid; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 29,
+      "productName": "Gel Local SOS Imperfeicoes",
+      "brandName": "Orelle",
+      "imageFileName": "gel-local-sos-imperfeicoes.png",
+      "publicImagePath": "/products/gel-local-sos-imperfeicoes.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Gel cosmetico de aplicacao localizada para cuidar da aparencia de imperfeicoes sem pesar na rotina.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "acido salicilico",
+        "niacinamida",
+        "aloe vera"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal"
+      ],
+      "priceCents": 1190,
+      "stock": 25,
+      "aiEligible": true,
+      "concernTags": [
+        "acne_imperfections",
+        "oil_control"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "gel",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Gel Local SOS Imperfeicoes. Gel cosmetico de aplicacao localizada para cuidar da aparencia de imperfeicoes sem pesar na rotina. Ingredientes de referência visual: acido salicilico, niacinamida, aloe vera. Textura cosmética: gel; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 30,
+      "productName": "Creme Conforto Pele Seca com Imperfeicoes",
+      "brandName": "Orelle",
+      "imageFileName": "creme-conforto-pele-seca-com-imperfeicoes.png",
+      "publicImagePath": "/products/creme-conforto-pele-seca-com-imperfeicoes.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Creme sem perfume para hidratar pele seca ou sensivel com tendencia ocasional a imperfeicoes.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "ceramidas",
+        "panthenol",
+        "niacinamida"
+      ],
+      "skinTypes": [
+        "seca",
+        "normal",
+        "sensivel"
+      ],
+      "priceCents": 1990,
+      "stock": 24,
+      "aiEligible": true,
+      "concernTags": [
+        "acne_imperfections",
+        "hydration_barrier",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Creme Conforto Pele Seca com Imperfeicoes. Creme sem perfume para hidratar pele seca ou sensivel com tendencia ocasional a imperfeicoes. Ingredientes de referência visual: ceramidas, panthenol, niacinamida. Textura cosmética: cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 31,
+      "productName": "Serum Uniformizador Suave",
+      "brandName": "Orelle",
+      "imageFileName": "serum-uniformizador-suave.png",
+      "publicImagePath": "/products/serum-uniformizador-suave.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Serum sem perfume para apoiar a uniformidade visual do tom e o conforto da pele sensivel.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "alpha arbutin",
+        "acido hialuronico",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 1890,
+      "stock": 26,
+      "aiEligible": true,
+      "concernTags": [
+        "spots_tone_luminosity",
+        "sensitivity_redness",
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Serum Uniformizador Suave. Serum sem perfume para apoiar a uniformidade visual do tom e o conforto da pele sensivel. Ingredientes de referência visual: alpha arbutin, acido hialuronico, glicerina. Textura cosmética: serum; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 32,
+      "productName": "Essencia Antioxidante Luminosidade",
+      "brandName": "Orelle",
+      "imageFileName": "essencia-antioxidante-luminosidade.png",
+      "publicImagePath": "/products/essencia-antioxidante-luminosidade.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Essencia cosmetica leve para reforcar a luminosidade e a hidratacao sem uma textura pesada.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "cha verde",
+        "ascorbyl glucoside",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "mista",
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 1490,
+      "stock": 29,
+      "aiEligible": true,
+      "concernTags": [
+        "spots_tone_luminosity",
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "treat"
+      ],
+      "attributes": {
+        "texture": "water",
+        "finish": "luminous",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Essencia Antioxidante Luminosidade. Essencia cosmetica leve para reforcar a luminosidade e a hidratacao sem uma textura pesada. Ingredientes de referência visual: cha verde, ascorbyl glucoside, glicerina. Textura cosmética: water; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 33,
+      "productName": "Creme Iluminador Diario",
+      "brandName": "Orelle",
+      "imageFileName": "creme-iluminador-diario.png",
+      "publicImagePath": "/products/creme-iluminador-diario.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Creme diario para hidratar e melhorar a aparencia de luminosidade e uniformidade da pele.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "niacinamida",
+        "extrato de alcaçuz",
+        "ceramidas"
+      ],
+      "skinTypes": [
+        "mista",
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 1790,
+      "stock": 28,
+      "aiEligible": true,
+      "concernTags": [
+        "spots_tone_luminosity",
+        "hydration_barrier",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Creme Iluminador Diario. Creme diario para hidratar e melhorar a aparencia de luminosidade e uniformidade da pele. Ingredientes de referência visual: niacinamida, extrato de alcaçuz, ceramidas. Textura cosmética: cream; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 34,
+      "productName": "Protetor Solar Mineral com Cor FPS 50",
+      "brandName": "Orelle",
+      "imageFileName": "protetor-solar-mineral-com-cor-fps-50.png",
+      "publicImagePath": "/products/protetor-solar-mineral-com-cor-fps-50.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Protetor solar mineral com cobertura leve para uniformizar visualmente a pele durante o dia.",
+      "categorySlugs": [
+        "protetor-solar"
+      ],
+      "ingredientNames": [
+        "zinc oxide",
+        "titanium dioxide",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "mista",
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 2290,
+      "stock": 32,
+      "aiEligible": true,
+      "concernTags": [
+        "sun_protection",
+        "spots_tone_luminosity",
+        "sensitivity_redness",
+        "makeup"
+      ],
+      "routineSteps": [
+        "protect"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "natural",
+        "coverage": "light",
+        "fragranceFree": true,
+        "spf": 50,
+        "uvaRating": "broad_spectrum",
+        "waterResistantMinutes": 0
+      },
+      "makeup": {
+        "functions": [
+          "skin_tint"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "natural_everyday"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light-neutral",
+          "label": "Claro neutro",
+          "colorHex": "#DDB796",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "light"
+        },
+        {
+          "variantId": "medium-warm",
+          "label": "Médio quente",
+          "colorHex": "#B87E59",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "light"
+        },
+        {
+          "variantId": "medium-olive",
+          "label": "Médio oliva",
+          "colorHex": "#A97852",
+          "undertone": "olive",
+          "finish": "natural",
+          "coverage": "light"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#704832",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "light"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Protetor Solar Mineral com Cor FPS 50. Protetor solar mineral com cobertura leve para uniformizar visualmente a pele durante o dia. Ingredientes de referência visual: zinc oxide, titanium dioxide, iron oxides. Textura cosmética: cream; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 35,
+      "productName": "Protetor Solar Sport FPS 50+",
+      "brandName": "Orelle",
+      "imageFileName": "protetor-solar-sport-fps-50.png",
+      "publicImagePath": "/products/protetor-solar-sport-fps-50.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Protetor solar resistente a agua durante 80 minutos para atividade fisica e dias no exterior.",
+      "categorySlugs": [
+        "protetor-solar"
+      ],
+      "ingredientNames": [
+        "uv filters",
+        "tocopherol",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal"
+      ],
+      "priceCents": 1990,
+      "stock": 35,
+      "aiEligible": true,
+      "concernTags": [
+        "sun_protection"
+      ],
+      "routineSteps": [
+        "protect"
+      ],
+      "attributes": {
+        "texture": "fluid",
+        "finish": "natural",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": 50,
+        "uvaRating": "broad_spectrum",
+        "waterResistantMinutes": 80
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Protetor Solar Sport FPS 50+. Protetor solar resistente a agua durante 80 minutos para atividade fisica e dias no exterior. Ingredientes de referência visual: uv filters, tocopherol, glicerina. Textura cosmética: fluid; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 36,
+      "productName": "Protetor Solar Invisivel FPS 50",
+      "brandName": "Orelle",
+      "imageFileName": "protetor-solar-invisivel-fps-50.png",
+      "publicImagePath": "/products/protetor-solar-invisivel-fps-50.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Protetor solar fluido sem perfume e sem acabamento branco para uso diario em varios tipos de pele.",
+      "categorySlugs": [
+        "protetor-solar"
+      ],
+      "ingredientNames": [
+        "uv filters",
+        "silica",
+        "glicerina"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 1690,
+      "stock": 40,
+      "aiEligible": true,
+      "concernTags": [
+        "sun_protection",
+        "oil_control"
+      ],
+      "routineSteps": [
+        "protect"
+      ],
+      "attributes": {
+        "texture": "fluid",
+        "finish": "natural",
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": 50,
+        "uvaRating": "broad_spectrum",
+        "waterResistantMinutes": 0
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Protetor Solar Invisivel FPS 50. Protetor solar fluido sem perfume e sem acabamento branco para uso diario em varios tipos de pele. Ingredientes de referência visual: uv filters, silica, glicerina. Textura cosmética: fluid; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 37,
+      "productName": "Leite de Limpeza Calmante",
+      "brandName": "Orelle",
+      "imageFileName": "leite-de-limpeza-calmante.png",
+      "publicImagePath": "/products/leite-de-limpeza-calmante.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Leite de limpeza sem perfume para remover residuos e manter o conforto da pele seca ou sensivel.",
+      "categorySlugs": [
+        "limpeza"
+      ],
+      "ingredientNames": [
+        "extrato de aveia",
+        "glicerina",
+        "panthenol"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 1290,
+      "stock": 33,
+      "aiEligible": true,
+      "concernTags": [
+        "sensitivity_redness",
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "cleanse"
+      ],
+      "attributes": {
+        "texture": "fluid",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Leite de Limpeza Calmante. Leite de limpeza sem perfume para remover residuos e manter o conforto da pele seca ou sensivel. Ingredientes de referência visual: extrato de aveia, glicerina, panthenol. Textura cosmética: fluid; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 38,
+      "productName": "Balsamo Reparador Sem Perfume",
+      "brandName": "Orelle",
+      "imageFileName": "balsamo-reparador-sem-perfume.png",
+      "publicImagePath": "/products/balsamo-reparador-sem-perfume.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Balsamo cosmetico nutritivo para zonas secas e pele sensibilizada que precisa de conforto adicional.",
+      "categorySlugs": [
+        "tratamento"
+      ],
+      "ingredientNames": [
+        "ceramidas",
+        "panthenol",
+        "squalane"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 1590,
+      "stock": 31,
+      "aiEligible": true,
+      "concernTags": [
+        "sensitivity_redness",
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "moisturize"
+      ],
+      "attributes": {
+        "texture": "balm",
+        "finish": null,
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [],
+        "regions": [],
+        "applicationAreas": [],
+        "styleTags": [],
+        "wearProfiles": []
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Balsamo Reparador Sem Perfume. Balsamo cosmetico nutritivo para zonas secas e pele sensibilizada que precisa de conforto adicional. Ingredientes de referência visual: ceramidas, panthenol, squalane. Textura cosmética: balm; acabamento: natural ou neutro. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 39,
+      "productName": "Primer Mate Controlo de Brilho",
+      "brandName": "Orelle",
+      "imageFileName": "primer-mate-controlo-de-brilho.png",
+      "publicImagePath": "/products/primer-mate-controlo-de-brilho.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Primer de maquilhagem com acabamento mate para preparar a pele e reduzir visualmente o brilho.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "silica",
+        "niacinamida",
+        "dimethicone"
+      ],
+      "skinTypes": [
+        "oleosa",
+        "mista",
+        "normal"
+      ],
+      "priceCents": 1490,
+      "stock": 25,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup",
+        "oil_control"
+      ],
+      "routineSteps": [
+        "prime"
+      ],
+      "attributes": {
+        "texture": "gel",
+        "finish": "matte",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "primer"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion",
+          "t_zone"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "oil_control",
+          "longwear"
+        ]
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Primer Mate Controlo de Brilho. Primer de maquilhagem com acabamento mate para preparar a pele e reduzir visualmente o brilho. Ingredientes de referência visual: silica, niacinamida, dimethicone. Textura cosmética: gel; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 40,
+      "productName": "Primer Hidratante Calmante",
+      "brandName": "Orelle",
+      "imageFileName": "primer-hidratante-calmante.png",
+      "publicImagePath": "/products/primer-hidratante-calmante.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Primer hidratante sem perfume para preparar pele seca ou sensivel com acabamento vicoso.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "glicerina",
+        "panthenol",
+        "centella asiatica"
+      ],
+      "skinTypes": [
+        "mista",
+        "normal",
+        "seca",
+        "sensivel"
+      ],
+      "priceCents": 1590,
+      "stock": 24,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup",
+        "hydration_barrier",
+        "sensitivity_redness"
+      ],
+      "routineSteps": [
+        "prime"
+      ],
+      "attributes": {
+        "texture": "gel_cream",
+        "finish": "dewy",
+        "coverage": "none",
+        "fragranceFree": true,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "primer"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic"
+        ],
+        "wearProfiles": [
+          "hydrating",
+          "comfort"
+        ]
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Primer Hidratante Calmante. Primer hidratante sem perfume para preparar pele seca ou sensivel com acabamento vicoso. Ingredientes de referência visual: glicerina, panthenol, centella asiatica. Textura cosmética: gel_cream; acabamento: dewy. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 41,
+      "productName": "Skin Tint Hidratante Natural",
+      "brandName": "Orelle",
+      "imageFileName": "skin-tint-hidratante-natural.png",
+      "publicImagePath": "/products/skin-tint-hidratante-natural.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Skin tint leve para uniformizar subtilmente o rosto com conforto hidratante.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "glicerina",
+        "iron oxides",
+        "squalane"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 2190,
+      "stock": 28,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "fluid",
+        "finish": "natural",
+        "coverage": "sheer",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "skin_tint"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light-neutral",
+          "label": "Claro neutro",
+          "colorHex": "#DDB493",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "medium-warm",
+          "label": "Médio quente",
+          "colorHex": "#B77E59",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#704631",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "sheer"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Skin Tint Hidratante Natural. Skin tint leve para uniformizar subtilmente o rosto com conforto hidratante. Ingredientes de referência visual: glicerina, iron oxides, squalane. Textura cosmética: fluid; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 42,
+      "productName": "Base Longwear Acabamento Natural",
+      "brandName": "Orelle",
+      "imageFileName": "base-longwear-acabamento-natural.png",
+      "publicImagePath": "/products/base-longwear-acabamento-natural.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Base de longa duração com cobertura média e acabamento natural para dias prolongados.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "dimethicone",
+        "iron oxides",
+        "silica"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 2890,
+      "stock": 24,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "natural",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "foundation"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "porcelain-neutral",
+          "label": "Porcelana neutro",
+          "colorHex": "#E8C3A8",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "light-warm",
+          "label": "Claro quente",
+          "colorHex": "#D5A47F",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "medium-olive",
+          "label": "Médio oliva",
+          "colorHex": "#AD7853",
+          "undertone": "olive",
+          "finish": "natural",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "deep-warm",
+          "label": "Profundo quente",
+          "colorHex": "#71442F",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Base Longwear Acabamento Natural. Base de longa duração com cobertura média e acabamento natural para dias prolongados. Ingredientes de referência visual: dimethicone, iron oxides, silica. Textura cosmética: liquid; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 43,
+      "productName": "Base Creme Cobertura Completa",
+      "brandName": "Orelle",
+      "imageFileName": "base-creme-cobertura-completa.png",
+      "publicImagePath": "/products/base-creme-cobertura-completa.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Base cremosa de cobertura completa para um resultado definido e uniforme.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "dimethicone",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 2990,
+      "stock": 20,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "satin",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "foundation"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "soft_glam",
+          "gala_evening",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light-cool",
+          "label": "Claro frio",
+          "colorHex": "#E3BDA5",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "medium-neutral",
+          "label": "Médio neutro",
+          "colorHex": "#B67E5B",
+          "undertone": "neutral",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#6B422F",
+          "undertone": "neutral",
+          "finish": "satin",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Base Creme Cobertura Completa. Base cremosa de cobertura completa para um resultado definido e uniforme. Ingredientes de referência visual: dimethicone, mica, iron oxides. Textura cosmética: cream; acabamento: satin. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 44,
+      "productName": "Corretor Serum Luminoso",
+      "brandName": "Orelle",
+      "imageFileName": "corretor-serum-luminoso.png",
+      "publicImagePath": "/products/corretor-serum-luminoso.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Corretor leve e luminoso para a zona das olheiras e pequenas imperfeições.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "glicerina",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1590,
+      "stock": 30,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "serum",
+        "finish": "luminous",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "concealer"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "under_eyes",
+          "blemishes"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light-neutral",
+          "label": "Claro neutro",
+          "colorHex": "#E5BE9F",
+          "undertone": "neutral",
+          "finish": "luminous",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "medium-warm",
+          "label": "Médio quente",
+          "colorHex": "#BD865F",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#774A34",
+          "undertone": "neutral",
+          "finish": "luminous",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Corretor Serum Luminoso. Corretor leve e luminoso para a zona das olheiras e pequenas imperfeições. Ingredientes de referência visual: glicerina, mica, iron oxides. Textura cosmética: serum; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 45,
+      "productName": "Corretor de Cor Cremoso",
+      "brandName": "Orelle",
+      "imageFileName": "corretor-de-cor-cremoso.png",
+      "publicImagePath": "/products/corretor-de-cor-cremoso.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Corretor de cor cremoso para neutralização localizada antes da base ou corretor.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "dimethicone",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1690,
+      "stock": 26,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "complexion"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "natural",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "color_corrector"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "under_eyes",
+          "blemishes"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "photo_ready",
+          "longwear"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "peach",
+          "label": "Pêssego",
+          "colorHex": "#D99276",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "green",
+          "label": "Verde",
+          "colorHex": "#8FAA89",
+          "undertone": "universal",
+          "finish": "natural",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "lavender",
+          "label": "Lavanda",
+          "colorHex": "#A995B3",
+          "undertone": "cool",
+          "finish": "natural",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Corretor de Cor Cremoso. Corretor de cor cremoso para neutralização localizada antes da base ou corretor. Ingredientes de referência visual: dimethicone, mica, iron oxides. Textura cosmética: cream; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 46,
+      "productName": "Po Solto Translucido",
+      "brandName": "Orelle",
+      "imageFileName": "po-solto-translucido.png",
+      "publicImagePath": "/products/po-solto-translucido.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Pó solto translúcido para fixação leve e controlo localizado do brilho.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "silica",
+        "mica",
+        "rice powder"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1790,
+      "stock": 32,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "set"
+      ],
+      "attributes": {
+        "texture": "powder",
+        "finish": "matte",
+        "coverage": "sheer",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "setting_powder"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "t_zone",
+          "under_eyes"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "oil_control",
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "translucent",
+          "label": "Translúcido",
+          "colorHex": "#E8DDCE",
+          "undertone": "universal",
+          "finish": "matte",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "deep-translucent",
+          "label": "Translúcido profundo",
+          "colorHex": "#A87C61",
+          "undertone": "universal",
+          "finish": "matte",
+          "coverage": "sheer"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Po Solto Translucido. Pó solto translúcido para fixação leve e controlo localizado do brilho. Ingredientes de referência visual: silica, mica, rice powder. Textura cosmética: powder; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 47,
+      "productName": "Po Compacto Oil Control",
+      "brandName": "Orelle",
+      "imageFileName": "po-compacto-oil-control.png",
+      "publicImagePath": "/products/po-compacto-oil-control.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Pó compacto mate para reforçar a fixação e controlar brilho na zona T.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "silica",
+        "talc",
+        "mica"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1690,
+      "stock": 27,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "set"
+      ],
+      "attributes": {
+        "texture": "powder",
+        "finish": "matte",
+        "coverage": "light",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "setting_powder"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "t_zone",
+          "full_complexion"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "oil_control",
+          "longwear"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light",
+          "label": "Claro",
+          "colorHex": "#DFC2A6",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "light"
+        },
+        {
+          "variantId": "medium",
+          "label": "Médio",
+          "colorHex": "#BB8967",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "light"
+        },
+        {
+          "variantId": "deep",
+          "label": "Profundo",
+          "colorHex": "#76503B",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "light"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Po Compacto Oil Control. Pó compacto mate para reforçar a fixação e controlar brilho na zona T. Ingredientes de referência visual: silica, talc, mica. Textura cosmética: powder; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 48,
+      "productName": "Spray Fixador Longwear",
+      "brandName": "Orelle",
+      "imageFileName": "spray-fixador-longwear.png",
+      "publicImagePath": "/products/spray-fixador-longwear.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Spray fixador para prolongar o plano de maquilhagem sem acrescentar cor.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "agua",
+        "film former",
+        "panthenol"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1590,
+      "stock": 34,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "set"
+      ],
+      "attributes": {
+        "texture": "water",
+        "finish": "natural",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "setting_spray"
+        ],
+        "regions": [
+          "complexion",
+          "cheeks",
+          "eyes",
+          "brows",
+          "lips"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Spray Fixador Longwear. Spray fixador para prolongar o plano de maquilhagem sem acrescentar cor. Ingredientes de referência visual: agua, film former, panthenol. Textura cosmética: water; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 49,
+      "productName": "Blush em Po Soft Matte",
+      "brandName": "Orelle",
+      "imageFileName": "blush-em-po-soft-matte.png",
+      "publicImagePath": "/products/blush-em-po-soft-matte.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Blush em pó mate de aplicação modulável nas maçãs do rosto.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "mica",
+        "talc",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1490,
+      "stock": 30,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "powder",
+        "finish": "matte",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "blush"
+        ],
+        "regions": [
+          "cheeks"
+        ],
+        "applicationAreas": [
+          "cheek_apples"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "oil_control"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "soft-pink",
+          "label": "Rosa suave",
+          "colorHex": "#C77982",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "peach",
+          "label": "Pêssego",
+          "colorHex": "#D08368",
+          "undertone": "warm",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "berry",
+          "label": "Frutos vermelhos",
+          "colorHex": "#98515F",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Blush em Po Soft Matte. Blush em pó mate de aplicação modulável nas maçãs do rosto. Ingredientes de referência visual: mica, talc, iron oxides. Textura cosmética: powder; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 50,
+      "productName": "Blush Liquido Luminoso",
+      "brandName": "Orelle",
+      "imageFileName": "blush-liquido-luminoso.png",
+      "publicImagePath": "/products/blush-liquido-luminoso.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Blush líquido luminoso para cor translúcida e acabamento fresco.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "agua",
+        "glicerina",
+        "mica"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1590,
+      "stock": 29,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "luminous",
+        "coverage": "sheer",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "blush"
+        ],
+        "regions": [
+          "cheeks"
+        ],
+        "applicationAreas": [
+          "cheek_apples"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_glam",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "rose",
+          "label": "Rosa",
+          "colorHex": "#C86E79",
+          "undertone": "cool",
+          "finish": "luminous",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "coral",
+          "label": "Coral",
+          "colorHex": "#D87865",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "sheer"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Blush Liquido Luminoso. Blush líquido luminoso para cor translúcida e acabamento fresco. Ingredientes de referência visual: agua, glicerina, mica. Textura cosmética: liquid; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 51,
+      "productName": "Bronzer em Creme Natural",
+      "brandName": "Orelle",
+      "imageFileName": "bronzer-em-creme-natural.png",
+      "publicImagePath": "/products/bronzer-em-creme-natural.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Bronzer cremoso para aquecer o rosto com transições suaves e naturais.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "squalane",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1790,
+      "stock": 25,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "natural",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "bronzer"
+        ],
+        "regions": [
+          "cheeks",
+          "complexion"
+        ],
+        "applicationAreas": [
+          "cheekbones",
+          "temples"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light",
+          "label": "Claro",
+          "colorHex": "#B77C58",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "medium",
+          "label": "Médio",
+          "colorHex": "#8F5D42",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "deep",
+          "label": "Profundo",
+          "colorHex": "#62402F",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Bronzer em Creme Natural. Bronzer cremoso para aquecer o rosto com transições suaves e naturais. Ingredientes de referência visual: squalane, mica, iron oxides. Textura cosmética: cream; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 52,
+      "productName": "Bronzer em Po Mate",
+      "brandName": "Orelle",
+      "imageFileName": "bronzer-em-po-mate.png",
+      "publicImagePath": "/products/bronzer-em-po-mate.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Bronzer em pó mate para definição quente e duradoura.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "mica",
+        "talc",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1690,
+      "stock": 28,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "powder",
+        "finish": "matte",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "bronzer"
+        ],
+        "regions": [
+          "cheeks",
+          "complexion"
+        ],
+        "applicationAreas": [
+          "cheekbones",
+          "temples"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "oil_control"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light-neutral",
+          "label": "Claro neutro",
+          "colorHex": "#AF7958",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "medium-warm",
+          "label": "Médio quente",
+          "colorHex": "#8B593D",
+          "undertone": "warm",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#5D3B2B",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Bronzer em Po Mate. Bronzer em pó mate para definição quente e duradoura. Ingredientes de referência visual: mica, talc, iron oxides. Textura cosmética: powder; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 53,
+      "productName": "Stick de Contorno",
+      "brandName": "Orelle",
+      "imageFileName": "stick-de-contorno.png",
+      "publicImagePath": "/products/stick-de-contorno.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Stick de contorno para definição localizada através de cor e sombra cosmética.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "dimethicone",
+        "wax",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1890,
+      "stock": 24,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "matte",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "contour"
+        ],
+        "regions": [
+          "cheeks",
+          "complexion"
+        ],
+        "applicationAreas": [
+          "cheekbones",
+          "jawline",
+          "temples"
+        ],
+        "styleTags": [
+          "soft_glam",
+          "gala_evening",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "light-cool",
+          "label": "Claro frio",
+          "colorHex": "#96705E",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "medium-neutral",
+          "label": "Médio neutro",
+          "colorHex": "#73513F",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "deep-neutral",
+          "label": "Profundo neutro",
+          "colorHex": "#50372D",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Stick de Contorno. Stick de contorno para definição localizada através de cor e sombra cosmética. Ingredientes de referência visual: dimethicone, wax, iron oxides. Textura cosmética: cream; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 54,
+      "productName": "Iluminador Liquido",
+      "brandName": "Orelle",
+      "imageFileName": "iluminador-liquido.png",
+      "publicImagePath": "/products/iluminador-liquido.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Iluminador líquido para pontos de luz controlados e acabamento luminoso.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "glicerina",
+        "mica",
+        "squalane"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1690,
+      "stock": 27,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "luminous",
+        "coverage": "sheer",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "highlighter"
+        ],
+        "regions": [
+          "cheeks",
+          "complexion"
+        ],
+        "applicationAreas": [
+          "cheekbones"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_glam",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "pearl",
+          "label": "Pérola",
+          "colorHex": "#E8D5C5",
+          "undertone": "cool",
+          "finish": "luminous",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "champagne",
+          "label": "Champanhe",
+          "colorHex": "#D4B17A",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "bronze",
+          "label": "Bronze",
+          "colorHex": "#9C6848",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "sheer"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Iluminador Liquido. Iluminador líquido para pontos de luz controlados e acabamento luminoso. Ingredientes de referência visual: glicerina, mica, squalane. Textura cosmética: liquid; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 55,
+      "productName": "Iluminador em Po",
+      "brandName": "Orelle",
+      "imageFileName": "iluminador-em-po.png",
+      "publicImagePath": "/products/iluminador-em-po.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Iluminador em pó para brilho definido nas zonas altas do rosto.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "mica",
+        "silica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1590,
+      "stock": 26,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "cheeks"
+      ],
+      "attributes": {
+        "texture": "powder",
+        "finish": "luminous",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "highlighter"
+        ],
+        "regions": [
+          "cheeks",
+          "complexion"
+        ],
+        "applicationAreas": [
+          "cheekbones"
+        ],
+        "styleTags": [
+          "soft_glam",
+          "gala_evening",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "pearl",
+          "label": "Pérola",
+          "colorHex": "#E5D3C5",
+          "undertone": "cool",
+          "finish": "luminous",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "gold",
+          "label": "Dourado",
+          "colorHex": "#CDA45F",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Iluminador em Po. Iluminador em pó para brilho definido nas zonas altas do rosto. Ingredientes de referência visual: mica, silica, iron oxides. Textura cosmética: powder; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 56,
+      "productName": "Paleta Sombras Rosa e Ameixa",
+      "brandName": "Orelle",
+      "imageFileName": "paleta-sombras-rosa-e-ameixa.png",
+      "publicImagePath": "/products/paleta-sombras-rosa-e-ameixa.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Paleta de sombras rosa e ameixa para looks clássicos, soft glam e de noite.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "mica",
+        "talc",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 3190,
+      "stock": 18,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "eyes"
+      ],
+      "attributes": {
+        "texture": "powder",
+        "finish": "satin",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "eyeshadow"
+        ],
+        "regions": [
+          "eyes"
+        ],
+        "applicationAreas": [
+          "eyelids"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "rose",
+          "label": "Rosa",
+          "colorHex": "#B86D82",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "plum",
+          "label": "Ameixa",
+          "colorHex": "#704458",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Paleta Sombras Rosa e Ameixa. Paleta de sombras rosa e ameixa para looks clássicos, soft glam e de noite. Ingredientes de referência visual: mica, talc, iron oxides. Textura cosmética: powder; acabamento: satin. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 57,
+      "productName": "Sombra Creme Longwear",
+      "brandName": "Orelle",
+      "imageFileName": "sombra-creme-longwear.png",
+      "publicImagePath": "/products/sombra-creme-longwear.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Sombra cremosa de longa duração para cor uniforme e definida nas pálpebras.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "dimethicone",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1490,
+      "stock": 31,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "eyes"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "satin",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "eyeshadow"
+        ],
+        "regions": [
+          "eyes"
+        ],
+        "applicationAreas": [
+          "eyelids"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "taupe",
+          "label": "Taupe",
+          "colorHex": "#806B62",
+          "undertone": "neutral",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "bronze",
+          "label": "Bronze",
+          "colorHex": "#8D5E3E",
+          "undertone": "warm",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "plum",
+          "label": "Ameixa",
+          "colorHex": "#684656",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Sombra Creme Longwear. Sombra cremosa de longa duração para cor uniforme e definida nas pálpebras. Ingredientes de referência visual: dimethicone, mica, iron oxides. Textura cosmética: cream; acabamento: satin. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 58,
+      "productName": "Eyeliner Precisao",
+      "brandName": "Orelle",
+      "imageFileName": "eyeliner-precisao.png",
+      "publicImagePath": "/products/eyeliner-precisao.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Eyeliner líquido de precisão para definição da linha das pestanas.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "film former",
+        "iron oxides",
+        "panthenol"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1290,
+      "stock": 36,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "eyes"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "satin",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "eyeliner"
+        ],
+        "regions": [
+          "eyes"
+        ],
+        "applicationAreas": [
+          "lash_line"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "black",
+          "label": "Preto",
+          "colorHex": "#171717",
+          "undertone": "universal",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "brown",
+          "label": "Castanho",
+          "colorHex": "#3D2A24",
+          "undertone": "universal",
+          "finish": "satin",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Eyeliner Precisao. Eyeliner líquido de precisão para definição da linha das pestanas. Ingredientes de referência visual: film former, iron oxides, panthenol. Textura cosmética: liquid; acabamento: satin. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 59,
+      "productName": "Lapis de Olhos Esfumavel",
+      "brandName": "Orelle",
+      "imageFileName": "lapis-de-olhos-esfumavel.png",
+      "publicImagePath": "/products/lapis-de-olhos-esfumavel.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Lápis de olhos cremoso para definição suave ou esfumada.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "wax",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1090,
+      "stock": 39,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "eyes"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "matte",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "eyeliner"
+        ],
+        "regions": [
+          "eyes"
+        ],
+        "applicationAreas": [
+          "lash_line"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "longwear"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "black",
+          "label": "Preto",
+          "colorHex": "#1A1919",
+          "undertone": "universal",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "brown",
+          "label": "Castanho",
+          "colorHex": "#4A332A",
+          "undertone": "universal",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "plum",
+          "label": "Ameixa",
+          "colorHex": "#513643",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Lapis de Olhos Esfumavel. Lápis de olhos cremoso para definição suave ou esfumada. Ingredientes de referência visual: wax, mica, iron oxides. Textura cosmética: cream; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 60,
+      "productName": "Mascara Alongamento e Definicao",
+      "brandName": "Orelle",
+      "imageFileName": "mascara-alongamento-e-definicao.png",
+      "publicImagePath": "/products/mascara-alongamento-e-definicao.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Máscara de pestanas para alongamento visual e separação definida.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "carnauba wax",
+        "panthenol",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1690,
+      "stock": 34,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "eyes"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "natural",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "mascara"
+        ],
+        "regions": [
+          "eyes"
+        ],
+        "applicationAreas": [
+          "lashes"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "black",
+          "label": "Preto",
+          "colorHex": "#151515",
+          "undertone": "universal",
+          "finish": "natural",
+          "coverage": "full"
+        },
+        {
+          "variantId": "brown",
+          "label": "Castanho",
+          "colorHex": "#382821",
+          "undertone": "universal",
+          "finish": "natural",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Mascara Alongamento e Definicao. Máscara de pestanas para alongamento visual e separação definida. Ingredientes de referência visual: carnauba wax, panthenol, iron oxides. Textura cosmética: liquid; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 61,
+      "productName": "Gel de Sobrancelhas com Cor",
+      "brandName": "Orelle",
+      "imageFileName": "gel-de-sobrancelhas-com-cor.png",
+      "publicImagePath": "/products/gel-de-sobrancelhas-com-cor.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Gel com cor para pentear, preencher subtilmente e fixar as sobrancelhas.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "film former",
+        "panthenol",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1390,
+      "stock": 32,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "brows"
+      ],
+      "attributes": {
+        "texture": "gel",
+        "finish": "natural",
+        "coverage": "light",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "brow_product"
+        ],
+        "regions": [
+          "brows"
+        ],
+        "applicationAreas": [
+          "brows"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic",
+          "soft_glam"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "longwear"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "taupe",
+          "label": "Taupe",
+          "colorHex": "#76645B",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "light"
+        },
+        {
+          "variantId": "brown",
+          "label": "Castanho",
+          "colorHex": "#553A2D",
+          "undertone": "warm",
+          "finish": "natural",
+          "coverage": "light"
+        },
+        {
+          "variantId": "deep-brown",
+          "label": "Castanho profundo",
+          "colorHex": "#32251F",
+          "undertone": "neutral",
+          "finish": "natural",
+          "coverage": "light"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Gel de Sobrancelhas com Cor. Gel com cor para pentear, preencher subtilmente e fixar as sobrancelhas. Ingredientes de referência visual: film former, panthenol, iron oxides. Textura cosmética: gel; acabamento: natural. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 62,
+      "productName": "Lapis de Sobrancelhas Precisao",
+      "brandName": "Orelle",
+      "imageFileName": "lapis-de-sobrancelhas-precisao.png",
+      "publicImagePath": "/products/lapis-de-sobrancelhas-precisao.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Lápis fino para preencher falhas e definir a forma existente das sobrancelhas.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "wax",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1190,
+      "stock": 35,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "brows"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "matte",
+        "coverage": "medium",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "brow_product"
+        ],
+        "regions": [
+          "brows"
+        ],
+        "applicationAreas": [
+          "brows"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "taupe",
+          "label": "Taupe",
+          "colorHex": "#75645C",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "brown",
+          "label": "Castanho",
+          "colorHex": "#51372B",
+          "undertone": "warm",
+          "finish": "matte",
+          "coverage": "medium"
+        },
+        {
+          "variantId": "deep",
+          "label": "Profundo",
+          "colorHex": "#2E2420",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "medium"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Lapis de Sobrancelhas Precisao. Lápis fino para preencher falhas e definir a forma existente das sobrancelhas. Ingredientes de referência visual: wax, mica, iron oxides. Textura cosmética: cream; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 63,
+      "productName": "Lapis de Contorno de Labios",
+      "brandName": "Orelle",
+      "imageFileName": "lapis-de-contorno-de-labios.png",
+      "publicImagePath": "/products/lapis-de-contorno-de-labios.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Lápis de lábios para definir o contorno existente e apoiar a duração da cor.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "wax",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 990,
+      "stock": 41,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "lips"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "matte",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "lip_liner"
+        ],
+        "regions": [
+          "lips"
+        ],
+        "applicationAreas": [
+          "lip_contour"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "nude-rose",
+          "label": "Nude rosado",
+          "colorHex": "#9C5C61",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "full"
+        },
+        {
+          "variantId": "nude-brown",
+          "label": "Nude castanho",
+          "colorHex": "#774B42",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "full"
+        },
+        {
+          "variantId": "red",
+          "label": "Vermelho",
+          "colorHex": "#8E3038",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Lapis de Contorno de Labios. Lápis de lábios para definir o contorno existente e apoiar a duração da cor. Ingredientes de referência visual: wax, mica, iron oxides. Textura cosmética: cream; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 64,
+      "productName": "Batom Satin Intenso",
+      "brandName": "Orelle",
+      "imageFileName": "batom-satin-intenso.png",
+      "publicImagePath": "/products/batom-satin-intenso.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Batom acetinado de cor intensa e acabamento confortável.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "shea butter",
+        "mica",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1290,
+      "stock": 37,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "lips"
+      ],
+      "attributes": {
+        "texture": "cream",
+        "finish": "satin",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "lipstick"
+        ],
+        "regions": [
+          "lips"
+        ],
+        "applicationAreas": [
+          "lips"
+        ],
+        "styleTags": [
+          "soft_classic",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "rose",
+          "label": "Rosa",
+          "colorHex": "#A74F62",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "coral",
+          "label": "Coral",
+          "colorHex": "#B95345",
+          "undertone": "warm",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "red",
+          "label": "Vermelho",
+          "colorHex": "#922D37",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "full"
+        },
+        {
+          "variantId": "berry",
+          "label": "Frutos vermelhos",
+          "colorHex": "#733247",
+          "undertone": "cool",
+          "finish": "satin",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Batom Satin Intenso. Batom acetinado de cor intensa e acabamento confortável. Ingredientes de referência visual: shea butter, mica, iron oxides. Textura cosmética: cream; acabamento: satin. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 65,
+      "productName": "Batom Mate Longwear",
+      "brandName": "Orelle",
+      "imageFileName": "batom-mate-longwear.png",
+      "publicImagePath": "/products/batom-mate-longwear.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Batom mate de longa duração para um resultado definido.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "silica",
+        "wax",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1390,
+      "stock": 34,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "lips"
+      ],
+      "attributes": {
+        "texture": "liquid",
+        "finish": "matte",
+        "coverage": "full",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "lipstick"
+        ],
+        "regions": [
+          "lips"
+        ],
+        "applicationAreas": [
+          "lips"
+        ],
+        "styleTags": [
+          "soft_glam",
+          "gala_evening",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "longwear",
+          "photo_ready"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "nude",
+          "label": "Nude",
+          "colorHex": "#96615A",
+          "undertone": "neutral",
+          "finish": "matte",
+          "coverage": "full"
+        },
+        {
+          "variantId": "red",
+          "label": "Vermelho",
+          "colorHex": "#8B2631",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "full"
+        },
+        {
+          "variantId": "plum",
+          "label": "Ameixa",
+          "colorHex": "#663044",
+          "undertone": "cool",
+          "finish": "matte",
+          "coverage": "full"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Batom Mate Longwear. Batom mate de longa duração para um resultado definido. Ingredientes de referência visual: silica, wax, iron oxides. Textura cosmética: liquid; acabamento: matte. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 66,
+      "productName": "Gloss Labial Luminoso",
+      "brandName": "Orelle",
+      "imageFileName": "gloss-labial-luminoso.png",
+      "publicImagePath": "/products/gloss-labial-luminoso.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Gloss labial translúcido para brilho visível e conforto.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "squalane",
+        "castor oil",
+        "mica"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1090,
+      "stock": 40,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "lips"
+      ],
+      "attributes": {
+        "texture": "gel",
+        "finish": "luminous",
+        "coverage": "sheer",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "lip_gloss"
+        ],
+        "regions": [
+          "lips"
+        ],
+        "applicationAreas": [
+          "lips"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_glam",
+          "modern_editorial"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "clear",
+          "label": "Transparente",
+          "colorHex": "#E9D9D2",
+          "undertone": "universal",
+          "finish": "luminous",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "rose",
+          "label": "Rosa",
+          "colorHex": "#C97882",
+          "undertone": "cool",
+          "finish": "luminous",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "peach",
+          "label": "Pêssego",
+          "colorHex": "#D68B73",
+          "undertone": "warm",
+          "finish": "luminous",
+          "coverage": "sheer"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Gloss Labial Luminoso. Gloss labial translúcido para brilho visível e conforto. Ingredientes de referência visual: squalane, castor oil, mica. Textura cosmética: gel; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 67,
+      "productName": "Oleo Labial com Cor",
+      "brandName": "Orelle",
+      "imageFileName": "oleo-labial-com-cor.png",
+      "publicImagePath": "/products/oleo-labial-com-cor.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Óleo labial com cor translúcida para conforto e luminosidade.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "squalane",
+        "jojoba oil",
+        "iron oxides"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1190,
+      "stock": 38,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup"
+      ],
+      "routineSteps": [
+        "lips"
+      ],
+      "attributes": {
+        "texture": "oil",
+        "finish": "luminous",
+        "coverage": "sheer",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "lip_gloss"
+        ],
+        "regions": [
+          "lips"
+        ],
+        "applicationAreas": [
+          "lips"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_classic"
+        ],
+        "wearProfiles": [
+          "comfort",
+          "hydrating"
+        ]
+      },
+      "variants": [
+        {
+          "variantId": "rose",
+          "label": "Rosa",
+          "colorHex": "#B96672",
+          "undertone": "cool",
+          "finish": "luminous",
+          "coverage": "sheer"
+        },
+        {
+          "variantId": "berry",
+          "label": "Frutos vermelhos",
+          "colorHex": "#8C4456",
+          "undertone": "cool",
+          "finish": "luminous",
+          "coverage": "sheer"
+        }
+      ],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Oleo Labial com Cor. Óleo labial com cor translúcida para conforto e luminosidade. Ingredientes de referência visual: squalane, jojoba oil, iron oxides. Textura cosmética: oil; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    },
+    {
+      "catalogPosition": 68,
+      "productName": "Primer Iluminador Suavizante",
+      "brandName": "Orelle",
+      "imageFileName": "primer-iluminador-suavizante.png",
+      "publicImagePath": "/products/primer-iluminador-suavizante.png",
+      "canonicalSize": {
+        "width": 960,
+        "height": 960,
+        "format": "png"
+      },
+      "description": "Primer luminoso para preparar a complexion e criar uma base visualmente suave.",
+      "categorySlugs": [
+        "maquilhagem"
+      ],
+      "ingredientNames": [
+        "glicerina",
+        "mica",
+        "dimethicone"
+      ],
+      "skinTypes": [
+        "normal",
+        "seca",
+        "mista",
+        "oleosa",
+        "sensivel"
+      ],
+      "priceCents": 1690,
+      "stock": 27,
+      "aiEligible": true,
+      "concernTags": [
+        "makeup",
+        "hydration_barrier"
+      ],
+      "routineSteps": [
+        "prime"
+      ],
+      "attributes": {
+        "texture": "gel_cream",
+        "finish": "luminous",
+        "coverage": "none",
+        "fragranceFree": null,
+        "spf": null,
+        "uvaRating": null,
+        "waterResistantMinutes": null
+      },
+      "makeup": {
+        "functions": [
+          "primer"
+        ],
+        "regions": [
+          "complexion"
+        ],
+        "applicationAreas": [
+          "full_complexion"
+        ],
+        "styleTags": [
+          "natural_everyday",
+          "soft_glam",
+          "gala_evening"
+        ],
+        "wearProfiles": [
+          "hydrating",
+          "photo_ready"
+        ]
+      },
+      "variants": [],
+      "imagePrompt": "Fotografia editorial premium de produto cosmético, composição quadrada 960x960. Produto fictício da marca ORÉLLE: Primer Iluminador Suavizante. Primer luminoso para preparar a complexion e criar uma base visualmente suave. Ingredientes de referência visual: glicerina, mica, dimethicone. Textura cosmética: gel_cream; acabamento: luminous. Embalagem elegante e realista, coerente com o tipo de produto, centrada e totalmente visível. Direção artística luxuosa em rosa seco, rosé gold e bordô, iluminação de estúdio suave, fundo editorial com profundidade. Sem pessoas, sem mãos, sem marcas externas e sem objetos que ocultem a embalagem. Manter identidade visual consistente com o catálogo ORÉLLE existente."
+    }
+  ]
+}
